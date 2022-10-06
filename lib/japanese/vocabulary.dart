@@ -28,5 +28,12 @@ class Vocabulary {
       vocabularyId: map['vocabulary_id'] as int?,
       expression: map['expression'] as String?,
       reading: map['reading'] as String?,
-      tags: (map['tags'] as String).split(' '));
+      glossary:
+          map['glossary'] != null ? (map['glossary'] as String).split(';') : [],
+      tags: (map['tags'] as String).split(' '),
+      sentence: map['sentence'] != null ? map['sentence'] as String : '');
+
+  String getFirstGlossary() {
+    return (glossary ?? []).isEmpty ? '' : glossary?.first ?? '';
+  }
 }

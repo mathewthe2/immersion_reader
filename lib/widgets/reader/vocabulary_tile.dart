@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:ruby_text/ruby_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
-import 'package:immersion_reader/util/language_utils.dart';
+import 'package:immersion_reader/utils/language_utils.dart';
 
 class VocabularyTile extends StatefulWidget {
   final Vocabulary vocabulary;
@@ -96,9 +96,7 @@ class _VocabularyTileState extends State<VocabularyTile> {
                 //         widget.addOrRemoveVocabulary(widget.vocabulary)),
               ]),
               Text(
-                (widget.vocabulary.glossary ?? []).isEmpty
-                    ? ''
-                    : widget.vocabulary.glossary?.first ?? '',
+                widget.vocabulary.getFirstGlossary(),
                 style: const TextStyle(color: Colors.white70),
               )
             ])));

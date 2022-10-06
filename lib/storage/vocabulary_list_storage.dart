@@ -79,12 +79,14 @@ class VocabularyListStorage {
 
   Future<int> addVocabularyItem(Vocabulary vocabulary) async {
     vocabulary.vocabularyId = vocabulary.vocabularyId ?? vocabulary.id;
+    print('sentence: ' + vocabulary.sentence);
     int id = await database!.rawInsert(
-        'INSERT INTO Vocabulary(vocabulary_id, expression, reading, tags, sentence) VALUES(?, ?, ?, ?, ?)',
+        'INSERT INTO Vocabulary(vocabulary_id, expression, reading, glossary, tags, sentence) VALUES(?, ?, ?, ?, ?, ?)',
         [
           vocabulary.vocabularyId,
           vocabulary.expression,
           vocabulary.reading,
+          (vocabulary.glossary ?? []).join(';'),
           (vocabulary.tags ?? []).join(' '),
           vocabulary.sentence
         ]);
@@ -109,6 +111,14 @@ class VocabularyListStorage {
     }
     int count = await database!.rawDelete(
         'DELETE FROM Vocabulary WHERE vocabulary_id = ?', [vocabularyId]);
+    return count;
+  }
+
+  Future<int> deleteAllVocabularyItems() async {
+    if (database == null) {
+      return 0;
+    }
+    int count = await database!.rawDelete('DELETE FROM Vocabulary');
     return count;
   }
 }
