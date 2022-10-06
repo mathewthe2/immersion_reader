@@ -7,7 +7,7 @@ class LocalAssetsServerProvider {
 
   /// This port should ideally not conflict but should remain the same for
   /// caching purposes.
-  static int get port => 52059;
+  static int get port => 52062;
 
   LocalAssetsServerProvider._create() {
     // print("_create() (private constructor)");

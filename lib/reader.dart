@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
+import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import 'package:local_assets_server/local_assets_server.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,6 @@ class _ReaderState extends State<Reader> {
   String content = 'no epub file';
   InAppWebViewController? webViewController;
   late ContextMenu contextMenu;
-  static int get port => 52059;
 
   @override
   void initState() {
@@ -99,7 +99,7 @@ class _ReaderState extends State<Reader> {
                       cacheEnabled: true, incognito: false)),
               initialUrlRequest: URLRequest(
                 url: Uri.parse(
-                  'http://localhost:$port',
+                  'http://localhost:${LocalAssetsServerProvider.port}',
                 ),
               ),
               onWebViewCreated: (controller) {
