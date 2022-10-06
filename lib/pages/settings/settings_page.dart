@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -10,6 +10,14 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
-    return const Material(child: Center(child: Text('Settings')));
+    return const Center(
+      child: Text('Settings',
+          style: TextStyle(
+            color: CupertinoDynamicColor.withBrightness(
+              color: CupertinoColors.white,
+              darkColor: CupertinoColors.black,
+            ),
+          )),
+    );
   }
 }

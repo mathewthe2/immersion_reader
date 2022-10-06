@@ -33,7 +33,11 @@ class Pitch {
     await File(path).writeAsBytes(bytes, flush: true);
 
     // open the database
-    pitch.pitchAccentsDictionary = await openDatabase(path, readOnly: true);
+    try {
+      pitch.pitchAccentsDictionary = await openDatabase(path, readOnly: true);
+    } catch (e) {
+      print(e);
+    }
     return pitch;
   }
 

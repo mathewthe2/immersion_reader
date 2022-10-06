@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'vocabulary_tile.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
@@ -61,15 +61,29 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          ...ListTile.divideTiles(
-              context: context,
-              color: Colors.white70,
-              tiles: widget.vocabularyList.map((Vocabulary vocabulary) =>
-                  VocabularyTile(
+          ...widget.vocabularyList
+              .map((Vocabulary vocabulary) => CupertinoListTile(
+                  title: VocabularyTile(
                       vocabulary: vocabulary,
                       added: ifVocabularyExists(vocabulary),
-                      addOrRemoveVocabulary:
-                          addOrRemoveFromVocabularyList))).toList(),
+                      addOrRemoveVocabulary: addOrRemoveFromVocabularyList),
+                  subtitle: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      child: Text(vocabulary.getFirstGlossary(),
+                          style: const TextStyle(
+                              color: CupertinoColors.inactiveGray,
+                              fontSize: 15,
+                              overflow: TextOverflow.ellipsis))),
+                  trailing: CupertinoButton(
+                      onPressed: () =>
+                          addOrRemoveFromVocabularyList(vocabulary),
+                      child: Icon(
+                        ifVocabularyExists(vocabulary)
+                            ? CupertinoIcons.star_fill
+                            : CupertinoIcons.star,
+                        size: 20,
+                      ))))
+              .toList(),
           SizedBox(
               height: MediaQuery.of(context).size.height * 0.05) // Safe Space
         ]);

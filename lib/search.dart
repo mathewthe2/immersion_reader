@@ -1,6 +1,4 @@
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class Search extends StatefulWidget {
   const Search({super.key});
@@ -12,9 +10,14 @@ class Search extends StatefulWidget {
 class _SearchState extends State<Search> {
   @override
   Widget build(BuildContext context) {
-    return const Material(
-        child: Center(
-      child: Text('search'),
-    ));
+    return const Center(
+      child: Text('Search',
+          style: TextStyle(
+            color: CupertinoDynamicColor.withBrightness(
+              color: CupertinoColors.white,
+              darkColor: CupertinoColors.black,
+            ),
+          )),
+    );
   }
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:ruby_text/ruby_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -48,7 +47,9 @@ class _VocabularyTileState extends State<VocabularyTile> {
     }
     String reading = vocabulary.reading ?? '';
     TextStyle expressionStyle = const TextStyle(
-        fontWeight: FontWeight.w400, fontSize: 22, color: Colors.white70);
+        fontWeight: FontWeight.w400,
+        fontSize: 20,
+        color: CupertinoColors.white);
     if (reading.isEmpty) {
       return Text(expression, style: expressionStyle);
     }
@@ -60,7 +61,7 @@ class _VocabularyTileState extends State<VocabularyTile> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
+        padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
         child: Align(
             alignment: Alignment.centerLeft,
             child:
@@ -78,27 +79,7 @@ class _VocabularyTileState extends State<VocabularyTile> {
                     ]),
                   ],
                 ),
-                CupertinoButton(
-                    onPressed: () =>
-                        widget.addOrRemoveVocabulary(widget.vocabulary),
-                    child: Icon(
-                      widget.added
-                          ? CupertinoIcons.star_fill
-                          : CupertinoIcons.star,
-                      size: 20,
-                    )),
-                // IconButton(
-                //     color: Colors.white70,
-                //     icon: Icon(
-                //         widget.added ? Icons.star : Icons.star_border_outlined),
-                //     tooltip: 'Add to list',
-                //     onPressed: () =>
-                //         widget.addOrRemoveVocabulary(widget.vocabulary)),
               ]),
-              Text(
-                widget.vocabulary.getFirstGlossary(),
-                style: const TextStyle(color: Colors.white70),
-              )
             ])));
   }
 }

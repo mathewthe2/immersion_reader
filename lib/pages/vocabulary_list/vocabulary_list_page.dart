@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+// import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_list;
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:share_plus/share_plus.dart';
@@ -50,8 +51,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-        child: FutureBuilder<List<Vocabulary>>(
+    return FutureBuilder<List<Vocabulary>>(
       future: getVocabularyList(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
@@ -68,36 +68,75 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
             SliverFillRemaining(
                 child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Column(children: [
-                      ...ListTile.divideTiles(
-                          context: context,
-                          color: Colors.black54,
-                          tiles: vocabularyList.map((Vocabulary vocabulary) {
-                            return Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(vocabulary.expression!,
-                                      style: const TextStyle(fontSize: 20)),
-                                  Text(vocabulary.getFirstGlossary(),
-                                      style: const TextStyle(fontSize: 15),
-                                      overflow: TextOverflow.ellipsis),
-                                  IconButton(
-                                      icon: const Icon(CupertinoIcons.clear),
-                                      tooltip: 'Increase volume by 10',
-                                      onPressed: () =>
-                                          deleteVocabulary(vocabulary))
-                                ]);
-                          }).toList())
-                    ])))
+                    child: CupertinoListSection.insetGrouped(
+                        // header: const Text('My Words'),
+                        children: [
+                          ...vocabularyList.map((Vocabulary vocabulary) {
+                            return Slidable(
+                                key: ValueKey<int>(vocabulary.vocabularyId!),
+                                // The start action pane is the one at the left or the top side.
+                                // startActionPane: ActionPane(
+                                //   motion: const ScrollMotion(),
+                                //   dismissible:
+                                //       DismissiblePane(onDismissed: () {}),
+                                //   // All actions are defined in the children parameter.
+                                //   children: [
+                                //     // A SlidableAction can have an icon and/or a label.
+                                //   ],
+                                // ),
+
+                                // The end action pane is the one at the right or the bottom side.
+                                endActionPane: ActionPane(
+                                  motion: const ScrollMotion(),
+                                  children: [
+                                    SlidableAction(
+                                      onPressed: (context) {},
+                                      backgroundColor:
+                                          CupertinoColors.systemBlue,
+                                      foregroundColor: CupertinoColors.white,
+                                      icon: CupertinoIcons.share,
+                                    ),
+                                    SlidableAction(
+                                      onPressed: (context) {},
+                                      backgroundColor:
+                                          CupertinoColors.systemPurple,
+                                      foregroundColor: CupertinoColors.white,
+                                      icon: CupertinoIcons.folder_fill,
+                                    ),
+                                    SlidableAction(
+                                      onPressed: (context) =>
+                                          deleteVocabulary(vocabulary),
+                                      backgroundColor:
+                                          CupertinoColors.destructiveRed,
+                                      foregroundColor: CupertinoColors.white,
+                                      icon: CupertinoIcons.delete,
+                                      // label: 'Delete',
+                                    ),
+                                  ],
+                                ),
+                                child: CupertinoListTile.notched(
+                                  title: Text(vocabulary.expression ?? ""),
+                                  subtitle: SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.7,
+                                      child: Text(
+                                        vocabulary.getFirstGlossary(),
+                                        overflow: TextOverflow.ellipsis,
+                                      )),
+                                ));
+                          }).toList()
+                        ])))
           ]);
         } else if (snapshot.hasError) {
           return const Text('cannot load storage data.');
         } else {
-          return const Center(child: CircularProgressIndicator());
+          return const CupertinoActivityIndicator(
+            animating: true,
+            radius: 24,
+          );
         }
       },
-    ));
+    );
   }
 
   Widget _modalBuilder(BuildContext context) {

@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import 'package:local_assets_server/local_assets_server.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import './reader_js.dart';
 import 'japanese/vocabulary.dart';
@@ -75,7 +73,7 @@ class _ReaderState extends State<Reader> {
           builder: (BuildContext context) {
             return Container(
                 height: MediaQuery.of(context).size.height * .40,
-                color: Colors.black87,
+                color: CupertinoColors.darkBackgroundGray,
                 child: CupertinoScrollbar(
                     child: SingleChildScrollView(
                         controller: ModalScrollController.of(context),
@@ -90,32 +88,35 @@ class _ReaderState extends State<Reader> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
         child: Container(
-      padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.02),
-      child: (widget.localAssetsServer != null)
-          ? InAppWebView(
-              initialOptions: InAppWebViewGroupOptions(
-                  crossPlatform: InAppWebViewOptions(
-                      cacheEnabled: true, incognito: false)),
-              initialUrlRequest: URLRequest(
-                url: Uri.parse(
-                  'http://localhost:${LocalAssetsServerProvider.port}',
-                ),
-              ),
-              onWebViewCreated: (controller) {
-                webViewController = controller;
-              },
-              onLoadStop: (controller, uri) async {
-                await controller.evaluateJavascript(source: readerJs);
-              },
-              onTitleChanged: (controller, title) async {
-                await controller.evaluateJavascript(source: readerJs);
-              },
-              onConsoleMessage: (controller, message) {
-                handleMessage(message);
-              },
-            )
-          : const Center(child: CircularProgressIndicator()),
-    ));
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).size.height * 0.02),
+            child: (widget.localAssetsServer != null)
+                ? InAppWebView(
+                    initialOptions: InAppWebViewGroupOptions(
+                        crossPlatform: InAppWebViewOptions(
+                            cacheEnabled: true, incognito: false)),
+                    initialUrlRequest: URLRequest(
+                      url: Uri.parse(
+                        'http://localhost:${LocalAssetsServerProvider.port}',
+                      ),
+                    ),
+                    onWebViewCreated: (controller) {
+                      webViewController = controller;
+                    },
+                    onLoadStop: (controller, uri) async {
+                      await controller.evaluateJavascript(source: readerJs);
+                    },
+                    onTitleChanged: (controller, title) async {
+                      await controller.evaluateJavascript(source: readerJs);
+                    },
+                    onConsoleMessage: (controller, message) {
+                      handleMessage(message);
+                    },
+                  )
+                : const Center(
+                    child: CupertinoActivityIndicator(
+                    animating: true,
+                    radius: 24,
+                  ))));
   }
 }

@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import './reader.dart';
-import './playground.dart';
 import 'pages/settings/settings_page.dart';
 import './search.dart';
 import 'pages/vocabulary_list/vocabulary_list_page.dart';
@@ -39,6 +37,7 @@ class _AppState extends State<App> {
         child: CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
         currentIndex: _currentIndex,
+        // backgroundColor: Colors.transparent,
         onTap: (i) => setState(() => _currentIndex = i),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -77,7 +76,10 @@ class _AppState extends State<App> {
         if (localAssetsServerProvider != null) {
           return Reader(localAssetsServer: localAssetsServerProvider!.server);
         } else {
-          return const Center(child: CircularProgressIndicator());
+          return const CupertinoActivityIndicator(
+            animating: true,
+            radius: 24,
+          );
         }
       case 2:
         return const Search();
