@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
-import "package:immersion_reader/storage/settings_storage.dart";
 import 'package:immersion_reader/widgets/settings/dictionary_settings.dart';
+import 'package:immersion_reader/providers/dictionary_provider.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
+  final DictionaryProvider? dictionaryProvider;
+  const SettingsPage({super.key, required this.dictionaryProvider});
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -17,17 +18,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<SettingsStorage>(
-        future: SettingsStorage.create(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return DictionarySettings(storage: snapshot.data!);
-          } else {
-            return const CupertinoActivityIndicator(
-              animating: true,
-              radius: 24,
-            );
-          }
-        });
+    return DictionarySettings(dictionaryProvider: widget.dictionaryProvider!);
   }
 }

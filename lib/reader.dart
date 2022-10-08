@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
+import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import 'package:local_assets_server/local_assets_server.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -13,8 +14,12 @@ import 'widgets/reader/vocabulary_tile_list.dart';
 
 class Reader extends StatefulWidget {
   final LocalAssetsServer? localAssetsServer;
+  final DictionaryProvider? dictionaryProvider;
 
-  const Reader({super.key, required this.localAssetsServer});
+  const Reader(
+      {super.key,
+      required this.localAssetsServer,
+      required this.dictionaryProvider});
 
   @override
   State<Reader> createState() => _ReaderState();
@@ -63,7 +68,11 @@ class _ReaderState extends State<Reader> {
       return;
     }
     String sentence = text.substring(index, text.length);
-    List<Vocabulary> vocabs = await translator!.findTerm(sentence);
+    List<int> disabledDictionaryIds = widget.dictionaryProvider == null
+        ? []
+        : await widget.dictionaryProvider!.getDisabledDictionaryIds();
+    List<Vocabulary> vocabs = await translator!
+        .findTerm(sentence, disabledDictionaryIds: disabledDictionaryIds);
     if (vocabs.isNotEmpty) {
       for (Vocabulary vocab in vocabs) {
         vocab.sentence = sentence;

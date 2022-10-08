@@ -1,14 +1,11 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart' as p;
-import 'dart:typed_data';
-import 'dart:io';
-import 'dart:developer';
-import 'package:flutter/services.dart' show rootBundle;
 import 'vocabulary.dart';
 import 'package:immersion_reader/dictionary/dictionary_entry.dart';
+import 'package:immersion_reader/storage/settings_storage.dart';
 
 class Dictionary {
   Database? japaneseDictionary;
+  SettingsStorage? settingsStorage;
 
   Dictionary._create() {
     // print("_create() (private constructor)");
@@ -16,31 +13,13 @@ class Dictionary {
 
   static Future<Dictionary> create() async {
     Dictionary dictionary = Dictionary._create();
-    String databasesPath = await getDatabasesPath();
-    String path = p.join(databasesPath, "data.db");
-
-    // delete existing if any
-    // await deleteDatabase(path);
-
-    // Make sure the parent directory exists
-    try {
-      await Directory(p.dirname(path)).create(recursive: true);
-    } catch (_) {}
-
-    // Copy from asset
-    // ByteData data =
-    //     await rootBundle.load(p.join("assets", "japanese", "dictionary.db"));
-    // List<int> bytes =
-    //     data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    // await File(path).writeAsBytes(bytes, flush: true);
-
-    // open the database
-    dictionary.japaneseDictionary = await openDatabase(path, readOnly: true);
+    dictionary.settingsStorage = await SettingsStorage.create();
+    dictionary.japaneseDictionary = dictionary.settingsStorage!.database;
     return dictionary;
   }
 
   Future<List<DictionaryEntry>> findTermsBulk(List<String> terms,
-      {enabledDictionaryMap = const {}}) async {
+      {List<int> disabledDictionaryIds = const []}) async {
     // List<DictionaryEntry> result = [];
     Batch batch = japaneseDictionary!.batch();
     for (String term in terms) {
@@ -58,13 +37,12 @@ class Dictionary {
         dictionaryEntries.add(entry);
       }
     }
-    // for (Object? result in results) {
-    //   List<Map<String, Object?>> rows = result as List<Map<String, Object?>>;
-    //   dictionaryEntries = [
-    //     ...dictionaryEntries,
-    //     ...rows.map((row) => DictionaryEntry.fromMap(row)).toList()
-    //   ];
-    // }
+
+    if (disabledDictionaryIds.isNotEmpty) {
+      dictionaryEntries = List.from(dictionaryEntries.where(
+          (DictionaryEntry entry) =>
+              !disabledDictionaryIds.contains(entry.dictionaryId)));
+    }
     return dictionaryEntries;
   }
 
@@ -72,7 +50,6 @@ class Dictionary {
       List<DictionaryEntry> dictionaryEntries) async {
     Map<String, Vocabulary> vocabularyMap = {};
     for (DictionaryEntry dictionaryEntry in dictionaryEntries) {
-      print('got term: ' + dictionaryEntry.term);
       List<Map<String, Object?>> rows = await japaneseDictionary!
           .rawQuery('SELECT glossary From VocabGloss WHERE vocabId=?', [
         dictionaryEntry.id,
@@ -96,7 +73,6 @@ class Dictionary {
         vocabularyMap[vocabularyKey] = vocabulary;
       }
     }
-    print(vocabularyMap.values.length);
     return vocabularyMap.values.toList();
   }
 
@@ -135,7 +111,6 @@ class Dictionary {
       List<String> addons = [];
       for (String tag in dictionaryEntry.meaningTags) {
         if (tag.startsWith('v5') && tag != 'v5') {
-          print('tag: ' + tag);
           addons.add('v5');
         } else if (tag.startsWith('vs-')) {
           addons.add('vs');

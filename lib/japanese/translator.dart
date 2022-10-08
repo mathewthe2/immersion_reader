@@ -40,7 +40,10 @@ class Translator {
   }
 
   Future<List<Vocabulary>> findTerm(String text,
-      {wildcards = false, reading = '', getPitch = true}) async {
+      {bool wildcards = false,
+      String reading = '',
+      bool getPitch = true,
+      List<int> disabledDictionaryIds = const []}) async {
     List<TranslatorDeinflection> deinflections = [];
     for (int i = text.length; i > 0; i--) {
       String term = text.substring(0, i);
@@ -79,8 +82,9 @@ class Translator {
 
     // List<DictionaryEntry> finalEntries = [];
 
-    List<DictionaryEntry> entries =
-        await dictionary.findTermsBulk(uniqueDeinflectionTerms);
+    List<DictionaryEntry> entries = await dictionary.findTermsBulk(
+        uniqueDeinflectionTerms,
+        disabledDictionaryIds: disabledDictionaryIds);
     for (DictionaryEntry entry in entries) {
       int definitionRules = deinflector.rulesToRuleFlags(entry.meaningTags);
       for (TranslatorDeinflection deinflection

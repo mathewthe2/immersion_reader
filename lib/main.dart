@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
 import './reader.dart';
@@ -22,10 +23,12 @@ class _AppState extends State<App> {
   final ValueNotifier<bool> _notifier = ValueNotifier(false);
   LocalAssetsServerProvider? localAssetsServerProvider;
   VocabularyListProvider? vocabularyListProvider;
+  DictionaryProvider? dictionaryProvider;
 
   Future<void> setupProviders() async {
     localAssetsServerProvider = await LocalAssetsServerProvider.create();
     vocabularyListProvider = await VocabularyListProvider.create();
+    dictionaryProvider = await DictionaryProvider.create();
     setState(() {});
   }
 
@@ -76,6 +79,13 @@ class _AppState extends State<App> {
     ));
   }
 
+  Widget progressIndicator() {
+    return const CupertinoActivityIndicator(
+      animating: true,
+      radius: 24,
+    );
+  }
+
   Widget buildBody(int index) {
     switch (index) {
       case 0:
@@ -85,23 +95,23 @@ class _AppState extends State<App> {
                 builder: (context, val, child) => VocabularyListPage(
                     vocabularyListProvider: vocabularyListProvider!,
                     notifier: _notifier))
-            : const CupertinoActivityIndicator(
-                animating: true,
-                radius: 24,
-              );
+            : progressIndicator();
       case 1:
-        if (localAssetsServerProvider != null) {
-          return Reader(localAssetsServer: localAssetsServerProvider!.server);
+        if (localAssetsServerProvider != null && dictionaryProvider != null) {
+          return Reader(
+              localAssetsServer: localAssetsServerProvider!.server,
+              dictionaryProvider: dictionaryProvider);
         } else {
-          return const CupertinoActivityIndicator(
-            animating: true,
-            radius: 24,
-          );
+          return progressIndicator();
         }
       case 2:
         return const Search();
       case 3:
-        return const SettingsPage();
+        if (dictionaryProvider != null) {
+          return SettingsPage(dictionaryProvider: dictionaryProvider);
+        } else {
+          return progressIndicator();
+        }
     }
     return const Text('no page');
   }

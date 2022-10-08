@@ -2,7 +2,8 @@ import 'package:immersion_reader/dictionary/user_dictionary.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
 import 'dart:io';
-import 'dart:convert';
+import 'dart:typed_data';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:immersion_reader/data/settings/dictionary_setting.dart';
 import 'package:immersion_reader/dictionary/dictionary_entry.dart';
 
@@ -17,13 +18,24 @@ class SettingsStorage {
     SettingsStorage settingsStorage = SettingsStorage._create();
     String databasesPath = await getDatabasesPath();
     String path = p.join(databasesPath, "data.db");
-    print('path; ' + path);
+    print('path; $path');
     try {
       await Directory(databasesPath).create(recursive: true);
     } catch (_) {}
 
     // delete existing if any
     // await deleteDatabase(path);
+
+    // copy from resources if data doesn't exist
+    await File(path).exists();
+    if (!File(path).existsSync()) {
+      // Copy from asset
+      ByteData data =
+          await rootBundle.load(p.join("assets", "japanese", "data.db"));
+      List<int> bytes =
+          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      await File(path).writeAsBytes(bytes, flush: true);
+    }
 
     // opening the database
     settingsStorage.database = await openDatabase(
@@ -45,6 +57,14 @@ class SettingsStorage {
     List<DictionarySetting> dictionarySettingList =
         rows.map((row) => DictionarySetting.fromMap(row)).toList();
     return dictionarySettingList;
+  }
+
+  Future<List<int>> getDisabledDictionaryIds() async {
+    List<DictionarySetting> dictionarySettings = await getDictionarySettings();
+    return List.from(dictionarySettings
+        .where(
+            (DictionarySetting dictionarySetting) => !dictionarySetting.enabled)
+        .map((DictionarySetting dictionarySetting) => dictionarySetting.id));
   }
 
   Future<int> toggleDictionaryEnabled(
@@ -71,9 +91,11 @@ class SettingsStorage {
 
   Future<void> removeDictionary(int dictionaryId) async {
     Batch batch = database!.batch();
-    batch.rawDelete('DELETE FROM Dictionary WHERE id = ?', []);
-    batch.rawDelete('DELETE FROM Vocab WHERE dictionaryId = ?', []);
-    batch.rawDelete('DELETE FROM VocabGloss WHERE dictionaryId = ?', []);
+    batch.rawDelete('DELETE FROM Dictionary WHERE id = ?', [dictionaryId]);
+    batch.rawDelete('DELETE FROM Vocab WHERE dictionaryId = ?', [dictionaryId]);
+    batch.rawDelete(
+        'DELETE FROM VocabGloss WHERE dictionaryId = ?', [dictionaryId]);
+    await batch.commit();
   }
 
   Future<void> addDictionary(UserDictionary userDictionary) async {
@@ -115,11 +137,6 @@ void onCreateStorageData(Database db, int version) async {
             CREATE TABLE Dictionary (
             id INTEGER PRIMARY KEY, title TEXT, enabled INTEGER)
           ''');
-  // Add default jmdict
-  batch.rawInsert('INSERT INTO Dictionary(title, enabled) VALUES(?, ?)', [
-    'jmdict',
-    1, // enabled
-  ]);
 
   // Create Japanese Dictionary
   batch.rawQuery(

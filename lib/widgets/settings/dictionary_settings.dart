@@ -1,19 +1,18 @@
 import 'dart:io';
-import 'dart:convert';
-import 'package:path/path.dart' as p;
 import 'package:flutter/cupertino.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter_archive/flutter_archive.dart';
-import 'package:path_provider/path_provider.dart';
 import "package:immersion_reader/storage/settings_storage.dart";
 import 'package:immersion_reader/data/settings/dictionary_setting.dart';
 import 'package:immersion_reader/dictionary/dictionary_parser.dart';
 import 'package:immersion_reader/dictionary/user_dictionary.dart';
+import 'package:immersion_reader/utils/system_dialog.dart';
+import 'package:immersion_reader/providers/dictionary_provider.dart';
 
 class DictionarySettings extends StatefulWidget {
-  final SettingsStorage storage;
+  // final SettingsStorage storage;
+  final DictionaryProvider dictionaryProvider;
 
-  const DictionarySettings({super.key, required this.storage});
+  const DictionarySettings({super.key, required this.dictionaryProvider});
 
   @override
   State<DictionarySettings> createState() => _DictionarySettingsState();
@@ -21,7 +20,8 @@ class DictionarySettings extends StatefulWidget {
 
 class _DictionarySettingsState extends State<DictionarySettings> {
   List<bool> enabledDictionaries = [];
-  bool isAddingDictionary = false;
+  bool isProcessingDictionary = false;
+  bool editMode = false;
 
   void getEnabledDictionaries(List<DictionarySetting> dictSettings) {
     enabledDictionaries = dictSettings
@@ -37,17 +37,30 @@ class _DictionarySettingsState extends State<DictionarySettings> {
 
     if (result != null) {
       setState(() {
-        isAddingDictionary = true;
+        isProcessingDictionary = true;
       });
       File zipFile = File(result.files.single.path!);
       UserDictionary userDictionary = await parseDictionary(zipFile);
-      await widget.storage.addDictionary(userDictionary);
+      await widget.dictionaryProvider.settingsStorage!
+          .addDictionary(userDictionary);
       setState(() {
-        isAddingDictionary = false;
+        isProcessingDictionary = false;
+        editMode = false;
       });
     } else {
       // User canceled the picker
     }
+  }
+
+  void removeDictionary(int dictionaryId) async {
+    setState(() {
+      isProcessingDictionary = true;
+    });
+    await widget.dictionaryProvider.settingsStorage!
+        .removeDictionary(dictionaryId);
+    setState(() {
+      isProcessingDictionary = false;
+    });
   }
 
   @override
@@ -55,12 +68,26 @@ class _DictionarySettingsState extends State<DictionarySettings> {
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           middle: const Text('Dictionary Settings'),
-          trailing: GestureDetector(
-              onTap: requestDictionaryZipFile,
-              child: const Icon(CupertinoIcons.plus)),
+          leading: editMode
+              ? GestureDetector(
+                  onTap: requestDictionaryZipFile,
+                  child: const Icon(CupertinoIcons.plus))
+              : const SizedBox(),
+          trailing: CupertinoButton(
+              onPressed: () {
+                setState(() {
+                  editMode = !editMode;
+                });
+              },
+              padding: const EdgeInsets.all(0.0),
+              child: editMode
+                  ? const Text('Done',
+                      style: TextStyle(fontWeight: FontWeight.bold))
+                  : const Text('Edit')),
         ),
         child: FutureBuilder<List<DictionarySetting>>(
-            future: widget.storage.getDictionarySettings(),
+            future: widget.dictionaryProvider.settingsStorage!
+                .getDictionarySettings(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 getEnabledDictionaries(snapshot.data!);
@@ -70,22 +97,40 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                     child: Column(children: [
                       CupertinoListSection(
                           header: const Text('Dictionary'),
-                          children: <CupertinoListTile>[
+                          children: [
                             ...snapshot.data!.asMap().entries.map((entry) {
                               int index = entry.key;
                               DictionarySetting dictionarySetting = entry.value;
                               return CupertinoListTile(
                                   title: Text(dictionarySetting.title),
-                                  trailing: CupertinoSwitch(
-                                      value: enabledDictionaries[index],
-                                      onChanged: (bool? value) {
-                                        widget.storage.toggleDictionaryEnabled(
-                                            dictionarySetting);
-                                        setState(() {});
-                                      }));
+                                  leading: editMode
+                                      ? GestureDetector(
+                                          onTap: () => {
+                                            showAlertDialog(
+                                                context,
+                                                "Do you want to delete ${dictionarySetting.title}?",
+                                                () => removeDictionary(
+                                                    dictionarySetting.id))
+                                          },
+                                          child: const Icon(
+                                              CupertinoIcons.minus_circle_fill,
+                                              color: CupertinoColors
+                                                  .destructiveRed),
+                                        )
+                                      : const SizedBox(),
+                                  trailing: editMode
+                                      ? const SizedBox()
+                                      : CupertinoSwitch(
+                                          value: enabledDictionaries[index],
+                                          onChanged: (bool? value) {
+                                            widget.dictionaryProvider
+                                                .toggleDictionaryEnabled(
+                                                    dictionarySetting);
+                                            setState(() {});
+                                          }));
                             }).toList()
                           ]),
-                      if (isAddingDictionary)
+                      if (isProcessingDictionary)
                         const CupertinoActivityIndicator(
                           animating: true,
                           radius: 24,
