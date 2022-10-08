@@ -86,37 +86,34 @@ class _ReaderState extends State<Reader> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-        child: Container(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).size.height * 0.02),
-            child: (widget.localAssetsServer != null)
-                ? InAppWebView(
-                    initialOptions: InAppWebViewGroupOptions(
-                        crossPlatform: InAppWebViewOptions(
-                            cacheEnabled: true, incognito: false)),
-                    initialUrlRequest: URLRequest(
-                      url: Uri.parse(
-                        'http://localhost:${LocalAssetsServerProvider.port}',
-                      ),
-                    ),
-                    onWebViewCreated: (controller) {
-                      webViewController = controller;
-                    },
-                    onLoadStop: (controller, uri) async {
-                      await controller.evaluateJavascript(source: readerJs);
-                    },
-                    onTitleChanged: (controller, title) async {
-                      await controller.evaluateJavascript(source: readerJs);
-                    },
-                    onConsoleMessage: (controller, message) {
-                      handleMessage(message);
-                    },
-                  )
-                : const Center(
-                    child: CupertinoActivityIndicator(
-                    animating: true,
-                    radius: 24,
-                  ))));
+    return (widget.localAssetsServer != null)
+        ? SafeArea(
+            child: InAppWebView(
+            initialOptions: InAppWebViewGroupOptions(
+                crossPlatform:
+                    InAppWebViewOptions(cacheEnabled: true, incognito: false)),
+            initialUrlRequest: URLRequest(
+              url: Uri.parse(
+                'http://localhost:${LocalAssetsServerProvider.port}',
+              ),
+            ),
+            onWebViewCreated: (controller) {
+              webViewController = controller;
+            },
+            onLoadStop: (controller, uri) async {
+              await controller.evaluateJavascript(source: readerJs);
+            },
+            onTitleChanged: (controller, title) async {
+              await controller.evaluateJavascript(source: readerJs);
+            },
+            onConsoleMessage: (controller, message) {
+              handleMessage(message);
+            },
+          ))
+        : const Center(
+            child: CupertinoActivityIndicator(
+            animating: true,
+            radius: 24,
+          ));
   }
 }

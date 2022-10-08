@@ -1,39 +1,54 @@
+import 'package:immersion_reader/dictionary/dictionary_entry.dart';
+
 class Vocabulary {
-  int? id;
-  int? vocabularyId; // same as id when parsing from dictionary
+  String? id;
   String? expression;
   String? reading;
   List<String>? tags;
-  List<String>? glossary;
   List<String>? addons;
   // for search
   String? source;
   List<String>? rules;
   // pitch
   List<String>? pitchSvg;
+  // for export
   String sentence = '';
+  String glossary = ''; // grouped meanings from all entries
+  // dictionaryEntries
+  List<DictionaryEntry> entries = [];
 
   Vocabulary(
       {this.id,
-      this.vocabularyId,
       this.expression,
       this.reading,
       this.tags,
-      this.glossary,
+      this.glossary = '',
       this.addons,
+      this.entries = const [],
       this.sentence = ''});
 
   factory Vocabulary.fromMap(Map<String, Object?> map) => Vocabulary(
-      id: map['id'] as int?,
-      vocabularyId: map['vocabulary_id'] as int?,
+      id: map['id'] as String?,
       expression: map['expression'] as String?,
       reading: map['reading'] as String?,
-      glossary:
-          map['glossary'] != null ? (map['glossary'] as String).split(';') : [],
+      glossary: map['glossary'] as String,
       tags: (map['tags'] as String).split(' '),
       sentence: map['sentence'] != null ? map['sentence'] as String : '');
 
   String getFirstGlossary() {
-    return (glossary ?? []).isEmpty ? '' : glossary?.first ?? '';
+    return getCompleteGlossary().split('\n')[0];
+  }
+
+  String getCompleteGlossary() {
+    if (entries.isNotEmpty) {
+      return [for (DictionaryEntry entry in entries) entry.meanings.join('; ')]
+          .join('\n');
+    } else {
+      return glossary;
+    }
+  }
+
+  String getIdentifier() {
+    return '${expression}_$reading';
   }
 }

@@ -1,5 +1,5 @@
 import 'package:local_assets_server/local_assets_server.dart';
-
+import 'package:flutter/foundation.dart';
 import 'dart:io';
 
 class LocalAssetsServerProvider {
@@ -14,7 +14,7 @@ class LocalAssetsServerProvider {
   }
 
   static Future<LocalAssetsServerProvider> create() async {
-    print('creating');
+    debugPrint('creating');
     LocalAssetsServerProvider provider = LocalAssetsServerProvider._create();
     provider.server = LocalAssetsServer(
       address: InternetAddress.loopbackIPv4,
@@ -22,7 +22,7 @@ class LocalAssetsServerProvider {
       logger: const DebugLogger(),
       port: port,
     );
-    print('serving');
+    debugPrint('serving');
     await provider.server!.serve();
     return provider;
   }

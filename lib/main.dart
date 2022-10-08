@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
+import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
 import './reader.dart';
 import 'pages/settings/settings_page.dart';
-import './search.dart';
+import 'pages/search.dart';
 import 'pages/vocabulary_list/vocabulary_list_page.dart';
 
 void main() {
@@ -18,11 +19,14 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  var _currentIndex = 0;
+  final ValueNotifier<bool> _notifier = ValueNotifier(false);
   LocalAssetsServerProvider? localAssetsServerProvider;
+  VocabularyListProvider? vocabularyListProvider;
 
   Future<void> setupProviders() async {
     localAssetsServerProvider = await LocalAssetsServerProvider.create();
+    vocabularyListProvider = await VocabularyListProvider.create();
+    setState(() {});
   }
 
   @override
@@ -31,14 +35,18 @@ class _AppState extends State<App> {
     setupProviders();
   }
 
+  void handleSwitchNavigation(int index) async {
+    if (index == 0 && vocabularyListProvider != null) {
+      await vocabularyListProvider!.getVocabularyList();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
         child: CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
-        currentIndex: _currentIndex,
-        // backgroundColor: Colors.transparent,
-        onTap: (i) => setState(() => _currentIndex = i),
+        onTap: handleSwitchNavigation,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.star_fill),
@@ -61,17 +69,26 @@ class _AppState extends State<App> {
       tabBuilder: (BuildContext context, int index) {
         return CupertinoTabView(
           builder: (BuildContext context) {
-            return buildBody();
+            return buildBody(index);
           },
         );
       },
     ));
   }
 
-  Widget buildBody() {
-    switch (_currentIndex) {
+  Widget buildBody(int index) {
+    switch (index) {
       case 0:
-        return const VocabularyListPage();
+        return (vocabularyListProvider != null)
+            ? ValueListenableBuilder(
+                valueListenable: _notifier,
+                builder: (context, val, child) => VocabularyListPage(
+                    vocabularyListProvider: vocabularyListProvider!,
+                    notifier: _notifier))
+            : const CupertinoActivityIndicator(
+                animating: true,
+                radius: 24,
+              );
       case 1:
         if (localAssetsServerProvider != null) {
           return Reader(localAssetsServer: localAssetsServerProvider!.server);

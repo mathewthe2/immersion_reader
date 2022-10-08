@@ -2,7 +2,6 @@ import 'dictionary.dart';
 import 'vocabulary.dart';
 import 'deinflector.dart';
 import 'pitch.dart';
-// import 'dart:developer';
 
 class Translator {
   Dictionary dictionary;
@@ -34,7 +33,7 @@ class Translator {
     if (wildcards) {
       // do sth here
     }
-    Map<int, Vocabulary> groups = {};
+    Map<String, Vocabulary> groups = {};
     for (int i = text.length; i > 0; i--) {
       String term = text.substring(0, i);
       List<DeinflectedTerm> dfs = await deinflector.deinflect(
@@ -70,7 +69,7 @@ class Translator {
     return definitions;
   }
 
-  Future<Map<int, Vocabulary>> processTerm(Map<int, Vocabulary> groups,
+  Future<Map<String, Vocabulary>> processTerm(Map<String, Vocabulary> groups,
       {source,
       List<String> tags = const [],
       rules,
@@ -96,7 +95,6 @@ class Translator {
         groups[entry.id!] = entry;
       }
     }
-    // inspect(groups);
     return groups;
   }
 }

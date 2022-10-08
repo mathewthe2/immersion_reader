@@ -18,7 +18,7 @@ Future<String> exportToAnkiDojoCSV(List<Vocabulary> vocabularyList,
       rows.add([
         vocabulary.expression ?? '',
         vocabulary.reading ?? '',
-        vocabulary.getFirstGlossary(),
+        vocabulary.getCompleteGlossary(),
         vocabulary.sentence
       ]);
     }
