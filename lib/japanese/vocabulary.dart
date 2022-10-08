@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:immersion_reader/dictionary/dictionary_entry.dart';
 
 class Vocabulary {
@@ -8,9 +9,9 @@ class Vocabulary {
   List<String>? addons;
   // for search
   String? source;
-  List<String>? rules;
+  List<String> rules = [];
   // pitch
-  List<String>? pitchSvg;
+  List<String>? pitchSvg = [];
   // for export
   String sentence = '';
   String glossary = ''; // grouped meanings from all entries
@@ -50,5 +51,11 @@ class Vocabulary {
 
   String getIdentifier() {
     return '${expression}_$reading';
+  }
+
+  double getPopularity() {
+    return entries
+        .map((DictionaryEntry entry) => entry.popularity ?? 0)
+        .reduce(max);
   }
 }

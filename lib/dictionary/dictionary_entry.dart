@@ -2,18 +2,18 @@
 
 class DictionaryEntry {
   /// Initialise a dictionary entry with given details of a certain term.
-  DictionaryEntry({
-    required this.term,
-    required this.meanings,
-    this.reading = '',
-    this.id,
-    this.dictionaryId,
-    this.extra,
-    this.meaningTags = const [],
-    this.termTags = const [],
-    this.popularity,
-    this.sequence,
-  });
+  DictionaryEntry(
+      {required this.term,
+      required this.meanings,
+      this.reading = '',
+      this.id,
+      this.dictionaryId,
+      this.extra,
+      this.meaningTags = const [],
+      this.termTags = const [],
+      this.popularity,
+      this.sequence,
+      this.index});
 
   factory DictionaryEntry.fromMap(Map<String, Object?> map) => DictionaryEntry(
       id: map['id'] as int?,
@@ -29,6 +29,9 @@ class DictionaryEntry {
 
   /// A unique identifier for the purposes of database storage.
   int? id;
+
+  // for batch search
+  int? index;
 
   /// The term represented by this dictionary entry.
   final String term;

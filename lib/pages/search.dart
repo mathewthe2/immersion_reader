@@ -9,6 +9,11 @@ class Search extends StatefulWidget {
 
 class _SearchState extends State<Search> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return const Center(
       child: Text('Search',

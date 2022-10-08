@@ -2,6 +2,24 @@ import 'dictionary.dart';
 import 'vocabulary.dart';
 import 'deinflector.dart';
 import 'pitch.dart';
+import 'package:immersion_reader/dictionary/dictionary_entry.dart';
+
+class TranslatorDeinflection {
+  String originalText;
+  String transformedText;
+  String deinflectedText;
+  int rules;
+  List<String> reasons;
+  List<DictionaryEntry> databaseEntries;
+
+  TranslatorDeinflection(
+      {required this.originalText,
+      required this.transformedText,
+      required this.deinflectedText,
+      required this.rules,
+      required this.reasons,
+      required this.databaseEntries});
+}
 
 class Translator {
   Dictionary dictionary;
@@ -21,34 +39,84 @@ class Translator {
     return translator;
   }
 
-  Future<List<List<String>>> getTags(String term, String reading) async {
-    List<Vocabulary> vocabs = await dictionary.findTerm(term, reading: reading);
-    return vocabs
-        .map((Vocabulary vocabulary) => vocabulary.tags ?? [])
-        .toList();
-  }
-
   Future<List<Vocabulary>> findTerm(String text,
       {wildcards = false, reading = '', getPitch = true}) async {
-    if (wildcards) {
-      // do sth here
-    }
-    Map<String, Vocabulary> groups = {};
+    List<TranslatorDeinflection> deinflections = [];
     for (int i = text.length; i > 0; i--) {
       String term = text.substring(0, i);
-      List<DeinflectedTerm> dfs = await deinflector.deinflect(
-          term, (String customTerm) => getTags(customTerm, reading));
-      for (DeinflectedTerm df in dfs) {
-        groups = await processTerm(groups,
-            source: df.source,
-            root: df.root,
+      List<Deinflection> dfs = deinflector.deinflect(term);
+      for (Deinflection df in dfs) {
+        deinflections.add(TranslatorDeinflection(
+            originalText: text,
+            transformedText: term,
+            deinflectedText: df.term,
             rules: df.rules,
-            tags: df.tags,
-            wildcards: wildcards,
-            reading: reading);
+            reasons: df.reasons,
+            databaseEntries: []));
       }
     }
-    List<Vocabulary> definitions = groups.values.toList();
+    // if (dfs.isEmpty) {
+    //   return [];
+    // }
+
+    List<String> uniqueDeinflectionTerms = [];
+    List<List<TranslatorDeinflection>> uniqueDeinflectionArrays = [];
+    Map<String, List<TranslatorDeinflection>> uniqueDeinflectionsMap = {};
+    for (TranslatorDeinflection deinflection in deinflections) {
+      String term = deinflection.deinflectedText;
+      List<TranslatorDeinflection> deinflectionArray =
+          uniqueDeinflectionsMap.containsKey(term)
+              ? uniqueDeinflectionsMap[term]!
+              : [];
+      if (!uniqueDeinflectionsMap.containsKey(term)) {
+        List<TranslatorDeinflection> deinflectionArray = [];
+        uniqueDeinflectionTerms.add(term);
+        uniqueDeinflectionArrays.add(deinflectionArray);
+        uniqueDeinflectionsMap[term] = deinflectionArray;
+      }
+      deinflectionArray.add(deinflection);
+    }
+
+    // List<DictionaryEntry> finalEntries = [];
+
+    List<DictionaryEntry> entries =
+        await dictionary.findTermsBulk(uniqueDeinflectionTerms);
+    for (DictionaryEntry entry in entries) {
+      int definitionRules = deinflector.rulesToRuleFlags(entry.meaningTags);
+      for (TranslatorDeinflection deinflection
+          in uniqueDeinflectionArrays[entry.index!]) {
+        int deinflectionRules = deinflection.rules;
+        if (deinflectionRules == 0 ||
+            (definitionRules & deinflectionRules) != 0) {
+          deinflection.databaseEntries.add(entry);
+        }
+      }
+    }
+
+    // int originalTextLength = 0;
+    var ids = <int>{};
+    List<DictionaryEntry> finalEntries = entries;
+    for (TranslatorDeinflection deinflection in deinflections) {
+      if (deinflection.databaseEntries.isEmpty) {
+        continue;
+      }
+      print('got one: ');
+      print(deinflection.databaseEntries.length);
+      // originalTextLength =
+      //     max(originalTextLength, deinflection.originalText.length);
+      for (DictionaryEntry databaseEntry in deinflection.databaseEntries) {
+        int id = databaseEntry.id!;
+        if (ids.contains(id)) {
+          continue;
+        }
+        finalEntries.add(databaseEntry);
+        ids.add(id);
+      }
+    }
+
+    // print(finalEntries.length);
+    List<Vocabulary> definitions =
+        await dictionary.getVocabularyBatch(finalEntries);
 
     // get pitch svg
     if (getPitch) {
@@ -58,8 +126,11 @@ class Translator {
       }
     }
 
+    // to do: update sorting based on yomichan:
+    // https://github.com/FooSoft/yomichan/blob/f3024c50186344aa6a6b09500ea02540463ce5c9/ext/js/language/translator.js#L1364
     definitions.sort((a, b) => <Comparator<Vocabulary>>[
-          (o1, o2) => o1.source!.length.compareTo(o2.source!.length),
+          (o1, o2) => o1.expression!.length.compareTo(o2.expression!.length),
+          (o1, o2) => o1.getPopularity().compareTo(o2.getPopularity()),
           (o1, o2) => (o1.tags!.contains('P') ? 1 : 0)
               .compareTo((o2.tags!.contains('P') ? 1 : 0)),
           (o1, o2) => (-o1.rules!.length).compareTo(-o2.rules!.length),
@@ -67,34 +138,5 @@ class Translator {
         ].map((e) => e(a, b)).firstWhere((e) => e != 0, orElse: () => 0));
     definitions = definitions.reversed.toList();
     return definitions;
-  }
-
-  Future<Map<String, Vocabulary>> processTerm(Map<String, Vocabulary> groups,
-      {source,
-      List<String> tags = const [],
-      rules,
-      root = '',
-      reading = '',
-      wildcards = false}) async {
-    List<Vocabulary> entries =
-        await dictionary.findTerm(root, wildcards: wildcards, reading: reading);
-    for (Vocabulary entry in entries) {
-      if (groups.containsKey(entry.id)) {
-        continue;
-      }
-      bool matched = tags.isEmpty;
-      for (String tag in tags) {
-        if (entry.tags != null && entry.tags!.contains(tag)) {
-          matched = true;
-          break;
-        }
-      }
-      if (matched) {
-        entry.source = source;
-        entry.rules = rules;
-        groups[entry.id!] = entry;
-      }
-    }
-    return groups;
   }
 }

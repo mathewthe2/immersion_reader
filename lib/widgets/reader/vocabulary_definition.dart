@@ -10,7 +10,7 @@ class VocabularyDefinition extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      ...vocabulary.entries!
+      ...vocabulary.entries
           .map((DictionaryEntry entry) => Align(
               alignment: Alignment.centerLeft,
               child: Text(entry.meanings.join('; '),
