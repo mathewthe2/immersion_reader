@@ -73,11 +73,12 @@ class Translator {
           await _findGlossaryTerms(parsedText.toLowerCase());
       for (Vocabulary definition in glossaryTerms) {
         if (definition.getAllMeanings().contains(parsedText.toLowerCase())) {
-          exactMatches.add(definition);
+          glossaryExactMatches.add(definition);
         } else {
           glossaryAdditionalMatches.add(definition);
         }
-        exactMatches = _sortDefinitionsForUserSearch(exactMatches);
+        glossaryExactMatches =
+            _sortDefinitionsForUserSearch(glossaryExactMatches);
         glossaryAdditionalMatches =
             _sortDefinitionsForUserSearch(glossaryAdditionalMatches);
       }
@@ -95,8 +96,8 @@ class Translator {
     }
 
     return SearchResult(exactMatches: [
-      ...glossaryExactMatches,
-      ...exactMatches
+      ...exactMatches,
+      ...glossaryExactMatches
     ], additionalMatches: [
       ...glossaryAdditionalMatches,
       ...additionalMatches
