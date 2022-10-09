@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/search/search_result.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
+import 'package:immersion_reader/widgets/vocabulary/pitch_widget.dart';
 
 class SearchResultsSection extends StatefulWidget {
   final SearchResult searchResult;
@@ -51,6 +52,10 @@ class VocabularyTile extends StatelessWidget {
       required this.textColor,
       required this.parentContext});
 
+  bool hasPitch(Vocabulary vocabulary) {
+    return vocabulary.pitchSvg != null && vocabulary.pitchSvg!.isNotEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -62,16 +67,25 @@ class VocabularyTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   text: TextSpan(
                       text: vocabulary.expression ?? '',
-                      style: DefaultTextStyle.of(context).style,
+                      style: TextStyle(
+                          fontSize: 20,
+                          color: CupertinoDynamicColor.resolve(
+                              textColor, parentContext)),
                       children: [
                         const WidgetSpan(
                             child: SizedBox(
                           width: 20,
                         )),
-                        TextSpan(
-                            text: vocabulary.reading ?? '',
-                            style: const TextStyle(
-                                color: CupertinoColors.inactiveGray))
+                        WidgetSpan(
+                            child: hasPitch(vocabulary)
+                                ? PitchWidget(
+                                    parentContext: parentContext,
+                                    vocabulary: vocabulary)
+                                : const SizedBox()),
+                        // TextSpan(
+                        //     text: vocabulary.reading ?? '',
+                        //     style: const TextStyle(
+                        //         color: CupertinoColors.inactiveGray))
                       ])))),
       Padding(
           padding: const EdgeInsetsDirectional.only(

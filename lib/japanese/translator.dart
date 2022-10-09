@@ -41,19 +41,45 @@ class Translator {
     return translator;
   }
 
-  Future<SearchResult> findTermForUserSearch(String text,
-      {List<int> disabledDictionaryIds = const []}) async {
+  Future<List<Vocabulary>> _findGlossaryTerms(String text,
+      {bool getPitch = true}) async {
+    List<Vocabulary> glossaryTerms = await findTermFromGlossary(text);
+    if (glossaryTerms.isNotEmpty) {
+      if (getPitch) {
+        glossaryTerms = await _batchAddPitch(glossaryTerms);
+      }
+      return glossaryTerms;
+    } else {
+      return [];
+    }
+  }
+
+  Future<SearchResult> findTermForUserSearch(
+    String text, {
+    List<int> disabledDictionaryIds = const [],
+    bool getPitch = true,
+  }) async {
     List<Vocabulary> exactMatches = [];
     List<Vocabulary> additionalMatches = [];
-    List<Vocabulary> glossaryTerms =
+    List<Vocabulary> glossaryExactMatches =
+        []; // translated matches from bilingual dictionaries
+    List<Vocabulary> glossaryAdditionalMatches =
         []; // translated matches from bilingual dictionaries
 
     KanaKit kanaKit = const KanaKit();
     String parsedText = text.trim(); // to do: handle half width characters
     if (!kanaKit.isJapanese(parsedText)) {
-      glossaryTerms = await findTermFromGlossary(parsedText);
-      if (glossaryTerms.isNotEmpty) {
-        _sortDefinitionsForUserSearch(glossaryTerms);
+      List<Vocabulary> glossaryTerms =
+          await _findGlossaryTerms(parsedText.toLowerCase());
+      for (Vocabulary definition in glossaryTerms) {
+        if (definition.getAllMeanings().contains(parsedText.toLowerCase())) {
+          exactMatches.add(definition);
+        } else {
+          glossaryAdditionalMatches.add(definition);
+        }
+        exactMatches = _sortDefinitionsForUserSearch(exactMatches);
+        glossaryAdditionalMatches =
+            _sortDefinitionsForUserSearch(glossaryAdditionalMatches);
       }
       parsedText = kanaKit.toHiragana(parsedText);
     }
@@ -67,10 +93,14 @@ class Translator {
         additionalMatches.add(result);
       }
     }
-    print(additionalMatches.length);
-    return SearchResult(
-        exactMatches: [...glossaryTerms, ...exactMatches],
-        additionalMatches: additionalMatches);
+
+    return SearchResult(exactMatches: [
+      ...glossaryExactMatches,
+      ...exactMatches
+    ], additionalMatches: [
+      ...glossaryAdditionalMatches,
+      ...additionalMatches
+    ]);
   }
 
   Future<List<Vocabulary>> findTermFromGlossary(String text) async {
@@ -168,6 +198,14 @@ class Translator {
     }
     if (sorted) {
       definitions = _sortDefinitionsForTermSearch(definitions);
+    }
+    return definitions;
+  }
+
+  Future<List<Vocabulary>> _batchAddPitch(List<Vocabulary> definitions) async {
+    for (Vocabulary definition in definitions) {
+      definition.pitchSvg = await pitch.getSvg(definition.expression ?? '',
+          reading: definition.reading ?? '');
     }
     return definitions;
   }

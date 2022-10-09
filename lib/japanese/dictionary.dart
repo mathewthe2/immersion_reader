@@ -50,8 +50,9 @@ class Dictionary {
     List<Map<String, Object?>> rows = await japaneseDictionary!.query(
         'VocabGloss',
         columns: ['vocabId'],
-        where: 'glossary LIKE ?',
-        whereArgs: ['%$word']);
+        where:
+            'glossary LIKE ? OR glossary LIKE ? OR glossary LIKE ? OR lower(glossary) = ?',
+        whereArgs: ['% $word', '$word %', '% $word %', word]);
 
     Batch batch = japaneseDictionary!.batch();
     for (Map<String, Object?> row in rows) {

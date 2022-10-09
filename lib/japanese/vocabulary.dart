@@ -40,6 +40,14 @@ class Vocabulary {
     return getCompleteGlossary().split('\n')[0];
   }
 
+  List<String> getAllMeanings() {
+    List<String> meanings = [];
+    for (DictionaryEntry entry in entries) {
+      meanings = [...meanings, ...entry.meanings];
+    }
+    return _removeDuplicates(meanings);
+  }
+
   String getCompleteGlossary() {
     if (entries.isNotEmpty) {
       return _removeDuplicates([

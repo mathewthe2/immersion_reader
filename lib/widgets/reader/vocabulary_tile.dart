@@ -36,8 +36,7 @@ class _VocabularyTileState extends State<VocabularyTile> {
   }
 
   bool hasPitch(Vocabulary vocabulary) {
-    return widget.vocabulary.pitchSvg != null &&
-        widget.vocabulary.pitchSvg!.isNotEmpty;
+    return vocabulary.pitchSvg != null && vocabulary.pitchSvg!.isNotEmpty;
   }
 
   Widget vocabularyExpression(Vocabulary vocabulary) {
