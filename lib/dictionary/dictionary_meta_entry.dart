@@ -5,6 +5,7 @@ class DictionaryMetaEntry {
   DictionaryMetaEntry({
     required this.dictionaryName,
     required this.term,
+    this.reading,
     this.pitches,
     this.frequency,
     this.id,
@@ -15,6 +16,9 @@ class DictionaryMetaEntry {
 
   /// The word or phrase represented by this dictionary entry.
   final String term;
+
+  // Reading of the
+  final String? reading;
 
   /// Length of the term.
   int get termLength => term.length;

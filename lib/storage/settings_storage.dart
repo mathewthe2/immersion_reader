@@ -1,3 +1,4 @@
+import 'package:immersion_reader/dictionary/dictionary_meta_entry.dart';
 import 'package:immersion_reader/dictionary/user_dictionary.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
@@ -95,6 +96,8 @@ class SettingsStorage {
     batch.rawDelete('DELETE FROM Vocab WHERE dictionaryId = ?', [dictionaryId]);
     batch.rawDelete(
         'DELETE FROM VocabGloss WHERE dictionaryId = ?', [dictionaryId]);
+    batch.rawDelete(
+        'DELETE FROM VocabFreq WHERE dictionaryId = ?', [dictionaryId]);
     await batch.commit();
   }
 
@@ -126,6 +129,17 @@ class SettingsStorage {
             [meaning, lastRecordId, dictionaryId]);
       }
     }
+    for (DictionaryMetaEntry metaEntry
+        in userDictionary.dictionaryMetaEntries) {
+      batch.rawInsert(
+          'INSERT INTO VocabFreq(expression, reading, frequency, dictionaryId) VALUES(?, ?, ?, ?)',
+          [
+            metaEntry.term,
+            metaEntry.reading ?? '',
+            metaEntry.frequency,
+            dictionaryId
+          ]);
+    }
     await batch.commit();
   }
 }
@@ -147,9 +161,14 @@ void onCreateStorageData(Database db, int version) async {
       "CREATE TABLE Vocab(id INTEGER PRIMARY KEY, dictionaryId INTEGER, expression TEXT, reading TEXT, sequence INTEGER, popularity REAL,  meaningTags TEXT, termTags TEXT)");
   batch.rawQuery(
       "CREATE TABLE VocabGloss(glossary TEXT, vocabId INTEGER, dictionaryId INTEGER, FOREIGN KEY(vocabId) REFERENCES Vocab(id))");
+  batch.rawQuery(
+      "CREATE TABLE VocabFreq(expression TEXT, reading TEXT, frequency TEXT, dictionaryId INTEGER)");
   batch
       .rawQuery("CREATE INDEX index_VocabGloss_vocabId ON VocabGloss(vocabId)");
   batch.rawQuery("CREATE INDEX index_Vocab_expression ON Vocab(expression)");
   batch.rawQuery("CREATE INDEX index_Vocab_reading ON Vocab(reading)");
+  batch.rawQuery(
+      "CREATE INDEX index_VocabFreq_expression ON VocabFreq(expression)");
+  batch.rawQuery("CREATE INDEX index_VocabFreq_reading ON VocabFreq(reading)");
   await batch.commit();
 }
