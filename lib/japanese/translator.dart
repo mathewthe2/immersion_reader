@@ -1,8 +1,10 @@
+import 'package:kana_kit/kana_kit.dart';
 import 'dictionary.dart';
 import 'vocabulary.dart';
 import 'deinflector.dart';
 import 'pitch.dart';
 import 'package:immersion_reader/dictionary/dictionary_entry.dart';
+import 'package:immersion_reader/data/search/search_result.dart';
 
 class TranslatorDeinflection {
   String originalText;
@@ -39,10 +41,37 @@ class Translator {
     return translator;
   }
 
+  Future<SearchResult> findTermForUserSearch(String text,
+      {List<int> disabledDictionaryIds = const []}) async {
+    List<Vocabulary> exactMatches = [];
+    List<Vocabulary> additionalMatches = [];
+
+    KanaKit kanaKit = const KanaKit();
+    String parsedText = text.trim(); // to do: handle half width characters
+    if (!kanaKit.isJapanese(parsedText)) {
+      parsedText = kanaKit.toHiragana(parsedText);
+      print(parsedText);
+    }
+    List<Vocabulary> results = await findTerm(parsedText,
+        disabledDictionaryIds: disabledDictionaryIds, sorted: false);
+    results = _sortDefinitionsForUserSearch(results);
+    for (Vocabulary result in results) {
+      if (result.reading == parsedText || result.expression == parsedText) {
+        exactMatches.add(result);
+      } else {
+        additionalMatches.add(result);
+      }
+    }
+    print(additionalMatches.length);
+    return SearchResult(
+        exactMatches: exactMatches, additionalMatches: additionalMatches);
+  }
+
   Future<List<Vocabulary>> findTerm(String text,
       {bool wildcards = false,
       String reading = '',
       bool getPitch = true,
+      bool sorted = true,
       List<int> disabledDictionaryIds = const []}) async {
     List<TranslatorDeinflection> deinflections = [];
     for (int i = text.length; i > 0; i--) {
@@ -104,8 +133,6 @@ class Translator {
       if (deinflection.databaseEntries.isEmpty) {
         continue;
       }
-      print('got one: ');
-      print(deinflection.databaseEntries.length);
       // originalTextLength =
       //     max(originalTextLength, deinflection.originalText.length);
       for (DictionaryEntry databaseEntry in deinflection.databaseEntries) {
@@ -129,7 +156,13 @@ class Translator {
             reading: definition.reading ?? '');
       }
     }
+    if (sorted) {
+      definitions = _sortDefinitionsForTermSearch(definitions);
+    }
+    return definitions;
+  }
 
+  List<Vocabulary> _sortDefinitionsForTermSearch(List<Vocabulary> definitions) {
     // to do: update sorting based on yomichan:
     // https://github.com/FooSoft/yomichan/blob/f3024c50186344aa6a6b09500ea02540463ce5c9/ext/js/language/translator.js#L1364
     definitions.sort((a, b) => <Comparator<Vocabulary>>[
@@ -137,8 +170,22 @@ class Translator {
           (o1, o2) => o1.getPopularity().compareTo(o2.getPopularity()),
           (o1, o2) => (o1.tags!.contains('P') ? 1 : 0)
               .compareTo((o2.tags!.contains('P') ? 1 : 0)),
-          (o1, o2) => (-o1.rules!.length).compareTo(-o2.rules!.length),
+          (o1, o2) => (-o1.rules.length).compareTo(-o2.rules.length),
           (o1, o2) => o1.expression!.compareTo(o2.expression!)
+        ].map((e) => e(a, b)).firstWhere((e) => e != 0, orElse: () => 0));
+    definitions = definitions.reversed.toList();
+    return definitions;
+  }
+
+  List<Vocabulary> _sortDefinitionsForUserSearch(List<Vocabulary> definitions) {
+    // ranking based on popularity first then length
+    definitions.sort((a, b) => <Comparator<Vocabulary>>[
+          (o1, o2) => o1.getPopularity().compareTo(o2.getPopularity()),
+          (o1, o2) => (o1.tags!.contains('P') ? 1 : 0)
+              .compareTo((o2.tags!.contains('P') ? 1 : 0)),
+          (o1, o2) => (-o1.rules.length).compareTo(-o2.rules.length),
+          (o1, o2) => o1.expression!.compareTo(o2.expression!),
+          (o1, o2) => o1.expression!.length.compareTo(o2.expression!.length)
         ].map((e) => e(a, b)).firstWhere((e) => e != 0, orElse: () => 0));
     definitions = definitions.reversed.toList();
     return definitions;

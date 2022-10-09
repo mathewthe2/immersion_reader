@@ -5,7 +5,7 @@ import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
 import './reader.dart';
 import 'pages/settings/settings_page.dart';
-import 'pages/search.dart';
+import 'pages/search_page.dart';
 import 'pages/vocabulary_list/vocabulary_list_page.dart';
 
 void main() {
@@ -100,12 +100,12 @@ class _AppState extends State<App> {
         if (localAssetsServerProvider != null && dictionaryProvider != null) {
           return Reader(
               localAssetsServer: localAssetsServerProvider!.server,
-              dictionaryProvider: dictionaryProvider);
+              dictionaryProvider: dictionaryProvider!);
         } else {
           return progressIndicator();
         }
       case 2:
-        return const Search();
+        return SearchPage(dictionaryProvider: dictionaryProvider);
       case 3:
         if (dictionaryProvider != null) {
           return SettingsPage(dictionaryProvider: dictionaryProvider);

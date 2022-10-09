@@ -47,15 +47,19 @@ class Pitch {
       return '';
     }
     List<Map<String, Object?>> rows = [];
-    if (reading.isNotEmpty) {
-      rows = await pitchAccentsDictionary!.rawQuery(
-          'SELECT pitch FROM Dict WHERE expression = ? AND reading = ?',
-          [text, reading]);
-    } else {
-      rows = await pitchAccentsDictionary!
-          .rawQuery('SELECT pitch FROM Dict WHERE expression = ?', [
-        text,
-      ]);
+    try {
+      if (reading.isNotEmpty) {
+        rows = await pitchAccentsDictionary!.rawQuery(
+            'SELECT pitch FROM Dict WHERE expression = ? AND reading = ?',
+            [text, reading]);
+      } else {
+        rows = await pitchAccentsDictionary!
+            .rawQuery('SELECT pitch FROM Dict WHERE expression = ?', [
+          text,
+        ]);
+      }
+    } catch (e) {
+      print(e);
     }
     if (rows.isNotEmpty) {
       return rows[0]['pitch'] as String;

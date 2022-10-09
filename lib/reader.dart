@@ -9,12 +9,11 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import './reader_js.dart';
 import 'japanese/vocabulary.dart';
-import 'japanese/translator.dart';
 import 'widgets/reader/vocabulary_tile_list.dart';
 
 class Reader extends StatefulWidget {
   final LocalAssetsServer? localAssetsServer;
-  final DictionaryProvider? dictionaryProvider;
+  final DictionaryProvider dictionaryProvider;
 
   const Reader(
       {super.key,
@@ -26,9 +25,7 @@ class Reader extends StatefulWidget {
 }
 
 class _ReaderState extends State<Reader> {
-  Translator? translator;
   VocabularyListStorage? vocabularyListStorage;
-  String content = 'no epub file';
   InAppWebViewController? webViewController;
   late ContextMenu contextMenu;
 
@@ -39,7 +36,7 @@ class _ReaderState extends State<Reader> {
     // server = widget.localAssetsServer;
     Future(() async {
       vocabularyListStorage = await VocabularyListStorage.create();
-      translator = await Translator.create();
+      // translator = await Translator.create();
     });
   }
 
@@ -64,15 +61,9 @@ class _ReaderState extends State<Reader> {
   }
 
   void showVocabularyList(String text, int index) async {
-    if (translator == null) {
-      return;
-    }
     String sentence = text.substring(index, text.length);
-    List<int> disabledDictionaryIds = widget.dictionaryProvider == null
-        ? []
-        : await widget.dictionaryProvider!.getDisabledDictionaryIds();
-    List<Vocabulary> vocabs = await translator!
-        .findTerm(sentence, disabledDictionaryIds: disabledDictionaryIds);
+    List<Vocabulary> vocabs =
+        await widget.dictionaryProvider.findTerm(sentence);
     if (vocabs.isNotEmpty) {
       for (Vocabulary vocab in vocabs) {
         vocab.sentence = sentence;

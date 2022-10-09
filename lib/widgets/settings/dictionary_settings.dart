@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:file_picker/file_picker.dart';
-import "package:immersion_reader/storage/settings_storage.dart";
 import 'package:immersion_reader/data/settings/dictionary_setting.dart';
 import 'package:immersion_reader/dictionary/dictionary_parser.dart';
 import 'package:immersion_reader/dictionary/user_dictionary.dart';
@@ -9,7 +8,6 @@ import 'package:immersion_reader/utils/system_dialog.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 
 class DictionarySettings extends StatefulWidget {
-  // final SettingsStorage storage;
   final DictionaryProvider dictionaryProvider;
 
   const DictionarySettings({super.key, required this.dictionaryProvider});
