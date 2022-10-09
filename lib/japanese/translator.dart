@@ -45,12 +45,17 @@ class Translator {
       {List<int> disabledDictionaryIds = const []}) async {
     List<Vocabulary> exactMatches = [];
     List<Vocabulary> additionalMatches = [];
+    List<Vocabulary> glossaryTerms =
+        []; // translated matches from bilingual dictionaries
 
     KanaKit kanaKit = const KanaKit();
     String parsedText = text.trim(); // to do: handle half width characters
     if (!kanaKit.isJapanese(parsedText)) {
+      glossaryTerms = await findTermFromGlossary(parsedText);
+      if (glossaryTerms.isNotEmpty) {
+        _sortDefinitionsForUserSearch(glossaryTerms);
+      }
       parsedText = kanaKit.toHiragana(parsedText);
-      print(parsedText);
     }
     List<Vocabulary> results = await findTerm(parsedText,
         disabledDictionaryIds: disabledDictionaryIds, sorted: false);
@@ -64,7 +69,12 @@ class Translator {
     }
     print(additionalMatches.length);
     return SearchResult(
-        exactMatches: exactMatches, additionalMatches: additionalMatches);
+        exactMatches: [...glossaryTerms, ...exactMatches],
+        additionalMatches: additionalMatches);
+  }
+
+  Future<List<Vocabulary>> findTermFromGlossary(String text) async {
+    return await dictionary.getVocabularyFromMeaning(text);
   }
 
   Future<List<Vocabulary>> findTerm(String text,

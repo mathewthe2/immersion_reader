@@ -55,12 +55,24 @@ class VocabularyTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       CupertinoListTile(
-          title: Row(children: [
-        Text(vocabulary.expression ?? ''),
-        const SizedBox(width: 20),
-        Text(vocabulary.reading ?? '',
-            style: const TextStyle(color: CupertinoColors.inactiveGray))
-      ])),
+          title: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.9,
+              child: RichText(
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  text: TextSpan(
+                      text: vocabulary.expression ?? '',
+                      style: DefaultTextStyle.of(context).style,
+                      children: [
+                        const WidgetSpan(
+                            child: SizedBox(
+                          width: 20,
+                        )),
+                        TextSpan(
+                            text: vocabulary.reading ?? '',
+                            style: const TextStyle(
+                                color: CupertinoColors.inactiveGray))
+                      ])))),
       Padding(
           padding: const EdgeInsetsDirectional.only(
               start: 20.0, end: 14.0, bottom: 5.0),
@@ -73,6 +85,7 @@ class VocabularyTile extends StatelessWidget {
                       textAlign: TextAlign.left,
                       style: TextStyle(
                         fontSize: 12,
+                        height: 1.5,
                         color: CupertinoDynamicColor.resolve(
                             textColor, parentContext),
                       )))))

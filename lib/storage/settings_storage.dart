@@ -122,8 +122,8 @@ class SettingsStorage {
           ]);
       for (String meaning in entry.meanings) {
         batch.rawInsert(
-            'INSERT INTO VocabGloss(glossary, vocabId) VALUES(?, ?)',
-            [meaning, lastRecordId]);
+            'INSERT INTO VocabGloss(glossary, vocabId, dictionaryId) VALUES(?, ?, ?)',
+            [meaning, lastRecordId, dictionaryId]);
       }
     }
     await batch.commit();

@@ -42,11 +42,18 @@ class Vocabulary {
 
   String getCompleteGlossary() {
     if (entries.isNotEmpty) {
-      return [for (DictionaryEntry entry in entries) entry.meanings.join('; ')]
-          .join('\n');
+      return _removeDuplicates([
+        for (DictionaryEntry entry in entries) entry.meanings.join('; ')
+      ]).join('\n');
     } else {
       return glossary;
     }
+  }
+
+  List<String> _removeDuplicates(List<String> list) {
+    return [
+      ...{...list}
+    ];
   }
 
   String getIdentifier() {

@@ -46,6 +46,31 @@ class Dictionary {
     return dictionaryEntries;
   }
 
+  Future<List<Vocabulary>> getVocabularyFromMeaning(String word) async {
+    List<Map<String, Object?>> rows = await japaneseDictionary!.query(
+        'VocabGloss',
+        columns: ['vocabId'],
+        where: 'glossary LIKE ?',
+        whereArgs: ['%$word']);
+
+    Batch batch = japaneseDictionary!.batch();
+    for (Map<String, Object?> row in rows) {
+      batch.rawQuery(
+          "SELECT * FROM Vocab WHERE id = ?", [row["vocabId"] as int]);
+    }
+    List<DictionaryEntry> dictionaryEntries = [];
+    List<Object?> results = await batch.commit();
+    for (int i = 0; i < results.length; i++) {
+      List<Map<String, Object?>> rows =
+          results[i] as List<Map<String, Object?>>;
+      for (Map<String, Object?> row in rows) {
+        DictionaryEntry entry = DictionaryEntry.fromMap(row);
+        dictionaryEntries.add(entry);
+      }
+    }
+    return await getVocabularyBatch(dictionaryEntries);
+  }
+
   Future<List<Vocabulary>> getVocabularyBatch(
       List<DictionaryEntry> dictionaryEntries) async {
     Map<String, Vocabulary> vocabularyMap = {};
