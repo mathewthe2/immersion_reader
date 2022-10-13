@@ -17,7 +17,7 @@ class DictionaryMetaEntry {
   /// The word or phrase represented by this dictionary entry.
   final String term;
 
-  // Reading of the
+  // Reading for the frequency
   final String? reading;
 
   /// Length of the term.

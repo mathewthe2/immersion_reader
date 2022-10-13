@@ -15,7 +15,7 @@ class DictionaryProvider {
   static Future<DictionaryProvider> create() async {
     DictionaryProvider provider = DictionaryProvider._create();
     provider.settingsStorage = await SettingsStorage.create();
-    provider.translator = await Translator.create();
+    provider.translator = Translator.create(provider.settingsStorage!);
     return provider;
   }
 

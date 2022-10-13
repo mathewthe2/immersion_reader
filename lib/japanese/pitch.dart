@@ -1,60 +1,35 @@
 import 'package:immersion_reader/japanese/draw_pitch.dart';
+import 'package:immersion_reader/storage/settings_storage.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart' as p;
-import 'dart:typed_data';
-import 'dart:io';
-import 'package:flutter/services.dart' show rootBundle;
 
 class Pitch {
   Database? pitchAccentsDictionary;
+  SettingsStorage? settingsStorage;
 
   Pitch._create() {
     // print("_create() (private constructor)");
   }
 
-  static Future<Pitch> create() async {
+  static Pitch create(SettingsStorage settingsStorage) {
     Pitch pitch = Pitch._create();
-    String databasesPath = await getDatabasesPath();
-    String path = p.join(databasesPath, "pitch_accents.db");
-
-    // delete existing if any
-    await deleteDatabase(path);
-
-    // Make sure the parent directory exists
-    try {
-      await Directory(p.dirname(path)).create(recursive: true);
-    } catch (_) {}
-
-    // Copy from asset
-    ByteData data =
-        await rootBundle.load(p.join("assets", "japanese", "pitch_accents.db"));
-    List<int> bytes =
-        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    await File(path).writeAsBytes(bytes, flush: true);
-
-    // open the database
-    try {
-      pitch.pitchAccentsDictionary = await openDatabase(path, readOnly: true);
-    } catch (e) {
-      print(e);
-    }
+    pitch.settingsStorage = settingsStorage;
     return pitch;
   }
 
   Future<String> getPitch(String text,
       {wildcards = false, String reading = ''}) async {
-    if (pitchAccentsDictionary == null) {
+    if (settingsStorage == null) {
       return '';
     }
     List<Map<String, Object?>> rows = [];
     try {
       if (reading.isNotEmpty) {
-        rows = await pitchAccentsDictionary!.rawQuery(
-            'SELECT pitch FROM Dict WHERE expression = ? AND reading = ?',
+        rows = await settingsStorage!.database!.rawQuery(
+            'SELECT pitch FROM VocabPitch WHERE expression = ? AND reading = ?',
             [text, reading]);
       } else {
-        rows = await pitchAccentsDictionary!
-            .rawQuery('SELECT pitch FROM Dict WHERE expression = ?', [
+        rows = await settingsStorage!.database!
+            .rawQuery('SELECT pitch FROM VocabPitch WHERE expression = ?', [
           text,
         ]);
       }

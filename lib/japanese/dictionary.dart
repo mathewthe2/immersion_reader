@@ -11,10 +11,10 @@ class Dictionary {
     // print("_create() (private constructor)");
   }
 
-  static Future<Dictionary> create() async {
+  static Dictionary create(SettingsStorage settingsStorage) {
     Dictionary dictionary = Dictionary._create();
-    dictionary.settingsStorage = await SettingsStorage.create();
-    dictionary.japaneseDictionary = dictionary.settingsStorage!.database;
+    dictionary.settingsStorage = settingsStorage;
+    dictionary.japaneseDictionary = settingsStorage.database;
     return dictionary;
   }
 

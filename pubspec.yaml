@@ -52,6 +52,7 @@ dependencies:
   flutter_slidable: ^2.0.0
   file_picker: ^5.2.0+1
   flutter_archive: ^5.0.0
+  http: ^0.13.5
   
 
 dev_dependencies:
@@ -79,7 +80,6 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/japanese/data.db
-    - assets/japanese/pitch_accents.db
     - assets/ttu-ebook-reader/
     - assets/ttu-ebook-reader/_app/
     - assets/ttu-ebook-reader/_app/immutable/

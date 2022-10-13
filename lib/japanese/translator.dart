@@ -5,6 +5,7 @@ import 'deinflector.dart';
 import 'pitch.dart';
 import 'package:immersion_reader/dictionary/dictionary_entry.dart';
 import 'package:immersion_reader/data/search/search_result.dart';
+import 'package:immersion_reader/storage/settings_storage.dart';
 
 class TranslatorDeinflection {
   String originalText;
@@ -27,15 +28,16 @@ class Translator {
   Dictionary dictionary;
   Deinflector deinflector;
   Pitch pitch;
+  SettingsStorage? settingsStorage;
 
   Translator(
       {required this.dictionary,
       required this.deinflector,
       required this.pitch});
 
-  static Future<Translator> create() async {
-    Dictionary dictionary = await Dictionary.create();
-    Pitch pitch = await Pitch.create();
+  static Translator create(SettingsStorage settingsStorage) {
+    Dictionary dictionary = Dictionary.create(settingsStorage);
+    Pitch pitch = Pitch.create(settingsStorage);
     Translator translator = Translator(
         dictionary: dictionary, pitch: pitch, deinflector: Deinflector());
     return translator;

@@ -1,5 +1,6 @@
 import 'package:immersion_reader/dictionary/dictionary_meta_entry.dart';
 import 'package:immersion_reader/dictionary/user_dictionary.dart';
+import 'package:immersion_reader/dictionary/pitch_data.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
 import 'dart:io';
@@ -139,6 +140,18 @@ class SettingsStorage {
             metaEntry.frequency,
             dictionaryId
           ]);
+      if (metaEntry.pitches != null) {
+        for (PitchData pitch in metaEntry.pitches!) {
+          batch.rawInsert(
+              'INSERT INTO VocabPitch(expression, reading, pitch, dictionaryId) VALUES(?, ?, ?, ?)',
+              [
+                metaEntry.term,
+                pitch.reading,
+                pitch.downstep.toString(),
+                dictionaryId
+              ]);
+        }
+      }
     }
     await batch.commit();
   }
@@ -163,6 +176,9 @@ void onCreateStorageData(Database db, int version) async {
       "CREATE TABLE VocabGloss(glossary TEXT, vocabId INTEGER, dictionaryId INTEGER, FOREIGN KEY(vocabId) REFERENCES Vocab(id))");
   batch.rawQuery(
       "CREATE TABLE VocabFreq(expression TEXT, reading TEXT, frequency TEXT, dictionaryId INTEGER)");
+  batch.rawQuery(
+      "CREATE TABLE VocabPitch(expression TEXT, reading TEXT, pitch TEXT, dictionaryId INTEGER)");
+  // Indexes
   batch
       .rawQuery("CREATE INDEX index_VocabGloss_vocabId ON VocabGloss(vocabId)");
   batch.rawQuery("CREATE INDEX index_Vocab_expression ON Vocab(expression)");
@@ -170,5 +186,9 @@ void onCreateStorageData(Database db, int version) async {
   batch.rawQuery(
       "CREATE INDEX index_VocabFreq_expression ON VocabFreq(expression)");
   batch.rawQuery("CREATE INDEX index_VocabFreq_reading ON VocabFreq(reading)");
+  batch.rawQuery(
+      "CREATE INDEX index_VocabPitch_expression ON VocabPitch(expression ASC)");
+  batch.rawQuery(
+      "CREATE INDEX index_VocabPitch_reading ON VocabPitch(reading ASC)");
   await batch.commit();
 }
