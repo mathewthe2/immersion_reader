@@ -241,4 +241,50 @@ class LanguageUtils {
 
     return newSegments;
   }
+
+  // https://github.com/FooSoft/yomichan-anki/blob/b08f8728e83d79034c288e2455eea1693bdb3936/yomi_base/reader_util.py
+  static findSentence(String content, int position) {
+    Map<String, String> quotesFwd = {'「': '」', '『': '』', "'": "'", '"': '"'};
+    Map<String, String> quotesBwd = {'」': '「', '』': '『', "'": "'", '"': '"'};
+    String terminators = '。．.？?！!';
+    List<String> quoteStack = [];
+    int start = 0;
+    for (int i = position; i > start; i--) {
+      String c = content[i];
+      if (quoteStack.isEmpty &&
+          (terminators.contains(c) || quotesFwd.containsKey(c) || c == '\n')) {
+        start = i + 1;
+        break;
+      }
+
+      if (quoteStack.isNotEmpty && c == quoteStack[0]) {
+        quoteStack.removeLast();
+      } else if (quotesBwd.containsKey(c)) {
+        quoteStack.insert(0, quotesBwd[c]!);
+      }
+    }
+    quoteStack = [];
+
+    int end = content.length;
+    for (int i = position; i < end; i++) {
+      String c = content[i];
+
+      if (quoteStack.isEmpty) {
+        if (terminators.contains(c)) {
+          end = i + 1;
+          break;
+        } else if (quotesBwd.containsKey(c)) {
+          end = i;
+          break;
+        }
+      }
+
+      if (quoteStack.isNotEmpty && c == quoteStack[0]) {
+        quoteStack.removeLast();
+      } else if (quotesFwd.containsKey(c)) {
+        quoteStack.insert(0, quotesFwd[c]!);
+      }
+    }
+    return content.substring(start, end).trim();
+  }
 }
