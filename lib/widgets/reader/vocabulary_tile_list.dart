@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
+import 'package:immersion_reader/widgets/vocabulary/frequency_widget.dart';
 import 'vocabulary_tile.dart';
 import 'vocabulary_definition.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
@@ -76,6 +77,12 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
                                 : CupertinoIcons.star,
                             size: 20,
                           ))),
+                  if (vocabulary.frequencyTags.isNotEmpty)
+                    Padding(
+                        padding: const EdgeInsetsDirectional.only(
+                            start: 20.0, end: 14.0, top: 5.0, bottom: 5.0),
+                        child: FrequencyWidget(
+                            parentContext: context, vocabulary: vocabulary)),
                   Padding(
                       padding: const EdgeInsetsDirectional.only(
                           start: 20.0, end: 14.0),
@@ -83,8 +90,7 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
                 ]),
               )
               .toList(),
-          SizedBox(
-              height: MediaQuery.of(context).size.height * 0.05) // Safe Space
+          const SizedBox(height: 20) // Safe Space
         ]);
   }
 }

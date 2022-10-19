@@ -1,3 +1,6 @@
+import 'package:immersion_reader/dictionary/frequency_tag.dart';
+import 'package:immersion_reader/japanese/frequency.dart';
+import 'package:immersion_reader/japanese/search_term.dart';
 import 'package:kana_kit/kana_kit.dart';
 import 'dictionary.dart';
 import 'vocabulary.dart';
@@ -28,28 +31,40 @@ class Translator {
   Dictionary dictionary;
   Deinflector deinflector;
   Pitch pitch;
+  Frequency frequency;
   SettingsStorage? settingsStorage;
 
   Translator(
       {required this.dictionary,
       required this.deinflector,
-      required this.pitch});
+      required this.pitch,
+      required this.frequency,
+      this.settingsStorage});
 
   static Translator create(SettingsStorage settingsStorage) {
     Dictionary dictionary = Dictionary.create(settingsStorage);
     Pitch pitch = Pitch.create(settingsStorage);
+    Frequency frequency = Frequency.create(settingsStorage);
     Translator translator = Translator(
-        dictionary: dictionary, pitch: pitch, deinflector: Deinflector());
+        dictionary: dictionary,
+        pitch: pitch,
+        frequency: frequency,
+        deinflector: Deinflector(),
+        settingsStorage: settingsStorage);
     return translator;
   }
 
   Future<List<Vocabulary>> _findGlossaryTerms(String text,
-      {bool getPitch = true}) async {
+      {bool getPitch = true,
+      List<int> disabledDictionaryIds = const []}) async {
     List<Vocabulary> glossaryTerms = await findTermFromGlossary(text);
     if (glossaryTerms.isNotEmpty) {
       if (getPitch) {
         glossaryTerms = await _batchAddPitch(glossaryTerms);
       }
+      // get tags
+      glossaryTerms = await _batchAddFrequencyTags(glossaryTerms,
+          disabledDictionaryIds: disabledDictionaryIds);
       return glossaryTerms;
     } else {
       return [];
@@ -71,8 +86,9 @@ class Translator {
     KanaKit kanaKit = const KanaKit();
     String parsedText = text.trim(); // to do: handle half width characters
     if (!kanaKit.isJapanese(parsedText)) {
-      List<Vocabulary> glossaryTerms =
-          await _findGlossaryTerms(parsedText.toLowerCase());
+      List<Vocabulary> glossaryTerms = await _findGlossaryTerms(
+          parsedText.toLowerCase(),
+          disabledDictionaryIds: disabledDictionaryIds);
       for (Vocabulary definition in glossaryTerms) {
         if (definition.getAllMeanings().contains(parsedText.toLowerCase())) {
           glossaryExactMatches.add(definition);
@@ -194,11 +210,10 @@ class Translator {
 
     // get pitch svg
     if (getPitch) {
-      for (Vocabulary definition in definitions) {
-        definition.pitchSvg = await pitch.getSvg(definition.expression ?? '',
-            reading: definition.reading ?? '');
-      }
+      definitions = await _batchAddPitch(definitions);
     }
+    definitions = await _batchAddFrequencyTags(definitions,
+        disabledDictionaryIds: disabledDictionaryIds);
     if (sorted) {
       definitions = _sortDefinitionsForTermSearch(definitions);
     }
@@ -210,6 +225,40 @@ class Translator {
       definition.pitchSvg = await pitch.getSvg(definition.expression ?? '',
           reading: definition.reading ?? '');
     }
+    return definitions;
+  }
+
+  Future<List<Vocabulary>> _batchAddFrequencyTags(List<Vocabulary> definitions,
+      {List<int> disabledDictionaryIds = const []}) async {
+    List<SearchTerm> searchTerms = definitions
+        .map((definition) => SearchTerm(
+            text: definition.expression ?? '',
+            reading: definition.reading ?? ''))
+        .toList();
+    List<List<FrequencyTag>> frequencyTagsResult =
+        await frequency.getFrequencyBatch(searchTerms);
+    for (int i = 0; i < definitions.length; i++) {
+      for (FrequencyTag frequencyTag in frequencyTagsResult[i]) {
+        List<FrequencyTag> frequencyTags = [];
+        if (disabledDictionaryIds.isEmpty ||
+            !disabledDictionaryIds.contains(frequencyTag.dictionaryId)) {
+          frequencyTag.dictionaryName = await settingsStorage!
+              .getDictionaryNameFromId(frequencyTag.dictionaryId);
+          frequencyTags.add(frequencyTag);
+        }
+        definitions[i].frequencyTags = frequencyTags;
+      }
+    }
+    // for (Vocabulary definition in definitions) {
+    //   List<FrequencyTag> frequencyTags = await frequency.getFrequency(
+    //       definition.expression ?? '',
+    //       reading: definition.reading ?? '');
+    //   for (FrequencyTag frequencyTag in frequencyTags) {
+    //     frequencyTag.dictionaryName = await settingsStorage!
+    //         .getDictionaryNameFromId(frequencyTag.dictionaryId);
+    //   }
+    //   definition.frequencyTags = frequencyTags;
+    // }
     return definitions;
   }
 

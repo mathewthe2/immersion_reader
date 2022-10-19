@@ -4,7 +4,6 @@ import 'package:path/path.dart' as p;
 import 'package:flutter_archive/flutter_archive.dart';
 import 'package:immersion_reader/utils/folder_utils.dart';
 import './user_dictionary.dart';
-import './dictionary_tag.dart';
 import './dictionary_entry.dart';
 import './dictionary_meta_entry.dart';
 import './pitch_data.dart';
@@ -27,8 +26,8 @@ Future<UserDictionary> parseDictionary(File zipFile) async {
         files.where((file) => p.basename(file.path).startsWith('term_bank')));
     List<File> metaFiles = List.from(files
         .where((file) => p.basename(file.path).startsWith('term_meta_bank')));
-    List<File> tagFiles = List.from(
-        files.where((file) => p.basename(file.path).startsWith('tag_bank')));
+    // List<File> tagFiles = List.from(
+    //     files.where((file) => p.basename(file.path).startsWith('tag_bank')));
 
     String dictionaryName = getDictionaryName(workingDirectory);
 
@@ -36,43 +35,43 @@ Future<UserDictionary> parseDictionary(File zipFile) async {
         parseTerms(termFiles, dictionaryName);
     List<DictionaryMetaEntry> dictionaryMetaEntries =
         parseMetaTerms(metaFiles, dictionaryName);
-    List<DictionaryTag> dictionaryTags = parseTags(tagFiles, dictionaryName);
+    // List<DictionaryTag> dictionaryTags = parseTags(tagFiles, dictionaryName);
     return UserDictionary(
         dictionaryName: dictionaryName,
         dictionaryEntries: dictionaryEntries,
         dictionaryMetaEntries: dictionaryMetaEntries,
-        dictionaryTags: dictionaryTags);
+        dictionaryTags: []);
   } catch (e) {
     print(e);
   }
   throw Exception('Unable to produce dictionary');
 }
 
-List<DictionaryTag> parseTags(List<File> files, String dictionaryName) {
-  List<DictionaryTag> tags = [];
-  for (File file in files) {
-    List<dynamic> items = jsonDecode(file.readAsStringSync());
-    for (List<dynamic> item in items) {
-      String name = item[0] as String;
-      String category = item[1] as String;
-      int sortingOrder = item[2] as int;
-      String notes = item[3] as String;
-      double popularity = (item[4] as num).toDouble();
+// List<DictionaryTag> parseTags(List<File> files, String dictionaryName) {
+//   List<DictionaryTag> tags = [];
+//   for (File file in files) {
+//     List<dynamic> items = jsonDecode(file.readAsStringSync());
+//     for (List<dynamic> item in items) {
+//       String name = item[0] as String;
+//       String category = item[1] as String;
+//       int sortingOrder = item[2] as int;
+//       String notes = item[3] as String;
+//       double popularity = (item[4] as num).toDouble();
 
-      DictionaryTag tag = DictionaryTag(
-        dictionaryName: dictionaryName,
-        name: name,
-        category: category,
-        sortingOrder: sortingOrder,
-        notes: notes,
-        popularity: popularity,
-      );
+//       DictionaryTag tag = DictionaryTag(
+//         dictionaryName: dictionaryName,
+//         name: name,
+//         category: category,
+//         sortingOrder: sortingOrder,
+//         notes: notes,
+//         popularity: popularity,
+//       );
 
-      tags.add(tag);
-    }
-  }
-  return tags;
-}
+//       tags.add(tag);
+//     }
+//   }
+//   return tags;
+// }
 
 List<DictionaryEntry> parseTerms(List<File> files, String dictionaryName) {
   List<DictionaryEntry> entries = [];
@@ -158,11 +157,11 @@ List<DictionaryMetaEntry> parseMetaTerms(
           if (item[2]['frequency'] != null) {
             int number = item[2]['frequency'] as int;
             frequency = '$number';
-            print(frequency);
+            // print(frequency);
           }
           if (item[2]['reading'] != null) {
             reading = item[2]['reading'];
-            print(reading);
+            // print(reading);
           }
         } else {
           frequency = item[2].toString();

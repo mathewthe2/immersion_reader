@@ -72,15 +72,17 @@ class _ReaderState extends State<Reader> {
       showCupertinoModalBottomSheet<void>(
           context: context,
           builder: (BuildContext context) {
-            return Container(
-                height: MediaQuery.of(context).size.height * .40,
-                color: CupertinoColors.darkBackgroundGray,
-                child: CupertinoScrollbar(
-                    child: SingleChildScrollView(
-                        controller: ModalScrollController.of(context),
-                        child: VocabularyTileList(
-                            vocabularyList: vocabs,
-                            vocabularyListStorage: vocabularyListStorage))));
+            return SafeArea(
+                child: Container(
+                    height: MediaQuery.of(context).size.height * .40,
+                    color: CupertinoColors.darkBackgroundGray,
+                    child: CupertinoScrollbar(
+                        child: SingleChildScrollView(
+                            controller: ModalScrollController.of(context),
+                            child: VocabularyTileList(
+                                vocabularyList: vocabs,
+                                vocabularyListStorage:
+                                    vocabularyListStorage)))));
           });
     }
   }

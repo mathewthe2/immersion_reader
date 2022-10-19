@@ -29,7 +29,13 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                     CupertinoListTile(
                         title: const Text('Show Frequency Tags'),
                         trailing: CupertinoSwitch(
-                            onChanged: (bool? value) {}, value: true))
+                            onChanged: (bool? value) {
+                              widget.settingsProvider
+                                  .toggleShowFrequencyTags(value!);
+                              setState(() {});
+                            },
+                            value: snapshot
+                                .data!.appearanceSetting.showFrequencyTags))
                   ],
                 ));
               } else {

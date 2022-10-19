@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/search/search_result.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
+import 'package:immersion_reader/widgets/vocabulary/frequency_widget.dart';
 import 'package:immersion_reader/widgets/vocabulary/pitch_widget.dart';
 
 class SearchResultsSection extends StatefulWidget {
@@ -87,6 +88,12 @@ class VocabularyTile extends StatelessWidget {
                         //     style: const TextStyle(
                         //         color: CupertinoColors.inactiveGray))
                       ])))),
+      if (vocabulary.frequencyTags.isNotEmpty)
+        Padding(
+            padding: const EdgeInsetsDirectional.only(
+                start: 20.0, end: 14.0, bottom: 5.0),
+            child: FrequencyWidget(
+                parentContext: parentContext, vocabulary: vocabulary)),
       Padding(
           padding: const EdgeInsetsDirectional.only(
               start: 20.0, end: 14.0, bottom: 5.0),

@@ -14,6 +14,7 @@ import 'package:immersion_reader/dictionary/dictionary_entry.dart';
 
 class SettingsStorage {
   Database? database;
+  List<DictionarySetting>? dictionarySettingCache;
 
   SettingsStorage._create() {
     // print("_create() (private constructor)");
@@ -56,12 +57,23 @@ class SettingsStorage {
     if (database == null) {
       return [];
     }
+    if (dictionarySettingCache != null) {
+      return dictionarySettingCache!;
+    }
     List<Map<String, Object?>> rows = await database!
         .rawQuery('SELECT * FROM Dictionary'); // to do: add limit
 
     List<DictionarySetting> dictionarySettingList =
         rows.map((row) => DictionarySetting.fromMap(row)).toList();
+    dictionarySettingCache = dictionarySettingList;
     return dictionarySettingList;
+  }
+
+  Future<String> getDictionaryNameFromId(int dictionaryId) async {
+    List<DictionarySetting> dictionarySettings = await getDictionarySettings();
+    return dictionarySettings
+        .firstWhere((dictionarySetting) => dictionarySetting.id == dictionaryId)
+        .title;
   }
 
   Future<SettingsData> getConfigSettings() async {
@@ -80,6 +92,14 @@ class SettingsStorage {
     return SettingsData(appearanceSetting: appearanceSetting);
   }
 
+  Future<int> changeConfigSettings(
+      String settingKey, String settingValue) async {
+    int count = await database!.rawUpdate(
+        'UPDATE Config SET customvalue = ? WHERE title = ?',
+        [settingValue, settingKey]);
+    return count;
+  }
+
   Future<List<int>> getDisabledDictionaryIds() async {
     List<DictionarySetting> dictionarySettings = await getDictionarySettings();
     return List.from(dictionarySettings
@@ -94,6 +114,12 @@ class SettingsStorage {
       int count = await database!.rawUpdate(
           'UPDATE Dictionary SET enabled = ? WHERE id = ?',
           [dictionarySetting.enabled ? 0 : 1, dictionarySetting.id]);
+      if (dictionarySettingCache != null) {
+        dictionarySettingCache!
+            .firstWhere(
+                (settingCache) => settingCache.id == dictionarySetting.id)
+            .enabled = !dictionarySetting.enabled;
+      }
       return count;
     }
     return 0;
@@ -121,6 +147,10 @@ class SettingsStorage {
     batch.rawDelete(
         'DELETE FROM VocabPitch WHERE dictionaryId = ?', [dictionaryId]);
     await batch.commit();
+    if (dictionarySettingCache != null) {
+      dictionarySettingCache!.removeWhere(
+          (dictionarySetting) => dictionarySetting.id == dictionaryId);
+    }
   }
 
   Future<void> addDictionary(UserDictionary userDictionary) async {
@@ -153,14 +183,16 @@ class SettingsStorage {
     }
     for (DictionaryMetaEntry metaEntry
         in userDictionary.dictionaryMetaEntries) {
-      batch.rawInsert(
-          'INSERT INTO VocabFreq(expression, reading, frequency, dictionaryId) VALUES(?, ?, ?, ?)',
-          [
-            metaEntry.term,
-            metaEntry.reading ?? '',
-            metaEntry.frequency,
-            dictionaryId
-          ]);
+      if (metaEntry.frequency != null) {
+        batch.rawInsert(
+            'INSERT INTO VocabFreq(expression, reading, frequency, dictionaryId) VALUES(?, ?, ?, ?)',
+            [
+              metaEntry.term,
+              metaEntry.reading ?? '',
+              metaEntry.frequency,
+              dictionaryId
+            ]);
+      }
       if (metaEntry.pitches != null) {
         for (PitchData pitch in metaEntry.pitches!) {
           batch.rawInsert(
@@ -175,6 +207,12 @@ class SettingsStorage {
       }
     }
     await batch.commit();
+    if (dictionarySettingCache != null) {
+      dictionarySettingCache!.add(DictionarySetting(
+          id: dictionaryId,
+          title: userDictionary.dictionaryName,
+          enabled: true));
+    }
   }
 }
 

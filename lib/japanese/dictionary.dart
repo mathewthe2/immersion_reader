@@ -7,6 +7,8 @@ class Dictionary {
   Database? japaneseDictionary;
   SettingsStorage? settingsStorage;
 
+  static int termLimit = 1000;
+
   Dictionary._create() {
     // print("_create() (private constructor)");
   }
@@ -23,7 +25,8 @@ class Dictionary {
     // List<DictionaryEntry> result = [];
     Batch batch = japaneseDictionary!.batch();
     for (String term in terms) {
-      batch.rawQuery('SELECT * FROM Vocab WHERE expression = ? OR reading = ?',
+      batch.rawQuery(
+          'SELECT * FROM Vocab WHERE expression = ? OR reading = ? LIMIT $termLimit',
           [term, term]);
     }
     List<Object?> results = await batch.commit();
@@ -52,12 +55,13 @@ class Dictionary {
         columns: ['vocabId'],
         where:
             'glossary LIKE ? OR glossary LIKE ? OR glossary LIKE ? OR lower(glossary) = ?',
-        whereArgs: ['% $word', '$word %', '% $word %', word]);
+        whereArgs: ['% $word', '$word %', '% $word %', word],
+        limit: termLimit);
 
     Batch batch = japaneseDictionary!.batch();
     for (Map<String, Object?> row in rows) {
-      batch.rawQuery(
-          "SELECT * FROM Vocab WHERE id = ?", [row["vocabId"] as int]);
+      batch.rawQuery("SELECT * FROM Vocab WHERE id = ? LIMIT $termLimit",
+          [row["vocabId"] as int]);
     }
     List<DictionaryEntry> dictionaryEntries = [];
     List<Object?> results = await batch.commit();
@@ -76,8 +80,8 @@ class Dictionary {
       List<DictionaryEntry> dictionaryEntries) async {
     Map<String, Vocabulary> vocabularyMap = {};
     for (DictionaryEntry dictionaryEntry in dictionaryEntries) {
-      List<Map<String, Object?>> rows = await japaneseDictionary!
-          .rawQuery('SELECT glossary From VocabGloss WHERE vocabId=?', [
+      List<Map<String, Object?>> rows = await japaneseDictionary!.rawQuery(
+          'SELECT glossary From VocabGloss WHERE vocabId=? LIMIT $termLimit', [
         dictionaryEntry.id,
       ]);
 
@@ -111,11 +115,11 @@ class Dictionary {
 
     if (reading.isNotEmpty) {
       rows = await japaneseDictionary!.rawQuery(
-          'SELECT * FROM Vocab WHERE expression ${wildcards ? 'LIKE' : '='} ? AND reading = ?',
+          'SELECT * FROM Vocab WHERE expression ${wildcards ? 'LIKE' : '='} ? AND reading = ? LIMIT $termLimit',
           [text, reading]);
     } else {
       rows = await japaneseDictionary!.rawQuery(
-          'SELECT * FROM Vocab WHERE expression ${wildcards ? 'LIKE' : '='} ? OR reading = ?',
+          'SELECT * FROM Vocab WHERE expression ${wildcards ? 'LIKE' : '='} ? OR reading = ? LIMIT $termLimit',
           [text, text]);
     }
     // print(rows);

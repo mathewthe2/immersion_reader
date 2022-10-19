@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/japanese/frequency.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/widgets/settings/dictionary_settings.dart';
 import 'package:immersion_reader/widgets/settings/appearance_settings.dart';

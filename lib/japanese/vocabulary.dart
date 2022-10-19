@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:immersion_reader/dictionary/dictionary_entry.dart';
+import 'package:immersion_reader/dictionary/frequency_tag.dart';
 
 class Vocabulary {
   String? id;
@@ -12,6 +13,8 @@ class Vocabulary {
   List<String> rules = [];
   // pitch
   List<String>? pitchSvg = [];
+  // frequency tags
+  List<FrequencyTag> frequencyTags = [];
   // for export
   String sentence = '';
   String glossary = ''; // grouped meanings from all entries
