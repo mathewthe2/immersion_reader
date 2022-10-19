@@ -238,16 +238,16 @@ class Translator {
     List<List<FrequencyTag>> frequencyTagsResult =
         await frequency.getFrequencyBatch(searchTerms);
     for (int i = 0; i < definitions.length; i++) {
+      List<FrequencyTag> frequencyTags = [];
       for (FrequencyTag frequencyTag in frequencyTagsResult[i]) {
-        List<FrequencyTag> frequencyTags = [];
         if (disabledDictionaryIds.isEmpty ||
             !disabledDictionaryIds.contains(frequencyTag.dictionaryId)) {
           frequencyTag.dictionaryName = await settingsStorage!
               .getDictionaryNameFromId(frequencyTag.dictionaryId);
           frequencyTags.add(frequencyTag);
         }
-        definitions[i].frequencyTags = frequencyTags;
       }
+      definitions[i].frequencyTags = frequencyTags;
     }
     // for (Vocabulary definition in definitions) {
     //   List<FrequencyTag> frequencyTags = await frequency.getFrequency(

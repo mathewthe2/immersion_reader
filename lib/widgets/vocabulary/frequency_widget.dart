@@ -20,10 +20,6 @@ class FrequencyWidget extends StatelessWidget {
                 borderRadius: const BorderRadius.all(Radius.circular(7))),
             margin: const EdgeInsets.only(right: 10),
             padding: const EdgeInsets.all(4),
-            // color: CupertinoDynamicColor.resolve(
-            //     const CupertinoDynamicColor.withBrightness(
-            //         color: Color(0xffd46a6a), darkColor: CupertinoColors.black),
-            //     parentContext),
             child: Row(children: [
               Text(frequencyTag.dictionaryName ?? '',
                   style: const TextStyle(
@@ -34,8 +30,6 @@ class FrequencyWidget extends StatelessWidget {
                       fontSize: 12, color: CupertinoColors.white))
             ]));
       })
-      // Text(vocabulary.frequencyTags.first.dictionaryName ?? ''),
-      // Text(vocabulary.frequencyTags.first.frequency)
     ]);
   }
 }
