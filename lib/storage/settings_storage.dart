@@ -1,8 +1,11 @@
+import 'package:immersion_reader/data/settings/appearance_setting.dart';
+import 'package:immersion_reader/data/settings/settings_data.dart';
 import 'package:immersion_reader/dictionary/dictionary_meta_entry.dart';
 import 'package:immersion_reader/dictionary/user_dictionary.dart';
 import 'package:immersion_reader/dictionary/pitch_data.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
@@ -29,15 +32,15 @@ class SettingsStorage {
     // await deleteDatabase(path);
 
     // copy from resources if data doesn't exist
-    await File(path).exists();
-    if (!File(path).existsSync()) {
-      // Copy from asset
-      ByteData data =
-          await rootBundle.load(p.join("assets", "japanese", "data.db"));
-      List<int> bytes =
-          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-      await File(path).writeAsBytes(bytes, flush: true);
-    }
+    // await File(path).exists();
+    // if (!File(path).existsSync()) {
+    //   // Copy from asset
+    //   ByteData data =
+    //       await rootBundle.load(p.join("assets", "japanese", "data.db"));
+    //   List<int> bytes =
+    //       data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    //   await File(path).writeAsBytes(bytes, flush: true);
+    // }
 
     // opening the database
     settingsStorage.database = await openDatabase(
@@ -59,6 +62,22 @@ class SettingsStorage {
     List<DictionarySetting> dictionarySettingList =
         rows.map((row) => DictionarySetting.fromMap(row)).toList();
     return dictionarySettingList;
+  }
+
+  Future<SettingsData> getConfigSettings() async {
+    List<Map<String, Object?>> rows =
+        await database!.rawQuery('SELECT * FROM Config');
+    Map<String, String> appearanceConfigMap = {};
+    for (Map<String, Object?> row in rows) {
+      if (row["category"] as String == "appearance") {
+        appearanceConfigMap[row["title"] as String] =
+            row["customValue"] as String;
+      }
+      // configMap[row["title"] as String] = row["customValue"] as String;
+    }
+    AppearanceSetting appearanceSetting =
+        AppearanceSetting.fromMap(appearanceConfigMap);
+    return SettingsData(appearanceSetting: appearanceSetting);
   }
 
   Future<List<int>> getDisabledDictionaryIds() async {
@@ -99,6 +118,8 @@ class SettingsStorage {
         'DELETE FROM VocabGloss WHERE dictionaryId = ?', [dictionaryId]);
     batch.rawDelete(
         'DELETE FROM VocabFreq WHERE dictionaryId = ?', [dictionaryId]);
+    batch.rawDelete(
+        'DELETE FROM VocabPitch WHERE dictionaryId = ?', [dictionaryId]);
     await batch.commit();
   }
 
@@ -178,6 +199,11 @@ void onCreateStorageData(Database db, int version) async {
       "CREATE TABLE VocabFreq(expression TEXT, reading TEXT, frequency TEXT, dictionaryId INTEGER)");
   batch.rawQuery(
       "CREATE TABLE VocabPitch(expression TEXT, reading TEXT, pitch TEXT, dictionaryId INTEGER)");
+
+  // Create Config Table
+  batch.rawQuery(
+      "CREATE TABLE Config(title TEXT, customValue TEXT, category TEXT)");
+
   // Indexes
   batch
       .rawQuery("CREATE INDEX index_VocabGloss_vocabId ON VocabGloss(vocabId)");
@@ -190,5 +216,23 @@ void onCreateStorageData(Database db, int version) async {
       "CREATE INDEX index_VocabPitch_expression ON VocabPitch(expression ASC)");
   batch.rawQuery(
       "CREATE INDEX index_VocabPitch_reading ON VocabPitch(reading ASC)");
+
+  batch = await insertDefaultSettings(batch);
   await batch.commit();
+}
+
+Future<Batch> insertDefaultSettings(Batch batch) async {
+  ByteData bytes =
+      await rootBundle.load(p.join("assets", "settings", "defaultConfig.json"));
+  String jsonStr = const Utf8Decoder().convert(bytes.buffer.asUint8List());
+  Map<String, Object?> json = jsonDecode(jsonStr);
+  for (MapEntry<String, Object?> categoryEntry in json.entries) {
+    Map<String, Object?> map = categoryEntry.value as Map<String, Object?>;
+    for (MapEntry<String, Object?> entry in map.entries) {
+      batch.rawInsert(
+          "INSERT INTO Config(title, customValue, category) VALUES(?, ?, ?)",
+          [entry.key, entry.value as String, categoryEntry.key]);
+    }
+  }
+  return batch;
 }

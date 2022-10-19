@@ -65,12 +65,17 @@ class _DictionarySettingsState extends State<DictionarySettings> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          middle: const Text('Dictionary Settings'),
+          middle: const Text('Dictionaries'),
           leading: editMode
               ? GestureDetector(
                   onTap: requestDictionaryZipFile,
                   child: const Icon(CupertinoIcons.plus))
-              : const SizedBox(),
+              : GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Icon(CupertinoIcons.left_chevron),
+                ),
           trailing: CupertinoButton(
               onPressed: () {
                 setState(() {
@@ -89,51 +94,48 @@ class _DictionarySettingsState extends State<DictionarySettings> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 getEnabledDictionaries(snapshot.data!);
-                return Padding(
-                    padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height * 0.05),
-                    child: Column(children: [
-                      CupertinoListSection(
-                          header: const Text('Dictionary'),
-                          children: [
-                            ...snapshot.data!.asMap().entries.map((entry) {
-                              int index = entry.key;
-                              DictionarySetting dictionarySetting = entry.value;
-                              return CupertinoListTile(
-                                  title: Text(dictionarySetting.title),
-                                  leading: editMode
-                                      ? GestureDetector(
-                                          onTap: () => {
-                                            showAlertDialog(
-                                                context,
-                                                "Do you want to delete ${dictionarySetting.title}?",
-                                                () => removeDictionary(
-                                                    dictionarySetting.id))
-                                          },
-                                          child: const Icon(
-                                              CupertinoIcons.minus_circle_fill,
-                                              color: CupertinoColors
-                                                  .destructiveRed),
-                                        )
-                                      : const SizedBox(),
-                                  trailing: editMode
-                                      ? const SizedBox()
-                                      : CupertinoSwitch(
-                                          value: enabledDictionaries[index],
-                                          onChanged: (bool? value) {
-                                            widget.dictionaryProvider
-                                                .toggleDictionaryEnabled(
-                                                    dictionarySetting);
-                                            setState(() {});
-                                          }));
-                            }).toList()
-                          ]),
-                      if (isProcessingDictionary)
-                        const CupertinoActivityIndicator(
-                          animating: true,
-                          radius: 24,
-                        )
-                    ]));
+                return SafeArea(
+                  child: CupertinoListSection(
+                      header: const Text('Dictionary'),
+                      children: [
+                        ...snapshot.data!.asMap().entries.map((entry) {
+                          int index = entry.key;
+                          DictionarySetting dictionarySetting = entry.value;
+                          return CupertinoListTile(
+                              title: Text(dictionarySetting.title),
+                              leading: editMode
+                                  ? GestureDetector(
+                                      onTap: () => {
+                                        showAlertDialog(
+                                            context,
+                                            "Do you want to delete ${dictionarySetting.title}?",
+                                            () => removeDictionary(
+                                                dictionarySetting.id))
+                                      },
+                                      child: const Icon(
+                                          CupertinoIcons.minus_circle_fill,
+                                          color:
+                                              CupertinoColors.destructiveRed),
+                                    )
+                                  : const SizedBox(),
+                              trailing: editMode
+                                  ? const SizedBox()
+                                  : CupertinoSwitch(
+                                      value: enabledDictionaries[index],
+                                      onChanged: (bool? value) {
+                                        widget.dictionaryProvider
+                                            .toggleDictionaryEnabled(
+                                                dictionarySetting);
+                                        setState(() {});
+                                      }));
+                        }).toList(),
+                        if (isProcessingDictionary)
+                          const CupertinoActivityIndicator(
+                            animating: true,
+                            radius: 24,
+                          )
+                      ]),
+                );
               } else {
                 return const CupertinoActivityIndicator(
                   animating: true,

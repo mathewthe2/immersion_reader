@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
+import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
+import 'package:immersion_reader/storage/settings_storage.dart';
 import './reader.dart';
 import 'pages/settings/settings_page.dart';
 import 'pages/search_page.dart';
@@ -23,13 +25,16 @@ class _AppState extends State<App> {
   final ValueNotifier<bool> _notifier = ValueNotifier(false);
   LocalAssetsServerProvider? localAssetsServerProvider;
   VocabularyListProvider? vocabularyListProvider;
+  SettingsStorage? _settingsStorage;
   DictionaryProvider? dictionaryProvider;
+  SettingsProvider? settingsProvider;
 
   Future<void> setupProviders() async {
     localAssetsServerProvider = await LocalAssetsServerProvider.create();
     vocabularyListProvider = await VocabularyListProvider.create();
-    dictionaryProvider = await DictionaryProvider.create();
-    setState(() {});
+    _settingsStorage = await SettingsStorage.create();
+    dictionaryProvider = DictionaryProvider.create(_settingsStorage!);
+    settingsProvider = SettingsProvider.create(_settingsStorage!);
   }
 
   @override
@@ -108,7 +113,10 @@ class _AppState extends State<App> {
         return SearchPage(dictionaryProvider: dictionaryProvider);
       case 3:
         if (dictionaryProvider != null) {
-          return SettingsPage(dictionaryProvider: dictionaryProvider);
+          return SettingsPage(
+            dictionaryProvider: dictionaryProvider,
+            settingsProvider: settingsProvider,
+          );
         } else {
           return progressIndicator();
         }

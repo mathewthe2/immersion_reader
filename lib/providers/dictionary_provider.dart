@@ -12,10 +12,10 @@ class DictionaryProvider {
     // print("_create() (private constructor)");
   }
 
-  static Future<DictionaryProvider> create() async {
+  static DictionaryProvider create(SettingsStorage settingsStorage) {
     DictionaryProvider provider = DictionaryProvider._create();
-    provider.settingsStorage = await SettingsStorage.create();
-    provider.translator = Translator.create(provider.settingsStorage!);
+    provider.settingsStorage = settingsStorage;
+    provider.translator = Translator.create(settingsStorage);
     return provider;
   }
 
