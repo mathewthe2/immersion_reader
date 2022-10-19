@@ -48,64 +48,75 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
           child: widget.vocabularyListProvider.vocabularyList.isNotEmpty
               ? Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: CupertinoListSection.insetGrouped(
-                      // header: const Text('My Words'),
-                      children: [
-                        ...widget.vocabularyListProvider.vocabularyList
-                            .map((Vocabulary vocabulary) {
-                          return Slidable(
-                              key: ValueKey<String>(vocabulary.getIdentifier()),
-                              // The start action pane is the one at the left or the top side.
-                              // startActionPane: ActionPane(
-                              //   motion: const ScrollMotion(),
-                              //   dismissible:
-                              //       DismissiblePane(onDismissed: () {}),
-                              //   // All actions are defined in the children parameter.
-                              //   children: [
-                              //     // A SlidableAction can have an icon and/or a label.
-                              //   ],
-                              // ),
+                  child: Container(
+                      color: CupertinoDynamicColor.resolve(
+                          const CupertinoDynamicColor.withBrightness(
+                              color: CupertinoColors.systemGroupedBackground,
+                              darkColor: CupertinoColors.black),
+                          context),
+                      child: SingleChildScrollView(
+                          child: SafeArea(
+                              child: CupertinoListSection.insetGrouped(
+                                  // header: const Text('My Words'),
+                                  children: [
+                            ...widget.vocabularyListProvider.vocabularyList
+                                .map((Vocabulary vocabulary) {
+                              return Slidable(
+                                  key: ValueKey<String>(
+                                      vocabulary.getIdentifier()),
+                                  // The start action pane is the one at the left or the top side.
+                                  // startActionPane: ActionPane(
+                                  //   motion: const ScrollMotion(),
+                                  //   dismissible:
+                                  //       DismissiblePane(onDismissed: () {}),
+                                  //   // All actions are defined in the children parameter.
+                                  //   children: [
+                                  //     // A SlidableAction can have an icon and/or a label.
+                                  //   ],
+                                  // ),
 
-                              // The end action pane is the one at the right or the bottom side.
-                              endActionPane: ActionPane(
-                                motion: const ScrollMotion(),
-                                children: [
-                                  SlidableAction(
-                                    onPressed: (context) {},
-                                    backgroundColor: CupertinoColors.systemBlue,
-                                    foregroundColor: CupertinoColors.white,
-                                    icon: CupertinoIcons.share,
+                                  // The end action pane is the one at the right or the bottom side.
+                                  endActionPane: ActionPane(
+                                    motion: const ScrollMotion(),
+                                    children: [
+                                      SlidableAction(
+                                        onPressed: (context) {},
+                                        backgroundColor:
+                                            CupertinoColors.systemBlue,
+                                        foregroundColor: CupertinoColors.white,
+                                        icon: CupertinoIcons.share,
+                                      ),
+                                      SlidableAction(
+                                        onPressed: (context) {},
+                                        backgroundColor:
+                                            CupertinoColors.systemPurple,
+                                        foregroundColor: CupertinoColors.white,
+                                        icon: CupertinoIcons.folder_fill,
+                                      ),
+                                      SlidableAction(
+                                        onPressed: (context) =>
+                                            deleteVocabulary(vocabulary),
+                                        backgroundColor:
+                                            CupertinoColors.destructiveRed,
+                                        foregroundColor: CupertinoColors.white,
+                                        icon: CupertinoIcons.delete,
+                                        // label: 'Delete',
+                                      ),
+                                    ],
                                   ),
-                                  SlidableAction(
-                                    onPressed: (context) {},
-                                    backgroundColor:
-                                        CupertinoColors.systemPurple,
-                                    foregroundColor: CupertinoColors.white,
-                                    icon: CupertinoIcons.folder_fill,
-                                  ),
-                                  SlidableAction(
-                                    onPressed: (context) =>
-                                        deleteVocabulary(vocabulary),
-                                    backgroundColor:
-                                        CupertinoColors.destructiveRed,
-                                    foregroundColor: CupertinoColors.white,
-                                    icon: CupertinoIcons.delete,
-                                    // label: 'Delete',
-                                  ),
-                                ],
-                              ),
-                              child: CupertinoListTile.notched(
-                                title: Text(vocabulary.expression ?? ""),
-                                subtitle: SizedBox(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.7,
-                                    child: Text(
-                                      vocabulary.getFirstGlossary(),
-                                      overflow: TextOverflow.ellipsis,
-                                    )),
-                              ));
-                        }).toList()
-                      ]))
+                                  child: CupertinoListTile.notched(
+                                    title: Text(vocabulary.expression ?? ""),
+                                    subtitle: SizedBox(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.7,
+                                        child: Text(
+                                          vocabulary.getFirstGlossary(),
+                                          overflow: TextOverflow.ellipsis,
+                                        )),
+                                  ));
+                            }).toList()
+                          ])))))
               : Container())
     ]);
   }
