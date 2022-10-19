@@ -33,15 +33,15 @@ class SettingsStorage {
     // await deleteDatabase(path);
 
     // copy from resources if data doesn't exist
-    // await File(path).exists();
-    // if (!File(path).existsSync()) {
-    //   // Copy from asset
-    //   ByteData data =
-    //       await rootBundle.load(p.join("assets", "japanese", "data.db"));
-    //   List<int> bytes =
-    //       data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    //   await File(path).writeAsBytes(bytes, flush: true);
-    // }
+    await File(path).exists();
+    if (!File(path).existsSync()) {
+      // Copy from asset
+      ByteData data =
+          await rootBundle.load(p.join("assets", "japanese", "data.db"));
+      List<int> bytes =
+          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      await File(path).writeAsBytes(bytes, flush: true);
+    }
 
     // opening the database
     settingsStorage.database = await openDatabase(
