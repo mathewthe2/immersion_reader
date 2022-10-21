@@ -1,15 +1,24 @@
+import 'dart:math';
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/widgets/vocabulary/frequency_widget.dart';
 import 'vocabulary_tile.dart';
 import 'vocabulary_definition.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
+import 'package:immersion_reader/utils/language_utils.dart';
 
 class VocabularyTileList extends StatefulWidget {
   final List<Vocabulary> vocabularyList;
   final VocabularyListStorage? vocabularyListStorage;
+  final DictionaryProvider dictionaryProvider;
+  final String text;
+  final int targetIndex;
   const VocabularyTileList(
       {super.key,
+      required this.text,
+      required this.targetIndex,
+      required this.dictionaryProvider,
       required this.vocabularyList,
       required this.vocabularyListStorage});
 
@@ -18,11 +27,17 @@ class VocabularyTileList extends StatefulWidget {
 }
 
 class _VocabularyTileListState extends State<VocabularyTileList> {
+  static int selectableCharacters = 5;
   List<String> existingVocabularyIds = [];
+  int _selectedSegmentIndex = selectableCharacters ~/ 2;
+  List<Vocabulary> vocabularyList = [];
+  double initial = 0;
+  double distance = 0;
 
   @override
   void initState() {
     super.initState();
+    vocabularyList = widget.vocabularyList;
     _checkExistsVocabulary();
   }
 
@@ -54,43 +69,160 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
     return existingVocabularyIds.contains(vocabulary.getIdentifier());
   }
 
+  List<String> _getNeighboringText(String text, int index) {
+    if (text.isEmpty) {
+      return [];
+    }
+    int halfCharacters = (selectableCharacters - 1) ~/ 2;
+    String prefix = text.substring(max(0, index - halfCharacters), index);
+    List<String> prefixList = [
+      ...(' ' * (halfCharacters - prefix.length)).split(''),
+      ...prefix.split('')
+    ];
+    String suffix =
+        text.substring(index + 1, min(text.length, index + 1 + halfCharacters));
+    List<String> suffixList = [
+      ...suffix.split(''),
+      ...(' ' * (halfCharacters - suffix.length)).split('')
+    ];
+    List<String> result = [...prefixList, text[index], ...suffixList];
+    return result;
+  }
+
+  bool _canShift(int selectedIndex) {
+    int index =
+        widget.targetIndex + selectedIndex - ((selectableCharacters - 1) ~/ 2);
+    return index > 0 && index < widget.text.length;
+  }
+
+  Future<void> updateVocabulary(int selectedIndex) async {
+    int index =
+        widget.targetIndex + selectedIndex - ((selectableCharacters - 1) ~/ 2);
+    if (index < 0 || index > widget.text.length) {
+      return;
+    }
+    String sentence = widget.text.substring(index, widget.text.length);
+    List<Vocabulary> vocabs =
+        await widget.dictionaryProvider.findTerm(sentence);
+    if (vocabs.isNotEmpty) {
+      for (Vocabulary vocab in vocabs) {
+        vocab.sentence = LanguageUtils.findSentence(widget.text, index);
+      }
+      setState(() {
+        vocabularyList = vocabs;
+      });
+    }
+  }
+
+  Map<int, Widget> _createSelectableSegments(List<String> neighboringText) {
+    return Map.fromIterables(
+        [for (var i = 0; i < selectableCharacters; i++) i]
+            .map((segmentIndex) => segmentIndex)
+            .toList(),
+        [for (var i = 0; i < selectableCharacters; i++) i]
+            .map(
+              (segmentIndex) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  neighboringText[segmentIndex],
+                  style: const TextStyle(color: CupertinoColors.white),
+                ),
+              ),
+            )
+            .toList());
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<String> neighboringText =
+        _getNeighboringText(widget.text, widget.targetIndex);
+    Map<int, Widget> selectableSegments =
+        _createSelectableSegments(neighboringText);
     return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          ...widget.vocabularyList
-              .map(
-                (Vocabulary vocabulary) => Column(children: [
-                  CupertinoListTile(
-                      title: VocabularyTile(
-                          vocabulary: vocabulary,
-                          added: ifVocabularyExists(vocabulary),
-                          addOrRemoveVocabulary: addOrRemoveFromVocabularyList),
-                      trailing: CupertinoButton(
-                          onPressed: () =>
-                              addOrRemoveFromVocabularyList(vocabulary),
-                          child: Icon(
-                            ifVocabularyExists(vocabulary)
-                                ? CupertinoIcons.star_fill
-                                : CupertinoIcons.star,
-                            size: 20,
-                          ))),
-                  if (vocabulary.frequencyTags.isNotEmpty)
-                    Padding(
-                        padding: const EdgeInsetsDirectional.only(
-                            start: 20.0, end: 14.0, top: 5.0, bottom: 5.0),
-                        child: FrequencyWidget(
-                            parentContext: context, vocabulary: vocabulary)),
-                  Padding(
-                      padding: const EdgeInsetsDirectional.only(
-                          start: 20.0, end: 14.0),
-                      child: VocabularyDefinition(vocabulary: vocabulary)),
-                ]),
-              )
-              .toList(),
-          const SizedBox(height: 20) // Safe Space
+          CupertinoSlidingSegmentedControl<int>(
+              groupValue: _selectedSegmentIndex,
+              onValueChanged: (int? value) {
+                if (value != null && neighboringText[value].trim().isNotEmpty) {
+                  setState(() {
+                    _selectedSegmentIndex = value;
+                  });
+                  updateVocabulary(value);
+                }
+              },
+              children: selectableSegments),
+          GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onPanStart: (DragStartDetails details) {
+                initial = details.globalPosition.dx;
+              },
+              onPanUpdate: (DragUpdateDetails details) {
+                distance = details.globalPosition.dx - initial;
+              },
+              onPanEnd: (DragEndDetails details) {
+                initial = 0.0;
+                if (distance > 0) {
+                  // swipe left
+                  int newIndex =
+                      min(selectableCharacters - 1, _selectedSegmentIndex + 1);
+                  if (_canShift(newIndex)) {
+                    setState(() {
+                      _selectedSegmentIndex = newIndex;
+                    });
+                    updateVocabulary(newIndex);
+                  }
+                } else {
+                  // swipe right
+                  int newIndex = max(0, _selectedSegmentIndex - 1);
+                  if (_canShift(newIndex)) {
+                    setState(() {
+                      _selectedSegmentIndex = newIndex;
+                    });
+                    updateVocabulary(newIndex);
+                  }
+                }
+              },
+              child: Column(children: [
+                ...vocabularyList
+                    .map(
+                      (Vocabulary vocabulary) => Column(children: [
+                        CupertinoListTile(
+                            title: VocabularyTile(
+                                vocabulary: vocabulary,
+                                added: ifVocabularyExists(vocabulary),
+                                addOrRemoveVocabulary:
+                                    addOrRemoveFromVocabularyList),
+                            trailing: CupertinoButton(
+                                onPressed: () =>
+                                    addOrRemoveFromVocabularyList(vocabulary),
+                                child: Icon(
+                                  ifVocabularyExists(vocabulary)
+                                      ? CupertinoIcons.star_fill
+                                      : CupertinoIcons.star,
+                                  size: 20,
+                                ))),
+                        if (vocabulary.frequencyTags.isNotEmpty)
+                          Padding(
+                              padding: const EdgeInsetsDirectional.only(
+                                  start: 20.0,
+                                  end: 14.0,
+                                  top: 5.0,
+                                  bottom: 5.0),
+                              child: FrequencyWidget(
+                                  parentContext: context,
+                                  vocabulary: vocabulary)),
+                        Padding(
+                            padding: const EdgeInsetsDirectional.only(
+                                start: 20.0, end: 14.0),
+                            child:
+                                VocabularyDefinition(vocabulary: vocabulary)),
+                      ]),
+                    )
+                    .toList(),
+                const SizedBox(height: 20) // Safe Space
+              ]))
         ]);
   }
 }

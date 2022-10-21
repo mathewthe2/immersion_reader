@@ -80,6 +80,9 @@ class _ReaderState extends State<Reader> {
                         child: SingleChildScrollView(
                             controller: ModalScrollController.of(context),
                             child: VocabularyTileList(
+                                text: text,
+                                targetIndex: index,
+                                dictionaryProvider: widget.dictionaryProvider,
                                 vocabularyList: vocabs,
                                 vocabularyListStorage:
                                     vocabularyListStorage)))));
