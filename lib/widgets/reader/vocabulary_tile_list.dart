@@ -37,16 +37,13 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
   @override
   void initState() {
     super.initState();
-    vocabularyList = widget.vocabularyList;
-    _checkExistsVocabulary();
+    updateVocabulary(_selectedSegmentIndex);
   }
 
-  Future<void> _checkExistsVocabulary() async {
-    if (widget.vocabularyListStorage != null) {
-      existingVocabularyIds = await widget.vocabularyListStorage!
-          .getExistsVocabularyList(widget.vocabularyList);
-      setState(() {});
-    }
+  Future<void> _checkExistsVocabulary(List<Vocabulary> vocabularyList) async {
+    existingVocabularyIds = await widget.vocabularyListStorage!
+        .getExistsVocabularyList(vocabularyList);
+    setState(() {});
   }
 
   Future<void> addOrRemoveFromVocabularyList(Vocabulary vocabulary) async {
@@ -79,13 +76,17 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
       ...(' ' * (halfCharacters - prefix.length)).split(''),
       ...prefix.split('')
     ];
-    String suffix =
-        text.substring(index + 1, min(text.length, index + 1 + halfCharacters));
+    String suffix = text.substring(min(index + 1, text.length),
+        min(text.length, index + 1 + halfCharacters));
     List<String> suffixList = [
       ...suffix.split(''),
       ...(' ' * (halfCharacters - suffix.length)).split('')
     ];
-    List<String> result = [...prefixList, text[index], ...suffixList];
+    List<String> result = [
+      ...prefixList,
+      text[min(index, text.length - 1)],
+      ...suffixList
+    ];
     return result;
   }
 
@@ -107,14 +108,13 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
     String sentence = widget.text.substring(index, widget.text.length);
     List<Vocabulary> vocabs =
         await widget.dictionaryProvider.findTerm(sentence);
-    if (vocabs.isNotEmpty) {
-      for (Vocabulary vocab in vocabs) {
-        vocab.sentence = LanguageUtils.findSentence(widget.text, index);
-      }
-      setState(() {
-        vocabularyList = vocabs;
-      });
+    for (Vocabulary vocab in vocabs) {
+      vocab.sentence = LanguageUtils.findSentence(widget.text, index);
     }
+    setState(() {
+      vocabularyList = vocabs;
+    });
+    _checkExistsVocabulary(vocabs);
   }
 
   Map<int, Widget> _createSelectableSegments(List<String> neighboringText) {

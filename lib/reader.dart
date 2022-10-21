@@ -8,9 +8,7 @@ import 'package:local_assets_server/local_assets_server.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import './reader_js.dart';
-import 'japanese/vocabulary.dart';
 import 'widgets/reader/vocabulary_tile_list.dart';
-import 'package:immersion_reader/utils/language_utils.dart';
 
 class Reader extends StatefulWidget {
   final LocalAssetsServer? localAssetsServer;
@@ -61,33 +59,31 @@ class _ReaderState extends State<Reader> {
     }
   }
 
-  void showVocabularyList(String text, int index) async {
-    String sentence = text.substring(index, text.length);
-    List<Vocabulary> vocabs =
-        await widget.dictionaryProvider.findTerm(sentence);
-    if (vocabs.isNotEmpty) {
-      for (Vocabulary vocab in vocabs) {
-        vocab.sentence = LanguageUtils.findSentence(text, index);
-      }
-      showCupertinoModalBottomSheet<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return SafeArea(
-                child: Container(
-                    height: MediaQuery.of(context).size.height * .40,
-                    color: CupertinoColors.darkBackgroundGray,
-                    child: CupertinoScrollbar(
-                        child: SingleChildScrollView(
-                            controller: ModalScrollController.of(context),
-                            child: VocabularyTileList(
-                                text: text,
-                                targetIndex: index,
-                                dictionaryProvider: widget.dictionaryProvider,
-                                vocabularyList: vocabs,
-                                vocabularyListStorage:
-                                    vocabularyListStorage)))));
-          });
+  Future<void> showVocabularyList(String text, int index) async {
+    if (index < 0 || index >= text.length) {
+      return;
     }
+    // move index by one if initial click on space
+    if (text[index].trim().isEmpty && text.length > index) {
+      index += 1;
+    }
+    showCupertinoModalBottomSheet<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return SafeArea(
+              child: Container(
+                  height: MediaQuery.of(context).size.height * .40,
+                  color: CupertinoColors.darkBackgroundGray,
+                  child: CupertinoScrollbar(
+                      child: SingleChildScrollView(
+                          controller: ModalScrollController.of(context),
+                          child: VocabularyTileList(
+                              text: text,
+                              targetIndex: index,
+                              dictionaryProvider: widget.dictionaryProvider,
+                              vocabularyList: const [],
+                              vocabularyListStorage: vocabularyListStorage)))));
+        });
   }
 
   @override
