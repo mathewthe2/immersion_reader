@@ -89,16 +89,19 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
     return result;
   }
 
-  bool _canShift(int selectedIndex) {
+  bool _canSelectIndex(int selectedIndex) {
     int index =
         widget.targetIndex + selectedIndex - ((selectableCharacters - 1) ~/ 2);
-    return index > 0 && index < widget.text.length;
+    if (index < 0 || index >= widget.text.length) {
+      return false;
+    }
+    return widget.text[index].trim().isNotEmpty;
   }
 
   Future<void> updateVocabulary(int selectedIndex) async {
     int index =
         widget.targetIndex + selectedIndex - ((selectableCharacters - 1) ~/ 2);
-    if (index < 0 || index > widget.text.length) {
+    if (index < 0 || index >= widget.text.length) {
       return;
     }
     String sentence = widget.text.substring(index, widget.text.length);
@@ -143,9 +146,11 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
         mainAxisSize: MainAxisSize.min,
         children: [
           CupertinoSlidingSegmentedControl<int>(
+              thumbColor: const Color(
+                  0xFF636366), // https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/cupertino/sliding_segmented_control.dart#L32
               groupValue: _selectedSegmentIndex,
               onValueChanged: (int? value) {
-                if (value != null && neighboringText[value].trim().isNotEmpty) {
+                if (value != null && _canSelectIndex(value)) {
                   setState(() {
                     _selectedSegmentIndex = value;
                   });
@@ -167,7 +172,7 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
                   // swipe left
                   int newIndex =
                       min(selectableCharacters - 1, _selectedSegmentIndex + 1);
-                  if (_canShift(newIndex)) {
+                  if (_canSelectIndex(newIndex)) {
                     setState(() {
                       _selectedSegmentIndex = newIndex;
                     });
@@ -176,7 +181,7 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
                 } else {
                   // swipe right
                   int newIndex = max(0, _selectedSegmentIndex - 1);
-                  if (_canShift(newIndex)) {
+                  if (_canSelectIndex(newIndex)) {
                     setState(() {
                       _selectedSegmentIndex = newIndex;
                     });
