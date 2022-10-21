@@ -35,6 +35,7 @@ class _AppState extends State<App> {
     _settingsStorage = await SettingsStorage.create();
     dictionaryProvider = DictionaryProvider.create(_settingsStorage!);
     settingsProvider = SettingsProvider.create(_settingsStorage!);
+    setState(() {});
   }
 
   @override
