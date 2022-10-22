@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:immersion_reader/japanese/frequency.dart';
+import 'package:immersion_reader/pages/settings/about/about_page.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/widgets/settings/dictionary_settings.dart';
 import 'package:immersion_reader/widgets/settings/appearance_settings.dart';
@@ -31,50 +31,83 @@ class _SettingsPageState extends State<SettingsPage> {
         largeTitle: Text('Settings'),
       )),
       SliverFillRemaining(
-          child: CupertinoListSection(children: [
-        CupertinoListTile(
-          title: const Text("Appearance"),
-          onTap: () => {
-            Navigator.push(context, CupertinoPageRoute(builder: (context) {
-              return AppearanceSettings(
-                  settingsProvider: widget.settingsProvider!);
-            }))
-          },
-          leading: Container(
-            padding: const EdgeInsets.all(4.0),
-            decoration: BoxDecoration(
-              color: CupertinoColors.systemBlue,
-              borderRadius: BorderRadius.circular(4.0),
-            ),
-            child: const Icon(
-                size: 22,
-                CupertinoIcons.textformat_size,
-                color: CupertinoColors.white),
-          ),
-          trailing: const Icon(CupertinoIcons.forward),
-        ),
-        CupertinoListTile(
-          title: const Text("Dictionaries"),
-          onTap: () => {
-            Navigator.push(context, CupertinoPageRoute(builder: (context) {
-              return DictionarySettings(
-                  dictionaryProvider: widget.dictionaryProvider!);
-            }))
-          },
-          leading: Container(
-            padding: const EdgeInsets.all(4.0),
-            decoration: BoxDecoration(
-              color: CupertinoColors.systemOrange,
-              borderRadius: BorderRadius.circular(4.0),
-            ),
-            child: const Icon(
-                size: 22,
-                CupertinoIcons.book_fill,
-                color: CupertinoColors.white),
-          ),
-          trailing: const Icon(CupertinoIcons.forward),
-        )
-      ]))
+          child: Container(
+              color: CupertinoDynamicColor.resolve(
+                  const CupertinoDynamicColor.withBrightness(
+                      color: CupertinoColors.systemGroupedBackground,
+                      darkColor: CupertinoColors.black),
+                  context),
+              child: Column(children: [
+                CupertinoListSection(children: [
+                  CupertinoListTile(
+                    title: const Text("Appearance"),
+                    onTap: () => {
+                      Navigator.push(context,
+                          CupertinoPageRoute(builder: (context) {
+                        return AppearanceSettings(
+                            settingsProvider: widget.settingsProvider!);
+                      }))
+                    },
+                    leading: Container(
+                      padding: const EdgeInsets.all(4.0),
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.systemBlue,
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: const Icon(
+                          size: 22,
+                          CupertinoIcons.textformat_size,
+                          color: CupertinoColors.white),
+                    ),
+                    trailing: const Icon(CupertinoIcons.forward),
+                  ),
+                  CupertinoListTile(
+                    title: const Text("Dictionaries"),
+                    onTap: () => {
+                      Navigator.push(context,
+                          CupertinoPageRoute(builder: (context) {
+                        return DictionarySettings(
+                            dictionaryProvider: widget.dictionaryProvider!);
+                      }))
+                    },
+                    leading: Container(
+                      padding: const EdgeInsets.all(4.0),
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.systemOrange,
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: const Icon(
+                          size: 22,
+                          CupertinoIcons.book_fill,
+                          color: CupertinoColors.white),
+                    ),
+                    trailing: const Icon(CupertinoIcons.forward),
+                  ),
+                ]),
+                CupertinoListSection(children: [
+                  CupertinoListTile(
+                    title: const Text("About"),
+                    onTap: () => {
+                      Navigator.push(context,
+                          CupertinoPageRoute(builder: (context) {
+                        return const AboutPage();
+                      }))
+                    },
+                    leading: Container(
+                      padding: const EdgeInsets.all(4.0),
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.systemBlue,
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: const Icon(
+                          size: 22,
+                          CupertinoIcons.at,
+                          color: CupertinoColors.white),
+                    ),
+                    trailing: const Icon(CupertinoIcons.forward),
+                  )
+                ])
+              ])))
     ]));
   }
 }

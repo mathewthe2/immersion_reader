@@ -137,7 +137,9 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
             Navigator.pop(context);
             String filePath = await exportToAnkiDojoCSV(
                 widget.vocabularyListProvider.vocabularyList);
-            Share.shareFiles([filePath]);
+            if (filePath.isNotEmpty) {
+              Share.shareFiles([filePath]);
+            }
           },
         ),
         CupertinoActionSheetAction(
