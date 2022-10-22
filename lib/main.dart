@@ -28,6 +28,7 @@ class _AppState extends State<App> {
   SettingsStorage? _settingsStorage;
   DictionaryProvider? dictionaryProvider;
   SettingsProvider? settingsProvider;
+  bool isReady = false;
 
   Future<void> setupProviders() async {
     localAssetsServerProvider = await LocalAssetsServerProvider.create();
@@ -35,7 +36,9 @@ class _AppState extends State<App> {
     _settingsStorage = await SettingsStorage.create();
     dictionaryProvider = DictionaryProvider.create(_settingsStorage!);
     settingsProvider = SettingsProvider.create(_settingsStorage!);
-    setState(() {});
+    setState(() {
+      isReady = true;
+    });
   }
 
   @override
@@ -95,7 +98,7 @@ class _AppState extends State<App> {
   Widget buildBody(int index) {
     switch (index) {
       case 0:
-        return (vocabularyListProvider != null)
+        return isReady
             ? ValueListenableBuilder(
                 valueListenable: _notifier,
                 builder: (context, val, child) => VocabularyListPage(
@@ -103,24 +106,20 @@ class _AppState extends State<App> {
                     notifier: _notifier))
             : progressIndicator();
       case 1:
-        if (localAssetsServerProvider != null && dictionaryProvider != null) {
-          return Reader(
-              localAssetsServer: localAssetsServerProvider!.server,
-              dictionaryProvider: dictionaryProvider!);
-        } else {
-          return progressIndicator();
-        }
+        return isReady
+            ? Reader(
+                localAssetsServer: localAssetsServerProvider!.server,
+                dictionaryProvider: dictionaryProvider!)
+            : progressIndicator();
       case 2:
         return SearchPage(dictionaryProvider: dictionaryProvider);
       case 3:
-        if (dictionaryProvider != null) {
-          return SettingsPage(
-            dictionaryProvider: dictionaryProvider,
-            settingsProvider: settingsProvider,
-          );
-        } else {
-          return progressIndicator();
-        }
+        return isReady
+            ? SettingsPage(
+                dictionaryProvider: dictionaryProvider,
+                settingsProvider: settingsProvider,
+              )
+            : progressIndicator();
     }
     return const Text('no page');
   }
