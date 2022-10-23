@@ -61,8 +61,9 @@ class _SearchPageState extends State<SearchPage> {
         largeTitle: Text('Dictionary'),
       )),
       SliverFillRemaining(
-          child: SingleChildScrollView(
-              child: Column(children: [
+          child: CupertinoScrollbar(
+              child: SingleChildScrollView(
+                  child: Column(children: [
         const SizedBox(height: 20),
         CupertinoSearchTextField(
             autocorrect: false,
@@ -72,7 +73,7 @@ class _SearchPageState extends State<SearchPage> {
         if (searchResult != null)
           SearchResultsSection(
               searchResult: searchResult!, parentContext: context)
-      ])))
+      ]))))
     ]);
   }
 }
