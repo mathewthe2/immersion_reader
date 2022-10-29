@@ -99,6 +99,26 @@ class VocabularyListStorage {
     return vocabularyList;
   }
 
+  Future<Vocabulary> updateVocabularyItem(
+      Vocabulary vocabulary, VocabularyInformationKey key, String value) async {
+    if (database == null) {
+      return vocabulary;
+    }
+    String vocabularyId = vocabulary.getIdentifier();
+    int count = await database!.rawUpdate(
+        'UPDATE Vocabulary SET ${Vocabulary.vocabularyDatabaseMap[key]} = ? WHERE id = ?',
+        [value, vocabularyId]);
+    vocabulary.setWithInformationKey(key, value);
+    if (count > 0 &&
+        [VocabularyInformationKey.expression, VocabularyInformationKey.reading]
+            .contains(key)) {
+      String newId = vocabulary.getIdentifier();
+      await database!.rawUpdate(
+          'UPDATE Vocabulary SET id = ? WHERE id = ?', [newId, vocabularyId]);
+    }
+    return vocabulary;
+  }
+
   Future<int> deleteVocabularyItem(String vocabularyId) async {
     if (database == null) {
       return 0;

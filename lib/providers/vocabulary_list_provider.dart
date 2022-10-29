@@ -24,6 +24,15 @@ class VocabularyListProvider {
     return vocabularyList;
   }
 
+  Future<Vocabulary> updateVocabularyItem(
+      Vocabulary vocabulary, VocabularyInformationKey key, String value) async {
+    Vocabulary updatedVocabulary = await vocabularyListStorage!
+        .updateVocabularyItem(vocabulary, key, value);
+    int index = vocabularyList.indexOf(vocabulary);
+    vocabularyList[index] = updatedVocabulary;
+    return updatedVocabulary;
+  }
+
   Future<int> deleteVocabularyItem(Vocabulary vocabulary) async {
     int count = await vocabularyListStorage!
         .deleteVocabularyItem(vocabulary.getIdentifier());

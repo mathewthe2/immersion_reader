@@ -67,7 +67,10 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                                     Navigator.push(context,
                                         CupertinoPageRoute(builder: (context) {
                                       return VocabularyDetailEditPage(
-                                          vocabulary: vocabulary);
+                                          vocabularyListProvider:
+                                              widget.vocabularyListProvider,
+                                          vocabulary: vocabulary,
+                                          notifier: widget.notifier);
                                     }));
                                   },
                                   child: Slidable(

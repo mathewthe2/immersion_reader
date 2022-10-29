@@ -1,10 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
+import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
 import "package:immersion_reader/extensions/string_extension.dart";
+import 'package:immersion_reader/utils/system_dialog.dart';
 
 class VocabularyDetailEditPage extends StatefulWidget {
   final Vocabulary vocabulary;
-  const VocabularyDetailEditPage({super.key, required this.vocabulary});
+  final VocabularyListProvider vocabularyListProvider;
+  final ValueNotifier notifier;
+  const VocabularyDetailEditPage(
+      {super.key,
+      required this.vocabulary,
+      required this.vocabularyListProvider,
+      required this.notifier});
 
   @override
   State<VocabularyDetailEditPage> createState() =>
@@ -64,6 +72,11 @@ class _VocabularyDetailEditPageState extends State<VocabularyDetailEditPage> {
                       darkColor: CupertinoColors.white),
                   context)),
         ),
+        onChanged: (value) {
+          widget.vocabularyListProvider
+              .updateVocabularyItem(widget.vocabulary, key, value);
+          widget.notifier.value = !widget.notifier.value;
+        },
         maxLines: 10,
         minLines: 1,
       ))
@@ -75,10 +88,24 @@ class _VocabularyDetailEditPageState extends State<VocabularyDetailEditPage> {
     return CupertinoPageScaffold(
         backgroundColor: CupertinoDynamicColor.resolve(
             const CupertinoDynamicColor.withBrightness(
-                color: CupertinoColors.lightBackgroundGray,
+                color: CupertinoColors.systemGroupedBackground,
                 darkColor: CupertinoColors.label),
             context),
-        navigationBar: const CupertinoNavigationBar(middle: Text('Edit')),
+        navigationBar: CupertinoNavigationBar(
+            middle: const Text('Edit'),
+            trailing: CupertinoButton(
+                onPressed: () {
+                  showAlertDialog(context,
+                      "Do you want to delete ${widget.vocabulary.getValueByInformationKey(VocabularyInformationKey.expression)}?",
+                      () {
+                    widget.vocabularyListProvider
+                        .deleteVocabularyItem(widget.vocabulary);
+                    Navigator.pop(context);
+                  });
+                },
+                padding: const EdgeInsets.all(0.0),
+                child: const Icon(CupertinoIcons.delete,
+                    color: CupertinoColors.inactiveGray))),
         child: SafeArea(
             child: CupertinoScrollbar(
                 child: SingleChildScrollView(

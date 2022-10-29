@@ -104,4 +104,36 @@ class Vocabulary {
         }
     }
   }
+
+  void setWithInformationKey(VocabularyInformationKey key, String value) {
+    switch (key) {
+      case VocabularyInformationKey.definition:
+        {
+          glossary = value;
+          break;
+        }
+      case VocabularyInformationKey.expression:
+        {
+          expression = value;
+          break;
+        }
+      case VocabularyInformationKey.reading:
+        {
+          reading = value;
+          break;
+        }
+      case VocabularyInformationKey.sentence:
+        {
+          sentence = value;
+          break;
+        }
+    }
+  }
+
+  static Map<VocabularyInformationKey, String> vocabularyDatabaseMap = {
+    VocabularyInformationKey.expression: 'expression',
+    VocabularyInformationKey.reading: 'reading',
+    VocabularyInformationKey.sentence: 'sentence',
+    VocabularyInformationKey.definition: 'glossary'
+  };
 }
