@@ -2,6 +2,13 @@ import 'dart:math';
 import 'package:immersion_reader/dictionary/dictionary_entry.dart';
 import 'package:immersion_reader/dictionary/frequency_tag.dart';
 
+enum VocabularyInformationKey {
+  expression,
+  reading,
+  definition,
+  sentence,
+}
+
 class Vocabulary {
   String? id;
   String? expression;
@@ -75,5 +82,26 @@ class Vocabulary {
     return entries
         .map((DictionaryEntry entry) => entry.popularity ?? 0)
         .reduce(max);
+  }
+
+  String getValueByInformationKey(VocabularyInformationKey key) {
+    switch (key) {
+      case VocabularyInformationKey.definition:
+        {
+          return getCompleteGlossary();
+        }
+      case VocabularyInformationKey.expression:
+        {
+          return expression ?? '';
+        }
+      case VocabularyInformationKey.reading:
+        {
+          return reading ?? '';
+        }
+      case VocabularyInformationKey.sentence:
+        {
+          return sentence;
+        }
+    }
   }
 }

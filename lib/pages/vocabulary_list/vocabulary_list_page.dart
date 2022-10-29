@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 // import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_list;
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:immersion_reader/pages/vocabulary_list/vocabulary_detail_edit_page.dart';
 import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
 // import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
@@ -61,60 +62,63 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                                   children: [
                             ...widget.vocabularyListProvider.vocabularyList
                                 .map((Vocabulary vocabulary) {
-                              return Slidable(
-                                  key: ValueKey<String>(
-                                      vocabulary.getIdentifier()),
-                                  // The start action pane is the one at the left or the top side.
-                                  // startActionPane: ActionPane(
-                                  //   motion: const ScrollMotion(),
-                                  //   dismissible:
-                                  //       DismissiblePane(onDismissed: () {}),
-                                  //   // All actions are defined in the children parameter.
-                                  //   children: [
-                                  //     // A SlidableAction can have an icon and/or a label.
-                                  //   ],
-                                  // ),
+                              return GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(context,
+                                        CupertinoPageRoute(builder: (context) {
+                                      return VocabularyDetailEditPage(
+                                          vocabulary: vocabulary);
+                                    }));
+                                  },
+                                  child: Slidable(
+                                      key: ValueKey<String>(
+                                          vocabulary.getIdentifier()),
 
-                                  // The end action pane is the one at the right or the bottom side.
-                                  endActionPane: ActionPane(
-                                    motion: const ScrollMotion(),
-                                    children: [
-                                      SlidableAction(
-                                        onPressed: (context) {},
-                                        backgroundColor:
-                                            CupertinoColors.systemBlue,
-                                        foregroundColor: CupertinoColors.white,
-                                        icon: CupertinoIcons.share,
+                                      // The end action pane is the one at the right or the bottom side.
+                                      endActionPane: ActionPane(
+                                        motion: const ScrollMotion(),
+                                        children: [
+                                          SlidableAction(
+                                            onPressed: (context) {},
+                                            backgroundColor:
+                                                CupertinoColors.systemBlue,
+                                            foregroundColor:
+                                                CupertinoColors.white,
+                                            icon: CupertinoIcons.share,
+                                          ),
+                                          SlidableAction(
+                                            onPressed: (context) {},
+                                            backgroundColor:
+                                                CupertinoColors.systemPurple,
+                                            foregroundColor:
+                                                CupertinoColors.white,
+                                            icon: CupertinoIcons.folder_fill,
+                                          ),
+                                          SlidableAction(
+                                            onPressed: (context) =>
+                                                deleteVocabulary(vocabulary),
+                                            backgroundColor:
+                                                CupertinoColors.destructiveRed,
+                                            foregroundColor:
+                                                CupertinoColors.white,
+                                            icon: CupertinoIcons.delete,
+                                            // label: 'Delete',
+                                          ),
+                                        ],
                                       ),
-                                      SlidableAction(
-                                        onPressed: (context) {},
-                                        backgroundColor:
-                                            CupertinoColors.systemPurple,
-                                        foregroundColor: CupertinoColors.white,
-                                        icon: CupertinoIcons.folder_fill,
-                                      ),
-                                      SlidableAction(
-                                        onPressed: (context) =>
-                                            deleteVocabulary(vocabulary),
-                                        backgroundColor:
-                                            CupertinoColors.destructiveRed,
-                                        foregroundColor: CupertinoColors.white,
-                                        icon: CupertinoIcons.delete,
-                                        // label: 'Delete',
-                                      ),
-                                    ],
-                                  ),
-                                  child: CupertinoListTile.notched(
-                                    title: Text(vocabulary.expression ?? ""),
-                                    subtitle: SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width *
+                                      child: CupertinoListTile.notched(
+                                        title:
+                                            Text(vocabulary.expression ?? ""),
+                                        subtitle: SizedBox(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
                                                 0.7,
-                                        child: Text(
-                                          vocabulary.getFirstGlossary(),
-                                          overflow: TextOverflow.ellipsis,
-                                        )),
-                                  ));
+                                            child: Text(
+                                              vocabulary.getFirstGlossary(),
+                                              overflow: TextOverflow.ellipsis,
+                                            )),
+                                      )));
                             }).toList()
                           ])))))
               : Container())
