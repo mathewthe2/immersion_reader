@@ -189,45 +189,53 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
                   }
                 }
               },
-              child: Column(children: [
-                ...vocabularyList
-                    .map(
-                      (Vocabulary vocabulary) => Column(children: [
-                        CupertinoListTile(
-                            title: VocabularyTile(
-                                vocabulary: vocabulary,
-                                added: ifVocabularyExists(vocabulary),
-                                addOrRemoveVocabulary:
-                                    addOrRemoveFromVocabularyList),
-                            trailing: CupertinoButton(
-                                onPressed: () =>
-                                    addOrRemoveFromVocabularyList(vocabulary),
-                                child: Icon(
-                                  ifVocabularyExists(vocabulary)
-                                      ? CupertinoIcons.star_fill
-                                      : CupertinoIcons.star,
-                                  size: 20,
-                                ))),
-                        if (vocabulary.frequencyTags.isNotEmpty)
-                          Padding(
-                              padding: const EdgeInsetsDirectional.only(
-                                  start: 20.0,
-                                  end: 14.0,
-                                  top: 5.0,
-                                  bottom: 5.0),
-                              child: FrequencyWidget(
-                                  parentContext: context,
-                                  vocabulary: vocabulary)),
-                        Padding(
-                            padding: const EdgeInsetsDirectional.only(
-                                start: 20.0, end: 14.0),
-                            child:
-                                VocabularyDefinition(vocabulary: vocabulary)),
-                      ]),
-                    )
-                    .toList(),
-                const SizedBox(height: 20) // Safe Space
-              ]))
+              child: Container(
+                  constraints: BoxConstraints(
+                      minHeight: MediaQuery.of(context).size.height * .40 -
+                          33.0), // approximate content height
+                  child: vocabularyList.isEmpty
+                      ? Container()
+                      : Column(children: [
+                          ...vocabularyList
+                              .map(
+                                (Vocabulary vocabulary) => Column(children: [
+                                  CupertinoListTile(
+                                      title: VocabularyTile(
+                                          vocabulary: vocabulary,
+                                          added: ifVocabularyExists(vocabulary),
+                                          addOrRemoveVocabulary:
+                                              addOrRemoveFromVocabularyList),
+                                      trailing: CupertinoButton(
+                                          onPressed: () =>
+                                              addOrRemoveFromVocabularyList(
+                                                  vocabulary),
+                                          child: Icon(
+                                            ifVocabularyExists(vocabulary)
+                                                ? CupertinoIcons.star_fill
+                                                : CupertinoIcons.star,
+                                            size: 20,
+                                          ))),
+                                  if (vocabulary.frequencyTags.isNotEmpty)
+                                    Padding(
+                                        padding:
+                                            const EdgeInsetsDirectional.only(
+                                                start: 20.0,
+                                                end: 14.0,
+                                                top: 5.0,
+                                                bottom: 5.0),
+                                        child: FrequencyWidget(
+                                            parentContext: context,
+                                            vocabulary: vocabulary)),
+                                  Padding(
+                                      padding: const EdgeInsetsDirectional.only(
+                                          start: 20.0, end: 14.0),
+                                      child: VocabularyDefinition(
+                                          vocabulary: vocabulary)),
+                                ]),
+                              )
+                              .toList(),
+                          const SizedBox(height: 20) // Safe Space
+                        ])))
         ]);
   }
 }
