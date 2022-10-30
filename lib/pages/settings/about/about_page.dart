@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:immersion_reader/pages/settings/about/thanks_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 String? encodeQueryParameters(Map<String, String> params) {
@@ -38,7 +40,11 @@ class AboutPage extends StatelessWidget {
           ),
           CupertinoListTile(
             title: const Text("Thanks to"),
-            onTap: () => {},
+            onTap: () => {
+              Navigator.push(context, SwipeablePageRoute(builder: (context) {
+                return const ThanksPage();
+              }))
+            },
             leading: Container(
               padding: const EdgeInsets.all(4.0),
               decoration: BoxDecoration(

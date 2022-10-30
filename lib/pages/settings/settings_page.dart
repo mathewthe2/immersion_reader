@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:immersion_reader/pages/settings/about/about_page.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/widgets/settings/dictionary_settings.dart';
@@ -43,7 +44,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: const Text("Appearance"),
                     onTap: () => {
                       Navigator.push(context,
-                          CupertinoPageRoute(builder: (context) {
+                          SwipeablePageRoute(builder: (context) {
                         return AppearanceSettings(
                             settingsProvider: widget.settingsProvider!);
                       }))
@@ -65,7 +66,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: const Text("Dictionaries"),
                     onTap: () => {
                       Navigator.push(context,
-                          CupertinoPageRoute(builder: (context) {
+                          SwipeablePageRoute(builder: (context) {
                         return DictionarySettings(
                             dictionaryProvider: widget.dictionaryProvider!);
                       }))
@@ -89,7 +90,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: const Text("About"),
                     onTap: () => {
                       Navigator.push(context,
-                          CupertinoPageRoute(builder: (context) {
+                          SwipeablePageRoute(builder: (context) {
                         return const AboutPage();
                       }))
                     },

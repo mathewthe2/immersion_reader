@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
-// import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_list;
+import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:immersion_reader/pages/vocabulary_list/vocabulary_detail_edit_page.dart';
 import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
-// import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:immersion_reader/utils/exporter.dart';
@@ -55,17 +54,18 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                               color: CupertinoColors.systemGroupedBackground,
                               darkColor: CupertinoColors.black),
                           context),
-                      child: SingleChildScrollView(
-                          child: SafeArea(
-                              child: CupertinoListSection.insetGrouped(
-                                  // header: const Text('My Words'),
-                                  children: [
+                      child: CupertinoScrollbar(
+                          child: SingleChildScrollView(
+                              child: SafeArea(
+                                  child: CupertinoListSection.insetGrouped(
+                                      // header: const Text('My Words'),
+                                      children: [
                             ...widget.vocabularyListProvider.vocabularyList
                                 .map((Vocabulary vocabulary) {
                               return GestureDetector(
                                   onTap: () {
                                     Navigator.push(context,
-                                        CupertinoPageRoute(builder: (context) {
+                                        SwipeablePageRoute(builder: (context) {
                                       return VocabularyDetailEditPage(
                                           vocabularyListProvider:
                                               widget.vocabularyListProvider,
@@ -123,7 +123,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                                             )),
                                       )));
                             }).toList()
-                          ])))))
+                          ]))))))
               : Container())
     ]);
   }

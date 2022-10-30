@@ -29,7 +29,9 @@ class VocabularyListProvider {
     Vocabulary updatedVocabulary = await vocabularyListStorage!
         .updateVocabularyItem(vocabulary, key, value);
     int index = vocabularyList.indexOf(vocabulary);
-    vocabularyList[index] = updatedVocabulary;
+    if (index >= 0 && index < vocabularyList.length) {
+      vocabularyList[index] = updatedVocabulary;
+    }
     return updatedVocabulary;
   }
 

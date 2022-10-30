@@ -58,65 +58,67 @@ class _VocabularyDetailEditPageState extends State<VocabularyDetailEditPage> {
                           context))))),
       CupertinoScrollbar(
           child: CupertinoTextField(
-        controller: _textControllerMap[key],
-        decoration: BoxDecoration(
-          color: CupertinoDynamicColor.resolve(
-              const CupertinoDynamicColor.withBrightness(
-                  color: CupertinoColors.white,
-                  darkColor: CupertinoColors.systemFill),
-              context),
-          border: Border.all(
-              color: CupertinoDynamicColor.resolve(
-                  const CupertinoDynamicColor.withBrightness(
-                      color: CupertinoColors.lightBackgroundGray,
-                      darkColor: CupertinoColors.white),
-                  context)),
-        ),
-        onChanged: (value) {
-          widget.vocabularyListProvider
-              .updateVocabularyItem(widget.vocabulary, key, value);
-          widget.notifier.value = !widget.notifier.value;
-        },
-        maxLines: 10,
-        minLines: 1,
-      ))
+              controller: _textControllerMap[key],
+              decoration: BoxDecoration(
+                color: CupertinoDynamicColor.resolve(
+                    const CupertinoDynamicColor.withBrightness(
+                        color: CupertinoColors.white,
+                        darkColor: CupertinoColors.systemFill),
+                    context),
+                border: Border.all(
+                    color: CupertinoDynamicColor.resolve(
+                        const CupertinoDynamicColor.withBrightness(
+                            color: CupertinoColors.lightBackgroundGray,
+                            darkColor: CupertinoColors.white),
+                        context)),
+              ),
+              onChanged: (value) async {
+                await widget.vocabularyListProvider
+                    .updateVocabularyItem(widget.vocabulary, key, value);
+                widget.notifier.value = !widget.notifier.value;
+              },
+              maxLines: 10,
+              minLines: 1,
+              keyboardType: TextInputType.multiline))
     ]);
   }
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-        backgroundColor: CupertinoDynamicColor.resolve(
-            const CupertinoDynamicColor.withBrightness(
-                color: CupertinoColors.systemGroupedBackground,
-                darkColor: CupertinoColors.label),
-            context),
-        navigationBar: CupertinoNavigationBar(
-            middle: const Text('Edit'),
-            trailing: CupertinoButton(
-                onPressed: () {
-                  showAlertDialog(context,
-                      "Do you want to delete ${widget.vocabulary.getValueByInformationKey(VocabularyInformationKey.expression)}?",
-                      () {
-                    widget.vocabularyListProvider
-                        .deleteVocabularyItem(widget.vocabulary);
-                    Navigator.pop(context);
-                  });
-                },
-                padding: const EdgeInsets.all(0.0),
-                child: const Icon(CupertinoIcons.delete,
-                    color: CupertinoColors.inactiveGray))),
-        child: SafeArea(
-            child: CupertinoScrollbar(
-                child: SingleChildScrollView(
-                    child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Column(
-                            children: VocabularyInformationKey.values
-                                .map(
-                                  (value) =>
-                                      vocabularyEditField(value, context),
-                                )
-                                .toList()))))));
+    return GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: CupertinoPageScaffold(
+            backgroundColor: CupertinoDynamicColor.resolve(
+                const CupertinoDynamicColor.withBrightness(
+                    color: CupertinoColors.systemGroupedBackground,
+                    darkColor: CupertinoColors.label),
+                context),
+            navigationBar: CupertinoNavigationBar(
+                middle: const Text('Edit'),
+                trailing: CupertinoButton(
+                    onPressed: () {
+                      showAlertDialog(context,
+                          "Do you want to delete ${widget.vocabulary.getValueByInformationKey(VocabularyInformationKey.expression)}?",
+                          () {
+                        widget.vocabularyListProvider
+                            .deleteVocabularyItem(widget.vocabulary);
+                        Navigator.pop(context);
+                      });
+                    },
+                    padding: const EdgeInsets.all(0.0),
+                    child: const Icon(CupertinoIcons.delete,
+                        color: CupertinoColors.inactiveGray))),
+            child: SafeArea(
+                child: CupertinoScrollbar(
+                    child: SingleChildScrollView(
+                        child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Column(
+                                children: VocabularyInformationKey.values
+                                    .map(
+                                      (value) =>
+                                          vocabularyEditField(value, context),
+                                    )
+                                    .toList())))))));
   }
 }
