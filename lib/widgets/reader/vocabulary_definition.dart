@@ -38,7 +38,8 @@ class _VocabularyDefinitionState extends State<VocabularyDefinition> {
                       style: TextStyle(
                           color: CupertinoColors.inactiveGray,
                           fontSize: 15,
-                          overflow: definitionsExpanded[entry]!
+                          overflow: definitionsExpanded.containsKey(entry) &&
+                                  definitionsExpanded[entry]!
                               ? null
                               : TextOverflow.ellipsis)))))
           .toList()

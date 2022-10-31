@@ -34,8 +34,8 @@ class _AppState extends State<App> {
     localAssetsServerProvider = await LocalAssetsServerProvider.create();
     vocabularyListProvider = await VocabularyListProvider.create();
     _settingsStorage = await SettingsStorage.create();
-    dictionaryProvider = DictionaryProvider.create(_settingsStorage!);
     settingsProvider = SettingsProvider.create(_settingsStorage!);
+    dictionaryProvider = DictionaryProvider.create(settingsProvider!);
     setState(() {
       isReady = true;
     });

@@ -7,6 +7,7 @@ import 'vocabulary.dart';
 import 'deinflector.dart';
 import 'pitch.dart';
 import 'package:immersion_reader/dictionary/dictionary_entry.dart';
+import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/data/search/search_result.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
 
@@ -55,40 +56,39 @@ class Translator {
   }
 
   Future<List<Vocabulary>> _findGlossaryTerms(String text,
-      {bool getPitch = true,
-      List<int> disabledDictionaryIds = const []}) async {
+      {DictionaryOptions? options}) async {
+    options ??= DictionaryOptions();
     List<Vocabulary> glossaryTerms = await findTermFromGlossary(text);
     if (glossaryTerms.isNotEmpty) {
-      if (getPitch) {
+      if (options.pitchAccentDisplayStyle == PitchAccentDisplayStyle.graph) {
         glossaryTerms = await _batchAddPitch(glossaryTerms);
       }
-      // get tags
-      glossaryTerms = await _batchAddFrequencyTags(glossaryTerms,
-          disabledDictionaryIds: disabledDictionaryIds);
+      if (options.isGetFrequencyTags) {
+        glossaryTerms = await _batchAddFrequencyTags(glossaryTerms,
+            disabledDictionaryIds: options.disabledDictionaryIds);
+      }
       return glossaryTerms;
     } else {
       return [];
     }
   }
 
-  Future<SearchResult> findTermForUserSearch(
-    String text, {
-    List<int> disabledDictionaryIds = const [],
-    bool getPitch = true,
-  }) async {
+  Future<SearchResult> findTermForUserSearch(String text,
+      {List<int> disabledDictionaryIds = const [],
+      bool getPitch = true,
+      DictionaryOptions? options}) async {
+    options ??= DictionaryOptions();
     List<Vocabulary> exactMatches = [];
     List<Vocabulary> additionalMatches = [];
     List<Vocabulary> glossaryExactMatches =
         []; // translated matches from bilingual dictionaries
     List<Vocabulary> glossaryAdditionalMatches =
         []; // translated matches from bilingual dictionaries
-
     KanaKit kanaKit = const KanaKit();
     String parsedText = text.trim(); // to do: handle half width characters
     if (!kanaKit.isJapanese(parsedText)) {
-      List<Vocabulary> glossaryTerms = await _findGlossaryTerms(
-          parsedText.toLowerCase(),
-          disabledDictionaryIds: disabledDictionaryIds);
+      List<Vocabulary> glossaryTerms =
+          await _findGlossaryTerms(parsedText.toLowerCase(), options: options);
       for (Vocabulary definition in glossaryTerms) {
         if (definition.getAllMeanings().contains(parsedText.toLowerCase())) {
           glossaryExactMatches.add(definition);
@@ -102,8 +102,9 @@ class Translator {
       }
       parsedText = kanaKit.toHiragana(parsedText);
     }
-    List<Vocabulary> results = await findTerm(parsedText,
-        disabledDictionaryIds: disabledDictionaryIds, sorted: false);
+    options.sorted = false; // custom sort later
+    List<Vocabulary> results =
+        await findTerm(parsedText, getPitch: getPitch, options: options);
     results = _sortDefinitionsForUserSearch(results);
     for (Vocabulary result in results) {
       if (result.reading == parsedText || result.expression == parsedText) {
@@ -130,8 +131,9 @@ class Translator {
       {bool wildcards = false,
       String reading = '',
       bool getPitch = true,
-      bool sorted = true,
+      DictionaryOptions? options,
       List<int> disabledDictionaryIds = const []}) async {
+    options ??= DictionaryOptions();
     List<TranslatorDeinflection> deinflections = [];
     for (int i = text.length; i > 0; i--) {
       String term = text.substring(0, i);
@@ -212,9 +214,11 @@ class Translator {
     if (getPitch) {
       definitions = await _batchAddPitch(definitions);
     }
-    definitions = await _batchAddFrequencyTags(definitions,
-        disabledDictionaryIds: disabledDictionaryIds);
-    if (sorted) {
+    if (options.isGetFrequencyTags) {
+      definitions = await _batchAddFrequencyTags(definitions,
+          disabledDictionaryIds: disabledDictionaryIds);
+    }
+    if (options.sorted) {
       definitions = _sortDefinitionsForTermSearch(definitions);
     }
     return definitions;
@@ -249,16 +253,6 @@ class Translator {
       }
       definitions[i].frequencyTags = frequencyTags;
     }
-    // for (Vocabulary definition in definitions) {
-    //   List<FrequencyTag> frequencyTags = await frequency.getFrequency(
-    //       definition.expression ?? '',
-    //       reading: definition.reading ?? '');
-    //   for (FrequencyTag frequencyTag in frequencyTags) {
-    //     frequencyTag.dictionaryName = await settingsStorage!
-    //         .getDictionaryNameFromId(frequencyTag.dictionaryId);
-    //   }
-    //   definition.frequencyTags = frequencyTags;
-    // }
     return definitions;
   }
 

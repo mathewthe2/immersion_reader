@@ -3,7 +3,7 @@ import 'package:immersion_reader/storage/settings_storage.dart';
 
 class SettingsProvider {
   SettingsStorage? settingsStorage;
-  // SettingsData? settingsCache;
+  SettingsData? settingsCache;
 
   SettingsProvider._create() {
     // print("_create() (private constructor)");
@@ -18,5 +18,18 @@ class SettingsProvider {
   Future<void> toggleShowFrequencyTags(bool isShowFrequencyTags) async {
     await settingsStorage!.changeConfigSettings(
         "show_frequency_tags", isShowFrequencyTags ? "1" : "0");
+    if (settingsCache != null) {
+      settingsCache!.appearanceSetting.showFrequencyTags =
+          !settingsCache!.appearanceSetting.showFrequencyTags;
+    }
+  }
+
+  Future<bool> getIsShowFrequencyTags() async {
+    if (settingsCache != null) {
+      return settingsCache!.appearanceSetting.showFrequencyTags;
+    } else {
+      settingsCache = await settingsStorage!.getConfigSettings();
+      return settingsCache!.appearanceSetting.showFrequencyTags;
+    }
   }
 }
