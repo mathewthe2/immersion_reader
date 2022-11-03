@@ -54,7 +54,7 @@ class VocabularyTile extends StatelessWidget {
       required this.parentContext});
 
   bool hasPitch(Vocabulary vocabulary) {
-    return vocabulary.pitchSvg != null && vocabulary.pitchSvg!.isNotEmpty;
+    return vocabulary.pitchValues.isNotEmpty;
   }
 
   @override
@@ -79,9 +79,7 @@ class VocabularyTile extends StatelessWidget {
                         )),
                         WidgetSpan(
                             child: hasPitch(vocabulary)
-                                ? PitchWidget(
-                                    parentContext: parentContext,
-                                    vocabulary: vocabulary)
+                                ? PitchWidget(vocabulary: vocabulary)
                                 : const SizedBox()),
                         // TextSpan(
                         //     text: vocabulary.reading ?? '',

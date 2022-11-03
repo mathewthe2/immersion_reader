@@ -21,13 +21,16 @@ class DictionaryProvider {
     return provider;
   }
 
+  Future<DictionaryOptions> getOptions() async {
+    return DictionaryOptions(
+        disabledDictionaryIds: await getDisabledDictionaryIds(),
+        pitchAccentDisplayStyle: await settingsProvider!.getPitchAccentStyle(),
+        isGetFrequencyTags: await settingsProvider!.getIsShowFrequencyTags());
+  }
+
   Future<List<Vocabulary>> findTerm(String text) async {
     if (settingsProvider != null) {
-      return await translator!.findTerm(text,
-          options: DictionaryOptions(
-              disabledDictionaryIds: await getDisabledDictionaryIds(),
-              isGetFrequencyTags:
-                  await settingsProvider!.getIsShowFrequencyTags()));
+      return await translator!.findTerm(text, options: await getOptions());
     } else {
       return [];
     }
@@ -35,11 +38,8 @@ class DictionaryProvider {
 
   Future<SearchResult> findTermForUserSearch(String text) async {
     if (settingsProvider != null) {
-      return await translator!.findTermForUserSearch(text,
-          options: DictionaryOptions(
-              disabledDictionaryIds: await getDisabledDictionaryIds(),
-              isGetFrequencyTags:
-                  await settingsProvider!.getIsShowFrequencyTags()));
+      return await translator!
+          .findTermForUserSearch(text, options: await getOptions());
     } else {
       return SearchResult(additionalMatches: [], exactMatches: []);
     }

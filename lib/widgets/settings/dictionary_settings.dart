@@ -39,7 +39,7 @@ class _DictionarySettingsState extends State<DictionarySettings> {
       });
       File zipFile = File(result.files.single.path!);
       UserDictionary userDictionary = await parseDictionary(zipFile);
-      await widget.dictionaryProvider.settingsStorage!
+      await widget.dictionaryProvider.settingsProvider!.settingsStorage!
           .addDictionary(userDictionary);
       setState(() {
         isProcessingDictionary = false;
@@ -54,7 +54,7 @@ class _DictionarySettingsState extends State<DictionarySettings> {
     setState(() {
       isProcessingDictionary = true;
     });
-    await widget.dictionaryProvider.settingsStorage!
+    await widget.dictionaryProvider.settingsProvider!.settingsStorage!
         .removeDictionary(dictionaryId);
     setState(() {
       isProcessingDictionary = false;
@@ -89,7 +89,7 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                   : const Text('Edit')),
         ),
         child: FutureBuilder<List<DictionarySetting>>(
-            future: widget.dictionaryProvider.settingsStorage!
+            future: widget.dictionaryProvider.settingsProvider!.settingsStorage!
                 .getDictionarySettings(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:immersion_reader/dictionary/dictionary_entry.dart';
+import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/dictionary/frequency_tag.dart';
 
 enum VocabularyInformationKey {
@@ -19,7 +20,8 @@ class Vocabulary {
   String? source;
   List<String> rules = [];
   // pitch
-  List<String>? pitchSvg = [];
+  PitchAccentDisplayStyle? pitchAccentDisplayStyle;
+  List<String> pitchValues = [];
   // frequency tags
   List<FrequencyTag> frequencyTags = [];
   // for export

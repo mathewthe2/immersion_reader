@@ -1,4 +1,4 @@
-enum PitchAccentDisplayStyle { graph, number }
+enum PitchAccentDisplayStyle { none, graph, number }
 
 class DictionaryOptions {
   List<int> disabledDictionaryIds;

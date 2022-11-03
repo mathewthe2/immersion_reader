@@ -1,3 +1,4 @@
+import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/japanese/draw_pitch.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
 import 'package:sqflite/sqflite.dart';
@@ -42,7 +43,10 @@ class Pitch {
     return '';
   }
 
-  Future<List<String>> getSvg(String expression, {String reading = ''}) async {
+  Future<List<String>> makePitch(String expression,
+      {String reading = '',
+      PitchAccentDisplayStyle pitchAccentDisplayStyle =
+          PitchAccentDisplayStyle.graph}) async {
     List<String> result = [];
     if (expression.isEmpty) {
       return result;
@@ -78,8 +82,20 @@ class Pitch {
       reading = expression;
     }
     for (int pitchValue in parsedPitches) {
-      String svg = pitchSvg(reading, pitchValueToPatt(reading, pitchValue));
-      result.add(svg);
+      switch (pitchAccentDisplayStyle) {
+        case PitchAccentDisplayStyle.graph:
+          {
+            String svg =
+                pitchSvg(reading, pitchValueToPatt(reading, pitchValue));
+            result.add(svg);
+            break;
+          }
+        case PitchAccentDisplayStyle.number:
+          {
+            result.add(pitchValue.toString());
+            break;
+          }
+      }
     }
     return result;
   }

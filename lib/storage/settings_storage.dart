@@ -15,6 +15,7 @@ import 'package:immersion_reader/dictionary/dictionary_entry.dart';
 class SettingsStorage {
   Database? database;
   List<DictionarySetting>? dictionarySettingCache;
+  SettingsData? settingsCache;
 
   SettingsStorage._create() {
     // print("_create() (private constructor)");
@@ -50,6 +51,7 @@ class SettingsStorage {
       onCreate: onCreateStorageData,
     );
 
+    settingsStorage.settingsCache = await settingsStorage.getConfigSettings();
     return settingsStorage;
   }
 
@@ -92,11 +94,14 @@ class SettingsStorage {
     return SettingsData(appearanceSetting: appearanceSetting);
   }
 
-  Future<int> changeConfigSettings(
-      String settingKey, String settingValue) async {
+  Future<int> changeConfigSettings(String settingKey, String settingValue,
+      {SettingsData? newSettingsCache}) async {
     int count = await database!.rawUpdate(
         'UPDATE Config SET customvalue = ? WHERE title = ?',
         [settingValue, settingKey]);
+    if (newSettingsCache != null) {
+      settingsCache = newSettingsCache;
+    }
     return count;
   }
 

@@ -60,8 +60,9 @@ class Translator {
     options ??= DictionaryOptions();
     List<Vocabulary> glossaryTerms = await findTermFromGlossary(text);
     if (glossaryTerms.isNotEmpty) {
-      if (options.pitchAccentDisplayStyle == PitchAccentDisplayStyle.graph) {
-        glossaryTerms = await _batchAddPitch(glossaryTerms);
+      if (options.pitchAccentDisplayStyle != PitchAccentDisplayStyle.none) {
+        glossaryTerms = await _batchAddPitch(
+            glossaryTerms, options.pitchAccentDisplayStyle);
       }
       if (options.isGetFrequencyTags) {
         glossaryTerms = await _batchAddFrequencyTags(glossaryTerms,
@@ -74,9 +75,7 @@ class Translator {
   }
 
   Future<SearchResult> findTermForUserSearch(String text,
-      {List<int> disabledDictionaryIds = const [],
-      bool getPitch = true,
-      DictionaryOptions? options}) async {
+      {DictionaryOptions? options}) async {
     options ??= DictionaryOptions();
     List<Vocabulary> exactMatches = [];
     List<Vocabulary> additionalMatches = [];
@@ -103,8 +102,7 @@ class Translator {
       parsedText = kanaKit.toHiragana(parsedText);
     }
     options.sorted = false; // custom sort later
-    List<Vocabulary> results =
-        await findTerm(parsedText, getPitch: getPitch, options: options);
+    List<Vocabulary> results = await findTerm(parsedText, options: options);
     results = _sortDefinitionsForUserSearch(results);
     for (Vocabulary result in results) {
       if (result.reading == parsedText || result.expression == parsedText) {
@@ -130,9 +128,7 @@ class Translator {
   Future<List<Vocabulary>> findTerm(String text,
       {bool wildcards = false,
       String reading = '',
-      bool getPitch = true,
-      DictionaryOptions? options,
-      List<int> disabledDictionaryIds = const []}) async {
+      DictionaryOptions? options}) async {
     options ??= DictionaryOptions();
     List<TranslatorDeinflection> deinflections = [];
     for (int i = text.length; i > 0; i--) {
@@ -174,7 +170,7 @@ class Translator {
 
     List<DictionaryEntry> entries = await dictionary.findTermsBulk(
         uniqueDeinflectionTerms,
-        disabledDictionaryIds: disabledDictionaryIds);
+        disabledDictionaryIds: options.disabledDictionaryIds);
     for (DictionaryEntry entry in entries) {
       int definitionRules = deinflector.rulesToRuleFlags(entry.meaningTags);
       for (TranslatorDeinflection deinflection
@@ -211,12 +207,13 @@ class Translator {
         await dictionary.getVocabularyBatch(finalEntries);
 
     // get pitch svg
-    if (getPitch) {
-      definitions = await _batchAddPitch(definitions);
+    if (options.pitchAccentDisplayStyle != PitchAccentDisplayStyle.none) {
+      definitions =
+          await _batchAddPitch(definitions, options.pitchAccentDisplayStyle);
     }
     if (options.isGetFrequencyTags) {
       definitions = await _batchAddFrequencyTags(definitions,
-          disabledDictionaryIds: disabledDictionaryIds);
+          disabledDictionaryIds: options.disabledDictionaryIds);
     }
     if (options.sorted) {
       definitions = _sortDefinitionsForTermSearch(definitions);
@@ -224,10 +221,14 @@ class Translator {
     return definitions;
   }
 
-  Future<List<Vocabulary>> _batchAddPitch(List<Vocabulary> definitions) async {
+  Future<List<Vocabulary>> _batchAddPitch(List<Vocabulary> definitions,
+      PitchAccentDisplayStyle pitchAccentDisplayStyle) async {
     for (Vocabulary definition in definitions) {
-      definition.pitchSvg = await pitch.getSvg(definition.expression ?? '',
-          reading: definition.reading ?? '');
+      definition.pitchAccentDisplayStyle = pitchAccentDisplayStyle;
+      definition.pitchValues = await pitch.makePitch(
+          definition.expression ?? '',
+          reading: definition.reading ?? '',
+          pitchAccentDisplayStyle: pitchAccentDisplayStyle);
     }
     return definitions;
   }

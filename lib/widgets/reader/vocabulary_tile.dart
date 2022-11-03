@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/widgets/vocabulary/pitch_widget.dart';
 import 'package:ruby_text/ruby_text.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/utils/language_utils.dart';
 
@@ -28,15 +28,14 @@ class _VocabularyTileState extends State<VocabularyTile> {
     return pitchSvg;
   }
 
-  Widget vocabularyPitch(Vocabulary vocabulary) {
-    return (vocabulary.pitchSvg ?? []).isEmpty
-        ? const Text('')
-        : SvgPicture.string(colorCorrectedPitch(vocabulary.pitchSvg![0]),
-            height: 30);
-  }
+  // Widget vocabularyPitch(Vocabulary vocabulary) {
+  //   return vocabulary.pitchValues.isEmpty
+  //       ? const Text('')
+  //       : PitchWidget(parentContext: parentContext, vocabulary: vocabulary);
+  // }
 
   bool hasPitch(Vocabulary vocabulary) {
-    return vocabulary.pitchSvg != null && vocabulary.pitchSvg!.isNotEmpty;
+    return vocabulary.pitchValues.isNotEmpty;
   }
 
   Widget vocabularyExpression(Vocabulary vocabulary) {
@@ -73,7 +72,7 @@ class _VocabularyTileState extends State<VocabularyTile> {
                       vocabularyExpression(widget.vocabulary),
                       const SizedBox(width: 20),
                       hasPitch(widget.vocabulary)
-                          ? vocabularyPitch(widget.vocabulary)
+                          ? PitchWidget(vocabulary: widget.vocabulary)
                           : Container()
                     ]),
                   ],
