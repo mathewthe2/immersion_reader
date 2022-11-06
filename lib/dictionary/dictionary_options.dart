@@ -1,9 +1,12 @@
 enum PitchAccentDisplayStyle { none, graph, number }
 
+enum PopupDictionaryTheme { light, dark }
+
 class DictionaryOptions {
   List<int> disabledDictionaryIds;
   bool isGetFrequencyTags;
   PitchAccentDisplayStyle pitchAccentDisplayStyle;
+  PopupDictionaryTheme popupDictionaryTheme;
 
   bool sorted;
 
@@ -11,5 +14,6 @@ class DictionaryOptions {
       {this.disabledDictionaryIds = const [],
       this.isGetFrequencyTags = true,
       this.pitchAccentDisplayStyle = PitchAccentDisplayStyle.graph,
+      this.popupDictionaryTheme = PopupDictionaryTheme.dark,
       this.sorted = true});
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/widgets/settings/popup_dictionary_theme_settings.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import "package:immersion_reader/extensions/string_extension.dart";
 import 'package:immersion_reader/providers/settings_provider.dart';
@@ -15,6 +16,8 @@ class AppearanceSettings extends StatefulWidget {
 
 class _AppearanceSettingsState extends State<AppearanceSettings> {
   final ValueNotifier<bool> _pitchAccentValueNotifier = ValueNotifier(false);
+  final ValueNotifier<bool> _popupDictionaryThemeValueNotifier =
+      ValueNotifier(false);
 
   @override
   Widget build(BuildContext context) {
@@ -25,14 +28,30 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
           header: const Text('Dictionary Popup'),
           children: [
             CupertinoListTile(
-                title: const Text('Show Frequency Tags'),
-                trailing: CupertinoSwitch(
-                    onChanged: (bool? value) {
-                      widget.settingsProvider.toggleShowFrequencyTags(value!);
-                      setState(() {});
-                    },
-                    value: widget.settingsProvider.settingsCache!
-                        .appearanceSetting.showFrequencyTags)),
+                title: const Text('Popup Theme'),
+                onTap: () {
+                  Navigator.push(context,
+                      SwipeablePageRoute(builder: (context) {
+                    return PopupDictionaryThemeSettings(
+                        popupDictionaryThemeValueNotifier:
+                            _popupDictionaryThemeValueNotifier,
+                        settingsProvider: widget.settingsProvider,
+                        popupDictionaryThemeString: widget
+                            .settingsProvider
+                            .settingsCache!
+                            .appearanceSetting
+                            .popupDictionaryThemeString);
+                  }));
+                },
+                additionalInfo: ValueListenableBuilder(
+                    valueListenable: _popupDictionaryThemeValueNotifier,
+                    builder: (context, val, child) => Text(widget
+                        .settingsProvider
+                        .settingsCache!
+                        .appearanceSetting
+                        .popupDictionaryThemeString
+                        .capitalize())),
+                trailing: const Icon(CupertinoIcons.forward)),
             CupertinoListTile(
                 title: const Text('Pitch Accent Style'),
                 onTap: () {
@@ -41,7 +60,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                     return PitchAccentStyleSettings(
                         pitchAccentValueNotifier: _pitchAccentValueNotifier,
                         settingsProvider: widget.settingsProvider,
-                        pitchAccentDisplayStyle: widget
+                        pitchAccentStyleString: widget
                             .settingsProvider
                             .settingsCache!
                             .appearanceSetting
@@ -57,6 +76,15 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                         .pitchAccentStyleString
                         .capitalize())),
                 trailing: const Icon(CupertinoIcons.forward)),
+            CupertinoListTile(
+                title: const Text('Show Frequency Tags'),
+                trailing: CupertinoSwitch(
+                    onChanged: (bool? value) {
+                      widget.settingsProvider.toggleShowFrequencyTags(value!);
+                      setState(() {});
+                    },
+                    value: widget.settingsProvider.settingsCache!
+                        .appearanceSetting.showFrequencyTags)),
           ],
         )));
   }

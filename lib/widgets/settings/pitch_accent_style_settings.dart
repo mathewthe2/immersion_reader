@@ -4,12 +4,12 @@ import "package:immersion_reader/extensions/string_extension.dart";
 import 'package:immersion_reader/providers/settings_provider.dart';
 
 class PitchAccentStyleSettings extends StatefulWidget {
-  final String pitchAccentDisplayStyle;
+  final String pitchAccentStyleString;
   final SettingsProvider settingsProvider;
   final ValueNotifier pitchAccentValueNotifier;
   const PitchAccentStyleSettings(
       {super.key,
-      required this.pitchAccentDisplayStyle,
+      required this.pitchAccentStyleString,
       required this.settingsProvider,
       required this.pitchAccentValueNotifier});
 
@@ -19,12 +19,12 @@ class PitchAccentStyleSettings extends StatefulWidget {
 }
 
 class _PitchAccentStyleSettingsState extends State<PitchAccentStyleSettings> {
-  String? pitchAccentDisplayStyle;
+  String? pitchAccentStyleString;
 
   @override
   void initState() {
     super.initState();
-    pitchAccentDisplayStyle = widget.pitchAccentDisplayStyle;
+    pitchAccentStyleString = widget.pitchAccentStyleString;
   }
 
   @override
@@ -41,14 +41,14 @@ class _PitchAccentStyleSettingsState extends State<PitchAccentStyleSettings> {
                       title: Text(style.name.capitalize()),
                       onTap: () async {
                         setState(() {
-                          pitchAccentDisplayStyle = style.name;
+                          pitchAccentStyleString = style.name;
                         });
                         await widget.settingsProvider
                             .updatePitchAccentStyle(style);
                         widget.pitchAccentValueNotifier.value =
                             !widget.pitchAccentValueNotifier.value;
                       },
-                      trailing: pitchAccentDisplayStyle! == style.name
+                      trailing: pitchAccentStyleString! == style.name
                           ? const Icon(CupertinoIcons.check_mark)
                           : null))
             ])));

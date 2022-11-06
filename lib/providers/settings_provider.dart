@@ -50,4 +50,23 @@ class SettingsProvider {
     return PitchAccentDisplayStyle.values
         .firstWhere((e) => e.name == pitchAccentString);
   }
+
+  Future<void> updatePopupDictionaryTheme(
+      PopupDictionaryTheme popupDictionaryTheme) async {
+    if (settingsCache != null) {
+      settingsCache!.appearanceSetting.popupDictionaryThemeString =
+          popupDictionaryTheme.name;
+    }
+    await settingsStorage!.changeConfigSettings(
+        "popup_dictionary_theme", popupDictionaryTheme.name,
+        newSettingsCache: settingsCache);
+  }
+
+  Future<PopupDictionaryTheme> getPopupDictionaryTheme() async {
+    settingsCache ??= await settingsStorage!.getConfigSettings();
+    String popupDictionaryThemeString =
+        settingsCache!.appearanceSetting.popupDictionaryThemeString;
+    return PopupDictionaryTheme.values
+        .firstWhere((e) => e.name == popupDictionaryThemeString);
+  }
 }
