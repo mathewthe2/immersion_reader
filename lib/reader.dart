@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
+import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
@@ -67,19 +69,26 @@ class _ReaderState extends State<Reader> {
     if (text[index].trim().isEmpty && text.length > index) {
       index += 1;
     }
+    PopupDictionaryTheme popupDictionaryTheme = await widget
+        .dictionaryProvider.settingsProvider!
+        .getPopupDictionaryTheme();
+    PopupDictionaryThemeData popupDictionaryThemeData =
+        PopupDictionaryThemeData(popupDictionaryTheme: popupDictionaryTheme);
     showCupertinoModalBottomSheet<void>(
         context: context,
         builder: (BuildContext context) {
           return SafeArea(
               child: Container(
                   height: MediaQuery.of(context).size.height * .40,
-                  color: CupertinoColors.darkBackgroundGray,
+                  color: popupDictionaryThemeData.getBackgroundColor(),
                   child: CupertinoScrollbar(
                       child: SingleChildScrollView(
                           controller: ModalScrollController.of(context),
                           child: VocabularyTileList(
                               text: text,
                               targetIndex: index,
+                              popupDictionaryThemeData:
+                                  popupDictionaryThemeData,
                               dictionaryProvider: widget.dictionaryProvider,
                               vocabularyList: const [],
                               vocabularyListStorage: vocabularyListStorage)))));

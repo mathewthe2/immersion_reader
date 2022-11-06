@@ -28,7 +28,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
           header: const Text('Dictionary Popup'),
           children: [
             CupertinoListTile(
-                title: const Text('Popup Theme'),
+                title: const Text('Dictionary Theme'),
                 onTap: () {
                   Navigator.push(context,
                       SwipeablePageRoute(builder: (context) {

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/widgets/vocabulary/frequency_widget.dart';
@@ -10,6 +11,7 @@ import 'package:immersion_reader/utils/language_utils.dart';
 
 class VocabularyTileList extends StatefulWidget {
   final List<Vocabulary> vocabularyList;
+  final PopupDictionaryThemeData popupDictionaryThemeData;
   final VocabularyListStorage? vocabularyListStorage;
   final DictionaryProvider dictionaryProvider;
   final String text;
@@ -17,6 +19,7 @@ class VocabularyTileList extends StatefulWidget {
   const VocabularyTileList(
       {super.key,
       required this.text,
+      required this.popupDictionaryThemeData,
       required this.targetIndex,
       required this.dictionaryProvider,
       required this.vocabularyList,
@@ -128,7 +131,8 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
                   neighboringText[segmentIndex],
-                  style: const TextStyle(color: CupertinoColors.white),
+                  style: TextStyle(
+                      color: widget.popupDictionaryThemeData.getSegmentColor()),
                 ),
               ),
             )
@@ -146,8 +150,8 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
         mainAxisSize: MainAxisSize.min,
         children: [
           CupertinoSlidingSegmentedControl<int>(
-              thumbColor: const Color(
-                  0xFF636366), // https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/cupertino/sliding_segmented_control.dart#L32
+              thumbColor: widget.popupDictionaryThemeData
+                  .getSegmentThumbColor(), // https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/cupertino/sliding_segmented_control.dart#L32
               groupValue: _selectedSegmentIndex,
               onValueChanged: (int? value) {
                 if (value != null && _canSelectIndex(value)) {
@@ -202,6 +206,8 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
                                   CupertinoListTile(
                                       title: VocabularyTile(
                                           vocabulary: vocabulary,
+                                          popupDictionaryThemeData:
+                                              widget.popupDictionaryThemeData,
                                           added: ifVocabularyExists(vocabulary),
                                           addOrRemoveVocabulary:
                                               addOrRemoveFromVocabularyList),

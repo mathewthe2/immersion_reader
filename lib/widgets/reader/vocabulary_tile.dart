@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/widgets/vocabulary/pitch_widget.dart';
 import 'package:ruby_text/ruby_text.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
@@ -6,11 +7,13 @@ import 'package:immersion_reader/utils/language_utils.dart';
 
 class VocabularyTile extends StatefulWidget {
   final Vocabulary vocabulary;
+  final PopupDictionaryThemeData popupDictionaryThemeData;
   final Function addOrRemoveVocabulary;
   final bool added;
   const VocabularyTile(
       {super.key,
       required this.vocabulary,
+      required this.popupDictionaryThemeData,
       required this.addOrRemoveVocabulary,
       this.added = false});
 
@@ -19,21 +22,6 @@ class VocabularyTile extends StatefulWidget {
 }
 
 class _VocabularyTileState extends State<VocabularyTile> {
-  String colorCorrectedPitch(String pitchSvg) {
-    const String pitchGraphStrokeColor = '#FFF0F5';
-    const String pitchGraphContrastColor = '#4B0082';
-    pitchSvg = pitchSvg
-        .replaceAll(RegExp(r'#000'), pitchGraphStrokeColor)
-        .replaceAll(RegExp(r'#fff'), pitchGraphContrastColor);
-    return pitchSvg;
-  }
-
-  // Widget vocabularyPitch(Vocabulary vocabulary) {
-  //   return vocabulary.pitchValues.isEmpty
-  //       ? const Text('')
-  //       : PitchWidget(parentContext: parentContext, vocabulary: vocabulary);
-  // }
-
   bool hasPitch(Vocabulary vocabulary) {
     return vocabulary.pitchValues.isNotEmpty;
   }
@@ -44,10 +32,10 @@ class _VocabularyTileState extends State<VocabularyTile> {
       return const Text('');
     }
     String reading = vocabulary.reading ?? '';
-    TextStyle expressionStyle = const TextStyle(
+    TextStyle expressionStyle = TextStyle(
         fontWeight: FontWeight.w400,
         fontSize: 20,
-        color: CupertinoColors.white);
+        color: widget.popupDictionaryThemeData.getPrimaryTextColor());
     if (reading.isEmpty) {
       return Text(expression, style: expressionStyle);
     }
@@ -72,7 +60,9 @@ class _VocabularyTileState extends State<VocabularyTile> {
                       vocabularyExpression(widget.vocabulary),
                       const SizedBox(width: 20),
                       hasPitch(widget.vocabulary)
-                          ? PitchWidget(vocabulary: widget.vocabulary)
+                          ? PitchWidget(
+                              vocabulary: widget.vocabulary,
+                              themeData: widget.popupDictionaryThemeData)
                           : Container()
                     ]),
                   ],

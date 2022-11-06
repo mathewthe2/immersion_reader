@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/data/search/search_result.dart';
+import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
+import 'package:immersion_reader/utils/system_theme.dart';
 import 'package:immersion_reader/widgets/vocabulary/frequency_widget.dart';
 import 'package:immersion_reader/widgets/vocabulary/pitch_widget.dart';
 
@@ -79,7 +82,12 @@ class VocabularyTile extends StatelessWidget {
                         )),
                         WidgetSpan(
                             child: hasPitch(vocabulary)
-                                ? PitchWidget(vocabulary: vocabulary)
+                                ? PitchWidget(
+                                    vocabulary: vocabulary,
+                                    themeData: PopupDictionaryThemeData(
+                                        popupDictionaryTheme: isDarkMode()
+                                            ? PopupDictionaryTheme.dark
+                                            : PopupDictionaryTheme.light))
                                 : const SizedBox()),
                         // TextSpan(
                         //     text: vocabulary.reading ?? '',

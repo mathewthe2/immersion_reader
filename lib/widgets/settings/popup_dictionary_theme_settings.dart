@@ -31,8 +31,8 @@ class _PopupDictionaryThemeSettingsState
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-        navigationBar: const CupertinoNavigationBar(
-            middle: Text('Popup Dictionary Theme')),
+        navigationBar:
+            const CupertinoNavigationBar(middle: Text('Dictionary Theme')),
         child: SafeArea(
             child: CupertinoListSection(
                 header: const Text('Pitch Accent Display Style'),
