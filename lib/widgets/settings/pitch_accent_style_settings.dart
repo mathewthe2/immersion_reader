@@ -33,24 +33,20 @@ class _PitchAccentStyleSettingsState extends State<PitchAccentStyleSettings> {
         navigationBar:
             const CupertinoNavigationBar(middle: Text('Pitch Accent Style')),
         child: SafeArea(
-            child: CupertinoListSection(
-                header: const Text('Pitch Accent Display Style'),
-                children: [
-              ...PitchAccentDisplayStyle.values.map((style) =>
-                  CupertinoListTile(
-                      title: Text(style.name.capitalize()),
-                      onTap: () async {
-                        setState(() {
-                          pitchAccentStyleString = style.name;
-                        });
-                        await widget.settingsProvider
-                            .updatePitchAccentStyle(style);
-                        widget.pitchAccentValueNotifier.value =
-                            !widget.pitchAccentValueNotifier.value;
-                      },
-                      trailing: pitchAccentStyleString! == style.name
-                          ? const Icon(CupertinoIcons.check_mark)
-                          : null))
-            ])));
+            child: CupertinoListSection(children: [
+          ...PitchAccentDisplayStyle.values.map((style) => CupertinoListTile(
+              title: Text(style.name.capitalize()),
+              onTap: () async {
+                setState(() {
+                  pitchAccentStyleString = style.name;
+                });
+                await widget.settingsProvider.updatePitchAccentStyle(style);
+                widget.pitchAccentValueNotifier.value =
+                    !widget.pitchAccentValueNotifier.value;
+              },
+              trailing: pitchAccentStyleString! == style.name
+                  ? const Icon(CupertinoIcons.check_mark)
+                  : null))
+        ])));
   }
 }

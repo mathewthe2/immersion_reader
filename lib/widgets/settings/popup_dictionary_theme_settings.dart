@@ -34,23 +34,20 @@ class _PopupDictionaryThemeSettingsState
         navigationBar:
             const CupertinoNavigationBar(middle: Text('Dictionary Theme')),
         child: SafeArea(
-            child: CupertinoListSection(
-                header: const Text('Pitch Accent Display Style'),
-                children: [
-              ...PopupDictionaryTheme.values.map((theme) => CupertinoListTile(
-                  title: Text(theme.name.capitalize()),
-                  onTap: () async {
-                    setState(() {
-                      popupDictionaryThemeString = theme.name;
-                    });
-                    await widget.settingsProvider
-                        .updatePopupDictionaryTheme(theme);
-                    widget.popupDictionaryThemeValueNotifier.value =
-                        !widget.popupDictionaryThemeValueNotifier.value;
-                  },
-                  trailing: popupDictionaryThemeString! == theme.name
-                      ? const Icon(CupertinoIcons.check_mark)
-                      : null))
-            ])));
+            child: CupertinoListSection(children: [
+          ...PopupDictionaryTheme.values.map((theme) => CupertinoListTile(
+              title: Text(theme.name.capitalize()),
+              onTap: () async {
+                setState(() {
+                  popupDictionaryThemeString = theme.name;
+                });
+                await widget.settingsProvider.updatePopupDictionaryTheme(theme);
+                widget.popupDictionaryThemeValueNotifier.value =
+                    !widget.popupDictionaryThemeValueNotifier.value;
+              },
+              trailing: popupDictionaryThemeString! == theme.name
+                  ? const Icon(CupertinoIcons.check_mark)
+                  : null))
+        ])));
   }
 }
