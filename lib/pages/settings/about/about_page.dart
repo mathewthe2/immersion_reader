@@ -121,15 +121,14 @@ class AboutPage extends StatelessWidget {
         CupertinoActionSheetAction(
           child: const Text('Terms of Use'),
           onPressed: () {
-            launchUrl(Uri.parse(
-                "https://mathewthe2.github.io/immersion-reader-website/terms_and_conditions.html"));
+            launchUrl(Uri.parse("https://reader.immersionkit.com/terms/"));
           },
         ),
         CupertinoActionSheetAction(
           child: const Text('Privacy Policy'),
           onPressed: () {
-            launchUrl(Uri.parse(
-                "https://mathewthe2.github.io/immersion-reader-website/privacy_policy.html"));
+            launchUrl(
+                Uri.parse("https://reader.immersionkit.com/privacypolicy/"));
           },
         ),
       ],
