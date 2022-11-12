@@ -81,22 +81,22 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                                       endActionPane: ActionPane(
                                         motion: const ScrollMotion(),
                                         children: [
-                                          SlidableAction(
-                                            onPressed: (context) {},
-                                            backgroundColor:
-                                                CupertinoColors.systemBlue,
-                                            foregroundColor:
-                                                CupertinoColors.white,
-                                            icon: CupertinoIcons.share,
-                                          ),
-                                          SlidableAction(
-                                            onPressed: (context) {},
-                                            backgroundColor:
-                                                CupertinoColors.systemPurple,
-                                            foregroundColor:
-                                                CupertinoColors.white,
-                                            icon: CupertinoIcons.folder_fill,
-                                          ),
+                                          // SlidableAction(
+                                          //   onPressed: (context) {},
+                                          //   backgroundColor:
+                                          //       CupertinoColors.systemBlue,
+                                          //   foregroundColor:
+                                          //       CupertinoColors.white,
+                                          //   icon: CupertinoIcons.share,
+                                          // ),
+                                          // SlidableAction(
+                                          //   onPressed: (context) {},
+                                          //   backgroundColor:
+                                          //       CupertinoColors.systemPurple,
+                                          //   foregroundColor:
+                                          //       CupertinoColors.white,
+                                          //   icon: CupertinoIcons.folder_fill,
+                                          // ),
                                           SlidableAction(
                                             onPressed: (context) =>
                                                 deleteVocabulary(vocabulary),
