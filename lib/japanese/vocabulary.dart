@@ -12,6 +12,7 @@ enum VocabularyInformationKey {
 
 class Vocabulary {
   String? id;
+  int folderId = 1; // default folder id
   String? expression;
   String? reading;
   List<String>? tags;
@@ -33,6 +34,7 @@ class Vocabulary {
   Vocabulary(
       {this.id,
       this.expression,
+      this.folderId = 1,
       this.reading,
       this.tags,
       this.glossary = '',
@@ -42,6 +44,7 @@ class Vocabulary {
 
   factory Vocabulary.fromMap(Map<String, Object?> map) => Vocabulary(
       id: map['id'] as String?,
+      folderId: map['folderId'] as int,
       expression: map['expression'] as String?,
       reading: map['reading'] as String?,
       glossary: map['glossary'] as String,

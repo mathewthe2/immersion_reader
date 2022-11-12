@@ -6,6 +6,9 @@ import 'package:immersion_reader/japanese/vocabulary.dart';
 class VocabularyListStorage {
   Database? database;
 
+  static String defaultFolderName = 'Favorties';
+  static int defaultFolderId = 1;
+
   VocabularyListStorage._create() {
     // print("_create() (private constructor)");
   }
@@ -26,33 +29,26 @@ class VocabularyListStorage {
     // opening the database
     vocabularyListStorage.database = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
-      // When creating the db, create the table
-      await db.execute('''
+      // When creating the db, create the table\
+      Batch batch = db.batch();
+      batch.execute('''
             CREATE TABLE Vocabulary (
-            id TEXT PRIMARY KEY, expression TEXT, reading TEXT, 
+            id TEXT PRIMARY KEY, folderId INTEGER, expression TEXT, reading TEXT, 
             tags TEXT, glossary TEXT, pitch TEXT, pitch_svg TEXT, sentence TEXT)
           ''');
+      batch.execute('''
+            CREATE TABLE Folder (
+            id TEXT PRIMARY KEY, name TEXT)
+          ''');
+      batch.rawQuery(
+          "CREATE INDEX index_Vocabulary_folder ON Vocabulary(folderId)");
+      batch.rawInsert("INSERT INTO Folder(id, name) VALUES(?, ?)",
+          [defaultFolderId, defaultFolderName]);
+      await batch.commit();
     });
 
     return vocabularyListStorage;
   }
-
-  // Future<void> addSampleItems() async {
-  //   if (database != null) {
-  //     await database!.rawInsert(
-  //         'INSERT INTO Vocabulary(expression, reading, tags) VALUES(?, ?, ?)', [
-  //       '走る',
-  //       'はしる',
-  //       ['yomi', 'anki'].join(' ')
-  //     ]);
-  //     await database!.rawInsert(
-  //         'INSERT INTO Vocabulary(expression, reading, tags) VALUES(?, ?, ?)', [
-  //       'これ',
-  //       'これ',
-  //       ['yomi', 'anki'].join(' ')
-  //     ]);
-  //   }
-  // }
 
   Future<List<String>> getExistsVocabularyList(
       List<Vocabulary> vocabularyList) async {
@@ -76,9 +72,10 @@ class VocabularyListStorage {
 
   Future<int> addVocabularyItem(Vocabulary vocabulary) async {
     int id = await database!.rawInsert(
-        'INSERT INTO Vocabulary(id, expression, reading, glossary, tags, sentence) VALUES(?, ?, ?, ?, ?, ?)',
+        'INSERT INTO Vocabulary(id, folderId, expression, reading, glossary, tags, sentence) VALUES(?, ?, ?, ?, ?, ?, ?)',
         [
           vocabulary.getIdentifier(),
+          vocabulary.folderId,
           vocabulary.expression,
           vocabulary.reading,
           vocabulary.getCompleteGlossary(),
