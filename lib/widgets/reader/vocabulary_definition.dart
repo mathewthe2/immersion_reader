@@ -1,10 +1,15 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/dictionary/dictionary_entry.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 
 class VocabularyDefinition extends StatefulWidget {
   final Vocabulary vocabulary;
-  const VocabularyDefinition({super.key, required this.vocabulary});
+  final PopupDictionaryThemeData popupDictionaryThemeData;
+  const VocabularyDefinition(
+      {super.key,
+      required this.vocabulary,
+      required this.popupDictionaryThemeData});
 
   @override
   State<VocabularyDefinition> createState() => _VocabularyDefinitionState();
@@ -36,7 +41,8 @@ class _VocabularyDefinitionState extends State<VocabularyDefinition> {
                   child: Text(entry.meanings.join('; '),
                       textAlign: TextAlign.left,
                       style: TextStyle(
-                          color: CupertinoColors.inactiveGray,
+                          color: widget.popupDictionaryThemeData
+                              .getColor(DictionaryColor.secondaryTextColor),
                           fontSize: 15,
                           overflow: definitionsExpanded.containsKey(entry) &&
                                   definitionsExpanded[entry]!

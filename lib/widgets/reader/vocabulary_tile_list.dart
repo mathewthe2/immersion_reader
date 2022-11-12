@@ -132,7 +132,8 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
                 child: Text(
                   neighboringText[segmentIndex],
                   style: TextStyle(
-                      color: widget.popupDictionaryThemeData.getSegmentColor()),
+                      color: widget.popupDictionaryThemeData
+                          .getColor(DictionaryColor.segmentColor)),
                 ),
               ),
             )
@@ -150,8 +151,8 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
         mainAxisSize: MainAxisSize.min,
         children: [
           CupertinoSlidingSegmentedControl<int>(
-              thumbColor: widget.popupDictionaryThemeData
-                  .getSegmentThumbColor(), // https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/cupertino/sliding_segmented_control.dart#L32
+              thumbColor: widget.popupDictionaryThemeData.getColor(DictionaryColor
+                  .segmentThumbColor), // https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/cupertino/sliding_segmented_control.dart#L32
               groupValue: _selectedSegmentIndex,
               onValueChanged: (int? value) {
                 if (value != null && _canSelectIndex(value)) {
@@ -216,6 +217,10 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
                                               addOrRemoveFromVocabularyList(
                                                   vocabulary),
                                           child: Icon(
+                                            color: widget
+                                                .popupDictionaryThemeData
+                                                .getColor(DictionaryColor
+                                                    .primaryActionColor),
                                             ifVocabularyExists(vocabulary)
                                                 ? CupertinoIcons.star_fill
                                                 : CupertinoIcons.star,
@@ -236,7 +241,10 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
                                       padding: const EdgeInsetsDirectional.only(
                                           start: 20.0, end: 14.0),
                                       child: VocabularyDefinition(
-                                          vocabulary: vocabulary)),
+                                        vocabulary: vocabulary,
+                                        popupDictionaryThemeData:
+                                            widget.popupDictionaryThemeData,
+                                      )),
                                 ]),
                               )
                               .toList(),

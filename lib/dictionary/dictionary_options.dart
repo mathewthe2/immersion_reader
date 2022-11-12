@@ -1,6 +1,6 @@
 enum PitchAccentDisplayStyle { none, graph, number }
 
-enum PopupDictionaryTheme { light, dark, dracula }
+enum PopupDictionaryTheme { dark, dracula, light, purple }
 
 class DictionaryOptions {
   List<int> disabledDictionaryIds;

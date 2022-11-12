@@ -25,7 +25,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
         navigationBar: const CupertinoNavigationBar(middle: Text('Appearance')),
         child: SafeArea(
             child: CupertinoListSection(
-          header: const Text('Dictionary Popup'),
+          header: const Text('Dictionary Appearance'),
           children: [
             CupertinoListTile(
                 title: const Text('Dictionary Theme'),

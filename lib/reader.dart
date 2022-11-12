@@ -80,7 +80,8 @@ class _ReaderState extends State<Reader> {
           return SafeArea(
               child: Container(
                   height: MediaQuery.of(context).size.height * .40,
-                  color: popupDictionaryThemeData.getBackgroundColor(),
+                  color: popupDictionaryThemeData
+                      .getColor(DictionaryColor.backgroundColor),
                   child: CupertinoScrollbar(
                       child: SingleChildScrollView(
                           controller: ModalScrollController.of(context),

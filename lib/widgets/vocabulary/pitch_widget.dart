@@ -38,7 +38,9 @@ class PitchWidget extends StatelessWidget {
                       : 20), // adjust for furigana height
               child: Text(
                 vocabulary.pitchValues.map((value) => '[$value]').join(', '),
-                style: TextStyle(color: themeData.getPitchNumberColor()),
+                style: TextStyle(
+                    color:
+                        themeData.getColor(DictionaryColor.pitchNumberColor)),
               ));
         }
       default:

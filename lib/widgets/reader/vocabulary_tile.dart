@@ -35,7 +35,8 @@ class _VocabularyTileState extends State<VocabularyTile> {
     TextStyle expressionStyle = TextStyle(
         fontWeight: FontWeight.w400,
         fontSize: 20,
-        color: widget.popupDictionaryThemeData.getPrimaryTextColor());
+        color: widget.popupDictionaryThemeData
+            .getColor(DictionaryColor.primaryTextColor));
     if (reading.isEmpty) {
       return Text(expression, style: expressionStyle);
     }
