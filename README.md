@@ -1,5 +1,7 @@
 # Immersion Reader
 
+<h3><a href="https://apps.apple.com/us/app/immersion-reader/id6443721334">Download on App Store</h3>
+
 <p float="left">
   <img src="https://user-images.githubusercontent.com/13146030/201500224-030caf5f-927c-423e-ac54-d84150c7f3fe.jpg" width="240" />
   <img src="https://user-images.githubusercontent.com/13146030/201500252-0affc16e-b81a-407a-9697-42ce780a9068.jpg" width="240" /> 
