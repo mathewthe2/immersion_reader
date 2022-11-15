@@ -30,6 +30,9 @@ class _AppState extends State<App> {
   SettingsProvider? settingsProvider;
   bool isReady = false;
 
+  final List<GlobalKey<NavigatorState>> tabNavKeys =
+      List.generate(4, (_) => GlobalKey<NavigatorState>()); // 4 tabs
+
   Future<void> setupProviders() async {
     localAssetsServerProvider = await LocalAssetsServerProvider.create();
     vocabularyListProvider = await VocabularyListProvider.create();
@@ -48,6 +51,9 @@ class _AppState extends State<App> {
   }
 
   void handleSwitchNavigation(int index) async {
+    tabNavKeys[index]
+        .currentState
+        ?.popUntil((r) => r.isFirst); // pop to root of each page
     if (index == 0 && vocabularyListProvider != null) {
       await vocabularyListProvider!.getVocabularyList();
     }
@@ -79,11 +85,7 @@ class _AppState extends State<App> {
         ],
       ),
       tabBuilder: (BuildContext context, int index) {
-        return CupertinoTabView(
-          builder: (BuildContext context) {
-            return buildBody(index);
-          },
-        );
+        return buildViews(index);
       },
     ));
   }
@@ -95,31 +97,46 @@ class _AppState extends State<App> {
     );
   }
 
-  Widget buildBody(int index) {
+  Widget buildViews(int index) {
     switch (index) {
       case 0:
-        return isReady
-            ? ValueListenableBuilder(
-                valueListenable: _notifier,
-                builder: (context, val, child) => VocabularyListPage(
-                    vocabularyListProvider: vocabularyListProvider!,
-                    notifier: _notifier))
-            : progressIndicator();
+        return CupertinoTabView(
+            navigatorKey: tabNavKeys[index],
+            builder: (BuildContext context) {
+              return isReady
+                  ? ValueListenableBuilder(
+                      valueListenable: _notifier,
+                      builder: (context, val, child) => VocabularyListPage(
+                          vocabularyListProvider: vocabularyListProvider!,
+                          notifier: _notifier))
+                  : progressIndicator();
+            });
       case 1:
-        return isReady
-            ? Reader(
-                localAssetsServer: localAssetsServerProvider!.server,
-                dictionaryProvider: dictionaryProvider!)
-            : progressIndicator();
+        return CupertinoTabView(
+            navigatorKey: tabNavKeys[index],
+            builder: (BuildContext context) {
+              return isReady
+                  ? Reader(
+                      localAssetsServer: localAssetsServerProvider!.server,
+                      dictionaryProvider: dictionaryProvider!)
+                  : progressIndicator();
+            });
       case 2:
-        return SearchPage(dictionaryProvider: dictionaryProvider);
+        return CupertinoTabView(
+            navigatorKey: tabNavKeys[index],
+            builder: (BuildContext context) =>
+                SearchPage(dictionaryProvider: dictionaryProvider));
       case 3:
-        return isReady
-            ? SettingsPage(
-                dictionaryProvider: dictionaryProvider,
-                settingsProvider: settingsProvider,
-              )
-            : progressIndicator();
+        return CupertinoTabView(
+            navigatorKey: tabNavKeys[index],
+            builder: (BuildContext context) {
+              return isReady
+                  ? SettingsPage(
+                      dictionaryProvider: dictionaryProvider,
+                      settingsProvider: settingsProvider,
+                    )
+                  : progressIndicator();
+            });
     }
     return const Text('no page');
   }
