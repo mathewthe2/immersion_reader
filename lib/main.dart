@@ -5,7 +5,7 @@ import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
-import './reader.dart';
+import 'pages/reader.dart';
 import 'pages/settings/settings_page.dart';
 import 'pages/search_page.dart';
 import 'pages/vocabulary_list/vocabulary_list_page.dart';

@@ -9,8 +9,8 @@ import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import 'package:local_assets_server/local_assets_server.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import './reader_js.dart';
-import 'widgets/reader/vocabulary_tile_list.dart';
+import '../reader_js.dart';
+import '../widgets/reader/vocabulary_tile_list.dart';
 
 class Reader extends StatefulWidget {
   final LocalAssetsServer? localAssetsServer;
