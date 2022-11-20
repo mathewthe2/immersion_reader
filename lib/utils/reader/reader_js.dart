@@ -60,6 +60,7 @@ function tapToSelect(e) {
 		console.log(JSON.stringify({
 				"index": index,
 				"text": text,
+        "timestamp": Date.now(),
 				"message-type": "lookup",
         "x": e.clientX,
         "y": e.clientY,

@@ -1,16 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
-import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
-import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
+import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
 import 'package:local_assets_server/local_assets_server.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import '../reader_js.dart';
-import '../widgets/reader/vocabulary_tile_list.dart';
+import '../utils/reader/reader_js.dart';
 
 class Reader extends StatefulWidget {
   final LocalAssetsServer? localAssetsServer;
@@ -28,16 +25,19 @@ class Reader extends StatefulWidget {
 class _ReaderState extends State<Reader> {
   VocabularyListStorage? vocabularyListStorage;
   InAppWebViewController? webViewController;
-  late ContextMenu contextMenu;
+  late PopupDictionary popupDictionary;
+  int? lastTimestamp;
+  static int timeStampDiff = 20; // recently opened
 
   @override
   void initState() {
     super.initState();
-    // _initServer();
-    // server = widget.localAssetsServer;
     Future(() async {
       vocabularyListStorage = await VocabularyListStorage.create();
-      // translator = await Translator.create();
+      popupDictionary = PopupDictionary(
+          parentContext: context,
+          vocabularyListStorage: vocabularyListStorage!,
+          dictionaryProvider: widget.dictionaryProvider);
     });
   }
 
@@ -49,51 +49,22 @@ class _ReaderState extends State<Reader> {
       debugPrint(message.message);
       return;
     }
+    bool isRecentMessage = lastTimestamp != null &&
+        messageJson['timestamp'] - lastTimestamp < timeStampDiff;
+    lastTimestamp = messageJson['timestamp'];
+    if (isRecentMessage) {
+      return;
+    }
     switch (messageJson['message-type']) {
       case 'lookup':
         {
           int index = messageJson['index'];
           String text = messageJson['text'];
           // print(message.message);
-          showVocabularyList(text, index);
+          popupDictionary.showVocabularyList(text, index);
           break;
         }
     }
-  }
-
-  Future<void> showVocabularyList(String text, int index) async {
-    if (index < 0 || index >= text.length) {
-      return;
-    }
-    // move index by one if initial click on space
-    if (text[index].trim().isEmpty && text.length > index) {
-      index += 1;
-    }
-    PopupDictionaryTheme popupDictionaryTheme = await widget
-        .dictionaryProvider.settingsProvider!
-        .getPopupDictionaryTheme();
-    PopupDictionaryThemeData popupDictionaryThemeData =
-        PopupDictionaryThemeData(popupDictionaryTheme: popupDictionaryTheme);
-    showCupertinoModalBottomSheet<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return SafeArea(
-              child: Container(
-                  height: MediaQuery.of(context).size.height * .40,
-                  color: popupDictionaryThemeData
-                      .getColor(DictionaryColor.backgroundColor),
-                  child: CupertinoScrollbar(
-                      child: SingleChildScrollView(
-                          controller: ModalScrollController.of(context),
-                          child: VocabularyTileList(
-                              text: text,
-                              targetIndex: index,
-                              popupDictionaryThemeData:
-                                  popupDictionaryThemeData,
-                              dictionaryProvider: widget.dictionaryProvider,
-                              vocabularyList: const [],
-                              vocabularyListStorage: vocabularyListStorage)))));
-        });
   }
 
   @override

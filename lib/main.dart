@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/pages/browser.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
@@ -31,7 +32,7 @@ class _AppState extends State<App> {
   bool isReady = false;
 
   final List<GlobalKey<NavigatorState>> tabNavKeys =
-      List.generate(4, (_) => GlobalKey<NavigatorState>()); // 4 tabs
+      List.generate(5, (_) => GlobalKey<NavigatorState>()); // 4 tabs
 
   Future<void> setupProviders() async {
     localAssetsServerProvider = await LocalAssetsServerProvider.create();
@@ -73,6 +74,10 @@ class _AppState extends State<App> {
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.book),
             label: 'Reader',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.globe),
+            label: 'Browser',
           ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.search),
@@ -124,9 +129,15 @@ class _AppState extends State<App> {
       case 2:
         return CupertinoTabView(
             navigatorKey: tabNavKeys[index],
+            builder: (BuildContext context) => isReady
+                ? Browser(dictionaryProvider: dictionaryProvider!)
+                : progressIndicator());
+      case 3:
+        return CupertinoTabView(
+            navigatorKey: tabNavKeys[index],
             builder: (BuildContext context) =>
                 SearchPage(dictionaryProvider: dictionaryProvider));
-      case 3:
+      case 4:
         return CupertinoTabView(
             navigatorKey: tabNavKeys[index],
             builder: (BuildContext context) {

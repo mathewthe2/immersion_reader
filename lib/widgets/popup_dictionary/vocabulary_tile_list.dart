@@ -4,8 +4,8 @@ import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/widgets/vocabulary/frequency_widget.dart';
-import 'vocabulary_tile.dart';
-import 'vocabulary_definition.dart';
+import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_definition.dart';
+import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_tile.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/utils/language_utils.dart';
 
