@@ -32,7 +32,7 @@ class _AppState extends State<App> {
   bool isReady = false;
 
   final List<GlobalKey<NavigatorState>> tabNavKeys =
-      List.generate(5, (_) => GlobalKey<NavigatorState>()); // 4 tabs
+      List.generate(4, (_) => GlobalKey<NavigatorState>()); // 4 tabs
 
   Future<void> setupProviders() async {
     localAssetsServerProvider = await LocalAssetsServerProvider.create();
@@ -75,10 +75,10 @@ class _AppState extends State<App> {
             icon: Icon(CupertinoIcons.book),
             label: 'Reader',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.globe),
-            label: 'Browser',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(CupertinoIcons.globe),
+          //   label: 'Browser',
+          // ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.search),
             label: 'Search',
@@ -126,18 +126,18 @@ class _AppState extends State<App> {
                       dictionaryProvider: dictionaryProvider!)
                   : progressIndicator();
             });
+      // case 2:
+      //   return CupertinoTabView(
+      //       navigatorKey: tabNavKeys[index],
+      //       builder: (BuildContext context) => isReady
+      //           ? Browser(dictionaryProvider: dictionaryProvider!)
+      //           : progressIndicator());
       case 2:
-        return CupertinoTabView(
-            navigatorKey: tabNavKeys[index],
-            builder: (BuildContext context) => isReady
-                ? Browser(dictionaryProvider: dictionaryProvider!)
-                : progressIndicator());
-      case 3:
         return CupertinoTabView(
             navigatorKey: tabNavKeys[index],
             builder: (BuildContext context) =>
                 SearchPage(dictionaryProvider: dictionaryProvider));
-      case 4:
+      case 3:
         return CupertinoTabView(
             navigatorKey: tabNavKeys[index],
             builder: (BuildContext context) {
