@@ -32,6 +32,21 @@ class SettingsProvider {
     return settingsCache!.appearanceSetting.showFrequencyTags;
   }
 
+  Future<void> toggleEnableSlideAnimation(bool enableSlideAnimation) async {
+    if (settingsCache != null) {
+      settingsCache!.appearanceSetting.enableSlideAnimation =
+          !settingsCache!.appearanceSetting.enableSlideAnimation;
+    }
+    await settingsStorage!.changeConfigSettings(
+        "enable_slide_animation", enableSlideAnimation ? "1" : "0",
+        newSettingsCache: settingsCache);
+  }
+
+  Future<bool> getIsEnabledSlideAnimation() async {
+    settingsCache ??= await settingsStorage!.getConfigSettings();
+    return settingsCache!.appearanceSetting.enableSlideAnimation;
+  }
+
   Future<void> updatePitchAccentStyle(
       PitchAccentDisplayStyle pitchAccentDisplayStyle) async {
     if (settingsCache != null) {

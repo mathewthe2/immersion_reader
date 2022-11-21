@@ -87,11 +87,39 @@ class SettingsStorage {
         appearanceConfigMap[row["title"] as String] =
             row["customValue"] as String;
       }
-      // configMap[row["title"] as String] = row["customValue"] as String;
     }
-    AppearanceSetting appearanceSetting =
-        AppearanceSetting.fromMap(appearanceConfigMap);
-    return SettingsData(appearanceSetting: appearanceSetting);
+    try {
+      AppearanceSetting appearanceSetting =
+          AppearanceSetting.fromMap(appearanceConfigMap);
+      return SettingsData(appearanceSetting: appearanceSetting);
+    } catch (e) {
+      appearanceConfigMap = await patchConfigSettings(appearanceConfigMap);
+      AppearanceSetting appearanceSetting =
+          AppearanceSetting.fromMap(appearanceConfigMap);
+      return SettingsData(appearanceSetting: appearanceSetting);
+    }
+  }
+
+  Future<Map<String, String>> patchConfigSettings(
+      Map<String, String> appearanceConfigMap) async {
+    Batch batch = database!.batch();
+    ByteData bytes = await rootBundle
+        .load(p.join("assets", "settings", "defaultConfig.json"));
+    String jsonStr = const Utf8Decoder().convert(bytes.buffer.asUint8List());
+    Map<String, Object?> json = jsonDecode(jsonStr);
+    for (MapEntry<String, Object?> categoryEntry in json.entries) {
+      Map<String, Object?> map = categoryEntry.value as Map<String, Object?>;
+      for (MapEntry<String, Object?> entry in map.entries) {
+        if (!appearanceConfigMap.containsKey(entry.key)) {
+          batch.rawInsert(
+              "INSERT INTO Config(title, customValue, category) VALUES(?, ?, ?)",
+              [entry.key, entry.value as String, categoryEntry.key]);
+          appearanceConfigMap[entry.key] = entry.value as String;
+        }
+      }
+    }
+    await batch.commit();
+    return appearanceConfigMap;
   }
 
   Future<int> changeConfigSettings(String settingKey, String settingValue,

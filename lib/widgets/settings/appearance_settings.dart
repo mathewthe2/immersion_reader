@@ -85,6 +85,16 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                     },
                     value: widget.settingsProvider.settingsCache!
                         .appearanceSetting.showFrequencyTags)),
+            CupertinoListTile(
+                title: const Text('Enable Slide Animation'),
+                trailing: CupertinoSwitch(
+                    onChanged: (bool? value) {
+                      widget.settingsProvider
+                          .toggleEnableSlideAnimation(value!);
+                      setState(() {});
+                    },
+                    value: widget.settingsProvider.settingsCache!
+                        .appearanceSetting.enableSlideAnimation))
           ],
         )));
   }

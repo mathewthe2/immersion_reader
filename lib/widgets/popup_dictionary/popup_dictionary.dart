@@ -28,7 +28,10 @@ class PopupDictionary {
         await dictionaryProvider.settingsProvider!.getPopupDictionaryTheme();
     PopupDictionaryThemeData popupDictionaryThemeData =
         PopupDictionaryThemeData(popupDictionaryTheme: popupDictionaryTheme);
+    bool enableSlideAnimation =
+        await dictionaryProvider.settingsProvider!.getIsEnabledSlideAnimation();
     showCupertinoModalBottomSheet<void>(
+        duration: Duration(milliseconds: enableSlideAnimation ? 400 : 0),
         context: parentContext,
         builder: (BuildContext context) {
           return SafeArea(

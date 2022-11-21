@@ -1,6 +1,7 @@
 {
     "appearance": {
         "popup_dictionary_theme": "dark",
+        "enable_slide_animation": "1",
         "show_frequency_tags": "1",
         "pitch_accent_display_style": "graph"
     }
