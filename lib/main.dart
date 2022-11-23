@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/pages/discover.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:immersion_reader/pages/browser.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
@@ -25,6 +26,7 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   final ValueNotifier<bool> _notifier = ValueNotifier(false);
+  SharedPreferences? sharedPreferences;
   LocalAssetsServerProvider? localAssetsServerProvider;
   VocabularyListProvider? vocabularyListProvider;
   SettingsStorage? _settingsStorage;
@@ -45,6 +47,7 @@ class _AppState extends State<App> {
       List.generate(5, (_) => GlobalKey<NavigatorState>()); // 4 tabs
 
   Future<void> setupProviders() async {
+    sharedPreferences = await SharedPreferences.getInstance();
     localAssetsServerProvider = await LocalAssetsServerProvider.create();
     vocabularyListProvider = await VocabularyListProvider.create();
     _settingsStorage = await SettingsStorage.create();
@@ -97,7 +100,12 @@ class _AppState extends State<App> {
         return CupertinoTabView(
             navigatorKey: tabNavKeys[index],
             builder: (BuildContext context) {
-              return const Discover();
+              return isReady
+                  ? Discover(
+                      sharedPreferences: sharedPreferences!,
+                      localAssetsServer: localAssetsServerProvider!.server,
+                      dictionaryProvider: dictionaryProvider!)
+                  : progressIndicator();
             });
       case 1:
         return CupertinoTabView(

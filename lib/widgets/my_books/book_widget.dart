@@ -5,14 +5,13 @@ import 'package:transparent_image/transparent_image.dart';
 
 class BookWidget extends StatelessWidget {
   final Book book;
-  const BookWidget({super.key, required this.book});
+  final Function(String mediaIdentifier) onTap;
+  const BookWidget({super.key, required this.book, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onTap: () {
-          print(book.mediaIdentifier);
-        },
+        onTap: () => onTap(book.mediaIdentifier ?? ''),
         child: Container(
           padding: const EdgeInsets.all(20),
           child: Stack(

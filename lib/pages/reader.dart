@@ -12,11 +12,13 @@ import '../utils/reader/reader_js.dart';
 class Reader extends StatefulWidget {
   final LocalAssetsServer? localAssetsServer;
   final DictionaryProvider dictionaryProvider;
+  final String? initialUrl;
 
   const Reader(
       {super.key,
       required this.localAssetsServer,
-      required this.dictionaryProvider});
+      required this.dictionaryProvider,
+      this.initialUrl});
 
   @override
   State<Reader> createState() => _ReaderState();
@@ -77,7 +79,8 @@ class _ReaderState extends State<Reader> {
                     InAppWebViewOptions(cacheEnabled: true, incognito: false)),
             initialUrlRequest: URLRequest(
               url: Uri.parse(
-                'http://localhost:${LocalAssetsServerProvider.port}',
+                widget.initialUrl ??
+                    'http://localhost:${LocalAssetsServerProvider.port}',
               ),
             ),
             onWebViewCreated: (controller) {

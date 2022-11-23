@@ -1,22 +1,43 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/providers/dictionary_provider.dart';
+import 'package:local_assets_server/local_assets_server.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:immersion_reader/widgets/discover/category_box.dart';
 import 'package:immersion_reader/widgets/discover/recommended_widget.dart';
 import 'package:immersion_reader/widgets/my_books/my_books_widget.dart';
 
 class Discover extends StatefulWidget {
-  const Discover({super.key});
+  final SharedPreferences sharedPreferences;
+  final LocalAssetsServer? localAssetsServer;
+  final DictionaryProvider dictionaryProvider;
+
+  const Discover(
+      {super.key,
+      required this.sharedPreferences,
+      required this.localAssetsServer,
+      required this.dictionaryProvider});
 
   @override
   State<Discover> createState() => _DiscoverState();
 }
 
 class _DiscoverState extends State<Discover> {
-  int selectedTab = 1;
+  int? selectedTab;
   static List<String> discoverCategories = [
     "We Recommend",
     "My Books",
     // "Audio Books"
   ];
+
+  @override
+  void initState() {
+    selectedTab = widget.sharedPreferences.getInt('discover_selected_tab') ?? 0;
+    super.initState();
+  }
+
+  void setSelectedTab(int selectedTab) async {
+    widget.sharedPreferences.setInt('discover_selected_tab', selectedTab);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +51,9 @@ class _DiscoverState extends State<Discover> {
         activeWidget = const RecommendedWidget();
         break;
       case 1:
-        activeWidget = const MyBooksWidget();
+        activeWidget = MyBooksWidget(
+            localAssetsServer: widget.localAssetsServer,
+            dictionaryProvider: widget.dictionaryProvider);
         break;
       default:
         activeWidget = Container();
@@ -61,9 +84,12 @@ class _DiscoverState extends State<Discover> {
                                   .entries
                                   .map((entry) => CategoryBox(
                                         text: entry.value,
-                                        onPressed: () => setState(() {
-                                          selectedTab = entry.key;
-                                        }),
+                                        onPressed: () {
+                                          setState(() {
+                                            selectedTab = entry.key;
+                                          });
+                                          setSelectedTab(selectedTab!);
+                                        },
                                         isSelected: selectedTab == entry.key,
                                       )),
                             ])),
