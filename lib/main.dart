@@ -32,6 +32,15 @@ class _AppState extends State<App> {
   SettingsProvider? settingsProvider;
   bool isReady = false;
 
+  final Map<String, IconData> navigationItems = {
+    'Discover': CupertinoIcons.home,
+    'Reader': CupertinoIcons.book,
+    'My Words': CupertinoIcons.star_fill,
+    'Search': CupertinoIcons.search,
+    // 'Browse': CupertinoIcons.globe,
+    'Settings': CupertinoIcons.settings
+  };
+
   final List<GlobalKey<NavigatorState>> tabNavKeys =
       List.generate(5, (_) => GlobalKey<NavigatorState>()); // 4 tabs
 
@@ -65,35 +74,10 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: CupertinoTabScaffold(
-      tabBar: CupertinoTabBar(
-        onTap: handleSwitchNavigation,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.home),
-            label: 'Discover',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.book),
-            label: 'Reader',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.star_fill),
-            label: 'My Words',
-          ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(CupertinoIcons.globe),
-          //   label: 'Browser',
-          // ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.settings),
-            label: 'Settings',
-          ),
-        ],
-      ),
+      tabBar: CupertinoTabBar(onTap: handleSwitchNavigation, items: [
+        ...navigationItems.entries.map((entry) =>
+            BottomNavigationBarItem(icon: Icon(entry.value), label: entry.key))
+      ]),
       tabBuilder: (BuildContext context, int index) {
         return buildViews(index);
       },
@@ -113,7 +97,7 @@ class _AppState extends State<App> {
         return CupertinoTabView(
             navigatorKey: tabNavKeys[index],
             builder: (BuildContext context) {
-              return Discover();
+              return const Discover();
             });
       case 1:
         return CupertinoTabView(
@@ -142,7 +126,6 @@ class _AppState extends State<App> {
             navigatorKey: tabNavKeys[index],
             builder: (BuildContext context) =>
                 SearchPage(dictionaryProvider: dictionaryProvider));
-
       // case 2:
       //   return CupertinoTabView(
       //       navigatorKey: tabNavKeys[index],
