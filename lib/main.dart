@@ -26,6 +26,7 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   final ValueNotifier<bool> _notifier = ValueNotifier(false);
+  final int vocabularyListPageIndex = 2;
   SharedPreferences? sharedPreferences;
   LocalAssetsServerProvider? localAssetsServerProvider;
   VocabularyListProvider? vocabularyListProvider;
@@ -68,7 +69,7 @@ class _AppState extends State<App> {
     tabNavKeys[index]
         .currentState
         ?.popUntil((r) => r.isFirst); // pop to root of each page
-    if (index == 0 && vocabularyListProvider != null) {
+    if (index == vocabularyListPageIndex && vocabularyListProvider != null) {
       await vocabularyListProvider!.getVocabularyList();
     }
   }
@@ -94,64 +95,42 @@ class _AppState extends State<App> {
     );
   }
 
+  Widget getViewWidget(int index) {
+    List<Widget> viewWidgets = [
+      Discover(
+          sharedPreferences: sharedPreferences!,
+          localAssetsServer: localAssetsServerProvider!.server,
+          dictionaryProvider: dictionaryProvider!),
+      Reader(
+          localAssetsServer: localAssetsServerProvider!.server,
+          dictionaryProvider: dictionaryProvider!),
+      ValueListenableBuilder(
+          valueListenable: _notifier,
+          builder: (context, val, child) => VocabularyListPage(
+              vocabularyListProvider: vocabularyListProvider!,
+              notifier: _notifier)),
+      // ValueListenableBuilder(
+      //     valueListenable: _notifier,
+      //     builder: (context, val, child) => VocabularyListPage(
+      //         vocabularyListProvider: vocabularyListProvider!,
+      //         notifier: _notifier)),
+      // Browser(dictionaryProvider: dictionaryProvider!),
+      SearchPage(
+        dictionaryProvider: dictionaryProvider,
+      ),
+      SettingsPage(
+        dictionaryProvider: dictionaryProvider,
+        settingsProvider: settingsProvider,
+      )
+    ];
+    return viewWidgets[index];
+  }
+
   Widget buildViews(int index) {
-    switch (index) {
-      case 0:
-        return CupertinoTabView(
-            navigatorKey: tabNavKeys[index],
-            builder: (BuildContext context) {
-              return isReady
-                  ? Discover(
-                      sharedPreferences: sharedPreferences!,
-                      localAssetsServer: localAssetsServerProvider!.server,
-                      dictionaryProvider: dictionaryProvider!)
-                  : progressIndicator();
-            });
-      case 1:
-        return CupertinoTabView(
-            navigatorKey: tabNavKeys[index],
-            builder: (BuildContext context) {
-              return isReady
-                  ? Reader(
-                      localAssetsServer: localAssetsServerProvider!.server,
-                      dictionaryProvider: dictionaryProvider!)
-                  : progressIndicator();
-            });
-      case 2:
-        return CupertinoTabView(
-            navigatorKey: tabNavKeys[index],
-            builder: (BuildContext context) {
-              return isReady
-                  ? ValueListenableBuilder(
-                      valueListenable: _notifier,
-                      builder: (context, val, child) => VocabularyListPage(
-                          vocabularyListProvider: vocabularyListProvider!,
-                          notifier: _notifier))
-                  : progressIndicator();
-            });
-      case 3:
-        return CupertinoTabView(
-            navigatorKey: tabNavKeys[index],
-            builder: (BuildContext context) =>
-                SearchPage(dictionaryProvider: dictionaryProvider));
-      // case 2:
-      //   return CupertinoTabView(
-      //       navigatorKey: tabNavKeys[index],
-      //       builder: (BuildContext context) => isReady
-      //           ? Browser(dictionaryProvider: dictionaryProvider!)
-      //           : progressIndicator());
-      case 4:
-        return CupertinoTabView(
-            navigatorKey: tabNavKeys[index],
-            builder: (BuildContext context) {
-              return isReady
-                  ? SettingsPage(
-                      dictionaryProvider: dictionaryProvider,
-                      settingsProvider: settingsProvider,
-                    )
-                  : progressIndicator();
-            });
-    }
-    return const Text('no page');
+    return CupertinoTabView(
+        navigatorKey: tabNavKeys[index],
+        builder: (BuildContext context) {
+          return isReady ? getViewWidget(index) : progressIndicator();
+        });
   }
 }
