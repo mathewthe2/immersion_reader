@@ -40,14 +40,18 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                       return BookWidget(
                           book: snapshot.data![index],
                           onTap: (mediaIdentifier) {
-                            Navigator.push(context,
-                                SwipeablePageRoute(builder: (context) {
-                              return Reader(
-                                  initialUrl: mediaIdentifier,
-                                  localAssetsServer: widget.localAssetsServer,
-                                  dictionaryProvider:
-                                      widget.dictionaryProvider);
-                            }));
+                            Navigator.push(
+                                context,
+                                SwipeablePageRoute(
+                                    canOnlySwipeFromEdge: true,
+                                    builder: (context) {
+                                      return Reader(
+                                          initialUrl: mediaIdentifier,
+                                          localAssetsServer:
+                                              widget.localAssetsServer,
+                                          dictionaryProvider:
+                                              widget.dictionaryProvider);
+                                    }));
                           });
                     }));
             //return BookWidget(book: snapshot.data![0]);
