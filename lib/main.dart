@@ -109,12 +109,6 @@ class _AppState extends State<App> {
           builder: (context, val, child) => VocabularyListPage(
               vocabularyListProvider: vocabularyListProvider!,
               notifier: _notifier)),
-      // ValueListenableBuilder(
-      //     valueListenable: _notifier,
-      //     builder: (context, val, child) => VocabularyListPage(
-      //         vocabularyListProvider: vocabularyListProvider!,
-      //         notifier: _notifier)),
-      // Browser(dictionaryProvider: dictionaryProvider!),
       SearchPage(
         dictionaryProvider: dictionaryProvider,
       ),
