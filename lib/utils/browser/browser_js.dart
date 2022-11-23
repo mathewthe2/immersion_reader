@@ -1,4 +1,4 @@
-String browserJs = """
+const String browserJs = """
 /*jshint esversion: 6 */
 function tapToSelect(e) {
     var result = document.caretRangeFromPoint(e.clientX, e.clientY);

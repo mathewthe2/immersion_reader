@@ -1,4 +1,4 @@
-String readerJs = """
+const String readerJs = """
 /*jshint esversion: 6 */
 function tapToSelect(e) {
     var result = document.caretRangeFromPoint(e.clientX, e.clientY);

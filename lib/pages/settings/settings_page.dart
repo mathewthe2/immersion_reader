@@ -26,89 +26,91 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    Color backgroundColor = CupertinoDynamicColor.resolve(
+        const CupertinoDynamicColor.withBrightness(
+            color: CupertinoColors.systemGroupedBackground,
+            darkColor: CupertinoColors.black),
+        context);
     return CupertinoPageScaffold(
+        backgroundColor: backgroundColor,
         child: CustomScrollView(slivers: [
-      (const CupertinoSliverNavigationBar(
-        largeTitle: Text('Settings'),
-      )),
-      SliverFillRemaining(
-          child: Container(
-              color: CupertinoDynamicColor.resolve(
-                  const CupertinoDynamicColor.withBrightness(
-                      color: CupertinoColors.systemGroupedBackground,
-                      darkColor: CupertinoColors.black),
-                  context),
-              child: Column(children: [
-                CupertinoListSection(children: [
-                  CupertinoListTile(
-                    title: const Text("Appearance"),
-                    onTap: () => {
-                      Navigator.push(context,
-                          SwipeablePageRoute(builder: (context) {
-                        return AppearanceSettings(
-                            settingsProvider: widget.settingsProvider!);
-                      }))
-                    },
-                    leading: Container(
-                      padding: const EdgeInsets.all(4.0),
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.systemBlue,
-                        borderRadius: BorderRadius.circular(4.0),
+          (const CupertinoSliverNavigationBar(
+            largeTitle: Text('Settings'),
+          )),
+          SliverFillRemaining(
+              child: Container(
+                  color: backgroundColor,
+                  child: Column(children: [
+                    CupertinoListSection(children: [
+                      CupertinoListTile(
+                        title: const Text("Appearance"),
+                        onTap: () => {
+                          Navigator.push(context,
+                              SwipeablePageRoute(builder: (context) {
+                            return AppearanceSettings(
+                                settingsProvider: widget.settingsProvider!);
+                          }))
+                        },
+                        leading: Container(
+                          padding: const EdgeInsets.all(4.0),
+                          decoration: BoxDecoration(
+                            color: CupertinoColors.systemBlue,
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                          child: const Icon(
+                              size: 22,
+                              CupertinoIcons.textformat_size,
+                              color: CupertinoColors.white),
+                        ),
+                        trailing: const Icon(CupertinoIcons.forward),
                       ),
-                      child: const Icon(
-                          size: 22,
-                          CupertinoIcons.textformat_size,
-                          color: CupertinoColors.white),
-                    ),
-                    trailing: const Icon(CupertinoIcons.forward),
-                  ),
-                  CupertinoListTile(
-                    title: const Text("Dictionaries"),
-                    onTap: () => {
-                      Navigator.push(context,
-                          SwipeablePageRoute(builder: (context) {
-                        return DictionarySettings(
-                            dictionaryProvider: widget.dictionaryProvider!);
-                      }))
-                    },
-                    leading: Container(
-                      padding: const EdgeInsets.all(4.0),
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.systemOrange,
-                        borderRadius: BorderRadius.circular(4.0),
+                      CupertinoListTile(
+                        title: const Text("Dictionaries"),
+                        onTap: () => {
+                          Navigator.push(context,
+                              SwipeablePageRoute(builder: (context) {
+                            return DictionarySettings(
+                                dictionaryProvider: widget.dictionaryProvider!);
+                          }))
+                        },
+                        leading: Container(
+                          padding: const EdgeInsets.all(4.0),
+                          decoration: BoxDecoration(
+                            color: CupertinoColors.systemOrange,
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                          child: const Icon(
+                              size: 22,
+                              CupertinoIcons.book_fill,
+                              color: CupertinoColors.white),
+                        ),
+                        trailing: const Icon(CupertinoIcons.forward),
                       ),
-                      child: const Icon(
-                          size: 22,
-                          CupertinoIcons.book_fill,
-                          color: CupertinoColors.white),
-                    ),
-                    trailing: const Icon(CupertinoIcons.forward),
-                  ),
-                ]),
-                CupertinoListSection(children: [
-                  CupertinoListTile(
-                    title: const Text("About"),
-                    onTap: () => {
-                      Navigator.push(context,
-                          SwipeablePageRoute(builder: (context) {
-                        return const AboutPage();
-                      }))
-                    },
-                    leading: Container(
-                      padding: const EdgeInsets.all(4.0),
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.systemBlue,
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                      child: const Icon(
-                          size: 22,
-                          CupertinoIcons.at,
-                          color: CupertinoColors.white),
-                    ),
-                    trailing: const Icon(CupertinoIcons.forward),
-                  )
-                ])
-              ])))
-    ]));
+                    ]),
+                    CupertinoListSection(children: [
+                      CupertinoListTile(
+                        title: const Text("About"),
+                        onTap: () => {
+                          Navigator.push(context,
+                              SwipeablePageRoute(builder: (context) {
+                            return const AboutPage();
+                          }))
+                        },
+                        leading: Container(
+                          padding: const EdgeInsets.all(4.0),
+                          decoration: BoxDecoration(
+                            color: CupertinoColors.systemBlue,
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                          child: const Icon(
+                              size: 22,
+                              CupertinoIcons.at,
+                              color: CupertinoColors.white),
+                        ),
+                        trailing: const Icon(CupertinoIcons.forward),
+                      )
+                    ])
+                  ])))
+        ]));
   }
 }

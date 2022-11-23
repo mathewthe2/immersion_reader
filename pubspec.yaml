@@ -33,30 +33,31 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
-  # flutter_inappwebview: ^5.4.3+7
-  flutter_inappwebview:
-    git: https://github.com/CodeEagle/flutter_inappwebview
-  local_assets_server: ^2.0.2+12
-  sqflite: ^2.1.0
-  path: ^1.8.2
-  flutter_svg: ^1.0.3
-  ruby_text: ^3.0.1
   collection: ^1.16.0
-  kana_kit: ^2.0.0
-  modal_bottom_sheet: ^2.1.2
-  share_plus: ^4.5.2
-  path_provider: ^2.0.11
   csv: ^5.0.1
+  cupertino_icons: ^1.0.2
   cupertino_lists: ^1.0.1
-  flutter_slidable: ^2.0.0
   file_picker: ^5.2.0+1
   flutter_archive: ^5.0.0
-  http: ^0.13.5
+  flutter_inappwebview: ^5.7.1+2
+  flutter_slidable: ^2.0.0
+  flutter_svg: ^1.0.3
   font_awesome_flutter: ^10.2.1
-  url_launcher: ^6.1.6
-  swipeable_page_route: ^0.2.6
+  http: ^0.13.5
   in_app_purchase: ^3.0.8
+  kana_kit: ^2.0.0
+  local_assets_server: ^2.0.2+12
+  modal_bottom_sheet: ^2.1.2
+  path: ^1.8.2
+  path_provider: ^2.0.11
+  ruby_text: ^3.0.1
+  share_plus: ^4.5.2
+  sqflite: ^2.1.0
+  swipeable_page_route: ^0.2.6
+  url_launcher: ^6.1.6
+  shared_preferences: ^2.0.15
+  cached_network_image: ^3.2.2
+  transparent_image: ^2.0.0
   
 
 dev_dependencies:

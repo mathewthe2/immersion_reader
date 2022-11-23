@@ -58,7 +58,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return CustomScrollView(slivers: [
       (const CupertinoSliverNavigationBar(
-        largeTitle: Text('Dictionary'),
+        largeTitle: Text('My Dictionary'),
       )),
       SliverFillRemaining(
           child: CupertinoScrollbar(
