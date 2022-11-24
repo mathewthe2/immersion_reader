@@ -18,7 +18,7 @@
 - bump version in pubspec.yaml
 - update bundle identifier with unique name (per app)
 - (open Xcode )
-- flutter build ipa 
+- flutter build ipa --bundle-sksl-path flutter_01.sksl.json
 - open [Apple Transport](https://apps.apple.com/us/app/transporter/id1450874784) on MacOS. Drag and drop the build/ios/ipa/*.ipa app bundle into the app.
 
 ## Acknowledgements
