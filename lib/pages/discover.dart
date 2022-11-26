@@ -48,7 +48,9 @@ class _DiscoverState extends State<Discover> {
     late Widget activeWidget;
     switch (selectedTab) {
       case 0:
-        activeWidget = const RecommendedWidget();
+        activeWidget = RecommendedWidget(
+            localAssetsServer: widget.localAssetsServer,
+            dictionaryProvider: widget.dictionaryProvider);
         break;
       case 1:
         activeWidget = MyBooksWidget(

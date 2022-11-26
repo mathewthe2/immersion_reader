@@ -1,40 +1,96 @@
 import 'package:flutter/cupertino.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:immersion_reader/widgets/discover/discover_box.dart';
+import 'package:immersion_reader/data/discover/recommended_catalog.dart';
+// import 'package:immersion_reader/data/reader/book.dart';
+import 'package:immersion_reader/pages/browser.dart';
+import 'package:immersion_reader/widgets/my_books/book_widget.dart';
+import 'package:swipeable_page_route/swipeable_page_route.dart';
+import 'package:immersion_reader/providers/dictionary_provider.dart';
+import 'package:local_assets_server/local_assets_server.dart';
 
 class RecommendedWidget extends StatelessWidget {
-  const RecommendedWidget({super.key});
+  final LocalAssetsServer? localAssetsServer;
+  final DictionaryProvider dictionaryProvider;
+  const RecommendedWidget(
+      {super.key,
+      required this.localAssetsServer,
+      required this.dictionaryProvider});
+
+  Widget headlineWidget(String title, IconData iconData, Color textColor) {
+    return Padding(
+        padding: const EdgeInsets.fromLTRB(18, 20, 10, 10),
+        child: Align(
+            alignment: Alignment.centerLeft,
+            child: Row(children: [
+              FaIcon(
+                iconData,
+                color: textColor,
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Text(title,
+                  style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 18,
+                      color: textColor))
+            ])));
+  }
 
   @override
   Widget build(BuildContext context) {
+    Color textColor = CupertinoDynamicColor.resolve(
+        const CupertinoDynamicColor.withBrightness(
+            color: CupertinoColors.black, darkColor: CupertinoColors.white),
+        context);
     return Column(children: [
-      Padding(
-          padding: const EdgeInsets.fromLTRB(18, 20, 10, 10),
-          child: Align(
-              alignment: Alignment.centerLeft,
-              child: Row(children: const [
-                FaIcon(
-                  FontAwesomeIcons.headphones,
-                  color: CupertinoColors.black,
-                  size: 20,
-                ),
-                SizedBox(width: 10),
-                Text('Audio Books',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18))
-              ]))),
+      headlineWidget("Read Along", FontAwesomeIcons.headphones, textColor),
       SizedBox(
-          height: 400,
-          child: GridView.builder(
-              // shrinkWrap: true,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                childAspectRatio: MediaQuery.of(context).size.width /
-                    (MediaQuery.of(context).size.height / 1.8),
-              ),
-              itemCount: 1,
-              itemBuilder: (BuildContext context, int index) {
-                return const DiscoverBox(title: "あひるさん と 時計");
-              }))
+          height: 200,
+          child: ListView(
+              physics: const BouncingScrollPhysics(),
+              scrollDirection: Axis.horizontal,
+              children: [
+                ...readAlongCatalog.asMap().entries.map((entry) => BookWidget(
+                    width: 130,
+                    book: entry.value,
+                    onTap: (mediaIdentifier) {
+                      Navigator.push(
+                          context,
+                          SwipeablePageRoute(
+                              canOnlySwipeFromEdge: true,
+                              backGestureDetectionWidth: 25,
+                              builder: (context) {
+                                return Browser(
+                                    initialUrl: mediaIdentifier,
+                                    hasUserControls: false,
+                                    dictionaryProvider: dictionaryProvider);
+                              }));
+                    }))
+              ])),
+      headlineWidget("Audio Books", FontAwesomeIcons.headphones, textColor),
+      SizedBox(
+          height: 200,
+          child: ListView(
+              physics: const BouncingScrollPhysics(),
+              scrollDirection: Axis.horizontal,
+              children: [
+                ...audioBookCatalog.asMap().entries.map((entry) => BookWidget(
+                    width: 130,
+                    book: entry.value,
+                    onTap: (mediaIdentifier) {
+                      Navigator.push(
+                          context,
+                          SwipeablePageRoute(
+                              canOnlySwipeFromEdge: true,
+                              backGestureDetectionWidth: 25,
+                              builder: (context) {
+                                return Browser(
+                                    initialUrl: mediaIdentifier,
+                                    hasUserControls: false,
+                                    dictionaryProvider: dictionaryProvider);
+                              }));
+                    }))
+              ])),
       // const DiscoverBox(title: "あひるさん と 時計")
     ]);
   }

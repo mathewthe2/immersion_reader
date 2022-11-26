@@ -43,6 +43,11 @@ class _ReaderState extends State<Reader> {
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void handleMessage(ConsoleMessage message) {
     late Map<String, dynamic> messageJson;
     try {

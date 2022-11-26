@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/utils/reader/get_history_js.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
@@ -31,7 +31,6 @@ class TtuSource {
         if (messageJson['messageType'] != null) {
           try {
             books = getBooksFromJson(messageJson);
-            //print(messageJson);
           } catch (error, stack) {
             books = [];
             // debugPrint('$error');

@@ -10,8 +10,14 @@ import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart'
 
 class Browser extends StatefulWidget {
   final DictionaryProvider dictionaryProvider;
+  final bool hasUserControls;
+  final String? initialUrl;
 
-  const Browser({super.key, required this.dictionaryProvider});
+  const Browser(
+      {super.key,
+      required this.dictionaryProvider,
+      this.initialUrl,
+      this.hasUserControls = true});
 
   @override
   State<Browser> createState() => _BrowserState();
@@ -22,11 +28,13 @@ class _BrowserState extends State<Browser> {
   VocabularyListStorage? vocabularyListStorage;
   late PopupDictionary popupDictionary;
   int? lastTimestamp;
+  late String initialUrl;
   static int timeStampDiff = 20; // recently opened
 
   @override
   void initState() {
     super.initState();
+    initialUrl = widget.initialUrl ?? 'https://syosetu.com/';
     Future(() async {
       vocabularyListStorage = await VocabularyListStorage.create();
       popupDictionary = PopupDictionary(
@@ -65,7 +73,7 @@ class _BrowserState extends State<Browser> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Column(children: [
-      webViewController == null
+      webViewController == null || !widget.hasUserControls
           ? Container()
           : BrowserBar(webViewController: webViewController!),
       Expanded(
@@ -75,9 +83,7 @@ class _BrowserState extends State<Browser> {
               crossPlatform:
                   InAppWebViewOptions(cacheEnabled: true, incognito: false)),
           initialUrlRequest: URLRequest(
-            url: Uri.parse(
-              'https://syosetu.com/',
-            ),
+            url: Uri.parse(initialUrl),
           ),
           onWebViewCreated: (controller) {
             setState(() {
