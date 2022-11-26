@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:lean_file_picker/lean_file_picker.dart';
 import 'package:immersion_reader/data/settings/dictionary_setting.dart';
 import 'package:immersion_reader/dictionary/dictionary_parser.dart';
 import 'package:immersion_reader/dictionary/user_dictionary.dart';
@@ -28,16 +28,15 @@ class _DictionarySettingsState extends State<DictionarySettings> {
   }
 
   void requestDictionaryZipFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
+    final file = await pickFile(
       allowedExtensions: ['zip'],
     );
 
-    if (result != null) {
+    if (file != null) {
       setState(() {
         isProcessingDictionary = true;
       });
-      File zipFile = File(result.files.single.path!);
+      File zipFile = File(file.path);
       UserDictionary userDictionary = await parseDictionary(zipFile);
       await widget.dictionaryProvider.settingsProvider!.settingsStorage!
           .addDictionary(userDictionary);
