@@ -13,12 +13,23 @@
 - Dictionary search
 - Save and export words to [AnkiDojo](https://ankiweb.net/shared/info/433778282)
 
+## Use SkSL warmup
+
+1. Capture shaders
+```
+flutter run --profile --cache-sksl --purge-persistent-cache
+```
+
+2. Play with the app to trigger as many animations as possible.
+
+3. Press M at the command line of flutter run to write the captured SkSL shaders to xx.sksl.json.
+
 ## Distribution
 
 - bump version in pubspec.yaml
 - update bundle identifier with unique name (per app)
 - (open Xcode )
-- flutter build ipa --bundle-sksl-path flutter_01.sksl.json
+- flutter build ipa --bundle-sksl-path flutter_02.sksl.json
 - open [Apple Transport](https://apps.apple.com/us/app/transporter/id1450874784) on MacOS. Drag and drop the build/ios/ipa/*.ipa app bundle into the app.
 
 ## Acknowledgements
