@@ -22,8 +22,6 @@ class LocalAssetsServerProvider {
       logger: const DebugLogger(),
       port: port,
     );
-    debugPrint('serving');
-    await provider.server!.serve();
     return provider;
   }
 }

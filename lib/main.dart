@@ -24,7 +24,7 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> {
+class _AppState extends State<App> with WidgetsBindingObserver {
   final ValueNotifier<bool> _notifier = ValueNotifier(false);
   final int vocabularyListPageIndex = 2;
   SharedPreferences? sharedPreferences;
@@ -33,7 +33,8 @@ class _AppState extends State<App> {
   SettingsStorage? _settingsStorage;
   DictionaryProvider? dictionaryProvider;
   SettingsProvider? settingsProvider;
-  bool isReady = false;
+  bool isLocalAssetsServerReady = false;
+  bool isProvidersReady = false;
 
   final Map<String, IconData> navigationItems = {
     'Discover': CupertinoIcons.home,
@@ -47,6 +48,18 @@ class _AppState extends State<App> {
   final List<GlobalKey<NavigatorState>> tabNavKeys =
       List.generate(5, (_) => GlobalKey<NavigatorState>()); // 4 tabs
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    setupApp();
+  }
+
+  Future<void> setupApp() async {
+    await setupProviders();
+    await startLocalAssetsServer();
+  }
+
   Future<void> setupProviders() async {
     sharedPreferences = await SharedPreferences.getInstance();
     localAssetsServerProvider = await LocalAssetsServerProvider.create();
@@ -55,14 +68,41 @@ class _AppState extends State<App> {
     settingsProvider = SettingsProvider.create(_settingsStorage!);
     dictionaryProvider = DictionaryProvider.create(settingsProvider!);
     setState(() {
-      isReady = true;
+      isProvidersReady = true;
+    });
+  }
+
+  Future<void> startLocalAssetsServer() async {
+    await localAssetsServerProvider!.server!.serve();
+    setState(() {
+      isLocalAssetsServerReady = true;
+    });
+  }
+
+  Future<void> stopLocalAssetsServer() async {
+    await localAssetsServerProvider!.server!.stop();
+    setState(() {
+      isLocalAssetsServerReady = true;
     });
   }
 
   @override
-  void initState() {
-    super.initState();
-    setupProviders();
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.resumed:
+        startLocalAssetsServer();
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        stopLocalAssetsServer();
+        break;
+    }
+  }
+
+  bool isReady() {
+    return isProvidersReady && isLocalAssetsServerReady;
   }
 
   void handleSwitchNavigation(int index) async {
@@ -86,6 +126,12 @@ class _AppState extends State<App> {
         return buildViews(index);
       },
     ));
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   Widget progressIndicator() {
@@ -124,7 +170,7 @@ class _AppState extends State<App> {
     return CupertinoTabView(
         navigatorKey: tabNavKeys[index],
         builder: (BuildContext context) {
-          return isReady ? getViewWidget(index) : progressIndicator();
+          return isReady() ? getViewWidget(index) : progressIndicator();
         });
   }
 }
