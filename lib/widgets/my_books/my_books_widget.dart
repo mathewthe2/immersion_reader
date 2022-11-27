@@ -70,7 +70,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
     return Column(children: [
       headlineWidget("TTU Reader", FontAwesomeIcons.bookOpen, textColor),
       FutureBuilder<List<Book>>(
-          future: TtuSource.getBooksHistory(),
+          future: TtuSource.getBooksHistory(widget.localAssetsServer!, context),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               if (snapshot.data!.isEmpty) {
@@ -81,35 +81,33 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                 ]));
               }
               return SizedBox(
-                  height: 400,
-                  child: GridView.builder(
-                      // shrinkWrap: true,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: MediaQuery.of(context).size.width /
-                            (MediaQuery.of(context).size.height / 1.8),
-                      ),
-                      itemCount: snapshot.data!.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return BookWidget(
-                            book: snapshot.data![index],
-                            onTap: (mediaIdentifier) {
-                              Navigator.push(
-                                  context,
-                                  SwipeablePageRoute(
-                                      canOnlySwipeFromEdge: true,
-                                      backGestureDetectionWidth: 25,
-                                      builder: (context) {
-                                        return Reader(
-                                            initialUrl: mediaIdentifier,
-                                            localAssetsServer:
-                                                widget.localAssetsServer,
-                                            dictionaryProvider:
-                                                widget.dictionaryProvider);
-                                      }));
-                            });
-                      }));
-              //return BookWidget(book: snapshot.data![0]);
+                  height: 200,
+                  child: ListView(
+                      physics: const BouncingScrollPhysics(),
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        ...snapshot.data!
+                            .asMap()
+                            .entries
+                            .map((entry) => BookWidget(
+                                width: 130,
+                                book: entry.value,
+                                onTap: (mediaIdentifier) {
+                                  Navigator.push(
+                                      context,
+                                      SwipeablePageRoute(
+                                          canOnlySwipeFromEdge: true,
+                                          backGestureDetectionWidth: 25,
+                                          builder: (context) {
+                                            return Reader(
+                                                initialUrl: mediaIdentifier,
+                                                localAssetsServer:
+                                                    widget.localAssetsServer,
+                                                dictionaryProvider:
+                                                    widget.dictionaryProvider);
+                                          }));
+                                }))
+                      ]));
             } else {
               return Container();
             }
