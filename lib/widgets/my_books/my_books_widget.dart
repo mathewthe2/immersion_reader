@@ -70,7 +70,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
     return Column(children: [
       headlineWidget("TTU Reader", FontAwesomeIcons.bookOpen, textColor),
       FutureBuilder<List<Book>>(
-          future: TtuSource.getBooksHistory(widget.localAssetsServer!, context),
+          future: TtuSource.getBooksHistory(widget.localAssetsServer!),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               if (snapshot.data!.isEmpty) {

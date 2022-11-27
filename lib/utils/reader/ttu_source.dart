@@ -5,15 +5,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/utils/reader/get_history_js.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
-import 'package:immersion_reader/utils/system_dialog.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-// import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import 'package:local_assets_server/local_assets_server.dart';
 
 class TtuSource {
   static Future<List<Book>> getBooksHistory(
-      LocalAssetsServer localAssetsServer, BuildContext context) async {
+      LocalAssetsServer localAssetsServer) async {
     // final prefs = await SharedPreferences.getInstance();
     // final int? bookCounter = prefs.getInt('has_books');
     // if (bookCounter == null) {
@@ -29,14 +28,10 @@ class TtuSource {
         controller.evaluateJavascript(source: getHistoryJs);
       },
       onLoadError: (controller, url, code, message) {
-        showAlertDialog(context, message, () {
-          Navigator.pop(context);
-        });
+        debugPrint(message);
       },
       onLoadHttpError: (controller, url, statusCode, description) {
-        showAlertDialog(context, '$statusCode:$description', () {
-          Navigator.pop(context);
-        });
+        debugPrint('$statusCode:$description');
       },
       onConsoleMessage: (controller, message) {
         late Map<String, dynamic> messageJson;

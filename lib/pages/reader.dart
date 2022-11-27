@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
-import 'package:immersion_reader/utils/system_dialog.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
 import 'package:local_assets_server/local_assets_server.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -91,14 +90,10 @@ class _ReaderState extends State<Reader> {
               await controller.evaluateJavascript(source: readerJs);
             },
             onLoadError: (controller, url, code, message) {
-              showAlertDialog(context, message, () async {
-                Navigator.pop(context);
-              });
+              debugPrint(message);
             },
             onLoadHttpError: (controller, url, statusCode, description) {
-              showAlertDialog(context, '$statusCode:$description', () {
-                Navigator.pop(context);
-              });
+              debugPrint('$statusCode:$description');
             },
             onTitleChanged: (controller, title) async {
               await controller.evaluateJavascript(source: readerJs);
