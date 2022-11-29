@@ -145,7 +145,10 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
             String filePath = await exportToAnkiDojoCSV(
                 widget.vocabularyListProvider.vocabularyList);
             if (filePath.isNotEmpty) {
-              Share.shareFiles([filePath]);
+              final box = context.findRenderObject() as RenderBox?;
+              Share.shareFiles([filePath],
+                  sharePositionOrigin:
+                      box!.localToGlobal(Offset.zero) & box.size);
             }
           },
         ),
