@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:cupertino_lists/cupertino_lists.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import "package:immersion_reader/extensions/string_extension.dart";
 import 'package:immersion_reader/providers/settings_provider.dart';

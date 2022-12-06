@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
+import 'package:cupertino_lists/cupertino_lists.dart';
 import 'package:lean_file_picker/lean_file_picker.dart';
 import 'package:immersion_reader/data/settings/dictionary_setting.dart';
 import 'package:immersion_reader/dictionary/dictionary_parser.dart';

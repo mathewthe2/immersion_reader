@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:cupertino_lists/cupertino_lists.dart';
 import 'package:immersion_reader/data/search/search_result.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';

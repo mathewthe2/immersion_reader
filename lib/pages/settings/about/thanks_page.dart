@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:cupertino_lists/cupertino_lists.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:immersion_reader/data/settings/about/thanks_data.dart';
 
