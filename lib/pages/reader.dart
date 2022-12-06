@@ -34,6 +34,7 @@ class _ReaderState extends State<Reader> {
   @override
   void initState() {
     super.initState();
+    // TODO: refactor this to use future builder
     Future(() async {
       vocabularyListStorage = await VocabularyListStorage.create();
       popupDictionary = PopupDictionary(

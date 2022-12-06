@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/utils/browser/browser_js.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
@@ -9,12 +10,14 @@ import 'package:immersion_reader/widgets/browser/browser_bar.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
 
 class Browser extends StatefulWidget {
+  final BrowserProvider? browserProider;
   final DictionaryProvider dictionaryProvider;
   final bool hasUserControls;
   final String? initialUrl;
 
   const Browser(
       {super.key,
+      this.browserProider,
       required this.dictionaryProvider,
       this.initialUrl,
       this.hasUserControls = true});
@@ -35,12 +38,16 @@ class _BrowserState extends State<Browser> {
   void initState() {
     super.initState();
     initialUrl = widget.initialUrl ?? 'https://syosetu.com/';
+    // TODO: refactor this to use future builder
     Future(() async {
       vocabularyListStorage = await VocabularyListStorage.create();
       popupDictionary = PopupDictionary(
           parentContext: context,
           dictionaryProvider: widget.dictionaryProvider,
           vocabularyListStorage: vocabularyListStorage!);
+      if (widget.browserProider != null){
+        widget.browserProider!.getBookmarks();
+      }
     });
   }
 
