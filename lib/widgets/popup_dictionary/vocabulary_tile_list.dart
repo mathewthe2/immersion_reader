@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
-import 'package:cupertino_lists/cupertino_lists.dart';
+import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_lists;
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
@@ -205,7 +205,7 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
                           ...vocabularyList
                               .map(
                                 (Vocabulary vocabulary) => Column(children: [
-                                  CupertinoListTile(
+                                  cupertino_lists.CupertinoListTile(
                                       title: VocabularyTile(
                                           vocabulary: vocabulary,
                                           popupDictionaryThemeData:

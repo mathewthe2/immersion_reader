@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:cupertino_lists/cupertino_lists.dart';
+import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_lists;
 import 'package:immersion_reader/data/search/search_result.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
@@ -40,19 +40,21 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget searchResultSection(SearchResult result) {
-    return CupertinoListSection(header: const Text('Exact Matches'), children: [
-      ...searchResult!.exactMatches.map((Vocabulary vocabulary) {
-        return CupertinoListTile(
-            title: Text(vocabulary.expression ?? ''),
-            subtitle: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.7,
-              child: Text(
-                vocabulary.getFirstGlossary(),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ));
-      })
-    ]);
+    return cupertino_lists.CupertinoListSection(
+        header: const Text('Exact Matches'),
+        children: [
+          ...searchResult!.exactMatches.map((Vocabulary vocabulary) {
+            return cupertino_lists.CupertinoListTile(
+                title: Text(vocabulary.expression ?? ''),
+                subtitle: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.7,
+                  child: Text(
+                    vocabulary.getFirstGlossary(),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ));
+          })
+        ]);
   }
 
   @override

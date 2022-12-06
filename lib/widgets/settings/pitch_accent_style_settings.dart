@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:cupertino_lists/cupertino_lists.dart';
+import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_lists;
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import "package:immersion_reader/extensions/string_extension.dart";
 import 'package:immersion_reader/providers/settings_provider.dart';
@@ -34,20 +34,21 @@ class _PitchAccentStyleSettingsState extends State<PitchAccentStyleSettings> {
         navigationBar:
             const CupertinoNavigationBar(middle: Text('Pitch Accent Style')),
         child: SafeArea(
-            child: CupertinoListSection(children: [
-          ...PitchAccentDisplayStyle.values.map((style) => CupertinoListTile(
-              title: Text(style.name.capitalize()),
-              onTap: () async {
-                setState(() {
-                  pitchAccentStyleString = style.name;
-                });
-                await widget.settingsProvider.updatePitchAccentStyle(style);
-                widget.pitchAccentValueNotifier.value =
-                    !widget.pitchAccentValueNotifier.value;
-              },
-              trailing: pitchAccentStyleString! == style.name
-                  ? const Icon(CupertinoIcons.check_mark)
-                  : null))
+            child: cupertino_lists.CupertinoListSection(children: [
+          ...PitchAccentDisplayStyle.values.map((style) =>
+              cupertino_lists.CupertinoListTile(
+                  title: Text(style.name.capitalize()),
+                  onTap: () async {
+                    setState(() {
+                      pitchAccentStyleString = style.name;
+                    });
+                    await widget.settingsProvider.updatePitchAccentStyle(style);
+                    widget.pitchAccentValueNotifier.value =
+                        !widget.pitchAccentValueNotifier.value;
+                  },
+                  trailing: pitchAccentStyleString! == style.name
+                      ? const Icon(CupertinoIcons.check_mark)
+                      : null))
         ])));
   }
 }

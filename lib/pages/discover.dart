@@ -43,7 +43,8 @@ class _DiscoverState extends State<Discover> {
   Widget build(BuildContext context) {
     Color backgroundColor = CupertinoDynamicColor.resolve(
         const CupertinoDynamicColor.withBrightness(
-            color: CupertinoColors.white, darkColor: CupertinoColors.black),
+            color: CupertinoColors.systemBackground,
+            darkColor: CupertinoColors.black),
         context);
     late Widget activeWidget;
     switch (selectedTab) {
@@ -52,11 +53,11 @@ class _DiscoverState extends State<Discover> {
             localAssetsServer: widget.localAssetsServer,
             dictionaryProvider: widget.dictionaryProvider);
         break;
-      case 1:
-        activeWidget = MyBooksWidget(
-            localAssetsServer: widget.localAssetsServer,
-            dictionaryProvider: widget.dictionaryProvider);
-        break;
+      // case 1:
+      //   activeWidget = MyBooksWidget(
+      //       localAssetsServer: widget.localAssetsServer,
+      //       dictionaryProvider: widget.dictionaryProvider);
+      //   break;
       default:
         activeWidget = Container();
     }

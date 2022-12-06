@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:cupertino_lists/cupertino_lists.dart';
+import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_lists;
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import "package:immersion_reader/extensions/string_extension.dart";
 import 'package:immersion_reader/providers/settings_provider.dart';
@@ -36,19 +36,21 @@ class _PopupDictionaryThemeSettingsState
             const CupertinoNavigationBar(middle: Text('Dictionary Theme')),
         child: SafeArea(
             child: CupertinoListSection(children: [
-          ...PopupDictionaryTheme.values.map((theme) => CupertinoListTile(
-              title: Text(theme.name.capitalize()),
-              onTap: () async {
-                setState(() {
-                  popupDictionaryThemeString = theme.name;
-                });
-                await widget.settingsProvider.updatePopupDictionaryTheme(theme);
-                widget.popupDictionaryThemeValueNotifier.value =
-                    !widget.popupDictionaryThemeValueNotifier.value;
-              },
-              trailing: popupDictionaryThemeString! == theme.name
-                  ? const Icon(CupertinoIcons.check_mark)
-                  : null))
+          ...PopupDictionaryTheme.values.map((theme) =>
+              cupertino_lists.CupertinoListTile(
+                  title: Text(theme.name.capitalize()),
+                  onTap: () async {
+                    setState(() {
+                      popupDictionaryThemeString = theme.name;
+                    });
+                    await widget.settingsProvider
+                        .updatePopupDictionaryTheme(theme);
+                    widget.popupDictionaryThemeValueNotifier.value =
+                        !widget.popupDictionaryThemeValueNotifier.value;
+                  },
+                  trailing: popupDictionaryThemeString! == theme.name
+                      ? const Icon(CupertinoIcons.check_mark)
+                      : null))
         ])));
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:cupertino_lists/cupertino_lists.dart';
+import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_lists;
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/data/search/search_result.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
@@ -27,22 +27,27 @@ class _SearchResultsSectionState extends State<SearchResultsSection> {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      CupertinoListSection(header: const Text('Exact Matches'), children: [
-        ...widget.searchResult.exactMatches.map((Vocabulary vocabulary) {
-          return VocabularyTile(
-              vocabulary: vocabulary,
-              parentContext: widget.parentContext,
-              textColor: textColor);
-        })
-      ]),
-      CupertinoListSection(header: const Text('Additional Matches'), children: [
-        ...widget.searchResult.additionalMatches.map((Vocabulary vocabulary) {
-          return VocabularyTile(
-              vocabulary: vocabulary,
-              parentContext: widget.parentContext,
-              textColor: textColor);
-        })
-      ])
+      cupertino_lists.CupertinoListSection(
+          header: const Text('Exact Matches'),
+          children: [
+            ...widget.searchResult.exactMatches.map((Vocabulary vocabulary) {
+              return VocabularyTile(
+                  vocabulary: vocabulary,
+                  parentContext: widget.parentContext,
+                  textColor: textColor);
+            })
+          ]),
+      cupertino_lists.CupertinoListSection(
+          header: const Text('Additional Matches'),
+          children: [
+            ...widget.searchResult.additionalMatches
+                .map((Vocabulary vocabulary) {
+              return VocabularyTile(
+                  vocabulary: vocabulary,
+                  parentContext: widget.parentContext,
+                  textColor: textColor);
+            })
+          ])
     ]);
   }
 }
@@ -64,7 +69,7 @@ class VocabularyTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      CupertinoListTile(
+      cupertino_lists.CupertinoListTile(
           title: SizedBox(
               width: MediaQuery.of(context).size.width * 0.9,
               child: RichText(

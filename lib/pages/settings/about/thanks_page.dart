@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:cupertino_lists/cupertino_lists.dart';
+import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_lists;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:immersion_reader/data/settings/about/thanks_data.dart';
 
@@ -21,11 +21,12 @@ class ThanksPage extends StatelessWidget {
                       context),
                   child: SingleChildScrollView(
                       child: Column(children: [
-                    ...acknowledgements.entries
-                        .map((acknowledgement) => CupertinoListSection(
+                    ...acknowledgements.entries.map((acknowledgement) =>
+                        cupertino_lists.CupertinoListSection(
                             header: Text(acknowledgement.key),
                             children: acknowledgement.value.entries
-                                .map((attribution) => CupertinoListTile(
+                                .map((attribution) =>
+                                    cupertino_lists.CupertinoListTile(
                                       title: Text(attribution.key),
                                       trailing: attribution.value.isNotEmpty
                                           ? const Icon(CupertinoIcons.forward)

@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:cupertino_lists/cupertino_lists.dart';
+import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_lists;
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:immersion_reader/pages/vocabulary_list/vocabulary_detail_edit_page.dart';
@@ -58,9 +58,10 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                       child: CupertinoScrollbar(
                           child: SingleChildScrollView(
                               child: SafeArea(
-                                  child: CupertinoListSection.insetGrouped(
-                                      // header: const Text('My Words'),
-                                      children: [
+                                  child: cupertino_lists.CupertinoListSection
+                                      .insetGrouped(
+                                          // header: const Text('My Words'),
+                                          children: [
                             ...widget.vocabularyListProvider.vocabularyList
                                 .map((Vocabulary vocabulary) {
                               return GestureDetector(
@@ -110,7 +111,8 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                                           ),
                                         ],
                                       ),
-                                      child: CupertinoListTile.notched(
+                                      child: cupertino_lists.CupertinoListTile
+                                          .notched(
                                         title:
                                             Text(vocabulary.expression ?? ""),
                                         subtitle: SizedBox(
@@ -146,10 +148,12 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
             String filePath = await exportToAnkiDojoCSV(
                 widget.vocabularyListProvider.vocabularyList);
             if (filePath.isNotEmpty) {
-              final box = context.findRenderObject() as RenderBox?;
-              Share.shareFiles([filePath],
-                  sharePositionOrigin:
-                      box!.localToGlobal(Offset.zero) & box.size);
+              if (filePath.isNotEmpty) {
+                final box = context.findRenderObject() as RenderBox?;
+                Share.shareFiles([filePath],
+                    sharePositionOrigin:
+                        box!.localToGlobal(Offset.zero) & box.size);
+              }
             }
           },
         ),

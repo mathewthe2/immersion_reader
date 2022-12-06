@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:cupertino_lists/cupertino_lists.dart';
+import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_lists;
 import 'package:immersion_reader/widgets/settings/popup_dictionary_theme_settings.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import "package:immersion_reader/extensions/string_extension.dart";
@@ -25,10 +25,10 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
     return CupertinoPageScaffold(
         navigationBar: const CupertinoNavigationBar(middle: Text('Appearance')),
         child: SafeArea(
-            child: CupertinoListSection(
+            child: cupertino_lists.CupertinoListSection(
           header: const Text('Dictionary Appearance'),
           children: [
-            CupertinoListTile(
+            cupertino_lists.CupertinoListTile(
                 title: const Text('Dictionary Theme'),
                 onTap: () {
                   Navigator.push(context,
@@ -53,7 +53,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                         .popupDictionaryThemeString
                         .capitalize())),
                 trailing: const Icon(CupertinoIcons.forward)),
-            CupertinoListTile(
+            cupertino_lists.CupertinoListTile(
                 title: const Text('Pitch Accent Style'),
                 onTap: () {
                   Navigator.push(context,
@@ -77,7 +77,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                         .pitchAccentStyleString
                         .capitalize())),
                 trailing: const Icon(CupertinoIcons.forward)),
-            CupertinoListTile(
+            cupertino_lists.CupertinoListTile(
                 title: const Text('Show Frequency Tags'),
                 trailing: CupertinoSwitch(
                     onChanged: (bool? value) {
@@ -86,7 +86,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                     },
                     value: widget.settingsProvider.settingsCache!
                         .appearanceSetting.showFrequencyTags)),
-            CupertinoListTile(
+            cupertino_lists.CupertinoListTile(
                 title: const Text('Enable Slide Animation'),
                 trailing: CupertinoSwitch(
                     onChanged: (bool? value) {
