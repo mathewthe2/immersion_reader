@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:immersion_reader/japanese/utils.dart';
 
 String pitchValueToPatt(String word, int pitchValue) {
-  int numberOfMora = HiraToMora(word).length;
+  int numberOfMora = hiraToMora(word).length;
   if (numberOfMora >= 1) {
     if (pitchValue == 0) {
       // heiban
@@ -27,7 +27,7 @@ String pitchSvg(String word, String patt, {bool silent = false}) {
         はし LHL (橋)
         はし LHH (端)
         */
-  List<String> mora = HiraToMora(word);
+  List<String> mora = hiraToMora(word);
   if ((patt.length - mora.length != 1) && !silent) {
     debugPrint('pattern should be number of morae + 1. got $word, $patt');
   }

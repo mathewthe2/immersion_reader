@@ -42,8 +42,8 @@ class TtuSource {
             books = getBooksFromJson(messageJson);
           } catch (error, stack) {
             books = [];
-            // debugPrint('$error');
-            // debugPrint('$stack');
+            debugPrint('$error');
+            debugPrint('$stack');
           }
         } else {
           debugPrint(message.message);

@@ -1,4 +1,4 @@
-List<String> HiraToMora(String hira) {
+List<String> hiraToMora(String hira) {
   /* Example:
           in:  'しゅんかしゅうとう'
          out: ['しゅ', 'ん', 'か', 'しゅ', 'う', 'と', 'う']

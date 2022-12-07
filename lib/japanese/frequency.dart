@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:immersion_reader/dictionary/frequency_tag.dart';
 import 'package:immersion_reader/japanese/search_term.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
@@ -72,7 +73,7 @@ class Frequency {
         ]);
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
     if (rows.isNotEmpty) {
       List<FrequencyTag> result =

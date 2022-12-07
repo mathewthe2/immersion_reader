@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/japanese/draw_pitch.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
@@ -35,7 +36,7 @@ class Pitch {
         ]);
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
     if (rows.isNotEmpty) {
       return rows[0]['pitch'] as String;
@@ -95,6 +96,8 @@ class Pitch {
             result.add(pitchValue.toString());
             break;
           }
+          default:
+          break;
       }
     }
     return result;

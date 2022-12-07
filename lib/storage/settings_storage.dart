@@ -1,14 +1,14 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:path/path.dart' as p;
+import 'package:sqflite/sqflite.dart';
 import 'package:immersion_reader/data/settings/appearance_setting.dart';
 import 'package:immersion_reader/data/settings/settings_data.dart';
 import 'package:immersion_reader/dictionary/dictionary_meta_entry.dart';
 import 'package:immersion_reader/dictionary/user_dictionary.dart';
 import 'package:immersion_reader/dictionary/pitch_data.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart' as p;
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:immersion_reader/data/settings/dictionary_setting.dart';
 import 'package:immersion_reader/dictionary/dictionary_entry.dart';
 
@@ -25,7 +25,7 @@ class SettingsStorage {
     SettingsStorage settingsStorage = SettingsStorage._create();
     String databasesPath = await getDatabasesPath();
     String path = p.join(databasesPath, "data.db");
-    print('path; $path');
+    debugPrint('path; $path');
     try {
       await Directory(databasesPath).create(recursive: true);
     } catch (_) {}

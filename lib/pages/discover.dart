@@ -4,7 +4,7 @@ import 'package:local_assets_server/local_assets_server.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:immersion_reader/widgets/discover/category_box.dart';
 import 'package:immersion_reader/widgets/discover/recommended_widget.dart';
-import 'package:immersion_reader/widgets/my_books/my_books_widget.dart';
+// import 'package:immersion_reader/widgets/my_books/my_books_widget.dart';
 
 class Discover extends StatefulWidget {
   final SharedPreferences sharedPreferences;

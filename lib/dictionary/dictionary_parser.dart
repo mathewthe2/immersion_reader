@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:path/path.dart' as p;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_archive/flutter_archive.dart';
 import 'package:immersion_reader/utils/folder_utils.dart';
 import './user_dictionary.dart';
@@ -16,7 +17,7 @@ Future<UserDictionary> parseDictionary(File zipFile) async {
         zipFile: zipFile,
         destinationDir: workingDirectory,
         onExtracting: (zipEntry, progress) {
-          print('progress: ${progress.toStringAsFixed(1)}%');
+          debugPrint('progress: ${progress.toStringAsFixed(1)}%');
           return ZipFileOperation.includeItem;
         });
     final List<FileSystemEntity> entities = workingDirectory.listSync();
@@ -42,7 +43,7 @@ Future<UserDictionary> parseDictionary(File zipFile) async {
         dictionaryMetaEntries: dictionaryMetaEntries,
         dictionaryTags: []);
   } catch (e) {
-    print(e);
+    debugPrint(e.toString());
   }
   throw Exception('Unable to produce dictionary');
 }
@@ -196,7 +197,7 @@ String getDictionaryName(Directory workingDirectory) {
     String dictionaryName = (index['title'] as String).trim();
     return dictionaryName;
   } catch (e) {
-    print(e);
+    debugPrint(e.toString());
   }
   throw Exception('Unable to get name');
 }
