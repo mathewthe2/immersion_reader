@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/book.dart';
-import 'package:immersion_reader/pages/reader.dart';
+import 'package:immersion_reader/widgets/reader/reader.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/utils/reader/ttu_source.dart';
 import 'package:immersion_reader/widgets/my_books/book_widget.dart';

@@ -1,0 +1,96 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:immersion_reader/providers/browser_provider.dart';
+import 'package:immersion_reader/widgets/browser/bookmarks_sheet.dart';
+import 'package:immersion_reader/widgets/browser/browser_share_sheet.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+
+class BrowserBottomBar extends StatefulWidget {
+  final BrowserProvider? browserProider;
+  final InAppWebViewController? webViewController;
+  const BrowserBottomBar(
+      {super.key,
+      required this.browserProider,
+      required this.webViewController});
+
+  @override
+  State<BrowserBottomBar> createState() => _BrowserBottomBarState();
+}
+
+class _BrowserBottomBarState extends State<BrowserBottomBar> {
+  Widget toolbarIconButton(IconData iconData, Function()? onPressed) {
+    return CupertinoButton(
+        padding: const EdgeInsets.all(0),
+        onPressed: onPressed,
+        alignment: Alignment.center,
+        child: Icon(
+          iconData,
+          size: 28,
+          color: CupertinoColors.black.withOpacity(0.25),
+        ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+        alignment: Alignment.bottomCenter,
+        child: Stack(alignment: Alignment.bottomCenter, children: [
+          Container(
+            height: 40,
+            alignment: Alignment.bottomCenter,
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: CupertinoColors.black.withOpacity(0.25),
+                )
+              ],
+              border: Border.all(
+                  color: CupertinoColors.white.withOpacity(0.2), width: 1.0),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  CupertinoColors.white.withOpacity(0.9),
+                  CupertinoColors.white.withOpacity(0.6)
+                ],
+                stops: const [0.0, 1.0],
+              ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              toolbarIconButton(CupertinoIcons.chevron_back,
+                  () => widget.webViewController?.goBack()),
+              toolbarIconButton(CupertinoIcons.chevron_forward,
+                  () => widget.webViewController?.goForward()),
+              toolbarIconButton(
+                  CupertinoIcons.share,
+                  () => showCupertinoModalBottomSheet(
+                      context: context,
+                      useRootNavigator: true,
+                      expand: false,
+                      builder: (context) => SafeArea(
+                          child: SizedBox(
+                              height: MediaQuery.of(context).size.height * .40,
+                              child: BrowserShareSheet(
+                                  browserProider: widget.browserProider))))),
+              toolbarIconButton(
+                  CupertinoIcons.book,
+                  () => showCupertinoModalBottomSheet(
+                      context: context,
+                      useRootNavigator: true,
+                      expand: false,
+                      builder: (context) => SafeArea(
+                          child: SizedBox(
+                              height: MediaQuery.of(context).size.height * .40,
+                              child: BookmarksSheet(
+                                  browserProider: widget.browserProider,
+                                  webViewController:
+                                      widget.webViewController))))),
+              toolbarIconButton(CupertinoIcons.settings_solid, () => {}),
+            ],
+          )
+        ]));
+  }
+}

@@ -25,7 +25,7 @@ class _DiscoverState extends State<Discover> {
   int? selectedTab;
   static List<String> discoverCategories = [
     "We Recommend",
-    "My Books",
+    "Graded",
     // "Audio Books"
   ];
 

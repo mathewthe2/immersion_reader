@@ -1,15 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
-class BrowserBar extends StatefulWidget {
+class BrowserTopBar extends StatefulWidget {
   final InAppWebViewController webViewController;
-  const BrowserBar({super.key, required this.webViewController});
+  const BrowserTopBar({super.key, required this.webViewController});
 
   @override
-  State<BrowserBar> createState() => _BrowserBarState();
+  State<BrowserTopBar> createState() => _BrowserBarState();
 }
 
-class _BrowserBarState extends State<BrowserBar> {
+class _BrowserBarState extends State<BrowserTopBar> {
   late TextEditingController _textController;
 
   @override

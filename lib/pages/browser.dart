@@ -6,7 +6,8 @@ import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/utils/browser/browser_js.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
-import 'package:immersion_reader/widgets/browser/browser_bar.dart';
+import 'package:immersion_reader/widgets/browser/browser_bottom_bar.dart';
+import 'package:immersion_reader/widgets/browser/browser_top_bar.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
 
 class Browser extends StatefulWidget {
@@ -38,17 +39,17 @@ class _BrowserState extends State<Browser> {
   void initState() {
     super.initState();
     initialUrl = widget.initialUrl ?? 'https://syosetu.com/';
-    // TODO: refactor this to use future builder
-    Future(() async {
-      vocabularyListStorage = await VocabularyListStorage.create();
-      popupDictionary = PopupDictionary(
-          parentContext: context,
-          dictionaryProvider: widget.dictionaryProvider,
-          vocabularyListStorage: vocabularyListStorage!);
-      if (widget.browserProider != null){
-        widget.browserProider!.getBookmarks();
-      }
-    });
+  }
+
+  Future<void> getDictionaryAndBookmarks() async {
+    vocabularyListStorage = await VocabularyListStorage.create();
+    popupDictionary = PopupDictionary(
+        parentContext: context,
+        dictionaryProvider: widget.dictionaryProvider,
+        vocabularyListStorage: vocabularyListStorage!);
+    if (widget.browserProider != null) {
+      widget.browserProider!.getBookmarks();
+    }
   }
 
   void handleMessage(ConsoleMessage message) {
@@ -78,36 +79,47 @@ class _BrowserState extends State<Browser> {
 
   @override
   Widget build(BuildContext context) {
+    bool hasNoUserControls =
+        webViewController == null || !widget.hasUserControls;
     return SafeArea(
-        child: Column(children: [
-      webViewController == null || !widget.hasUserControls
-          ? Container()
-          : BrowserBar(webViewController: webViewController!),
-      Expanded(
-          child: Stack(children: [
-        InAppWebView(
-          initialOptions: InAppWebViewGroupOptions(
-              crossPlatform:
-                  InAppWebViewOptions(cacheEnabled: true, incognito: false)),
-          initialUrlRequest: URLRequest(
-            url: Uri.parse(initialUrl),
-          ),
-          onWebViewCreated: (controller) {
-            setState(() {
-              webViewController = controller;
-            });
-          },
-          onLoadStop: (controller, uri) async {
-            await controller.evaluateJavascript(source: browserJs);
-          },
-          onTitleChanged: (controller, title) async {
-            await controller.evaluateJavascript(source: browserJs);
-          },
-          onConsoleMessage: (controller, message) {
-            handleMessage(message);
-          },
-        )
-      ]))
-    ]));
+        child: FutureBuilder(
+            future: getDictionaryAndBookmarks(),
+            builder: ((context, snapshot) {
+              return Column(children: [
+                hasNoUserControls
+                    ? Container()
+                    : BrowserTopBar(webViewController: webViewController!),
+                Expanded(
+                    child: Stack(children: [
+                  InAppWebView(
+                    initialOptions: InAppWebViewGroupOptions(
+                        crossPlatform: InAppWebViewOptions(
+                            cacheEnabled: true, incognito: false)),
+                    initialUrlRequest: URLRequest(
+                      url: Uri.parse(initialUrl),
+                    ),
+                    onWebViewCreated: (controller) {
+                      setState(() {
+                        webViewController = controller;
+                      });
+                    },
+                    onLoadStop: (controller, uri) async {
+                      await controller.evaluateJavascript(source: browserJs);
+                    },
+                    onTitleChanged: (controller, title) async {
+                      await controller.evaluateJavascript(source: browserJs);
+                    },
+                    onConsoleMessage: (controller, message) {
+                      handleMessage(message);
+                    },
+                  ),
+                  hasNoUserControls
+                      ? Container()
+                      : BrowserBottomBar(
+                          browserProider: widget.browserProider,
+                          webViewController: webViewController)
+                ]))
+              ]);
+            })));
   }
 }

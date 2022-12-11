@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/pages/discover.dart';
+import 'package:immersion_reader/pages/reader/reader_page.dart';
+import 'package:immersion_reader/providers/browser_provider.dart';
+import 'package:immersion_reader/providers/payment_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:immersion_reader/pages/browser.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
-import 'pages/reader.dart';
 import 'pages/settings/settings_page.dart';
 import 'pages/search_page.dart';
 import 'pages/vocabulary_list/vocabulary_list_page.dart';
@@ -30,9 +31,11 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   SharedPreferences? sharedPreferences;
   LocalAssetsServerProvider? localAssetsServerProvider;
   VocabularyListProvider? vocabularyListProvider;
+  BrowserProvider? browserProvider;
   SettingsStorage? _settingsStorage;
   DictionaryProvider? dictionaryProvider;
   SettingsProvider? settingsProvider;
+  PaymentProvider? paymentProvider;
   bool isLocalAssetsServerReady = false;
   bool isProvidersReady = false;
 
@@ -62,8 +65,10 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   Future<void> setupProviders() async {
     sharedPreferences = await SharedPreferences.getInstance();
+    paymentProvider = await PaymentProvider.create();
     localAssetsServerProvider = await LocalAssetsServerProvider.create();
     vocabularyListProvider = await VocabularyListProvider.create();
+    browserProvider = await BrowserProvider.create();
     _settingsStorage = await SettingsStorage.create();
     settingsProvider = SettingsProvider.create(_settingsStorage!);
     dictionaryProvider = DictionaryProvider.create(settingsProvider!);
@@ -147,7 +152,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
           sharedPreferences: sharedPreferences!,
           localAssetsServer: localAssetsServerProvider!.server,
           dictionaryProvider: dictionaryProvider!),
-      Reader(
+      ReaderPage(
+          browserProvider: browserProvider,
+          paymentProvider: paymentProvider!,
           localAssetsServer: localAssetsServerProvider!.server,
           dictionaryProvider: dictionaryProvider!),
       ValueListenableBuilder(

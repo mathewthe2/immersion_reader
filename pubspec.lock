@@ -160,13 +160,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.18.5+1"
+  flutter_inapp_purchase:
+    dependency: "direct main"
+    description:
+      name: flutter_inapp_purchase
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.3.1"
   flutter_inappwebview:
     dependency: "direct main"
     description:
       name: flutter_inappwebview
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.7.2"
+    version: "5.7.2+2"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -204,7 +211,7 @@ packages:
       name: font_awesome_flutter
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "10.2.1"
+    version: "10.3.0"
   http:
     dependency: "direct main"
     description:
@@ -219,34 +226,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.2"
-  in_app_purchase:
-    dependency: "direct main"
-    description:
-      name: in_app_purchase
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.0.8"
-  in_app_purchase_android:
-    dependency: transitive
-    description:
-      name: in_app_purchase_android
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.3+7"
-  in_app_purchase_platform_interface:
-    dependency: transitive
-    description:
-      name: in_app_purchase_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.3.2"
-  in_app_purchase_storekit:
-    dependency: transitive
-    description:
-      name: in_app_purchase_storekit
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.3.3"
   js:
     dependency: transitive
     description:
@@ -254,13 +233,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.4"
-  json_annotation:
-    dependency: transitive
-    description:
-      name: json_annotation
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "4.7.0"
   kana_kit:
     dependency: "direct main"
     description:
@@ -323,7 +295,7 @@ packages:
       name: mime
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.2"
+    version: "1.0.3"
   modal_bottom_sheet:
     dependency: "direct main"
     description:
@@ -573,7 +545,7 @@ packages:
       name: sqflite
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.2.0+3"
+    version: "2.2.2"
   sqflite_common:
     dependency: transitive
     description:

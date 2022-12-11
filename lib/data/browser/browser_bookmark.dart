@@ -1,10 +1,7 @@
-enum BrowserBookMarkType {
-  bookmark,
-  folder  
-}
+enum BrowserBookMarkType { link, folder }
 
 Map<int, BrowserBookMarkType> browserBookMarkTypeMap = {
-  1: BrowserBookMarkType.bookmark,
+  1: BrowserBookMarkType.link,
   2: BrowserBookMarkType.folder
 };
 
@@ -15,17 +12,21 @@ class BrowserBookmark {
   int parent; // id of parent; 0:root
   BrowserBookMarkType type;
 
-   BrowserBookmark(
+  BrowserBookmark(
       {required this.id,
       required this.name,
       required this.url,
       required this.parent,
       required this.type});
 
-    factory BrowserBookmark.fromMap(Map<String, Object?> map) => BrowserBookmark(
+  factory BrowserBookmark.fromMap(Map<String, Object?> map) => BrowserBookmark(
       id: map['id'] as int,
       name: map['name'] as String,
       url: map['url'] as String,
       parent: map['parent'] as int,
       type: browserBookMarkTypeMap[map['type']]!);
+
+  bool isFolder() {
+    return type == BrowserBookMarkType.folder;
+  }
 }
