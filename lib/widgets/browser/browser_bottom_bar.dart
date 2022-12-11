@@ -6,11 +6,11 @@ import 'package:immersion_reader/widgets/browser/browser_share_sheet.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class BrowserBottomBar extends StatefulWidget {
-  final BrowserProvider? browserProider;
+  final BrowserProvider? browserProvider;
   final InAppWebViewController? webViewController;
   const BrowserBottomBar(
       {super.key,
-      required this.browserProider,
+      required this.browserProvider,
       required this.webViewController});
 
   @override
@@ -74,7 +74,7 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                           child: SizedBox(
                               height: MediaQuery.of(context).size.height * .40,
                               child: BrowserShareSheet(
-                                  browserProider: widget.browserProider))))),
+                                  browserProvider: widget.browserProvider))))),
               toolbarIconButton(
                   CupertinoIcons.book,
                   () => showCupertinoModalBottomSheet(
@@ -85,7 +85,7 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                           child: SizedBox(
                               height: MediaQuery.of(context).size.height * .40,
                               child: BookmarksSheet(
-                                  browserProider: widget.browserProider,
+                                  browserProvider: widget.browserProvider,
                                   webViewController:
                                       widget.webViewController))))),
               toolbarIconButton(CupertinoIcons.settings_solid, () => {}),

@@ -11,14 +11,14 @@ import 'package:immersion_reader/widgets/browser/browser_top_bar.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
 
 class Browser extends StatefulWidget {
-  final BrowserProvider? browserProider;
+  final BrowserProvider? browserProvider;
   final DictionaryProvider dictionaryProvider;
   final bool hasUserControls;
   final String? initialUrl;
 
   const Browser(
       {super.key,
-      this.browserProider,
+      this.browserProvider,
       required this.dictionaryProvider,
       this.initialUrl,
       this.hasUserControls = true});
@@ -47,8 +47,8 @@ class _BrowserState extends State<Browser> {
         parentContext: context,
         dictionaryProvider: widget.dictionaryProvider,
         vocabularyListStorage: vocabularyListStorage!);
-    if (widget.browserProider != null) {
-      widget.browserProider!.getBookmarks();
+    if (widget.browserProvider != null) {
+      widget.browserProvider!.getBookmarks();
     }
   }
 
@@ -116,7 +116,7 @@ class _BrowserState extends State<Browser> {
                   hasNoUserControls
                       ? Container()
                       : BrowserBottomBar(
-                          browserProider: widget.browserProider,
+                          browserProvider: widget.browserProvider,
                           webViewController: webViewController)
                 ]))
               ]);

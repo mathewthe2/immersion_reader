@@ -54,7 +54,7 @@ class _BrowserCatalogState extends State<BrowserCatalog> {
                                     backGestureDetectionWidth: 25,
                                     builder: (context) {
                                       return Browser(
-                                          browserProider:
+                                          browserProvider:
                                               widget.browserProvider,
                                           dictionaryProvider:
                                               widget.dictionaryProvider);

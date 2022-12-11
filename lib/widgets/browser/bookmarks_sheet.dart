@@ -5,9 +5,9 @@ import 'package:immersion_reader/data/browser/browser_bookmark.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
 
 class BookmarksSheet extends StatefulWidget {
-  final BrowserProvider? browserProider;
+  final BrowserProvider? browserProvider;
   final InAppWebViewController? webViewController;
-  const BookmarksSheet({super.key, required this.browserProider, required this.webViewController});
+  const BookmarksSheet({super.key, required this.browserProvider, required this.webViewController});
 
   @override
   State<BookmarksSheet> createState() => _BookmarksSheetState();
@@ -43,7 +43,7 @@ class _BookmarksSheetState extends State<BookmarksSheet> {
           child: Text('Bookmarks',
               style: TextStyle(color: textColor, fontSize: 20))),
       FutureBuilder<List<BrowserBookmark>>(
-          future: widget.browserProider?.getBookmarks(),
+          future: widget.browserProvider?.getBookmarks(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return Align(
