@@ -2,10 +2,13 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
+import 'package:immersion_reader/utils/internet_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 List<String> _productLists = ['immersion_reader_plus'];
 
 class PaymentProvider {
+  SharedPreferences? _sharedPreferences;
   StreamSubscription? _purchaseUpdatedSubscription;
   StreamSubscription? _purchaseErrorSubscription;
   StreamSubscription? _conectionSubscription;
@@ -18,9 +21,11 @@ class PaymentProvider {
     // print("_create() (private constructor)");
   }
 
-  static Future<PaymentProvider> create() async {
+  static Future<PaymentProvider> create(
+      SharedPreferences sharedPreferences) async {
     PaymentProvider provider = PaymentProvider._create();
     var result = await FlutterInappPurchase.instance.initialize();
+    provider._sharedPreferences = sharedPreferences;
     provider._conectionSubscription =
         FlutterInappPurchase.connectionUpdated.listen((connected) {
       debugPrint('connected: $connected');
@@ -38,9 +43,26 @@ class PaymentProvider {
     return provider;
   }
 
+  String _formatProductString(String productId) {
+    return 'purchase_$productId';
+  }
+
   Future<void> invokePurchaseOrProceed(
       String productName, VoidCallback callback) async {
-        hasConnectionError = false;
+    // check local preferences
+    if (_sharedPreferences != null && (_sharedPreferences!.getBool(_formatProductString(productName)) ?? false)) {
+      callback();
+      return;
+    }
+    // check online
+    bool hasInternetConnection = await InternetUtils.hasInternetConnection();
+    if (!hasInternetConnection){
+      // return status here
+      debugPrint('offline');
+      return;
+    }
+    debugPrint('online');
+    hasConnectionError = false;
     PurchasedItem? purchaseItem = await getPurchaseByString(productName);
     if (hasConnectionError) {
       return;
@@ -63,9 +85,10 @@ class PaymentProvider {
   Future<PurchasedItem?> getPurchaseByString(String productName) async {
     _purchases = await _getPurchases();
     if (_purchases != null) {
-    return _purchases!
-        .firstWhereOrNull((purchase) => purchase.productId == productName);
+      return _purchases!
+          .firstWhereOrNull((purchase) => purchase.productId == productName);
     }
+    return null;
   }
 
   Future<List<PurchasedItem>?> _getPurchases() async {
@@ -74,12 +97,22 @@ class PaymentProvider {
     }
     try {
       _purchases = await FlutterInappPurchase.instance.getAvailablePurchases();
-    }  catch (err) {
+      persistPurchases(_purchases);
+    } catch (err) {
       debugPrint(err.toString());
       hasConnectionError = true;
       return null;
     }
     return _purchases!;
+  }
+
+  void persistPurchases(List<PurchasedItem>? purchases) {
+    if (_sharedPreferences == null || purchases == null) {
+      return;
+    }
+    for (PurchasedItem purchaseItem in purchases) {
+      _sharedPreferences!.setBool(_formatProductString(purchaseItem.productId!), true);
+    }
   }
 
   void dispose() {

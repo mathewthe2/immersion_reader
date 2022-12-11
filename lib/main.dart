@@ -65,7 +65,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   Future<void> setupProviders() async {
     sharedPreferences = await SharedPreferences.getInstance();
-    paymentProvider = await PaymentProvider.create();
+    paymentProvider = await PaymentProvider.create(sharedPreferences!);
     localAssetsServerProvider = await LocalAssetsServerProvider.create();
     vocabularyListProvider = await VocabularyListProvider.create();
     browserProvider = await BrowserProvider.create();

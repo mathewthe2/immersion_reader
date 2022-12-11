@@ -11,7 +11,7 @@ import './pitch_data.dart';
 
 // https://github.com/lrorpilla/jidoujisho/blob/e445b09ea8fa5df2bfae8a0d405aa1ba5fc32767/yuuna/lib/src/dictionary/formats/yomichan_dictionary_format.dart
 Future<UserDictionary> parseDictionary(File zipFile) async {
-  Directory workingDirectory = await getWorkingFolder();
+  Directory workingDirectory = await FolderUtils.getWorkingFolder();
   try {
     await ZipFile.extractToDirectory(
         zipFile: zipFile,
