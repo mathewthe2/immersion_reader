@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:immersion_reader/data/browser/browser_bookmark.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
-import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_lists;
 
 class BrowserShareSheet extends StatefulWidget {
   final BrowserProvider? browserProvider;
@@ -36,8 +35,8 @@ class _BrowserShareSheetState extends State<BrowserShareSheet> {
         context);
     return Column(
       children: [
-        cupertino_lists.CupertinoListSection(children: [
-          cupertino_lists.CupertinoListTile(
+        CupertinoListSection(children: [
+          CupertinoListTile(
             title: const Text("Add Bookmark"),
             onTap: () {
               handleAddBookmark();

@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_lists;
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import "package:immersion_reader/extensions/string_extension.dart";
 import 'package:immersion_reader/providers/settings_provider.dart';
@@ -34,9 +33,9 @@ class _PitchAccentStyleSettingsState extends State<PitchAccentStyleSettings> {
         navigationBar:
             const CupertinoNavigationBar(middle: Text('Pitch Accent Style')),
         child: SafeArea(
-            child: cupertino_lists.CupertinoListSection(children: [
+            child: CupertinoListSection(children: [
           ...PitchAccentDisplayStyle.values.map((style) =>
-              cupertino_lists.CupertinoListTile(
+              CupertinoListTile(
                   title: Text(style.name.capitalize()),
                   onTap: () async {
                     setState(() {

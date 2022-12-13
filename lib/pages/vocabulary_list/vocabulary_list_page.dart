@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_lists;
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:immersion_reader/pages/vocabulary_list/vocabulary_detail_edit_page.dart';
@@ -58,7 +57,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                       child: CupertinoScrollbar(
                           child: SingleChildScrollView(
                               child: SafeArea(
-                                  child: cupertino_lists.CupertinoListSection
+                                  child: CupertinoListSection
                                       .insetGrouped(
                                           // header: const Text('My Words'),
                                           children: [
@@ -111,7 +110,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                                           ),
                                         ],
                                       ),
-                                      child: cupertino_lists.CupertinoListTile
+                                      child: CupertinoListTile
                                           .notched(
                                         title:
                                             Text(vocabulary.expression ?? ""),

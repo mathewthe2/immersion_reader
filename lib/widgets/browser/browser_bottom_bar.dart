@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/widgets/browser/bookmarks_sheet.dart';
+import 'package:immersion_reader/widgets/browser/browser_settings_sheet.dart';
 import 'package:immersion_reader/widgets/browser/browser_share_sheet.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -75,8 +76,7 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                               height: MediaQuery.of(context).size.height * .40,
                               child: BrowserShareSheet(
                                   webViewController: widget.webViewController,
-                                  browserProvider: widget.browserProvider))))
-                                  ),
+                                  browserProvider: widget.browserProvider))))),
               toolbarIconButton(
                   CupertinoIcons.book,
                   () => showCupertinoModalBottomSheet(
@@ -90,7 +90,17 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                                   browserProvider: widget.browserProvider,
                                   webViewController:
                                       widget.webViewController))))),
-              toolbarIconButton(CupertinoIcons.settings_solid, () => {}),
+              toolbarIconButton(
+                  CupertinoIcons.settings_solid,
+                  () => showCupertinoModalBottomSheet(
+                      context: context,
+                      useRootNavigator: true,
+                      expand: false,
+                      builder: (context) => SafeArea(
+                          child: SizedBox(
+                              height: MediaQuery.of(context).size.height * .40,
+                              child: BrowserSettingsSheet(
+                                  browserProvider: widget.browserProvider))))),
             ],
           )
         ]));

@@ -9,7 +9,6 @@ Map<String, Map<String, String>> acknowledgements = {
     'Yomichan': 'https://github.com/FooSoft/yomichan'
   },
   'Packages': {
-    'cupertino_lists': 'https://github.com/ivirtex/cupertino_lists',
     'csv': 'https://github.com/close2/csv',
     'flutter_inappwebview':
         'https://github.com/pichillilorenzo/flutter_inappwebview',

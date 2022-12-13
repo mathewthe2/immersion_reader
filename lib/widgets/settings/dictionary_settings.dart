@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
-import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_lists;
 import 'package:lean_file_picker/lean_file_picker.dart';
 import 'package:immersion_reader/data/settings/dictionary_setting.dart';
 import 'package:immersion_reader/dictionary/dictionary_parser.dart';
@@ -95,13 +94,13 @@ class _DictionarySettingsState extends State<DictionarySettings> {
               if (snapshot.hasData) {
                 getEnabledDictionaries(snapshot.data!);
                 return SafeArea(
-                  child: cupertino_lists.CupertinoListSection(
+                  child: CupertinoListSection(
                       header: const Text('Dictionary'),
                       children: [
                         ...snapshot.data!.asMap().entries.map((entry) {
                           int index = entry.key;
                           DictionarySetting dictionarySetting = entry.value;
-                          return cupertino_lists.CupertinoListTile(
+                          return CupertinoListTile(
                               title: Text(dictionarySetting.title),
                               leading: editMode
                                   ? GestureDetector(

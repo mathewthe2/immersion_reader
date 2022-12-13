@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_lists;
 import 'package:immersion_reader/data/search/search_result.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
@@ -40,11 +39,11 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget searchResultSection(SearchResult result) {
-    return cupertino_lists.CupertinoListSection(
+    return CupertinoListSection(
         header: const Text('Exact Matches'),
         children: [
           ...searchResult!.exactMatches.map((Vocabulary vocabulary) {
-            return cupertino_lists.CupertinoListTile(
+            return CupertinoListTile(
                 title: Text(vocabulary.expression ?? ''),
                 subtitle: SizedBox(
                   width: MediaQuery.of(context).size.width * 0.7,

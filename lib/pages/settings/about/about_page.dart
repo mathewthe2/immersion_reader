@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_lists;
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:immersion_reader/pages/settings/about/thanks_page.dart';
@@ -20,8 +19,8 @@ class AboutPage extends StatelessWidget {
     return CupertinoPageScaffold(
         navigationBar: const CupertinoNavigationBar(middle: Text('About')),
         child: SafeArea(
-            child: cupertino_lists.CupertinoListSection(children: [
-          cupertino_lists.CupertinoListTile(
+            child: CupertinoListSection(children: [
+          CupertinoListTile(
             title: const Text("@MathewChan"),
             onTap: () =>
                 {launchUrl(Uri.parse("https://twitter.com/MathewChan10"))},
@@ -39,7 +38,7 @@ class AboutPage extends StatelessWidget {
             ),
             trailing: const Icon(CupertinoIcons.forward),
           ),
-          cupertino_lists.CupertinoListTile(
+          CupertinoListTile(
             title: const Text("Thanks to"),
             onTap: () => {
               Navigator.push(context, SwipeablePageRoute(builder: (context) {
@@ -60,7 +59,7 @@ class AboutPage extends StatelessWidget {
             ),
             trailing: const Icon(CupertinoIcons.forward),
           ),
-          cupertino_lists.CupertinoListTile(
+          CupertinoListTile(
             title: const Text("Terms & Privacy Policy"),
             onTap: () => showCupertinoModalPopup(
               context: context,
@@ -79,7 +78,7 @@ class AboutPage extends StatelessWidget {
             ),
             trailing: const Icon(CupertinoIcons.forward),
           ),
-          cupertino_lists.CupertinoListTile(
+          CupertinoListTile(
             title: const Text("Bug Reports"),
             onTap: () => {
               launchUrl(Uri.parse(
@@ -98,7 +97,7 @@ class AboutPage extends StatelessWidget {
                 )),
             trailing: const Icon(CupertinoIcons.forward),
           ),
-          cupertino_lists.CupertinoListTile(
+          CupertinoListTile(
             title: const Text("Contact"),
             onTap: () =>
                 {launchUrl(Uri.parse("https://www.immersionkit.com/creators"))},

@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_lists;
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import "package:immersion_reader/extensions/string_extension.dart";
 import 'package:immersion_reader/providers/settings_provider.dart';
@@ -37,7 +36,7 @@ class _PopupDictionaryThemeSettingsState
         child: SafeArea(
             child: CupertinoListSection(children: [
           ...PopupDictionaryTheme.values.map((theme) =>
-              cupertino_lists.CupertinoListTile(
+              CupertinoListTile(
                   title: Text(theme.name.capitalize()),
                   onTap: () async {
                     setState(() {

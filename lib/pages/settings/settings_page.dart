@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:cupertino_lists/cupertino_lists.dart' as cupertino_lists;
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:immersion_reader/pages/settings/about/about_page.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
@@ -42,8 +41,8 @@ class _SettingsPageState extends State<SettingsPage> {
               child: Container(
                   color: backgroundColor,
                   child: Column(children: [
-                    cupertino_lists.CupertinoListSection(children: [
-                      cupertino_lists.CupertinoListTile(
+                    CupertinoListSection(children: [
+                      CupertinoListTile(
                         title: const Text("Appearance"),
                         onTap: () => {
                           Navigator.push(context,
@@ -65,7 +64,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         trailing: const Icon(CupertinoIcons.forward),
                       ),
-                      cupertino_lists.CupertinoListTile(
+                      CupertinoListTile(
                         title: const Text("Dictionaries"),
                         onTap: () => {
                           Navigator.push(context,
@@ -88,8 +87,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         trailing: const Icon(CupertinoIcons.forward),
                       ),
                     ]),
-                    cupertino_lists.CupertinoListSection(children: [
-                      cupertino_lists.CupertinoListTile(
+                    CupertinoListSection(children: [
+                      CupertinoListTile(
                         title: const Text("About"),
                         onTap: () => {
                           Navigator.push(context,

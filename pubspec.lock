@@ -92,13 +92,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.5"
-  cupertino_lists:
-    dependency: "direct main"
-    description:
-      name: cupertino_lists
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.1"
   equatable:
     dependency: transitive
     description:
