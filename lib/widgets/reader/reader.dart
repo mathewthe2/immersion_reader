@@ -13,12 +13,14 @@ class Reader extends StatefulWidget {
   final LocalAssetsServer? localAssetsServer;
   final DictionaryProvider dictionaryProvider;
   final String? initialUrl;
+  final bool isAddBook;
 
   const Reader(
       {super.key,
       required this.localAssetsServer,
       required this.dictionaryProvider,
-      this.initialUrl});
+      this.initialUrl,
+      this.isAddBook = false});
 
   @override
   State<Reader> createState() => _ReaderState();
@@ -30,6 +32,8 @@ class _ReaderState extends State<Reader> {
   late PopupDictionary popupDictionary;
   int? lastTimestamp;
   static int timeStampDiff = 20; // recently opened
+  bool hasShownAddedDialog = false;
+  bool hasInjectedReaderJs = false;
 
   Future<void> createPopupDictionary() async {
     vocabularyListStorage = await VocabularyListStorage.create();
@@ -39,7 +43,22 @@ class _ReaderState extends State<Reader> {
         dictionaryProvider: widget.dictionaryProvider);
   }
 
+  static String addFileJs = """
+      try {
+        document.getElementsByClassName('xl:mr-1')[0].click();
+        console.log("injected-open-file")
+      } catch {}
+      """;
+
   void handleMessage(ConsoleMessage message) {
+    if (message.message == "injected-open-file") {
+      hasShownAddedDialog = true;
+      return;
+    }
+    if (message.message == "injected-reader-js") {
+      hasInjectedReaderJs = true;
+      return;
+    }
     late Map<String, dynamic> messageJson;
     try {
       messageJson = jsonDecode(message.message);
@@ -64,6 +83,12 @@ class _ReaderState extends State<Reader> {
         }
     }
   }
+
+// @override
+//   void initState() {
+//     super.initState();
+//     isAddBook = widget.isAddBook;
+//   }
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +117,12 @@ class _ReaderState extends State<Reader> {
                   webViewController = controller;
                 },
                 onLoadStop: (controller, uri) async {
-                  await controller.evaluateJavascript(source: readerJs);
+                  if (!hasInjectedReaderJs) {
+                    await controller.evaluateJavascript(source: readerJs);
+                  }
+                  if (widget.isAddBook && !hasShownAddedDialog) {
+                    await controller.evaluateJavascript(source: addFileJs);
+                  }
                 },
                 onLoadError: (controller, url, code, message) {
                   debugPrint(message);
@@ -102,6 +132,9 @@ class _ReaderState extends State<Reader> {
                 },
                 onTitleChanged: (controller, title) async {
                   await controller.evaluateJavascript(source: readerJs);
+                  if (widget.isAddBook && !hasShownAddedDialog) {
+                    await controller.evaluateJavascript(source: addFileJs);
+                  }
                 },
                 onConsoleMessage: (controller, message) {
                   handleMessage(message);

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+// import 'package:immersion_reader/pages/browser.dart';
 import 'package:immersion_reader/pages/discover.dart';
 import 'package:immersion_reader/pages/reader/reader_page.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
@@ -27,7 +28,9 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> with WidgetsBindingObserver {
   final ValueNotifier<bool> _notifier = ValueNotifier(false);
+  final int readerPageIndex = 1;
   final int vocabularyListPageIndex = 2;
+  int currentIndex = 0;
   SharedPreferences? sharedPreferences;
   LocalAssetsServerProvider? localAssetsServerProvider;
   VocabularyListProvider? vocabularyListProvider;
@@ -111,12 +114,17 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   }
 
   void handleSwitchNavigation(int index) async {
-    tabNavKeys[index]
-        .currentState
-        ?.popUntil((r) => r.isFirst); // pop to root of each page
+    if (index != readerPageIndex || currentIndex == index) { // exclude reader tab
+      tabNavKeys[index]
+          .currentState
+          ?.popUntil((r) => r.isFirst); // pop to root of each page
+    }
+
     if (index == vocabularyListPageIndex && vocabularyListProvider != null) {
       await vocabularyListProvider!.getVocabularyList();
     }
+
+    currentIndex = index;
   }
 
   @override
@@ -157,6 +165,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
           paymentProvider: paymentProvider!,
           localAssetsServer: localAssetsServerProvider!.server,
           dictionaryProvider: dictionaryProvider!),
+      //  Browser(
+      //     browserProvider: browserProvider,
+      //     dictionaryProvider: dictionaryProvider!),
       ValueListenableBuilder(
           valueListenable: _notifier,
           builder: (context, val, child) => VocabularyListPage(

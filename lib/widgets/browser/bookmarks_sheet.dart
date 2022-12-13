@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import "package:immersion_reader/extensions/string_extension.dart";
 import 'package:immersion_reader/data/browser/browser_bookmark.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
 
@@ -50,7 +49,9 @@ class _BookmarksSheetState extends State<BookmarksSheet> {
             color: CupertinoColors.black,
             darkColor: CupertinoColors.systemBackground),
         context);
-    return Column(children: [
+    return CupertinoScrollbar(
+        child: SingleChildScrollView(
+            child: Column(children: [
       Padding(
           padding: const EdgeInsets.only(top: 10),
           child: Text('Bookmarks',
@@ -60,38 +61,38 @@ class _BookmarksSheetState extends State<BookmarksSheet> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               bookmarks = snapshot.data!;
-              return Align(
-                  alignment: Alignment.centerLeft,
-                  child: CupertinoListSection(children: [
-                    ...bookmarks.map((BrowserBookmark bookmark) => Slidable(
-                        endActionPane:
-                            ActionPane(motion: const ScrollMotion(), children: [
-                          SlidableAction(
-                            onPressed: (context) =>
-                                handleDeleteBookmark(bookmark),
-                            backgroundColor: CupertinoColors.destructiveRed,
-                            foregroundColor: CupertinoColors.white,
-                            label: 'Delete',
-                          ),
-                        ]),
-                        child: CupertinoListTile(
-                            title: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.8,
-                                child: Text(bookmark.name,
-                                    overflow: TextOverflow.ellipsis)),
-                            leading: Container(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Icon(
-                                  size: 22,
-                                  bookmark.isFolder()
-                                      ? CupertinoIcons.folder
-                                      : CupertinoIcons.book),
-                            ),
-                            trailing: bookmark.isFolder()
-                                ? const Icon(CupertinoIcons.forward)
-                                : null,
-                            onTap: () => handleTapBookmark(bookmark, context))))
-                  ]));
+              if (bookmarks.isEmpty) {
+                return Container();
+              }
+              return CupertinoListSection(children: [
+                ...bookmarks.map((BrowserBookmark bookmark) => Slidable(
+                    endActionPane:
+                        ActionPane(motion: const ScrollMotion(), children: [
+                      SlidableAction(
+                        onPressed: (context) => handleDeleteBookmark(bookmark),
+                        backgroundColor: CupertinoColors.destructiveRed,
+                        foregroundColor: CupertinoColors.white,
+                        label: 'Delete',
+                      ),
+                    ]),
+                    child: CupertinoListTile(
+                        title: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            child: Text(bookmark.name,
+                                overflow: TextOverflow.ellipsis)),
+                        leading: Container(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Icon(
+                              size: 22,
+                              bookmark.isFolder()
+                                  ? CupertinoIcons.folder
+                                  : CupertinoIcons.book),
+                        ),
+                        trailing: bookmark.isFolder()
+                            ? const Icon(CupertinoIcons.forward)
+                            : null,
+                        onTap: () => handleTapBookmark(bookmark, context))))
+              ]);
             } else {
               return const CupertinoActivityIndicator(
                 animating: true,
@@ -105,6 +106,6 @@ class _BookmarksSheetState extends State<BookmarksSheet> {
       //         child: const Text('Add folder'), onPressed: () {
 
       //         }))
-    ]);
+    ])));
   }
 }

@@ -22,6 +22,8 @@ class _BrowserShareSheetState extends State<BrowserShareSheet> {
     if (url != null) {
       String name =
           await widget.webViewController!.getTitle() ?? url.toString();
+      List<Favicon> icons = await widget.webViewController!.getFavicons();
+      print(icons);
       await widget.browserProvider!.addBookmarkWithUrl(BrowserBookmark.fromLink(name, url));
     }
   }

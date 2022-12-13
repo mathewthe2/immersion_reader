@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/book.dart';
+import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import 'package:immersion_reader/widgets/reader/reader.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/utils/reader/ttu_source.dart';
@@ -42,8 +43,8 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                             fontWeight: FontWeight.w700,
                             fontSize: 18)),
                   ]),
-                  GestureDetector(
-                      onTap: () {
+                  CupertinoButton(
+                      onPressed: () {
                         Navigator.push(
                             context,
                             SwipeablePageRoute(
@@ -51,13 +52,21 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                                 backGestureDetectionWidth: 25,
                                 builder: (context) {
                                   return Reader(
+                                      isAddBook: true,
+                                      initialUrl:
+                                          'http://localhost:${LocalAssetsServerProvider.port}/manage.html',
                                       localAssetsServer:
                                           widget.localAssetsServer,
                                       dictionaryProvider:
                                           widget.dictionaryProvider);
-                                }));
+                                })).then((value) {
+                          setState(() {
+                            // refresh state
+                          });
+                        });
                       },
-                      child: Text('Open', style: TextStyle(color: textColor)))
+                      padding: const EdgeInsets.all(0.0),
+                      child: const Icon(CupertinoIcons.add))
                 ])));
   }
 
@@ -68,7 +77,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
             color: CupertinoColors.black, darkColor: CupertinoColors.white),
         context);
     return Column(children: [
-      headlineWidget("TTU Reader", FontAwesomeIcons.bookOpen, textColor),
+      headlineWidget("EPUB Reader", FontAwesomeIcons.bookOpen, textColor),
       FutureBuilder<List<Book>>(
           future: TtuSource.getBooksHistory(widget.localAssetsServer!),
           builder: (context, snapshot) {
@@ -77,7 +86,8 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                 return Center(
                     child: Column(children: [
                   const SizedBox(height: 50),
-                  Text('No Books Loaded', style: TextStyle(color: textColor))
+                  Text('No Books Added', style: TextStyle(color: textColor)),
+                  const SizedBox(height: 50),
                 ]));
               }
               return SizedBox(
