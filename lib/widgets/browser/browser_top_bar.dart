@@ -37,7 +37,17 @@ class _BrowserBarState extends State<BrowserTopBar> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoTextField(
-        controller: _textController, onSubmitted: handleSubmitUrl);
+    return Row(children: [
+      CupertinoButton(
+          onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+          padding: const EdgeInsets.all(0.0),
+          child: const Icon(
+              size: 20,
+              CupertinoIcons.return_icon,
+              color: CupertinoColors.inactiveGray)),
+      Expanded(
+          child: CupertinoTextField(
+              controller: _textController, onSubmitted: handleSubmitUrl))
+    ]);
   }
 }

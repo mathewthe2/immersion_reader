@@ -4,7 +4,7 @@ import 'package:path/path.dart' as p;
 import 'dart:io';
 
 class BrowserStorage {
-    Database? database;
+  Database? database;
 
   BrowserStorage._create() {
     // print("_create() (private constructor)");
@@ -12,7 +12,7 @@ class BrowserStorage {
 
   static Future<BrowserStorage> create() async {
     BrowserStorage browserStorage = BrowserStorage._create();
-     String databasesPath = await getDatabasesPath();
+    String databasesPath = await getDatabasesPath();
     String path = p.join(databasesPath,
         "browser.db"); // separate database file so we keep the definition data even if dictionary is removed
     try {
@@ -23,19 +23,8 @@ class BrowserStorage {
     // await deleteDatabase(path);
 
     // opening the database
-    browserStorage.database = await openDatabase(path, version: 1,
-        onCreate: (Database db, int version) async {
-      // When creating the db, create the table\
-      Batch batch = db.batch();
-      batch.execute('''
-            CREATE TABLE Bookmarks (
-            id INTEGER PRIMARY KEY, name TEXT, url TEXT, parent INTEGER, 
-            type INTEGER)
-          ''');
-      batch.rawQuery(
-          "CREATE INDEX index_Bookmarks_parent ON Bookmarks(parent)");
-      await batch.commit();
-    });
+    browserStorage.database =
+        await openDatabase(path, version: 1, onCreate: _onCreateStorageData);
     return browserStorage;
   }
 
@@ -43,11 +32,45 @@ class BrowserStorage {
     if (database == null) {
       return [];
     }
-    List<Map<String, Object?>> rows = await database!
-        .rawQuery('SELECT * FROM Bookmarks'); // to do: add limit
+    List<Map<String, Object?>> rows =
+        await database!.rawQuery('SELECT * FROM Bookmarks'); // to do: add limit
     List<BrowserBookmark> bookmarks =
         rows.map((row) => BrowserBookmark.fromMap(row)).toList();
     return bookmarks;
   }
 
+  Future<void> addBookmark(BrowserBookmark bookmark) async {
+    await database!.rawInsert(
+        'INSERT INTO Bookmarks(name, url, parent, type) VALUES(?, ?, ?, ?)', [
+      bookmark.name,
+      bookmark.url,
+      bookmark.parent,
+      bookmark.getTypeValue()
+    ]);
+  }
+
+  Future<void> deleteBookmark(int bookmarkId) async {
+    await database!
+        .rawDelete('DELETE FROM Bookmarks WHERE id = ?', [bookmarkId]);
+  }
+
+  static Future<void> _onCreateStorageData(Database db, int version) async {
+    Batch batch = db.batch();
+    batch.execute('''
+            CREATE TABLE Bookmarks (
+            id INTEGER PRIMARY KEY, name TEXT, url TEXT, parent INTEGER, 
+            type INTEGER)
+          ''');
+    batch.execute('''
+            CREATE TABLE History (
+            id INTEGER PRIMARY KEY, name TEXT, url TEXT, timestamp INTEGER)
+          ''');
+    batch.execute('''
+          CREATE TABLE Settings (title TEXT, customValue TEXT, category TEXT)
+        ''');
+
+    // indexes
+    batch.rawQuery("CREATE INDEX index_Bookmarks_parent ON Bookmarks(parent)");
+    await batch.commit();
+  }
 }

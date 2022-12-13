@@ -47,8 +47,7 @@ class _BrowserCatalogState extends State<BrowserCatalog> {
                         // print(widget.paymentProvider.getProductByString("immersion_reader_plus"));
                         widget.paymentProvider.invokePurchaseOrProceed(
                             "immersion_reader_plus",
-                            () => Navigator.push(
-                                context,
+                            () => Navigator.of(context, rootNavigator: true).push(
                                 SwipeablePageRoute(
                                     canOnlySwipeFromEdge: true,
                                     backGestureDetectionWidth: 25,

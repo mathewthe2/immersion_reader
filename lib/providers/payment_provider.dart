@@ -9,13 +9,14 @@ List<String> _productLists = ['immersion_reader_plus'];
 
 class PaymentProvider {
   SharedPreferences? _sharedPreferences;
-  StreamSubscription? _purchaseUpdatedSubscription;
-  StreamSubscription? _purchaseErrorSubscription;
+  // StreamSubscription? _purchaseUpdatedSubscription;
+  // StreamSubscription? _purchaseErrorSubscription;
   StreamSubscription? _conectionSubscription;
   // String _platformVersion = 'Unknown';
   List<IAPItem>? _items;
   List<PurchasedItem>? _purchases;
   bool hasConnectionError = false;
+  static bool devMode = true; // avoid payments for simulator
 
   PaymentProvider._create() {
     // print("_create() (private constructor)");
@@ -31,15 +32,16 @@ class PaymentProvider {
       debugPrint('connected: $connected');
     });
 
-    provider._purchaseUpdatedSubscription =
-        FlutterInappPurchase.purchaseUpdated.listen((productItem) {
-      debugPrint('purchase-updated: $productItem');
-    });
+    // provider._purchaseUpdatedSubscription =
+    //     FlutterInappPurchase.purchaseUpdated.listen((productItem) {
+    //   debugPrint('purchase-updated: $productItem');
+    // });
 
-    provider._purchaseErrorSubscription =
-        FlutterInappPurchase.purchaseError.listen((purchaseError) {
-      debugPrint('purchase-error: $purchaseError');
-    });
+    // provider._purchaseErrorSubscription =
+    //     FlutterInappPurchase.purchaseError.listen((purchaseError) {
+    //   debugPrint('purchase-error: $purchaseError');
+    // });
+    
     return provider;
   }
 
@@ -49,14 +51,21 @@ class PaymentProvider {
 
   Future<void> invokePurchaseOrProceed(
       String productName, VoidCallback callback) async {
+    // allow simulator to enter
+    if (devMode) {
+      callback();
+      return;
+    }
     // check local preferences
-    if (_sharedPreferences != null && (_sharedPreferences!.getBool(_formatProductString(productName)) ?? false)) {
+    if (_sharedPreferences != null &&
+        (_sharedPreferences!.getBool(_formatProductString(productName)) ??
+            false)) {
       callback();
       return;
     }
     // check online
     bool hasInternetConnection = await InternetUtils.hasInternetConnection();
-    if (!hasInternetConnection){
+    if (!hasInternetConnection) {
       // return status here
       debugPrint('offline');
       return;
@@ -111,7 +120,8 @@ class PaymentProvider {
       return;
     }
     for (PurchasedItem purchaseItem in purchases) {
-      _sharedPreferences!.setBool(_formatProductString(purchaseItem.productId!), true);
+      _sharedPreferences!
+          .setBool(_formatProductString(purchaseItem.productId!), true);
     }
   }
 

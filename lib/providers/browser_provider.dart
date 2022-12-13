@@ -23,4 +23,16 @@ class BrowserProvider {
     bookmarks = await browserStorage!.getBookmarks();
     return bookmarks;
   }
+
+  Future<void> addBookmarkWithUrl(BrowserBookmark bookmark) async {
+    if (browserStorage != null) {
+      await browserStorage!.addBookmark(bookmark);
+    }
+  }
+
+  Future<void> deleteBookmark(int bookmarkId) async {
+    if (browserStorage != null) {
+      await browserStorage!.deleteBookmark(bookmarkId);
+    }
+  }
 }

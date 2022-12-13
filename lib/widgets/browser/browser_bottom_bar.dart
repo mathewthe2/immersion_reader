@@ -74,7 +74,9 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                           child: SizedBox(
                               height: MediaQuery.of(context).size.height * .40,
                               child: BrowserShareSheet(
-                                  browserProvider: widget.browserProvider))))),
+                                  webViewController: widget.webViewController,
+                                  browserProvider: widget.browserProvider))))
+                                  ),
               toolbarIconButton(
                   CupertinoIcons.book,
                   () => showCupertinoModalBottomSheet(
