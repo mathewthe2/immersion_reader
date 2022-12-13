@@ -35,18 +35,21 @@ class TtuSource {
       },
       onConsoleMessage: (controller, message) {
         late Map<String, dynamic> messageJson;
-        messageJson = jsonDecode(message.message);
-
-        if (messageJson['messageType'] != null) {
-          try {
-            books = getBooksFromJson(messageJson);
-          } catch (error, stack) {
-            books = [];
-            debugPrint('$error');
-            debugPrint('$stack');
+        try {
+          messageJson = jsonDecode(message.message);
+          if (messageJson['messageType'] != null) {
+            try {
+              books = getBooksFromJson(messageJson);
+            } catch (error, stack) {
+              books = [];
+              debugPrint('$error');
+              debugPrint('$stack');
+            }
+          } else {
+            debugPrint(message.message);
           }
-        } else {
-          debugPrint(message.message);
+        } catch (e) {
+          debugPrint(e.toString());
         }
       },
     );
