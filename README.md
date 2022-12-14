@@ -16,6 +16,7 @@
 ## Develop
 
 1. Build e-reader
+
 ```
 cd resources/ebook-reader/apps/web
 pnpm install --frozen-lockfile
@@ -24,7 +25,8 @@ cp -r build/ ../../../../assets/ttu-ebook-reader/
 ```
 
 2. Run Flutter app
-````
+
+```
 flutter pub get
 flutter run
 ```
@@ -32,6 +34,7 @@ flutter run
 ## Use SkSL warmup
 
 1. Capture shaders
+
 ```
 flutter run --profile --cache-sksl --purge-persistent-cache
 ```
