@@ -2,6 +2,7 @@
 /assets/ttu-ebook-reader/
 
 # Resources
+/resources/ebook-reader/apps/web/yarn.lock
 /resources/ebook-reader/apps/web/build/
 /resources/ebook-reader/apps/web/node_modules/
 

@@ -19,8 +19,8 @@
 
 ```
 cd resources/ebook-reader/apps/web
-pnpm install --frozen-lockfile
-pnpm build
+yarn install
+yarn build
 cp -r build/ ../../../../assets/ttu-ebook-reader/
 ```
 
