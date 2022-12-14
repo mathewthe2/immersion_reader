@@ -54,7 +54,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                                   return Reader(
                                       isAddBook: true,
                                       initialUrl:
-                                          'http://localhost:${LocalAssetsServerProvider.port}/manage.html',
+                                          'http://localhost:${LocalAssetsServerProvider.port}',
                                       localAssetsServer:
                                           widget.localAssetsServer,
                                       dictionaryProvider:
@@ -103,6 +103,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                                 width: 130,
                                 book: entry.value,
                                 onTap: (mediaIdentifier) {
+                                  print(mediaIdentifier);
                                   Navigator.push(
                                       context,
                                       SwipeablePageRoute(

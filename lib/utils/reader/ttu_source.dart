@@ -102,7 +102,7 @@ class TtuSource {
 
       return Book(
         mediaIdentifier:
-            'http://localhost:${LocalAssetsServerProvider.port}/b.html?id=$id&?title=$title',
+            'http://localhost:${LocalAssetsServerProvider.port}/b.html?id=$id',
         title: title,
         base64Image: base64Image,
         position: position,

@@ -13,6 +13,22 @@
 - Dictionary search
 - Save and export words to [AnkiDojo](https://ankiweb.net/shared/info/433778282)
 
+## Develop
+
+1. Build e-reader
+```
+cd resources/ebook-reader/apps/web
+pnpm install --frozen-lockfile
+pnpm build
+cp -r build/ ../../../../assets/ttu-ebook-reader/
+```
+
+2. Run Flutter app
+````
+flutter pub get
+flutter run
+```
+
 ## Use SkSL warmup
 
 1. Capture shaders

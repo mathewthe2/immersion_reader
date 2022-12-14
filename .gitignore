@@ -1,3 +1,10 @@
+# Assets
+/assets/ttu-ebook-reader/
+
+# Resources
+/resources/ebook-reader/apps/web/build/
+/resources/ebook-reader/apps/web/node_modules/
+
 # Miscellaneous
 *.class
 *.log
