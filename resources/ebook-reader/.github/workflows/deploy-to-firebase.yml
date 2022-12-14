@@ -1,0 +1,50 @@
+name: Deploy to Firebase
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - apps/web/**
+jobs:
+  build-and-deploy:
+    name: Build and deploy
+    if: >-
+      startsWith(github.event.head_commit.message, 'feat') ||
+      startsWith(github.event.head_commit.message, 'fix') ||
+      startsWith(github.event.head_commit.message, 'perf')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Postinstall steps
+        run: pnpm svelte-kit sync
+        working-directory: apps/web
+
+      - name: Build
+        run: pnpm build
+        working-directory: apps/web
+
+      - name: Deploy
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_TTU_EBOOK }}'
+          channelId: live
+          projectId: ttu-ebook
+          entryPoint: apps/web
