@@ -4,4 +4,3 @@ build
 package
 .env
 .firebaserc
-*.local

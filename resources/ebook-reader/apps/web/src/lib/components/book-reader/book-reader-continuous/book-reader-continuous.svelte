@@ -1,17 +1,5 @@
 <script lang="ts">
-  import { browser } from '$app/environment';
-  import {
-    nextChapter$,
-    sectionList$,
-    sectionProgress$,
-    tocIsOpen$,
-    type SectionWithProgress
-  } from '$lib/components/book-reader/book-toc/book-toc';
-  import HtmlRenderer from '$lib/components/html-renderer.svelte';
-  import type { BooksDbBookmarkData } from '$lib/data/database/books-db/versions/books-db';
-  import { FuriganaStyle } from '$lib/data/furigana-style';
-  import { prependValue } from '$lib/functions/file-loaders/epub/generate-epub-html';
-  import { faBookmark } from '@fortawesome/free-solid-svg-icons';
+  import { createEventDispatcher, onDestroy } from 'svelte';
   import {
     animationFrameScheduler,
     combineLatest,
@@ -30,14 +18,26 @@
     takeUntil,
     timer
   } from 'rxjs';
-  import { createEventDispatcher, onDestroy } from 'svelte';
   import Fa from 'svelte-fa';
+  import { faBookmark } from '@fortawesome/free-solid-svg-icons';
+  import { browser } from '$app/env';
+  import {
+    nextChapter$,
+    sectionList$,
+    sectionProgress$,
+    tocIsOpen$,
+    type SectionWithProgress
+  } from '$lib/components/book-reader/book-toc/book-toc';
+  import { prependValue } from '$lib/functions/file-loaders/epub/generate-epub-html';
+  import HtmlRenderer from '$lib/components/html-renderer.svelte';
+  import type { BooksDbBookmarkData } from '$lib/data/database/books-db/versions/books-db';
+  import { FuriganaStyle } from '$lib/data/furigana-style';
   import type { AutoScroller, BookmarkManager, PageManager } from '../types';
-  import { AutoScrollerContinuous } from './auto-scroller-continuous';
   import { BookmarkManagerContinuous, type BookmarkPosData } from './bookmark-manager-continuous';
   import { CharacterStatsCalculator } from './character-stats-calculator';
   import { horizontalMouseWheel } from './horizontal-mouse-wheel';
   import { PageManagerContinuous } from './page-manager-continuous';
+  import { AutoScrollerContinuous } from './auto-scroller-continuous';
 
   export let htmlContent: string;
 
@@ -247,8 +247,6 @@
           if (!data || !bookmarkManager) {
             return;
           }
-
-          prevIntendedCharCount = data.exploredCharCount || 0;
           bookmarkManager.scrollToBookmark(data);
         })
         .finally(() => {
@@ -341,7 +339,6 @@
       if (!calculator) return;
 
       exploredCharCount = calculator.calcExploredCharCount();
-
       if (!isResizeScroll) {
         prevIntendedCharCount = exploredCharCount;
       }

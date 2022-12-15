@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 
-import { toSearchParams } from '$lib/functions/to-search-params';
 import { build, files, prerendered, version } from '$service-worker';
+import { toSearchParams } from '$lib/functions/to-search-params';
 
 // eslint-disable-next-line no-restricted-globals
 const worker = self as unknown as ServiceWorkerGlobalScope;
@@ -14,7 +14,10 @@ const cachedAssets = new Set(assetsToCache);
 
 worker.addEventListener('install', (event) => {
   worker.skipWaiting();
-  event.waitUntil(caches.open(BUILD_CACHE_NAME).then((cache) => cache.addAll(assetsToCache)));
+  caches.open(BUILD_CACHE_NAME).then((cache) => {
+    assetsToCache.forEach((a) => cache.add(a).catch(()=>console.log(a)));
+  });
+  // event.waitUntil(caches.open(BUILD_CACHE_NAME).then((cache) => cache.addAll(assetsToCache)));
 });
 
 worker.addEventListener('activate', (event) => {
@@ -42,10 +45,7 @@ worker.addEventListener('fetch', (event) => {
   if (!isHttp || isDevServerRequest || skipBecauseUncached) return;
 
   if (isSelfHost && prerenderedSet.has(url.pathname)) {
-    const requestWithoutParams = new Request(url.pathname);
-    event.respondWith(
-      networkFirstRaceCache(event.request, false, BUILD_CACHE_NAME, requestWithoutParams)
-    );
+    event.respondWith(networkFirstRaceCache(event.request, BUILD_CACHE_NAME));
     return;
   }
 
@@ -64,12 +64,7 @@ worker.addEventListener('fetch', (event) => {
   }
 });
 
-async function networkFirstRaceCache(
-  request: Request,
-  storeResponse = true,
-  fallbackCacheName?: string,
-  fallbackCacheRequest?: Request
-) {
+async function networkFirstRaceCache(request: Request, fallbackCacheName?: string) {
   const cache = await caches.open(`other:${version}`);
   const controller = new AbortController();
 
@@ -77,18 +72,11 @@ async function networkFirstRaceCache(
 
   let done = false;
   let attempted = false;
-
-  const retrieveFromFallbackCache = () =>
-    fallbackCacheName
-      ? caches.match(fallbackCacheRequest ?? request, { cacheName: fallbackCacheName })
-      : undefined;
-
   const retrieveFromCache = async () => {
-    if (!storeResponse) return retrieveFromFallbackCache();
     const response = await cache.match(request);
     if (response) return response;
     if (!fallbackCacheName) return undefined;
-    return retrieveFromFallbackCache();
+    return caches.match(request, { cacheName: fallbackCacheName });
   };
 
   try {
@@ -101,9 +89,7 @@ async function networkFirstRaceCache(
     const response = await fetch(request, { signal: controller.signal });
     done = true; // avoid Cache.put() was aborted exception
     clearTimeout(handle);
-    if (storeResponse) {
-      cache.put(request, response.clone());
-    }
+    cache.put(request, response.clone());
     return response;
   } catch (err) {
     if (!attempted) {

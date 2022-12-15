@@ -7,7 +7,6 @@
 
   export let sectionData: SectionWithProgress[] = [];
   export let exploredCharCount = 0;
-  export let verticalMode: boolean;
 
   let chapters: SectionWithProgress[] = [];
   let currentChapter: SectionWithProgress;
@@ -15,12 +14,8 @@
   let currentChapterCharacterProgress = '0/0';
   let currentChapterProgress = '0.00';
 
-  $: prevChapterAvailable = verticalMode
-    ? currentChapterIndex < chapters.length - 1
-    : !!currentChapterIndex;
-  $: nextChapterAvailable = verticalMode
-    ? !!currentChapterIndex
-    : currentChapterIndex < chapters.length - 1;
+  $: prevChapterAvailable = !!currentChapterIndex;
+  $: nextChapterAvailable = currentChapterIndex < chapters.length - 1;
 
   $: if (sectionData) {
     const [mainChapters, chapterIndex, referenceId] = getChapterData(sectionData);
@@ -97,19 +92,15 @@
     nextChapter$.next(chapterId);
 
     if (closeToc) {
-      closeTocMenu();
+      tocIsOpen$.next(false);
+      dialogManager.dialogs$.next([]);
     }
-  }
-
-  function closeTocMenu() {
-    tocIsOpen$.next(false);
-    dialogManager.dialogs$.next([]);
   }
 </script>
 
 <div class="flex justify-between p-4">
   <div>Chapter Progress: {currentChapterCharacterProgress} ({currentChapterProgress}%)</div>
-  <div class="flex cursor-pointer items-end md:items-center" on:click={closeTocMenu}>
+  <div class="cursor-pointer" on:click={() => tocIsOpen$.next(false)}>
     <Fa icon={faXmark} />
   </div>
 </div>
@@ -136,14 +127,14 @@
   <div
     class="cursor-pointer"
     class:opacity-30={!prevChapterAvailable}
-    on:click={() => changeChapter(prevChapterAvailable, verticalMode ? 1 : -1)}
+    on:click={() => changeChapter(prevChapterAvailable, -1)}
   >
     <Fa icon={faChevronLeft} />
   </div>
   <div
     class="cursor-pointer"
     class:opacity-30={!nextChapterAvailable}
-    on:click={() => changeChapter(nextChapterAvailable, verticalMode ? -1 : 1)}
+    on:click={() => changeChapter(nextChapterAvailable, 1)}
   >
     <Fa icon={faChevronRight} />
   </div>

@@ -24,6 +24,8 @@ yarn build
 cp -r build/ ../../../../assets/ttu-ebook-reader/
 ```
 
+If install fails, use `pnpm install --frozen-lockfile` instead.
+
 2. Run Flutter app
 
 ```

@@ -4,18 +4,14 @@
  * All rights reserved.
  */
 
-import type { LoadData } from '../types';
 import { XMLParser } from 'fast-xml-parser';
+import type { LoadData } from '../types';
+import reduceObjToBlobs from '../utils/reduce-obj-to-blobs';
 import extractHtmlz from './extract-htmlz';
 import { getFormattedElementHtmlz } from './generate-htmlz-html';
 import getHtmlzCoverImageFilename from './get-htmlz-cover-image-filename';
-import reduceObjToBlobs from '../utils/reduce-obj-to-blobs';
 
-export default async function loadHtmlz(
-  file: File,
-  document: Document,
-  lastBookModified: number
-): Promise<LoadData> {
+export default async function loadHtmlz(file: File, document: Document): Promise<LoadData> {
   const data = await extractHtmlz(file);
   const element = getFormattedElementHtmlz(data, document);
   const parser = new XMLParser();
@@ -42,8 +38,6 @@ export default async function loadHtmlz(
     ...displayData,
     elementHtml: element.innerHTML,
     blobs: blobData,
-    coverImage,
-    lastBookModified,
-    lastBookOpen: 0
+    coverImage
   };
 }

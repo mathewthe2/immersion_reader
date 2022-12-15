@@ -1,41 +1,21 @@
 <script lang="ts">
-  import { faBookOpenReader, faDatabase } from '@fortawesome/free-solid-svg-icons';
+  import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
   import Fa from 'svelte-fa';
-  import MergedHeaderIcon from '$lib/components/merged-header-icon/merged-header-icon.svelte';
-  import Ripple from '$lib/components/ripple.svelte';
-  import { baseHeaderClasses, pxScreen } from '$lib/css-classes';
+  import { pxScreen, translateXHeaderFa, opacityHeaderIcon, pHeaderFa } from '$lib/css-classes';
 
   export let leavePageLink: string;
-  export let activeSettings: string;
-
-  const settingItems = [
-    {
-      label: 'Reader',
-      icon: faBookOpenReader
-    },
-    {
-      label: 'Data',
-      icon: faDatabase
-    }
-  ];
 </script>
 
-<div class={baseHeaderClasses}>
-  <div class="{pxScreen} flex px-0 md:px-5">
-    <div class="h12 flex grow justify-evenly xl:h-10">
-      {#each settingItems as settingItem (settingItem.label)}
-        <button
-          class="flex grow flex-col items-center justify-center text-xs"
-          class:bg-gray-900={activeSettings === settingItem.label}
-          class:hover:bg-gray-900={activeSettings !== settingItem.label}
-          on:click={() => (activeSettings = settingItem.label)}
+<div class="relative h-12 bg-gray-700 text-white xl:h-10">
+  <div class="flex h-full justify-end {pxScreen}">
+    <div class="flex transform-gpu {translateXHeaderFa}">
+      <a href={leavePageLink}>
+        <span
+          class="flex h-full items-center text-xl xl:text-lg {pHeaderFa} {opacityHeaderIcon} cursor-pointer"
         >
-          <Fa class="mb-1" icon={settingItem.icon} />
-          {settingItem.label}
-          <Ripple />
-        </button>
-      {/each}
+          <Fa icon={faSignOutAlt} />
+        </span>
+      </a>
     </div>
-    <MergedHeaderIcon {leavePageLink} />
   </div>
 </div>

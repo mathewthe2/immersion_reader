@@ -60,20 +60,11 @@ export class CharacterStatsCalculator {
       const node = this.paragraphs[i];
 
       const nodeRect = this.getNodeBoundingRect(node);
-
-      const getParagraphPos = () => {
-        const paragraphSize = this.verticalMode ? nodeRect.width : nodeRect.height;
-        if (paragraphSize <= 0) {
-          return this.paragraphPos[i - 1] || 0;
-        }
-        const nodeLeft = formatPos(
-          this.verticalMode ? nodeRect.left : nodeRect.bottom,
-          this.direction
-        );
-
-        return nodeLeft - scrollElRight - dimensionAdjustment + scrollPos;
-      };
-      const paragraphPos = getParagraphPos();
+      const nodeLeft = formatPos(
+        this.verticalMode ? nodeRect.left : nodeRect.bottom,
+        this.direction
+      );
+      const paragraphPos = nodeLeft - scrollElRight - dimensionAdjustment + scrollPos;
       this.paragraphPos[i] = paragraphPos;
 
       const indices = paragraphPosToIndices.get(paragraphPos) || [];

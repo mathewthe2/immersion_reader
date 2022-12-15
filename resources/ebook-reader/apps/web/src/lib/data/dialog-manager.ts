@@ -7,7 +7,7 @@
 import { writableSubject } from '$lib/functions/svelte/store';
 
 export interface Dialog {
-  component: (new (...args: any[]) => any) | string;
+  component: Record<string, any> | string;
   props?: Record<string, any>;
 }
 

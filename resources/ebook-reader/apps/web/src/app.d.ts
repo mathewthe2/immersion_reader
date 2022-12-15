@@ -13,9 +13,6 @@ declare global {
   interface HTMLElement {
     scrollIntoViewIfNeeded(arg?: boolean): void;
   }
-  interface Navigator {
-    msMaxTouchPoints: number;
-  }
 }
 
 export {};

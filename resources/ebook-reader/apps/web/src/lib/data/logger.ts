@@ -25,7 +25,7 @@ interface LoggingEntry {
   args: any[];
 }
 
-let logHistory: LoggingEntry[] = [];
+const logHistory: LoggingEntry[] = [];
 
 function print(level: LoggingLevel) {
   return (message: any, ...optionalParams: any[]) => {
@@ -45,10 +45,7 @@ export const logger = {
   error: print(LoggingLevel.ERROR),
   warn: print(LoggingLevel.WARN),
   info: print(LoggingLevel.INFO),
-  debug: print(LoggingLevel.DEBUG),
-  clearHistory: () => {
-    logHistory = [];
-  }
+  debug: print(LoggingLevel.DEBUG)
 };
 
 function formatArgs(args: any[]) {

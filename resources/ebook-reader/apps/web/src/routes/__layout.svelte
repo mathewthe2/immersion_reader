@@ -1,10 +1,8 @@
 <script lang="ts">
-  import { browser } from '$app/environment';
-  import { page } from '$app/stores';
-  import { dialogManager, type Dialog } from '$lib/data/dialog-manager';
-  import { basePath } from '$lib/data/env';
-  import { isMobile, isMobile$ } from '$lib/functions/utils';
   import { MetaTags } from 'svelte-meta-tags';
+  import { page } from '$app/stores';
+  import { basePath } from '$lib/data/env';
+  import { dialogManager, type Dialog } from '$lib/data/dialog-manager';
   import '../app.scss';
 
   let path = '';
@@ -12,10 +10,6 @@
 
   let dialogs: Dialog[] = [];
   dialogManager.dialogs$.subscribe((d) => (dialogs = d));
-
-  $: if (browser) {
-    isMobile$.next(isMobile(window));
-  }
 
   function closeAllDialogs() {
     dialogManager.dialogs$.next([]);

@@ -1,26 +1,23 @@
 <script lang="ts">
+  import { buttonClasses } from '$lib/css-classes';
   import DialogTemplate from '$lib/components/dialog-template.svelte';
   import Ripple from '$lib/components/ripple.svelte';
-  import { buttonClasses } from '$lib/css-classes';
   import { logger } from '$lib/data/logger';
   import {
-    theme$,
-    fontSize$,
+    autoPositionOnResize$,
+    firstDimensionMargin$,
     fontFamilyGroupOne$,
     fontFamilyGroupTwo$,
-    firstDimensionMargin$,
-    secondDimensionMaxValue$,
-    viewMode$,
-    writingMode$,
-    autoBookmark$,
-    hideSpoilerImage$,
-    hideFurigana$,
+    fontSize$,
     furiganaStyle$,
-    avoidPageBreak$,
-    pageColumns$,
-    autoPositionOnResize$,
+    hideFurigana$,
+    hideSpoilerImage$,
+    multiplier$,
     requestPersistentStorage$,
-    multiplier$
+    secondDimensionMaxValue$,
+    theme$,
+    viewMode$,
+    writingMode$
   } from '$lib/data/store';
 
   export let title = 'Error';
@@ -38,22 +35,19 @@
         },
         settings: {
           theme: theme$.getValue(),
+          multiplier: multiplier$.getValue(),
           fontSize: fontSize$.getValue(),
           fontFamilyGroupOne: fontFamilyGroupOne$.getValue(),
           fontFamilyGroupTwo: fontFamilyGroupTwo$.getValue(),
-          firstDimensionMargin: firstDimensionMargin$.getValue(),
-          secondDimensionMaxValue: secondDimensionMaxValue$.getValue(),
-          viewMode: viewMode$.getValue(),
-          writingMode: writingMode$.getValue(),
-          autoBookmark: autoBookmark$.getValue(),
           hideSpoilerImage: hideSpoilerImage$.getValue(),
           hideFurigana: hideFurigana$.getValue(),
           furiganaStyle: furiganaStyle$.getValue(),
-          avoidPageBreak: avoidPageBreak$.getValue(),
-          pageColumns: pageColumns$.getValue(),
+          writingMode: writingMode$.getValue(),
+          viewMode: viewMode$.getValue(),
+          secondDimensionMaxValue: secondDimensionMaxValue$.getValue(),
+          firstDimensionMargin: firstDimensionMargin$.getValue(),
           autoPositionOnResize: autoPositionOnResize$.getValue(),
-          requestPersistentStorage: requestPersistentStorage$.getValue(),
-          multiplier: multiplier$.getValue()
+          requestPersistentStorage: requestPersistentStorage$.getValue()
         },
         log: logger.history
       },
@@ -70,10 +64,6 @@
     <p>{message}</p>
   </svelte:fragment>
   <svelte:fragment slot="footer">
-    <a class={buttonClasses} href="https://github.com/ttu-ttu/ebook-reader" target="_blank">
-      Open Repository
-      <Ripple />
-    </a>
     <a class={buttonClasses} href={downloadableLog} download="log.json">
       Download Report
       <Ripple />

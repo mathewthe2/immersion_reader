@@ -5,9 +5,8 @@
  */
 
 import type { BehaviorSubject, Observable } from 'rxjs';
-
-import type { BookmarkManager } from '$lib/components/book-reader/types';
 import type { BooksDbBookmarkData } from '$lib/data/database/books-db/versions/books-db';
+import type { BookmarkManager } from '../types';
 import type { PageManagerPaginated } from './page-manager-paginated';
 import type { SectionCharacterStatsCalculator } from './section-character-stats-calculator';
 
@@ -53,8 +52,7 @@ export class BookmarkManagerPaginated implements BookmarkManager {
     return {
       dataId: bookId,
       exploredCharCount,
-      progress: exploredCharCount / bookCharCount,
-      lastBookmarkModified: new Date().getTime()
+      progress: exploredCharCount / bookCharCount
     };
   }
 }

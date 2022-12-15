@@ -1,11 +1,4 @@
 <script lang="ts">
-  import { browser } from '$app/environment';
-  import { nextChapter$, tocIsOpen$ } from '$lib/components/book-reader/book-toc/book-toc';
-  import HtmlRenderer from '$lib/components/html-renderer.svelte';
-  import type { BooksDbBookmarkData } from '$lib/data/database/books-db/versions/books-db';
-  import { FuriganaStyle } from '$lib/data/furigana-style';
-  import { iffBrowser } from '$lib/functions/rxjs/iff-browser';
-  import { faBookmark, faSpinner } from '@fortawesome/free-solid-svg-icons';
   import {
     BehaviorSubject,
     combineLatest,
@@ -23,10 +16,17 @@
   import { createEventDispatcher, onDestroy } from 'svelte';
   import Fa from 'svelte-fa';
   import { swipe } from 'svelte-gestures';
-  import type { BookmarkManager, PageManager } from '../types';
-  import { BookmarkManagerPaginated } from './bookmark-manager-paginated';
+  import { faBookmark, faSpinner } from '@fortawesome/free-solid-svg-icons';
+  import { browser } from '$app/env';
+  import { nextChapter$, tocIsOpen$ } from '$lib/components/book-reader/book-toc/book-toc';
+  import HtmlRenderer from '$lib/components/html-renderer.svelte';
+  import { FuriganaStyle } from '$lib/data/furigana-style';
+  import type { BooksDbBookmarkData } from '$lib/data/database/books-db/versions/books-db';
+  import { iffBrowser } from '$lib/functions/rxjs/iff-browser';
   import { PageManagerPaginated } from './page-manager-paginated';
   import { SectionCharacterStatsCalculator } from './section-character-stats-calculator';
+  import type { BookmarkManager, PageManager } from '../types';
+  import { BookmarkManagerPaginated } from './bookmark-manager-paginated';
 
   export let htmlContent: string;
 
@@ -383,7 +383,6 @@
   style:--book-content-hint-furigana-shadow-color={hintFuriganaShadowColor}
   style:--book-content-child-width="{width}px"
   style:--book-content-child-height="{height}px"
-  style:--book-content-child-column-width={!verticalMode && columnCount === 1 ? `${width}px` : ''}
   style:--book-content-column-count={columnCount}
   style:--book-content-image-max-width="{verticalMode
     ? width
@@ -433,10 +432,6 @@
 
   .book-content-container {
     column-count: var(--book-content-column-count, 1);
-    column-width: var(
-      --book-content-child-column-width,
-      auto
-    ); // required for WebKit + column-count 1
     column-gap: 20px;
     column-fill: auto;
     height: var(--book-content-child-height, 95vh);

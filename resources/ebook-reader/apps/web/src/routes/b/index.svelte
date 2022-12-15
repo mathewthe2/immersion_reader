@@ -4,7 +4,6 @@
     filter,
     fromEvent,
     map,
-    of,
     share,
     shareReplay,
     startWith,
@@ -14,7 +13,6 @@
   } from 'rxjs';
   import { quintInOut } from 'svelte/easing';
   import { fly } from 'svelte/transition';
-  import { browser } from '$app/environment';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import BookReader from '$lib/components/book-reader/book-reader.svelte';
@@ -64,8 +62,6 @@
     sectionProgress$,
     tocIsOpen$
   } from '$lib/components/book-reader/book-toc/book-toc';
-  import { getStorageHandler } from '$lib/data/storage-manager/storage-manager-factory';
-  import { StorageKey } from '$lib/data/storage-manager/storage-source';
   import { clickOutside } from '$lib/functions/use-click-outside';
   import { onKeydownReader } from './on-keydown-reader';
 
@@ -115,14 +111,6 @@
     switchMap((rawBookData) => {
       if (!rawBookData) return EMPTY;
 
-      // eslint-disable-next-line no-param-reassign
-      rawBookData.lastBookOpen = new Date().getTime();
-      getStorageHandler(StorageKey.BROWSER, window)
-        .then((handler) => database.upsertData(rawBookData, handler))
-        .catch(() => {
-          // no-op
-        });
-
       sectionList$.next(rawBookData.sections || []);
 
       return loadBookData(rawBookData, '.book-content', document);
@@ -130,19 +118,17 @@
     shareReplay({ refCount: true, bufferSize: 1 })
   );
 
-  const resize$ = iffBrowser(() =>
-    visualViewport ? fromEvent(visualViewport, 'resize') : of()
-  ).pipe(share());
+  const resize$ = iffBrowser(() => fromEvent(visualViewport, 'resize')).pipe(share());
 
   const containerViewportWidth$ = resize$.pipe(
     startWith(0),
-    map(() => visualViewport?.width || 0),
+    map(() => visualViewport.width),
     takeWhenBrowser()
   );
 
   const containerViewportHeight$ = resize$.pipe(
     startWith(0),
-    map(() => visualViewport?.height || 0),
+    map(() => visualViewport.height),
     takeWhenBrowser()
   );
 
@@ -182,14 +168,6 @@
 
   $: if ($tocIsOpen$) {
     autoScroller?.off();
-  }
-
-  $: if (browser && bookCharCount) {
-    document.dispatchEvent(new CustomEvent('ttsu:page.change', { detail: { exploredCharCount } }));
-  }
-
-  $: if (browser) {
-    document.dispatchEvent(new CustomEvent('ttsu:page.change', { detail: { bookCharCount } }));
   }
 
   function onKeydown(ev: KeyboardEvent) {
@@ -343,7 +321,7 @@
     in:fly|local={{ x: -100, duration: 100, easing: quintInOut }}
     use:clickOutside={() => tocIsOpen$.next(false)}
   >
-    <BookToc sectionData={$sectionData$} verticalMode={$verticalMode$} {exploredCharCount} />
+    <BookToc sectionData={$sectionData$} {exploredCharCount} />
   </div>
 {/if}
 

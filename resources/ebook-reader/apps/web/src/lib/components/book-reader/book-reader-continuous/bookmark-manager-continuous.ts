@@ -35,8 +35,7 @@ export class BookmarkManagerContinuous implements BookmarkManager {
       dataId: bookId,
       exploredCharCount,
       progress: exploredCharCount / bookCharCount,
-      [scrollAxis]: this.window[scrollAxis],
-      lastBookmarkModified: new Date().getTime()
+      [scrollAxis]: this.window[scrollAxis]
     };
   }
 

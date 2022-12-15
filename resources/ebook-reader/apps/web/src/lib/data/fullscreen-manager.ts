@@ -4,7 +4,7 @@
  * All rights reserved.
  */
 
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 
 class FullscreenManager {
   get fullscreenEnabled() {
@@ -15,9 +15,7 @@ class FullscreenManager {
     return this.fallbackSpec('fullscreenElement', 'webkitFullscreenElement') ?? null;
   }
 
-  constructor(document: Document) {
-    this.fallbackSpec = fallbackSpec(document);
-  }
+  constructor(private document: Document) {}
 
   // eslint-disable-next-line class-methods-use-this
   async requestFullscreen(el: Element, fullscreenOptions?: FullscreenOptions) {
@@ -32,7 +30,7 @@ class FullscreenManager {
     await fn();
   }
 
-  private fallbackSpec: <P extends keyof Document>(specName: P, alias: string) => Document[P];
+  private fallbackSpec = fallbackSpec(this.document);
 }
 
 function fallbackSpec<T>(obj: T) {
