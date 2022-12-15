@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
@@ -33,9 +32,7 @@ class _BrowserState extends State<Browser> {
   VocabularyListStorage? vocabularyListStorage;
   late PopupDictionary popupDictionary;
   late MessageController messageController;
-  // int? lastTimestamp;
   late String initialUrl;
-  // static int timeStampDiff = 20; // recently opened
 
   @override
   void initState() {
@@ -54,31 +51,6 @@ class _BrowserState extends State<Browser> {
       widget.browserProvider!.getBookmarks();
     }
   }
-
-  // void handleMessage(ConsoleMessage message) {
-  //   late Map<String, dynamic> messageJson;
-  //   try {
-  //     messageJson = jsonDecode(message.message);
-  //   } catch (e) {
-  //     debugPrint(message.message);
-  //     return;
-  //   }
-  //   bool isRecentMessage = lastTimestamp != null &&
-  //       messageJson['timestamp'] - lastTimestamp < timeStampDiff;
-  //   lastTimestamp = messageJson['timestamp'];
-  //   if (isRecentMessage) {
-  //     return;
-  //   }
-  //   switch (messageJson['message-type']) {
-  //     case 'lookup':
-  //       {
-  //         int index = messageJson['index'];
-  //         String text = messageJson['text'];
-  //         popupDictionary.showVocabularyList(text, index);
-  //         break;
-  //       }
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
