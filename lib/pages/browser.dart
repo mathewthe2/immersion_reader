@@ -9,6 +9,7 @@ import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/widgets/browser/browser_bottom_bar.dart';
 import 'package:immersion_reader/widgets/browser/browser_top_bar.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
+import 'package:immersion_reader/widgets/reader/message_controller.dart';
 
 class Browser extends StatefulWidget {
   final BrowserProvider? browserProvider;
@@ -31,9 +32,10 @@ class _BrowserState extends State<Browser> {
   InAppWebViewController? webViewController;
   VocabularyListStorage? vocabularyListStorage;
   late PopupDictionary popupDictionary;
-  int? lastTimestamp;
+  late MessageController messageController;
+  // int? lastTimestamp;
   late String initialUrl;
-  static int timeStampDiff = 20; // recently opened
+  // static int timeStampDiff = 20; // recently opened
 
   @override
   void initState() {
@@ -47,35 +49,36 @@ class _BrowserState extends State<Browser> {
         parentContext: context,
         dictionaryProvider: widget.dictionaryProvider,
         vocabularyListStorage: vocabularyListStorage!);
+    messageController = MessageController(popupDictionary: popupDictionary);
     if (widget.browserProvider != null) {
       widget.browserProvider!.getBookmarks();
     }
   }
 
-  void handleMessage(ConsoleMessage message) {
-    late Map<String, dynamic> messageJson;
-    try {
-      messageJson = jsonDecode(message.message);
-    } catch (e) {
-      debugPrint(message.message);
-      return;
-    }
-    bool isRecentMessage = lastTimestamp != null &&
-        messageJson['timestamp'] - lastTimestamp < timeStampDiff;
-    lastTimestamp = messageJson['timestamp'];
-    if (isRecentMessage) {
-      return;
-    }
-    switch (messageJson['message-type']) {
-      case 'lookup':
-        {
-          int index = messageJson['index'];
-          String text = messageJson['text'];
-          popupDictionary.showVocabularyList(text, index);
-          break;
-        }
-    }
-  }
+  // void handleMessage(ConsoleMessage message) {
+  //   late Map<String, dynamic> messageJson;
+  //   try {
+  //     messageJson = jsonDecode(message.message);
+  //   } catch (e) {
+  //     debugPrint(message.message);
+  //     return;
+  //   }
+  //   bool isRecentMessage = lastTimestamp != null &&
+  //       messageJson['timestamp'] - lastTimestamp < timeStampDiff;
+  //   lastTimestamp = messageJson['timestamp'];
+  //   if (isRecentMessage) {
+  //     return;
+  //   }
+  //   switch (messageJson['message-type']) {
+  //     case 'lookup':
+  //       {
+  //         int index = messageJson['index'];
+  //         String text = messageJson['text'];
+  //         popupDictionary.showVocabularyList(text, index);
+  //         break;
+  //       }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +113,7 @@ class _BrowserState extends State<Browser> {
                       await controller.evaluateJavascript(source: browserJs);
                     },
                     onConsoleMessage: (controller, message) {
-                      handleMessage(message);
+                      messageController.execute(message);
                     },
                   ),
                   hasNoUserControls

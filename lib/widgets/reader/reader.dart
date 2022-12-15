@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
+import 'package:immersion_reader/widgets/reader/message_controller.dart';
 import 'package:local_assets_server/local_assets_server.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import '../../utils/reader/reader_js.dart';
@@ -30,10 +30,7 @@ class _ReaderState extends State<Reader> {
   VocabularyListStorage? vocabularyListStorage;
   InAppWebViewController? webViewController;
   late PopupDictionary popupDictionary;
-  int? lastTimestamp;
-  static int timeStampDiff = 20; // recently opened
-  bool hasShownAddedDialog = false;
-  bool hasInjectedReaderJs = false;
+  late MessageController messageController;
 
   Future<void> createPopupDictionary() async {
     vocabularyListStorage = await VocabularyListStorage.create();
@@ -41,6 +38,7 @@ class _ReaderState extends State<Reader> {
         parentContext: context,
         vocabularyListStorage: vocabularyListStorage!,
         dictionaryProvider: widget.dictionaryProvider);
+    messageController = MessageController(popupDictionary: popupDictionary);
   }
 
   static String addFileJs = """
@@ -49,46 +47,6 @@ class _ReaderState extends State<Reader> {
         console.log("injected-open-file")
       } catch {}
       """;
-
-  void handleMessage(ConsoleMessage message) {
-    if (message.message == "injected-open-file") {
-      hasShownAddedDialog = true;
-      return;
-    }
-    if (message.message == "injected-reader-js") {
-      hasInjectedReaderJs = true;
-      return;
-    }
-    late Map<String, dynamic> messageJson;
-    try {
-      messageJson = jsonDecode(message.message);
-    } catch (e) {
-      debugPrint(message.message);
-      return;
-    }
-    bool isRecentMessage = lastTimestamp != null &&
-        messageJson['timestamp'] - lastTimestamp < timeStampDiff;
-    lastTimestamp = messageJson['timestamp'];
-    if (isRecentMessage) {
-      return;
-    }
-    switch (messageJson['message-type']) {
-      case 'lookup':
-        {
-          int index = messageJson['index'];
-          String text = messageJson['text'];
-          // print(message.message);
-          popupDictionary.showVocabularyList(text, index);
-          break;
-        }
-    }
-  }
-
-// @override
-//   void initState() {
-//     super.initState();
-//     isAddBook = widget.isAddBook;
-//   }
 
   @override
   Widget build(BuildContext context) {
@@ -117,10 +75,11 @@ class _ReaderState extends State<Reader> {
                   webViewController = controller;
                 },
                 onLoadStop: (controller, uri) async {
-                  if (!hasInjectedReaderJs) {
+                  if (!messageController!.hasInjectedPopupJs) {
                     await controller.evaluateJavascript(source: readerJs);
                   }
-                  if (widget.isAddBook && !hasShownAddedDialog) {
+                  if (widget.isAddBook &&
+                      !messageController.hasShownAddedDialog) {
                     await controller.evaluateJavascript(source: addFileJs);
                   }
                 },
@@ -132,12 +91,13 @@ class _ReaderState extends State<Reader> {
                 },
                 onTitleChanged: (controller, title) async {
                   await controller.evaluateJavascript(source: readerJs);
-                  if (widget.isAddBook && !hasShownAddedDialog) {
+                  if (widget.isAddBook &&
+                      !messageController.hasShownAddedDialog) {
                     await controller.evaluateJavascript(source: addFileJs);
                   }
                 },
                 onConsoleMessage: (controller, message) {
-                  handleMessage(message);
+                  messageController.execute(message);
                 },
               );
             })));

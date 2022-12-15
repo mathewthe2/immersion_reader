@@ -70,5 +70,5 @@ function tapToSelect(e) {
   if (reader.length != 0) {
     reader[0].addEventListener('click', tapToSelect);
   }
-  console.log('injected-reader-js');
+  console.log('injected-popup-js');
 """;
