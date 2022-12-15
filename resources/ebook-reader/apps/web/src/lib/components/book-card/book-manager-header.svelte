@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { faBug, faCog, faTimes, faTrash } from '@fortawesome/free-solid-svg-icons';
+  import { faSignOutAlt, faCog, faTimes, faTrash } from '@fortawesome/free-solid-svg-icons';
   import { createEventDispatcher } from 'svelte';
   import { quintOut } from 'svelte/easing';
   import { scale } from 'svelte/transition';
@@ -22,7 +22,7 @@
   const dispatch = createEventDispatcher<{
     selectAllClick: void;
     removeClick: void;
-    bugReportClick: void;
+    exitReaderClick: void;
     backToBookClick: void;
     filesChange: FileList;
   }>();
@@ -197,9 +197,9 @@
         class="flex h-full items-center text-xl xl:text-lg {pHeaderFa} {opacityHeaderIcon} cursor-pointer"
         in:scale={inAnimationParams}
         out:scale={outAnimationParams}
-        on:click={() => dispatch('bugReportClick')}
+        on:click={() => dispatch('exitReaderClick')}
       >
-        <Fa icon={faBug} />
+        <Fa icon={faSignOutAlt} />
       </div>
     </div>
   </div>

@@ -38,7 +38,9 @@ class _ReaderState extends State<Reader> {
         parentContext: context,
         vocabularyListStorage: vocabularyListStorage!,
         dictionaryProvider: widget.dictionaryProvider);
-    messageController = MessageController(popupDictionary: popupDictionary);
+    messageController = MessageController(
+        popupDictionary: popupDictionary,
+        exitCallback: () => Navigator.of(context).pop());
   }
 
   static String addFileJs = """

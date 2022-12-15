@@ -9,23 +9,36 @@ class MessageController {
   bool hasShownAddedDialog = false;
   bool hasInjectedPopupJs = false;
   PopupDictionary popupDictionary;
+  VoidCallback? exitCallback;
 
-  MessageController._internal({required this.popupDictionary});
+  MessageController._internal(
+      {required this.popupDictionary, this.exitCallback});
 
-  factory MessageController({required PopupDictionary popupDictionary}) =>
-      MessageController._internal(popupDictionary: popupDictionary);
+  factory MessageController(
+          {required PopupDictionary popupDictionary,
+          VoidCallback? exitCallback}) =>
+      MessageController._internal(
+          popupDictionary: popupDictionary, exitCallback: exitCallback);
 
   void execute(ConsoleMessage message) {
+    debugPrint(message.message);
     switch (message.message) {
       case "injected-open-file":
         {
           hasShownAddedDialog = true;
-          return;
+          break;
         }
-      case "injected-popup-js":
+      case 'injected-popup-js':
         {
           hasInjectedPopupJs = true;
-          return;
+          break;
+        }
+      case 'launch-immersion-reader':
+        {
+          if (exitCallback != null) {
+            exitCallback!();
+          }
+          break;
         }
       default:
         {

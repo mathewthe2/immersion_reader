@@ -169,16 +169,8 @@
     await goto(`/b?id=${id}`);
   }
 
-  function onBugReportClick() {
-    dialogManager.dialogs$.next([
-      {
-        component: LogReportDialog,
-        props: {
-          title: 'Bug Report',
-          message: 'Please include the attached file for your report'
-        }
-      }
-    ]);
+  function onExitReaderClick() {
+    console.log("launch-immersion-reader");
   }
 </script>
 
@@ -196,7 +188,7 @@
     on:backToBookClick={backToCurrentBook}
     on:removeClick={() => removeBooks(Array.from(selectedBookIds))}
     on:filesChange={(ev) => onFilesChange(ev.detail)}
-    on:bugReportClick={onBugReportClick}
+    on:exitReaderClick={onExitReaderClick}
   />
 </div>
 
