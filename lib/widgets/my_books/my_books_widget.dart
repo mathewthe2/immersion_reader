@@ -83,12 +83,12 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               if (snapshot.data!.isEmpty) {
-                return Center(
+                return SizedBox(
+                    height: 200,
                     child: Column(children: [
-                  const SizedBox(height: 50),
-                  Text('No Books Added', style: TextStyle(color: textColor)),
-                  const SizedBox(height: 50),
-                ]));
+                      const SizedBox(height: 80),
+                      Text('No Books Added', style: TextStyle(color: textColor))
+                    ]));
               }
               return SizedBox(
                   height: 200,
@@ -103,7 +103,6 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                                 width: 130,
                                 book: entry.value,
                                 onTap: (mediaIdentifier) {
-                                  print(mediaIdentifier);
                                   Navigator.push(
                                       context,
                                       SwipeablePageRoute(
@@ -120,7 +119,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                                 }))
                       ]));
             } else {
-              return Container();
+              return const SizedBox(height: 200);
             }
           })
     ]);

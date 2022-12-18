@@ -217,6 +217,10 @@
     bookmarkPage();
   }
 
+  function onImmersionReaderSettingsClick() {
+    console.log('launch-immersion-reader-settings');
+  }
+
   function onFullscreenClick() {
     if (!fullscreenManager.fullscreenElement) {
       fullscreenManager.requestFullscreen(document.documentElement);
@@ -268,6 +272,7 @@
       on:bookmarkClick={bookmarkPage}
       on:bookManagerClick={onBookManagerClick}
       on:settingsClick={bookmarkPage}
+      on:immersionReaderSettingsClick={onImmersionReaderSettingsClick}
     />
   </div>
 {/if}

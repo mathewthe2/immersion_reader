@@ -10,36 +10,41 @@ class MessageController {
   bool hasInjectedPopupJs = false;
   PopupDictionary popupDictionary;
   VoidCallback? exitCallback;
+  VoidCallback? readerSettingsCallback;
 
   MessageController._internal(
-      {required this.popupDictionary, this.exitCallback});
+      {required this.popupDictionary,
+      this.exitCallback,
+      this.readerSettingsCallback});
 
   factory MessageController(
           {required PopupDictionary popupDictionary,
-          VoidCallback? exitCallback}) =>
+          VoidCallback? exitCallback,
+          VoidCallback? readerSettingsCallback}) =>
       MessageController._internal(
-          popupDictionary: popupDictionary, exitCallback: exitCallback);
+          popupDictionary: popupDictionary,
+          exitCallback: exitCallback,
+          readerSettingsCallback: readerSettingsCallback);
 
   void execute(ConsoleMessage message) {
     debugPrint(message.message);
     switch (message.message) {
       case "injected-open-file":
-        {
-          hasShownAddedDialog = true;
-          break;
-        }
+        hasShownAddedDialog = true;
+        break;
       case 'injected-popup-js':
-        {
-          hasInjectedPopupJs = true;
-          break;
-        }
+        hasInjectedPopupJs = true;
+        break;
       case 'launch-immersion-reader':
-        {
-          if (exitCallback != null) {
-            exitCallback!();
-          }
-          break;
+        if (exitCallback != null) {
+          exitCallback!();
         }
+        break;
+      case 'launch-immersion-reader-settings':
+        if (readerSettingsCallback != null) {
+          readerSettingsCallback!();
+        }
+        break;
       default:
         {
           late Map<String, dynamic> messageJson;

@@ -62,7 +62,7 @@ class _BookmarksSheetState extends State<BookmarksSheet> {
             if (snapshot.hasData) {
               bookmarks = snapshot.data!;
               if (bookmarks.isEmpty) {
-                return Container();
+                return Padding(padding: const EdgeInsets.only(top: 40), child:Text("No bookmarks", style: TextStyle(color: textColor)));
               }
               return CupertinoListSection(children: [
                 ...bookmarks.map((BrowserBookmark bookmark) => Slidable(
