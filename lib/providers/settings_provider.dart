@@ -1,3 +1,4 @@
+import 'package:immersion_reader/data/settings/appearance_setting.dart';
 import 'package:immersion_reader/data/settings/settings_data.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
@@ -23,7 +24,7 @@ class SettingsProvider {
           !settingsCache!.appearanceSetting.showFrequencyTags;
     }
     await settingsStorage!.changeConfigSettings(
-        "show_frequency_tags", isShowFrequencyTags ? "1" : "0",
+        AppearanceSetting.showFrequencyTagsKey, isShowFrequencyTags ? "1" : "0",
         newSettingsCache: settingsCache);
   }
 
@@ -38,7 +39,7 @@ class SettingsProvider {
           !settingsCache!.appearanceSetting.enableSlideAnimation;
     }
     await settingsStorage!.changeConfigSettings(
-        "enable_slide_animation", enableSlideAnimation ? "1" : "0",
+        AppearanceSetting.enableSlideAnimationKey, enableSlideAnimation ? "1" : "0",
         newSettingsCache: settingsCache);
   }
 
@@ -54,7 +55,7 @@ class SettingsProvider {
           pitchAccentDisplayStyle.name;
     }
     await settingsStorage!.changeConfigSettings(
-        "pitch_accent_display_style", pitchAccentDisplayStyle.name,
+        AppearanceSetting.pitchAccentStyleKey, pitchAccentDisplayStyle.name,
         newSettingsCache: settingsCache);
   }
 
@@ -73,7 +74,7 @@ class SettingsProvider {
           popupDictionaryTheme.name;
     }
     await settingsStorage!.changeConfigSettings(
-        "popup_dictionary_theme", popupDictionaryTheme.name,
+        AppearanceSetting.popupDictionaryThemeKey, popupDictionaryTheme.name,
         newSettingsCache: settingsCache);
   }
 
