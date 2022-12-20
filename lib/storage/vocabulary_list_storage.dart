@@ -6,8 +6,8 @@ import 'package:immersion_reader/japanese/vocabulary.dart';
 class VocabularyListStorage {
   Database? database;
 
-  static String defaultFolderName = 'Favorties';
-  static int defaultFolderId = 1;
+  static const String defaultFolderName = 'Favorties';
+  static const int defaultFolderId = 1;
 
   VocabularyListStorage._create() {
     // print("_create() (private constructor)");

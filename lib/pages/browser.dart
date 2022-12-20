@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
+import 'package:immersion_reader/utils/browser/browser_content_blockers.dart';
 import 'package:immersion_reader/utils/browser/browser_js.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/widgets/browser/browser_bottom_bar.dart';
@@ -28,11 +29,13 @@ class Browser extends StatefulWidget {
 }
 
 class _BrowserState extends State<Browser> {
+  final ValueNotifier<bool> _notifier = ValueNotifier(false);
   InAppWebViewController? webViewController;
   VocabularyListStorage? vocabularyListStorage;
   late PopupDictionary popupDictionary;
   late MessageController messageController;
   late String initialUrl;
+  late List<ContentBlocker> contentBlockers;
 
   @override
   void initState() {
@@ -52,49 +55,80 @@ class _BrowserState extends State<Browser> {
     }
   }
 
+  void setupContentBlockers() {
+    print(widget.browserProvider!.settingsStorage!.settingsCache!.browserSetting
+        .enableAdBlock);
+    if (widget.browserProvider!.settingsStorage!.settingsCache!.browserSetting
+        .enableAdBlock) {
+      List<String> urlFilters = widget.browserProvider!.settingsStorage!
+          .settingsCache!.browserSetting.urlFilters;
+      contentBlockers = BrowserContentBlockers.getContentBlockers(urlFilters);
+    } else {
+      contentBlockers = [];
+    }
+    if (webViewController != null) {
+      print(contentBlockers.length);
+      webViewController!.setOptions(
+          options: InAppWebViewGroupOptions(
+              crossPlatform:
+                  InAppWebViewOptions(contentBlockers: contentBlockers)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    bool hasNoUserControls =
-        webViewController == null || !widget.hasUserControls;
-    return SafeArea(
-        child: FutureBuilder(
-            future: getDictionaryAndBookmarks(),
-            builder: ((context, snapshot) {
-              return Column(children: [
-                hasNoUserControls
-                    ? Container()
-                    : BrowserTopBar(webViewController: webViewController!),
-                Expanded(
-                    child: Stack(children: [
-                  InAppWebView(
-                    initialOptions: InAppWebViewGroupOptions(
-                        crossPlatform: InAppWebViewOptions(
-                            cacheEnabled: true, incognito: false)),
-                    initialUrlRequest: URLRequest(
-                      url: Uri.parse(initialUrl),
-                    ),
-                    onWebViewCreated: (controller) {
-                      setState(() {
-                        webViewController = controller;
-                      });
-                    },
-                    onLoadStop: (controller, uri) async {
-                      await controller.evaluateJavascript(source: browserJs);
-                    },
-                    onTitleChanged: (controller, title) async {
-                      await controller.evaluateJavascript(source: browserJs);
-                    },
-                    onConsoleMessage: (controller, message) {
-                      messageController.execute(message);
-                    },
-                  ),
-                  hasNoUserControls
-                      ? Container()
-                      : BrowserBottomBar(
-                          browserProvider: widget.browserProvider,
-                          webViewController: webViewController)
-                ]))
-              ]);
-            })));
+    return ValueListenableBuilder(
+        valueListenable: _notifier,
+        builder: (context, val, _) {
+          bool hasNoUserControls =
+              webViewController == null || !widget.hasUserControls;
+          setupContentBlockers();
+          return SafeArea(
+              child: FutureBuilder(
+                  future: getDictionaryAndBookmarks(),
+                  builder: ((context, snapshot) {
+                    return Column(children: [
+                      hasNoUserControls
+                          ? Container()
+                          : BrowserTopBar(
+                              webViewController: webViewController!),
+                      Expanded(
+                          child: Stack(children: [
+                        InAppWebView(
+                          initialOptions: InAppWebViewGroupOptions(
+                              crossPlatform: InAppWebViewOptions(
+                                  contentBlockers: contentBlockers,
+                                  cacheEnabled: true,
+                                  incognito: false)),
+                          initialUrlRequest: URLRequest(
+                            url: Uri.parse(initialUrl),
+                          ),
+                          onWebViewCreated: (controller) {
+                            setState(() {
+                              webViewController = controller;
+                            });
+                          },
+                          onLoadStop: (controller, uri) async {
+                            await controller.evaluateJavascript(
+                                source: browserJs);
+                          },
+                          onTitleChanged: (controller, title) async {
+                            await controller.evaluateJavascript(
+                                source: browserJs);
+                          },
+                          onConsoleMessage: (controller, message) {
+                            messageController.execute(message);
+                          },
+                        ),
+                        hasNoUserControls
+                            ? Container()
+                            : BrowserBottomBar(
+                                browserProvider: widget.browserProvider,
+                                webViewController: webViewController,
+                                notifier: _notifier),
+                      ]))
+                    ]);
+                  })));
+        });
   }
 }

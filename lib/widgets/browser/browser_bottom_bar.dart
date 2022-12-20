@@ -2,17 +2,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/widgets/browser/bookmarks_sheet.dart';
-import 'package:immersion_reader/widgets/browser/browser_settings_sheet.dart';
+import 'package:immersion_reader/widgets/browser/settings/browser_settings_sheet.dart';
 import 'package:immersion_reader/widgets/browser/browser_share_sheet.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:swipeable_page_route/swipeable_page_route.dart';
 
 class BrowserBottomBar extends StatefulWidget {
   final BrowserProvider? browserProvider;
   final InAppWebViewController? webViewController;
+  final ValueNotifier notifier;
   const BrowserBottomBar(
       {super.key,
       required this.browserProvider,
-      required this.webViewController});
+      required this.webViewController,
+      required this.notifier});
 
   @override
   State<BrowserBottomBar> createState() => _BrowserBottomBarState();
@@ -33,6 +36,11 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
 
   @override
   Widget build(BuildContext context) {
+    Color backgroundColor = CupertinoDynamicColor.resolve(
+        const CupertinoDynamicColor.withBrightness(
+            color: CupertinoColors.systemGroupedBackground,
+            darkColor: CupertinoColors.black),
+        context);
     return Align(
         alignment: Alignment.bottomCenter,
         child: Stack(alignment: Alignment.bottomCenter, children: [
@@ -72,7 +80,8 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                       useRootNavigator: true,
                       expand: false,
                       builder: (context) => SafeArea(
-                          child: SizedBox(
+                          child: Container(
+                              color: backgroundColor,
                               height: MediaQuery.of(context).size.height * .40,
                               child: BrowserShareSheet(
                                   webViewController: widget.webViewController,
@@ -84,7 +93,8 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                       useRootNavigator: true,
                       expand: false,
                       builder: (context) => SafeArea(
-                          child: SizedBox(
+                          child: Container(
+                              color: backgroundColor,
                               height: MediaQuery.of(context).size.height * .40,
                               child: BookmarksSheet(
                                   browserProvider: widget.browserProvider,
@@ -95,12 +105,22 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                   () => showCupertinoModalBottomSheet(
                       context: context,
                       useRootNavigator: true,
-                      expand: false,
-                      builder: (context) => SafeArea(
-                          child: SizedBox(
-                              height: MediaQuery.of(context).size.height * .40,
-                              child: BrowserSettingsSheet(
-                                  browserProvider: widget.browserProvider))))),
+                      expand: true,
+                      builder: (context) => Navigator(
+                          onGenerateRoute: (_) => SwipeablePageRoute(
+                              builder: (context2) => Builder(
+                                  builder: (context3) => CupertinoPageScaffold(
+                                      backgroundColor: backgroundColor,
+                                      child: GestureDetector(
+                                        child: BrowserSettingsSheet(
+                                            browserProvider:
+                                                widget.browserProvider,
+                                            notifier: widget.notifier),
+                                        onTap: () {
+                                          // context2 or context3 will return the Navigator inside the modal
+                                          Navigator.pop(context);
+                                        },
+                                      )))))))
             ],
           )
         ]));

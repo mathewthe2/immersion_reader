@@ -71,8 +71,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     paymentProvider = await PaymentProvider.create(sharedPreferences!);
     localAssetsServerProvider = await LocalAssetsServerProvider.create();
     vocabularyListProvider = await VocabularyListProvider.create();
-    browserProvider = await BrowserProvider.create();
     _settingsStorage = await SettingsStorage.create();
+    browserProvider = await BrowserProvider.create(_settingsStorage!);
     settingsProvider = SettingsProvider.create(_settingsStorage!);
     dictionaryProvider = DictionaryProvider.create(settingsProvider!);
     setState(() {

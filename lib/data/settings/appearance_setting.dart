@@ -10,10 +10,10 @@ class AppearanceSetting {
       required this.pitchAccentStyleString,
       required this.popupDictionaryThemeString});
 
-  static String showFrequencyTagsKey = 'show_frequency_tags';
-  static String enableSlideAnimationKey = 'enable_slide_animation';
-  static String pitchAccentStyleKey = 'pitch_accent_display_style';
-  static String popupDictionaryThemeKey = 'popup_dictionary_theme';
+  static const String showFrequencyTagsKey = 'show_frequency_tags';
+  static const String enableSlideAnimationKey = 'enable_slide_animation';
+  static const String pitchAccentStyleKey = 'pitch_accent_display_style';
+  static const String popupDictionaryThemeKey = 'popup_dictionary_theme';
 
   factory AppearanceSetting.fromMap(Map<String, Object?> map) =>
       AppearanceSetting(

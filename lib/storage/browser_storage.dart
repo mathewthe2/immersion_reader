@@ -65,9 +65,6 @@ class BrowserStorage {
             CREATE TABLE History (
             id INTEGER PRIMARY KEY, name TEXT, url TEXT, timestamp INTEGER)
           ''');
-    batch.execute('''
-          CREATE TABLE Settings (title TEXT, customValue TEXT, category TEXT)
-        ''');
 
     // indexes
     batch.rawQuery("CREATE INDEX index_Bookmarks_parent ON Bookmarks(parent)");

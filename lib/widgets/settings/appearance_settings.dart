@@ -38,6 +38,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                         settingsProvider: widget.settingsProvider,
                         popupDictionaryThemeString: widget
                             .settingsProvider
+                            .settingsStorage!
                             .settingsCache!
                             .appearanceSetting
                             .popupDictionaryThemeString);
@@ -47,6 +48,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                     valueListenable: _popupDictionaryThemeValueNotifier,
                     builder: (context, val, child) => Text(widget
                         .settingsProvider
+                        .settingsStorage!
                         .settingsCache!
                         .appearanceSetting
                         .popupDictionaryThemeString
@@ -62,6 +64,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                         settingsProvider: widget.settingsProvider,
                         pitchAccentStyleString: widget
                             .settingsProvider
+                            .settingsStorage!
                             .settingsCache!
                             .appearanceSetting
                             .pitchAccentStyleString);
@@ -71,6 +74,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                     valueListenable: _pitchAccentValueNotifier,
                     builder: (context, val, child) => Text(widget
                         .settingsProvider
+                        .settingsStorage!
                         .settingsCache!
                         .appearanceSetting
                         .pitchAccentStyleString
@@ -83,8 +87,8 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                       widget.settingsProvider.toggleShowFrequencyTags(value!);
                       setState(() {});
                     },
-                    value: widget.settingsProvider.settingsCache!
-                        .appearanceSetting.showFrequencyTags)),
+                    value: widget.settingsProvider.settingsStorage!
+                        .settingsCache!.appearanceSetting.showFrequencyTags)),
             CupertinoListTile(
                 title: const Text('Enable Slide Animation'),
                 trailing: CupertinoSwitch(
@@ -93,8 +97,8 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                           .toggleEnableSlideAnimation(value!);
                       setState(() {});
                     },
-                    value: widget.settingsProvider.settingsCache!
-                        .appearanceSetting.enableSlideAnimation))
+                    value: widget.settingsProvider.settingsStorage!
+                        .settingsCache!.appearanceSetting.enableSlideAnimation))
           ],
         )));
   }

@@ -4,5 +4,9 @@
         "enable_slide_animation": "1",
         "show_frequency_tags": "1",
         "pitch_accent_display_style": "graph"
+    },
+    "browser": {
+        "enable_ad_block": "1",
+        "url_filters": ".*.doubleclick.net/.*\n.*.ads.pubmatic.com/.*\n.*.googlesyndication.com/.*\n.*.google-analytics.com/.*\n.*.adservice.google.*/.*\n.*.adbrite.com/.*\n.*.exponential.com/.*\n.*.quantserve.com/.*\n.*.scorecardresearch.com/.*\n.*.zedo.com/.*\n.*.adsafeprotected.com/.*\n.*.teads.tv/.*\n.*.outbrain.com/.*"
     }
 }

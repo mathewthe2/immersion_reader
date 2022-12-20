@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:immersion_reader/data/settings/browser_setting.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 import 'package:immersion_reader/data/settings/appearance_setting.dart';
@@ -78,30 +79,47 @@ class SettingsStorage {
         .title;
   }
 
-  Future<SettingsData> getConfigSettings() async {
+  Future<SettingsData> getConfigSettings({bool forceRefetch = false}) async {
+    if (settingsCache != null && !forceRefetch) {
+      return settingsCache!;
+    }
     List<Map<String, Object?>> rows =
         await database!.rawQuery('SELECT * FROM Config');
     Map<String, String> appearanceConfigMap = {};
+    Map<String, String> browserConfigMap = {};
     for (Map<String, Object?> row in rows) {
-      if (row["category"] as String == "appearance") {
-        appearanceConfigMap[row["title"] as String] =
-            row["customValue"] as String;
+      switch (row['category'] as String) {
+        case SettingsData.appearanceSettingKey:
+          appearanceConfigMap[row['title'] as String] =
+              row['customValue'] as String;
+          break;
+        case SettingsData.browserSettingKey:
+          browserConfigMap[row['title'] as String] =
+              row['customValue'] as String;
+          break;
       }
     }
     try {
       AppearanceSetting appearanceSetting =
           AppearanceSetting.fromMap(appearanceConfigMap);
-      return SettingsData(appearanceSetting: appearanceSetting);
+      BrowserSetting browserSetting = BrowserSetting.fromMap(browserConfigMap);
+      settingsCache = SettingsData(
+          appearanceSetting: appearanceSetting, browserSetting: browserSetting);
+      return settingsCache!;
     } catch (e) {
-      appearanceConfigMap = await patchConfigSettings(appearanceConfigMap);
-      AppearanceSetting appearanceSetting =
-          AppearanceSetting.fromMap(appearanceConfigMap);
-      return SettingsData(appearanceSetting: appearanceSetting);
+      settingsCache = await patchConfigSettings({
+        ...appearanceConfigMap,
+        ...browserConfigMap,
+      });
+      return settingsCache!;
     }
   }
 
-  Future<Map<String, String>> patchConfigSettings(
-      Map<String, String> appearanceConfigMap) async {
+  // reads default config and writes missing rows into database
+  Future<SettingsData> patchConfigSettings(
+      Map<String, String> configMap) async {
+    Map<String, String> appearanceConfigMap = {};
+    Map<String, String> browserConfigMap = {};
     Batch batch = database!.batch();
     ByteData bytes = await rootBundle
         .load(p.join("assets", "settings", "defaultConfig.json"));
@@ -110,25 +128,65 @@ class SettingsStorage {
     for (MapEntry<String, Object?> categoryEntry in json.entries) {
       Map<String, Object?> map = categoryEntry.value as Map<String, Object?>;
       for (MapEntry<String, Object?> entry in map.entries) {
-        if (!appearanceConfigMap.containsKey(entry.key)) {
+        if (!configMap.containsKey(entry.key)) {
           batch.rawInsert(
               "INSERT INTO Config(title, customValue, category) VALUES(?, ?, ?)",
               [entry.key, entry.value as String, categoryEntry.key]);
-          appearanceConfigMap[entry.key] = entry.value as String;
+          configMap[entry.key] = entry.value as String;
+        }
+        switch (categoryEntry.key) {
+          case SettingsData.appearanceSettingKey:
+            appearanceConfigMap[entry.key] = configMap[entry.key]!;
+            break;
+          case SettingsData.browserSettingKey:
+            browserConfigMap[entry.key] = configMap[entry.key]!;
+            break;
+          default:
+            break;
         }
       }
     }
     await batch.commit();
-    return appearanceConfigMap;
+    try {
+      SettingsData settingsData = SettingsData(
+          appearanceSetting: AppearanceSetting.fromMap(appearanceConfigMap),
+          browserSetting: BrowserSetting.fromMap(browserConfigMap));
+      return settingsData;
+    } catch (e) {
+      return resetConfigSettings(json);
+    }
   }
 
-  Future<int> changeConfigSettings(String settingKey, String settingValue,
-      {SettingsData? newSettingsCache}) async {
+  Future<SettingsData> resetConfigSettings(Map<String, Object?> json) async {
+    Map<String, String> appearanceConfigMap = {};
+    Map<String, String> browserConfigMap = {};
+    for (MapEntry<String, Object?> categoryEntry in json.entries) {
+      Map<String, Object?> map = categoryEntry.value as Map<String, Object?>;
+      for (MapEntry<String, Object?> entry in map.entries) {
+        switch (categoryEntry.key) {
+          case SettingsData.appearanceSettingKey:
+            appearanceConfigMap[entry.key] = entry.value as String;
+            break;
+          case SettingsData.browserSettingKey:
+            browserConfigMap[entry.key] = entry.value as String;
+            break;
+          default:
+            break;
+        }
+      }
+    }
+    return SettingsData(
+        appearanceSetting: AppearanceSetting.fromMap(appearanceConfigMap),
+        browserSetting: BrowserSetting.fromMap(browserConfigMap));
+  }
+
+  Future<int> changeConfigSettings(
+      String settingKey, String settingValue, {VoidCallback? onSuccessCallback}) async {
     int count = await database!.rawUpdate(
         'UPDATE Config SET customvalue = ? WHERE title = ?',
         [settingValue, settingKey]);
-    if (newSettingsCache != null) {
-      settingsCache = newSettingsCache;
+    if (count > 0 && onSuccessCallback != null) {
+      onSuccessCallback();
     }
     return count;
   }

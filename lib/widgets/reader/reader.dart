@@ -43,7 +43,7 @@ class _ReaderState extends State<Reader> {
         exitCallback: () => Navigator.of(context).pop());
   }
 
-  static String addFileJs = """
+  static const String addFileJs = """
       try {
         document.getElementsByClassName('xl:mr-1')[0].click();
         console.log("injected-open-file")
@@ -77,7 +77,7 @@ class _ReaderState extends State<Reader> {
                   webViewController = controller;
                 },
                 onLoadStop: (controller, uri) async {
-                  if (!messageController!.hasInjectedPopupJs) {
+                  if (!messageController.hasInjectedPopupJs) {
                     await controller.evaluateJavascript(source: readerJs);
                   }
                   if (widget.isAddBook &&
