@@ -43,7 +43,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   bool isProvidersReady = false;
 
   final Map<String, IconData> navigationItems = {
-    'Discover': CupertinoIcons.home,
+    'Discover': CupertinoIcons.compass,
     'Reader': CupertinoIcons.book,
     'My Words': CupertinoIcons.star_fill,
     'Search': CupertinoIcons.search,
