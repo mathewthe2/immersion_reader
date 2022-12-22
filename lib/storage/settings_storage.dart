@@ -2,10 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:immersion_reader/data/settings/browser_setting.dart';
+import 'package:immersion_reader/data/database/sql_repository.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
-import 'package:immersion_reader/data/settings/appearance_setting.dart';
 import 'package:immersion_reader/data/settings/settings_data.dart';
 import 'package:immersion_reader/dictionary/dictionary_meta_entry.dart';
 import 'package:immersion_reader/dictionary/user_dictionary.dart';
@@ -17,6 +16,7 @@ class SettingsStorage {
   Database? database;
   List<DictionarySetting>? dictionarySettingCache;
   SettingsData? settingsCache;
+  static const databaseName = 'data.db';
 
   SettingsStorage._create() {
     // print("_create() (private constructor)");
@@ -25,7 +25,7 @@ class SettingsStorage {
   static Future<SettingsStorage> create() async {
     SettingsStorage settingsStorage = SettingsStorage._create();
     String databasesPath = await getDatabasesPath();
-    String path = p.join(databasesPath, "data.db");
+    String path = p.join(databasesPath, databaseName);
     debugPrint('path; $path');
     try {
       await Directory(databasesPath).create(recursive: true);
@@ -85,41 +85,26 @@ class SettingsStorage {
     }
     List<Map<String, Object?>> rows =
         await database!.rawQuery('SELECT * FROM Config');
-    Map<String, String> appearanceConfigMap = {};
-    Map<String, String> browserConfigMap = {};
+    Map<String, Map<String, Object?>> configMap = {};
     for (Map<String, Object?> row in rows) {
-      switch (row['category'] as String) {
-        case SettingsData.appearanceSettingKey:
-          appearanceConfigMap[row['title'] as String] =
-              row['customValue'] as String;
-          break;
-        case SettingsData.browserSettingKey:
-          browserConfigMap[row['title'] as String] =
-              row['customValue'] as String;
-          break;
+      String categoryKey = row['category'] as String;
+      if (!configMap.containsKey(categoryKey)) {
+        configMap[categoryKey] = {};
       }
+      configMap[categoryKey]![row['title'] as String] = row['customValue'];
     }
     try {
-      AppearanceSetting appearanceSetting =
-          AppearanceSetting.fromMap(appearanceConfigMap);
-      BrowserSetting browserSetting = BrowserSetting.fromMap(browserConfigMap);
-      settingsCache = SettingsData(
-          appearanceSetting: appearanceSetting, browserSetting: browserSetting);
+      settingsCache = SettingsData.fromMap(configMap);
       return settingsCache!;
     } catch (e) {
-      settingsCache = await patchConfigSettings({
-        ...appearanceConfigMap,
-        ...browserConfigMap,
-      });
+      settingsCache = await patchConfigSettings(configMap);
       return settingsCache!;
     }
   }
 
   // reads default config and writes missing rows into database
   Future<SettingsData> patchConfigSettings(
-      Map<String, String> configMap) async {
-    Map<String, String> appearanceConfigMap = {};
-    Map<String, String> browserConfigMap = {};
+      Map<String, Map<String, Object?>> configMap) async {
     Batch batch = database!.batch();
     ByteData bytes = await rootBundle
         .load(p.join("assets", "settings", "defaultConfig.json"));
@@ -128,29 +113,21 @@ class SettingsStorage {
     for (MapEntry<String, Object?> categoryEntry in json.entries) {
       Map<String, Object?> map = categoryEntry.value as Map<String, Object?>;
       for (MapEntry<String, Object?> entry in map.entries) {
-        if (!configMap.containsKey(entry.key)) {
+        if (!configMap.containsKey(categoryEntry.key) ||
+            configMap[categoryEntry.key]!.containsKey(entry.key)) {
           batch.rawInsert(
               "INSERT INTO Config(title, customValue, category) VALUES(?, ?, ?)",
-              [entry.key, entry.value as String, categoryEntry.key]);
-          configMap[entry.key] = entry.value as String;
-        }
-        switch (categoryEntry.key) {
-          case SettingsData.appearanceSettingKey:
-            appearanceConfigMap[entry.key] = configMap[entry.key]!;
-            break;
-          case SettingsData.browserSettingKey:
-            browserConfigMap[entry.key] = configMap[entry.key]!;
-            break;
-          default:
-            break;
+              [entry.key, entry.value, categoryEntry.key]);
+          if (!configMap.containsKey(categoryEntry.key)) {
+            configMap[categoryEntry.key] = {};
+          }
+          configMap[categoryEntry.key]![entry.key] = entry.value;
         }
       }
     }
     await batch.commit();
     try {
-      SettingsData settingsData = SettingsData(
-          appearanceSetting: AppearanceSetting.fromMap(appearanceConfigMap),
-          browserSetting: BrowserSetting.fromMap(browserConfigMap));
+      SettingsData settingsData = SettingsData.fromMap(configMap);
       return settingsData;
     } catch (e) {
       return resetConfigSettings(json);
@@ -158,30 +135,21 @@ class SettingsStorage {
   }
 
   Future<SettingsData> resetConfigSettings(Map<String, Object?> json) async {
-    Map<String, String> appearanceConfigMap = {};
-    Map<String, String> browserConfigMap = {};
+    Map<String, Map<String, Object?>> configMap = {};
     for (MapEntry<String, Object?> categoryEntry in json.entries) {
       Map<String, Object?> map = categoryEntry.value as Map<String, Object?>;
       for (MapEntry<String, Object?> entry in map.entries) {
-        switch (categoryEntry.key) {
-          case SettingsData.appearanceSettingKey:
-            appearanceConfigMap[entry.key] = entry.value as String;
-            break;
-          case SettingsData.browserSettingKey:
-            browserConfigMap[entry.key] = entry.value as String;
-            break;
-          default:
-            break;
+        if (!configMap.containsKey(categoryEntry.key)) {
+          configMap[categoryEntry.key] = {};
         }
+        configMap[categoryEntry.key]![entry.key] = entry.value;
       }
     }
-    return SettingsData(
-        appearanceSetting: AppearanceSetting.fromMap(appearanceConfigMap),
-        browserSetting: BrowserSetting.fromMap(browserConfigMap));
+    return SettingsData.fromMap(configMap);
   }
 
-  Future<int> changeConfigSettings(
-      String settingKey, String settingValue, {VoidCallback? onSuccessCallback}) async {
+  Future<int> changeConfigSettings(String settingKey, String settingValue,
+      {VoidCallback? onSuccessCallback}) async {
     int count = await database!.rawUpdate(
         'UPDATE Config SET customvalue = ? WHERE title = ?',
         [settingValue, settingKey]);
@@ -229,7 +197,6 @@ class SettingsStorage {
 
   Future<void> removeDictionary(int dictionaryId) async {
     Batch batch = database!.batch();
-    batch.rawDelete('DELETE FROM Dictionary WHERE id = ?', [dictionaryId]);
     batch.rawDelete('DELETE FROM Vocab WHERE dictionaryId = ?', [dictionaryId]);
     batch.rawDelete(
         'DELETE FROM VocabGloss WHERE dictionaryId = ?', [dictionaryId]);
@@ -237,6 +204,7 @@ class SettingsStorage {
         'DELETE FROM VocabFreq WHERE dictionaryId = ?', [dictionaryId]);
     batch.rawDelete(
         'DELETE FROM VocabPitch WHERE dictionaryId = ?', [dictionaryId]);
+    batch.rawDelete('DELETE FROM Dictionary WHERE id = ?', [dictionaryId]);
     await batch.commit();
     if (dictionarySettingCache != null) {
       dictionarySettingCache!.removeWhere(
@@ -309,43 +277,9 @@ class SettingsStorage {
 
 void onCreateStorageData(Database db, int version) async {
   Batch batch = db.batch();
-  // Create Dictionary table
-  batch.execute('''
-            CREATE TABLE Dictionary (
-            id INTEGER PRIMARY KEY, title TEXT, enabled INTEGER)
-          ''');
-
-  // Create Japanese Dictionary
-  batch.rawQuery(
-      "CREATE TABLE Kanji(id INTEGER PRIMARY KEY, dictionaryId INTEGER, character TEXT, kunyomi TEXT, onyomi TEXT)");
-  batch.rawQuery(
-      "CREATE TABLE KanjiGloss(glossary TEXT, kanjiId INTEGER, dictionaryId INTEGER, FOREIGN KEY(kanjiId) REFERENCES Kanji(id))");
-  batch.rawQuery(
-      "CREATE TABLE Vocab(id INTEGER PRIMARY KEY, dictionaryId INTEGER, expression TEXT, reading TEXT, sequence INTEGER, popularity REAL,  meaningTags TEXT, termTags TEXT)");
-  batch.rawQuery(
-      "CREATE TABLE VocabGloss(glossary TEXT, vocabId INTEGER, dictionaryId INTEGER, FOREIGN KEY(vocabId) REFERENCES Vocab(id))");
-  batch.rawQuery(
-      "CREATE TABLE VocabFreq(expression TEXT, reading TEXT, frequency TEXT, dictionaryId INTEGER)");
-  batch.rawQuery(
-      "CREATE TABLE VocabPitch(expression TEXT, reading TEXT, pitch TEXT, dictionaryId INTEGER)");
-
-  // Create Config Table
-  batch.rawQuery(
-      "CREATE TABLE Config(title TEXT, customValue TEXT, category TEXT)");
-
-  // Indexes
-  batch
-      .rawQuery("CREATE INDEX index_VocabGloss_vocabId ON VocabGloss(vocabId)");
-  batch.rawQuery("CREATE INDEX index_Vocab_expression ON Vocab(expression)");
-  batch.rawQuery("CREATE INDEX index_Vocab_reading ON Vocab(reading)");
-  batch.rawQuery(
-      "CREATE INDEX index_VocabFreq_expression ON VocabFreq(expression)");
-  batch.rawQuery("CREATE INDEX index_VocabFreq_reading ON VocabFreq(reading)");
-  batch.rawQuery(
-      "CREATE INDEX index_VocabPitch_expression ON VocabPitch(expression ASC)");
-  batch.rawQuery(
-      "CREATE INDEX index_VocabPitch_reading ON VocabPitch(reading ASC)");
-
+  for (String sqlString in SqlRepository.getSqlCommands(SettingsStorage.databaseName)) {
+    batch.execute(sqlString);
+  }
   batch = await insertDefaultSettings(batch);
   await batch.commit();
 }
@@ -360,7 +294,7 @@ Future<Batch> insertDefaultSettings(Batch batch) async {
     for (MapEntry<String, Object?> entry in map.entries) {
       batch.rawInsert(
           "INSERT INTO Config(title, customValue, category) VALUES(?, ?, ?)",
-          [entry.key, entry.value as String, categoryEntry.key]);
+          [entry.key, entry.value, categoryEntry.key]);
     }
   }
   return batch;
