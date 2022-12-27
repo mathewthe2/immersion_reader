@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
+import 'package:immersion_reader/providers/profile_provider.dart';
+import 'package:immersion_reader/providers/reader_session_provider.dart';
+import 'package:immersion_reader/widgets/my_books/book_goal_widget.dart';
 import 'package:immersion_reader/widgets/reader/reader.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/utils/reader/ttu_source.dart';
@@ -12,17 +15,24 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class MyBooksWidget extends StatefulWidget {
   final LocalAssetsServer? localAssetsServer;
   final DictionaryProvider dictionaryProvider;
+  final ProfileProvider profileProvider;
+  static const String contentType = 'book';
   const MyBooksWidget(
       {super.key,
       required this.localAssetsServer,
-      required this.dictionaryProvider});
+      required this.dictionaryProvider,
+      required this.profileProvider});
 
   @override
   State<MyBooksWidget> createState() => _MyBooksWidgetState();
 }
 
 class _MyBooksWidgetState extends State<MyBooksWidget> {
-  Widget headlineWidget(String title, IconData iconData, Color textColor) {
+  Widget headlineWidget(
+      {required String title,
+      required IconData iconData,
+      required Color textColor,
+      required VoidCallback onTap}) {
     return Padding(
         padding: const EdgeInsets.fromLTRB(18, 20, 10, 10),
         child: Align(
@@ -44,27 +54,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                             fontSize: 18)),
                   ]),
                   CupertinoButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            SwipeablePageRoute(
-                                canOnlySwipeFromEdge: true,
-                                backGestureDetectionWidth: 25,
-                                builder: (context) {
-                                  return Reader(
-                                      isAddBook: true,
-                                      initialUrl:
-                                          'http://localhost:${LocalAssetsServerProvider.port}',
-                                      localAssetsServer:
-                                          widget.localAssetsServer,
-                                      dictionaryProvider:
-                                          widget.dictionaryProvider);
-                                })).then((value) {
-                          setState(() {
-                            // refresh state
-                          });
-                        });
-                      },
+                      onPressed: onTap,
                       padding: const EdgeInsets.all(0.0),
                       child: const Icon(CupertinoIcons.add))
                 ])));
@@ -76,8 +66,56 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
         const CupertinoDynamicColor.withBrightness(
             color: CupertinoColors.black, darkColor: CupertinoColors.white),
         context);
+    ReaderSessionProvider readerSessionProvider = ReaderSessionProvider.create(
+        widget.profileProvider, MyBooksWidget.contentType);
+    void navigateToBook(String mediaIdentifier) {
+      Navigator.push(
+          context,
+          SwipeablePageRoute(
+              canOnlySwipeFromEdge: true,
+              backGestureDetectionWidth: 25,
+              builder: (context) {
+                return Reader(
+                    initialUrl: mediaIdentifier,
+                    localAssetsServer: widget.localAssetsServer,
+                    dictionaryProvider: widget.dictionaryProvider,
+                    readerSessionProvider: readerSessionProvider);
+              })).then((value) {
+        setState(() {
+          // refresh state
+        });
+      });
+    }
+
     return Column(children: [
-      headlineWidget("EPUB Reader", FontAwesomeIcons.bookOpen, textColor),
+      BookGoalWidget(
+          profileProvider: widget.profileProvider,
+          onTapBook: (String mediaIdentifier) =>
+              navigateToBook(mediaIdentifier)),
+      headlineWidget(
+          title: "EPUB Reader",
+          iconData: FontAwesomeIcons.bookOpen,
+          textColor: textColor,
+          onTap: () {
+            Navigator.push(
+                context,
+                SwipeablePageRoute(
+                    canOnlySwipeFromEdge: true,
+                    backGestureDetectionWidth: 25,
+                    builder: (context) {
+                      return Reader(
+                          isAddBook: true,
+                          initialUrl:
+                              'http://localhost:${LocalAssetsServerProvider.port}',
+                          localAssetsServer: widget.localAssetsServer,
+                          dictionaryProvider: widget.dictionaryProvider,
+                          readerSessionProvider: readerSessionProvider);
+                    })).then((value) {
+              setState(() {
+                // refresh state
+              });
+            });
+          }),
       FutureBuilder<List<Book>>(
           future: TtuSource.getBooksHistory(widget.localAssetsServer!),
           builder: (context, snapshot) {
@@ -96,32 +134,17 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                       physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
                       children: [
-                        ...snapshot.data!
-                            .asMap()
-                            .entries
-                            .map((entry) => BookWidget(
+                        ...snapshot.data!.asMap().entries.map((entry) =>
+                            BookWidget(
                                 width: 130,
                                 book: entry.value,
-                                onTap: (mediaIdentifier) {
-                                  Navigator.push(
-                                      context,
-                                      SwipeablePageRoute(
-                                          canOnlySwipeFromEdge: true,
-                                          backGestureDetectionWidth: 25,
-                                          builder: (context) {
-                                            return Reader(
-                                                initialUrl: mediaIdentifier,
-                                                localAssetsServer:
-                                                    widget.localAssetsServer,
-                                                dictionaryProvider:
-                                                    widget.dictionaryProvider);
-                                          }));
-                                }))
+                                onTap: (mediaIdentifier) =>
+                                    navigateToBook(mediaIdentifier)))
                       ]));
             } else {
               return const SizedBox(height: 200);
             }
-          })
+          }),
     ]);
   }
 }

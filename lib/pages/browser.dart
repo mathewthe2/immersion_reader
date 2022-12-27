@@ -56,6 +56,9 @@ class _BrowserState extends State<Browser> {
   }
 
   void setupContentBlockers() {
+    if (widget.browserProvider == null) {
+      return;
+    }
     print(widget.browserProvider!.settingsStorage!.settingsCache!.browserSetting
         .enableAdBlock);
     if (widget.browserProvider!.settingsStorage!.settingsCache!.browserSetting

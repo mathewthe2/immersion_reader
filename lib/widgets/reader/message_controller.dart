@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:immersion_reader/providers/reader_session_provider.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
 
 class MessageController {
@@ -8,21 +9,26 @@ class MessageController {
   int? lastTimestamp;
   bool hasShownAddedDialog = false;
   bool hasInjectedPopupJs = false;
+  bool isReadingBook = false;
+  ReaderSessionProvider? readerSessionProvider;
   PopupDictionary popupDictionary;
   VoidCallback? exitCallback;
   VoidCallback? readerSettingsCallback;
 
   MessageController._internal(
       {required this.popupDictionary,
+      this.readerSessionProvider,
       this.exitCallback,
       this.readerSettingsCallback});
 
   factory MessageController(
           {required PopupDictionary popupDictionary,
+          ReaderSessionProvider? readerSessionProvider,
           VoidCallback? exitCallback,
           VoidCallback? readerSettingsCallback}) =>
       MessageController._internal(
           popupDictionary: popupDictionary,
+          readerSessionProvider: readerSessionProvider,
           exitCallback: exitCallback,
           readerSettingsCallback: readerSettingsCallback);
 
@@ -67,6 +73,21 @@ class MessageController {
                 String text = messageJson['text'];
                 // print(message.message);
                 popupDictionary.showVocabularyList(text, index);
+                break;
+              }
+            case 'load-book':
+              {
+                int bookId = messageJson['bookId'];
+                String title = messageJson['title'];
+                readerSessionProvider?.start(
+                    key: bookId.toString(), title: title);
+                isReadingBook = true;
+                break;
+              }
+            case 'load-manager':
+              {
+                readerSessionProvider?.stop();
+                isReadingBook = false;
                 break;
               }
           }

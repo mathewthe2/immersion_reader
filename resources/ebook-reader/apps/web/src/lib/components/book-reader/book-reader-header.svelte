@@ -63,13 +63,13 @@
         <Fa icon={faExpand} />
       </div>
     {/if}
-    <a on:click={() => dispatch('immersionReaderSettingsClick')} href={null}>
+    <!-- <a on:click={() => dispatch('immersionReaderSettingsClick')} href={null}>
       <span
         class="flex h-full items-center text-xl xl:text-lg {pHeaderFa} {opacityHeaderIcon} cursor-pointer"
       >
         <Fa icon={faSlidersH} />
       </span>
-    </a>
+    </a> -->
     <a on:click={() => dispatch('settingsClick')} href="/settings">
       <span
         class="flex h-full items-center text-xl xl:text-lg {pHeaderFa} {opacityHeaderIcon} cursor-pointer"

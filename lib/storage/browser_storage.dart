@@ -5,6 +5,7 @@ import 'dart:io';
 
 class BrowserStorage {
   Database? database;
+  static const databaseName = 'browser.db';
 
   BrowserStorage._create() {
     // print("_create() (private constructor)");
@@ -13,8 +14,7 @@ class BrowserStorage {
   static Future<BrowserStorage> create() async {
     BrowserStorage browserStorage = BrowserStorage._create();
     String databasesPath = await getDatabasesPath();
-    String path = p.join(databasesPath,
-        "browser.db"); // separate database file so we keep the definition data even if dictionary is removed
+     String path = p.join(databasesPath, databaseName);
     try {
       await Directory(databasesPath).create(recursive: true);
     } catch (_) {}
@@ -67,7 +67,7 @@ class BrowserStorage {
           ''');
 
     // indexes
-    batch.rawQuery("CREATE INDEX index_Bookmarks_parent ON Bookmarks(parent)");
+    batch.execute("CREATE INDEX index_Bookmarks_parent ON Bookmarks(parent)");
     await batch.commit();
   }
 }

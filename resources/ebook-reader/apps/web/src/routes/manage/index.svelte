@@ -1,5 +1,6 @@
 <script lang="ts">
   import Fa from 'svelte-fa';
+  import { onMount } from 'svelte';
   import { combineLatest, finalize, map, Observable, share } from 'rxjs';
   import { faUpload } from '@fortawesome/free-solid-svg-icons';
   import { goto } from '$app/navigation';
@@ -21,6 +22,13 @@
   import { cloneMutateSet } from '$lib/functions/clone-mutate-set';
   import { keyBy } from '$lib/functions/key-by';
   import { addFilesToDb } from './add-files-to-db';
+
+  // notify immersion reader that manager is loaded and stop current session
+  onMount(() => {
+    console.log(JSON.stringify({
+				"message-type": "load-manager"
+			}));
+  });
 
   const bookCards$: Observable<BookCardProps[]> = combineLatest([
     database.dataList$,

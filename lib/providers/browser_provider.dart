@@ -1,7 +1,6 @@
 import 'package:immersion_reader/data/browser/browser_bookmark.dart';
 import 'package:immersion_reader/data/settings/browser_setting.dart';
 import 'package:immersion_reader/data/settings/settings_data.dart';
-import 'package:immersion_reader/pages/browser.dart';
 import 'package:immersion_reader/storage/browser_storage.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
 

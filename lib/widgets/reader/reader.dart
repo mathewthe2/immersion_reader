@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/data/profile/profile_content.dart';
+import 'package:immersion_reader/providers/reader_session_provider.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
@@ -12,6 +14,7 @@ import '../../utils/reader/reader_js.dart';
 class Reader extends StatefulWidget {
   final LocalAssetsServer? localAssetsServer;
   final DictionaryProvider dictionaryProvider;
+  final ReaderSessionProvider readerSessionProvider;
   final String? initialUrl;
   final bool isAddBook;
 
@@ -19,6 +22,7 @@ class Reader extends StatefulWidget {
       {super.key,
       required this.localAssetsServer,
       required this.dictionaryProvider,
+      required this.readerSessionProvider,
       this.initialUrl,
       this.isAddBook = false});
 
@@ -29,6 +33,7 @@ class Reader extends StatefulWidget {
 class _ReaderState extends State<Reader> {
   VocabularyListStorage? vocabularyListStorage;
   InAppWebViewController? webViewController;
+  ProfileContent? currentProfileContent;
   late PopupDictionary popupDictionary;
   late MessageController messageController;
 
@@ -40,6 +45,7 @@ class _ReaderState extends State<Reader> {
         dictionaryProvider: widget.dictionaryProvider);
     messageController = MessageController(
         popupDictionary: popupDictionary,
+        readerSessionProvider: widget.readerSessionProvider,
         exitCallback: () => Navigator.of(context).pop());
   }
 

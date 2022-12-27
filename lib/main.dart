@@ -5,6 +5,7 @@ import 'package:immersion_reader/pages/discover.dart';
 import 'package:immersion_reader/pages/reader/reader_page.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
+import 'package:immersion_reader/providers/profile_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
@@ -36,6 +37,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   VocabularyListProvider? vocabularyListProvider;
   BrowserProvider? browserProvider;
   SettingsStorage? _settingsStorage;
+  ProfileProvider? profileProvider;
   DictionaryProvider? dictionaryProvider;
   SettingsProvider? settingsProvider;
   PaymentProvider? paymentProvider;
@@ -72,6 +74,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     localAssetsServerProvider = await LocalAssetsServerProvider.create();
     vocabularyListProvider = await VocabularyListProvider.create();
     _settingsStorage = await SettingsStorage.create();
+    profileProvider = await ProfileProvider.create();
     browserProvider = await BrowserProvider.create(_settingsStorage!);
     settingsProvider = SettingsProvider.create(_settingsStorage!);
     dictionaryProvider = DictionaryProvider.create(settingsProvider!);
@@ -94,17 +97,27 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     });
   }
 
+  Future<void> handleAppResume() async {
+    startLocalAssetsServer();
+    profileProvider?.restartSession();
+  }
+
+  Future<void> handleAppSleep() async {
+    stopLocalAssetsServer();
+    profileProvider?.endSession();
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     switch (state) {
       case AppLifecycleState.resumed:
-        startLocalAssetsServer();
+        handleAppResume();
         break;
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
-        stopLocalAssetsServer();
+        handleAppSleep();
         break;
     }
   }
@@ -114,7 +127,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   }
 
   void handleSwitchNavigation(int index) async {
-    if (index != readerPageIndex || currentIndex == index) { // exclude reader tab
+    if (index != readerPageIndex || currentIndex == index) {
+      // exclude reader tab
       tabNavKeys[index]
           .currentState
           ?.popUntil((r) => r.isFirst); // pop to root of each page
@@ -122,6 +136,13 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
     if (index == vocabularyListPageIndex && vocabularyListProvider != null) {
       await vocabularyListProvider!.getVocabularyList();
+    }
+
+    // handle leave reader session
+    if (currentIndex == readerPageIndex) {
+      profileProvider?.endSession();
+    } else if (index == readerPageIndex && currentIndex != index) {
+      profileProvider?.restartSession();
     }
 
     currentIndex = index;
@@ -144,6 +165,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    paymentProvider?.dispose();
+    profileProvider?.dispose();
     super.dispose();
   }
 
@@ -163,6 +186,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       ReaderPage(
           browserProvider: browserProvider,
           paymentProvider: paymentProvider!,
+          profileProvider: profileProvider!,
           localAssetsServer: localAssetsServerProvider!.server,
           dictionaryProvider: dictionaryProvider!),
       //  Browser(

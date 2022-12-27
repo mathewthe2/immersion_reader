@@ -45,6 +45,11 @@ flutter run --profile --cache-sksl --purge-persistent-cache
 
 3. Press M at the command line of flutter run to write the captured SkSL shaders to xx.sksl.json.
 
+## Dev Notes
+- Ios animation jitter during development could be ameliorated by shaders.
+- Hot reload messes up timers, including read time calculation. 
+- To update UI on separate pages, setState on callback of push navigation, or use ValueNotifier.
+
 ## Distribution
 
 - bump version in pubspec.yaml

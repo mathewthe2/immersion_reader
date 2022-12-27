@@ -276,10 +276,7 @@ class SettingsStorage {
 }
 
 void onCreateStorageData(Database db, int version) async {
-  Batch batch = db.batch();
-  for (String sqlString in SqlRepository.getSqlCommands(SettingsStorage.databaseName)) {
-    batch.execute(sqlString);
-  }
+  Batch batch = await SqlRepository.insertTablesForDatabase(db, SettingsStorage.databaseName);
   batch = await insertDefaultSettings(batch);
   await batch.commit();
 }

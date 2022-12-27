@@ -118,6 +118,18 @@
     shareReplay({ refCount: true, bufferSize: 1 })
   );
 
+  const notifyImmersionReader$ = rawBookData$.pipe(
+    tap((rawBookData) => {
+      if (!rawBookData) return;
+      console.log(JSON.stringify({
+        "bookId": rawBookData.id,
+				"title": rawBookData.title,
+				"message-type": "load-book"
+			}));
+    }),
+    reduceToEmptyString()
+  );
+
   const resize$ = iffBrowser(() => fromEvent(visualViewport, 'resize')).pipe(share());
 
   const containerViewportWidth$ = resize$.pipe(
@@ -312,6 +324,7 @@
     on:bookmark={bookmarkPage}
   />
   {$initBookmarkData$ ?? ''}
+  {$notifyImmersionReader$ ?? ''}
   {$setBackgroundColor$ ?? ''}
   {$setWritingMode$ ?? ''}
 {:else}

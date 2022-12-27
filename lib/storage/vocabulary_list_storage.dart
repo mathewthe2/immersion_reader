@@ -1,3 +1,4 @@
+import 'package:immersion_reader/data/database/sql_repository.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
 import 'dart:io';
@@ -6,6 +7,7 @@ import 'package:immersion_reader/japanese/vocabulary.dart';
 class VocabularyListStorage {
   Database? database;
 
+  static const databaseName = 'vocabulary_list.db';
   static const String defaultFolderName = 'Favorties';
   static const int defaultFolderId = 1;
 
@@ -17,8 +19,7 @@ class VocabularyListStorage {
     VocabularyListStorage vocabularyListStorage =
         VocabularyListStorage._create();
     String databasesPath = await getDatabasesPath();
-    String path = p.join(databasesPath,
-        "vocabulary_list.db"); // separate database file so we keep the definition data even if dictionary is removed
+    String path = p.join(databasesPath, databaseName);
     try {
       await Directory(databasesPath).create(recursive: true);
     } catch (_) {}
@@ -30,18 +31,7 @@ class VocabularyListStorage {
     vocabularyListStorage.database = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
       // When creating the db, create the table\
-      Batch batch = db.batch();
-      batch.execute('''
-            CREATE TABLE Vocabulary (
-            id TEXT PRIMARY KEY, folderId INTEGER, expression TEXT, reading TEXT, 
-            tags TEXT, glossary TEXT, pitch TEXT, pitch_svg TEXT, sentence TEXT)
-          ''');
-      batch.execute('''
-            CREATE TABLE Folder (
-            id TEXT PRIMARY KEY, name TEXT)
-          ''');
-      batch.rawQuery(
-          "CREATE INDEX index_Vocabulary_folder ON Vocabulary(folderId)");
+      Batch batch = await SqlRepository.insertTablesForDatabase(db, VocabularyListStorage.databaseName);
       batch.rawInsert("INSERT INTO Folder(id, name) VALUES(?, ?)",
           [defaultFolderId, defaultFolderName]);
       await batch.commit();
