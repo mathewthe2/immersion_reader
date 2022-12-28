@@ -12,6 +12,7 @@ class ProfileProvider {
   ProfileSession? currentSession; // reading session
   int _hearbeatCount = 0;
   late Timer _timer;
+  static const int heartBeatThreshold = 5; // minimum seconds of reading for a session
 
   ProfileProvider._create() {
     // print("_create() (private constructor)");
@@ -69,8 +70,10 @@ class ProfileProvider {
       currentSession!.durationSeconds = _hearbeatCount;
       _stopCounting();
       currentSession!.active = false;
-      await profileStorage!
-          .createSession(currentSession!); // saves session to database
+      if (currentSession!.durationSeconds >= heartBeatThreshold) {
+        await profileStorage!
+            .createSession(currentSession!); // saves session to database
+      }
     }
   }
 
