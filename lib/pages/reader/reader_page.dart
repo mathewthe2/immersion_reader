@@ -45,6 +45,7 @@ class _ReaderPageState extends State<ReaderPage> {
                   color: backgroundColor,
                   child: SafeArea(
                       child: Column(children: [
+                        const SizedBox(height: 20),
                     MyBooksWidget(
                         dictionaryProvider: widget.dictionaryProvider,
                         localAssetsServer: widget.localAssetsServer,
