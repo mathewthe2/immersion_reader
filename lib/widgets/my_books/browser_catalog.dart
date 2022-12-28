@@ -71,6 +71,7 @@ class _BrowserCatalogState extends State<BrowserCatalog> {
         context);
     return Column(children: [
       headlineWidget("Browser", FontAwesomeIcons.globe, textColor),
+      const SizedBox(height: 40) // margin for small screens
     ]);
   }
 }

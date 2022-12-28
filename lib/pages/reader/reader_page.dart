@@ -44,8 +44,9 @@ class _ReaderPageState extends State<ReaderPage> {
               child: Container(
                   color: backgroundColor,
                   child: SafeArea(
-                      child: Column(children: [
-                        const SizedBox(height: 20),
+                      child: SingleChildScrollView(
+                          child: Column(children: [
+                    const SizedBox(height: 20),
                     MyBooksWidget(
                         dictionaryProvider: widget.dictionaryProvider,
                         localAssetsServer: widget.localAssetsServer,
@@ -55,7 +56,7 @@ class _ReaderPageState extends State<ReaderPage> {
                         paymentProvider: widget.paymentProvider,
                         browserProvider: widget.browserProvider!,
                         dictionaryProvider: widget.dictionaryProvider)
-                  ]))))
+                  ])))))
         ]));
   }
 }

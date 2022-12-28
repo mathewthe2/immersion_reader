@@ -72,7 +72,8 @@ class _DiscoverState extends State<Discover> {
               child: Container(
                   color: backgroundColor,
                   child: SafeArea(
-                      child: Column(children: [
+                      child: SingleChildScrollView(
+                          child: Column(children: [
                     SizedBox(
                         height: 80,
                         child: ListView(
@@ -97,7 +98,7 @@ class _DiscoverState extends State<Discover> {
                                       )),
                             ])),
                     activeWidget
-                  ]))))
+                  ])))))
         ]));
   }
 }
