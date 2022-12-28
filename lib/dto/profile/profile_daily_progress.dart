@@ -33,7 +33,9 @@ class ProfileDailyProgress {
   }
 
   int _getMinutesToGo() {
-    return min(goalSeconds, 1 + goalSeconds - _getTotalSecondsReadToday()) ~/ 60;
+    int maxGoalMinutes = goalSeconds ~/ 60;
+    return min(
+        maxGoalMinutes, 1 + (goalSeconds - _getTotalSecondsReadToday()) ~/ 60);
   }
 
   String getReadingTimeToGo() {
