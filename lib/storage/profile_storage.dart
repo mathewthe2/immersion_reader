@@ -105,7 +105,7 @@ class ProfileStorage {
       SELECT Content.id as 'contentId', Content.key as 'contentKey', Content.title, Content.type, Sessions.startTime, Sessions.durationSeconds
       FROM Sessions
       INNER JOIN Content ON Content.id = Sessions.contentId
-      ORDER BY Sessions.startTime
+      ORDER BY Sessions.startTime DESC
       LIMIT ?;
       """, [sessionLimit]);
     if (rows.isNotEmpty) {
