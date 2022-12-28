@@ -8,8 +8,9 @@ import 'package:immersion_reader/providers/profile_provider.dart';
 class BookGoalWidget extends StatefulWidget {
   final ProfileProvider profileProvider;
   final Function(String mediaIdentifier) onTapBook;
+  final Widget? child;
   const BookGoalWidget(
-      {super.key, required this.profileProvider, required this.onTapBook});
+      {super.key, required this.profileProvider, required this.onTapBook, this.child});
 
   @override
   State<BookGoalWidget> createState() => _BookGoalWidgetState();
@@ -35,6 +36,7 @@ class _BookGoalWidgetState extends State<BookGoalWidget> {
               child: BookGoalProgressWidget(
                 profileDailyProgress: snapshot.data!,
                 onTapBook: widget.onTapBook,
+                child: widget.child
               ));
         }
         return const Text('loading');

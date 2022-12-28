@@ -50,24 +50,25 @@ class _BookGoalDetailSheetState extends State<BookGoalDetailSheet> {
                       CupertinoIcons.xmark_circle_fill,
                       color: CupertinoColors.inactiveGray)))),
       BookGoalProgressWidget(
-          profileDailyProgress: widget.profileDailyProgress,
-          isShowTitle: false,
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
-              const Divider(),
-              Text(BookGoalProgressWidget.todaysReadingLabel,
-                  style: TextStyle(
-                      color: CupertinoColors.label.resolveFrom(context),
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
-              Text(widget.profileDailyProgress.getReadingTimeToGo(),
-                  style:
-                      const TextStyle(color: Color(0xFF9B99E9), fontSize: 20))
-            ],
-          )),
+        profileDailyProgress: widget.profileDailyProgress,
+        isShowTitle: false,
+      ),
+      const SizedBox(height: 10),
+      Divider(
+          indent: 40,
+          endIndent: 40,
+          color: CupertinoColors.label.resolveFrom(context)),
+      const SizedBox(height: 20),
+      Text(BookGoalProgressWidget.todaysReadingLabel,
+          style: TextStyle(
+              color: CupertinoColors.label.resolveFrom(context),
+              fontSize: 25,
+              fontWeight: FontWeight.bold)),
+      const SizedBox(height: 10),
+      Text(widget.profileDailyProgress.getReadingTimeToGo(),
+          style: const TextStyle(color: Color(0xFF9B99E9), fontSize: 20)),
       // Container(child: const Text(shareGoalProgressLabel)),
+      const SizedBox(height: 90),
       CupertinoButton(
           child: Text(
             adjustGoalLabel,

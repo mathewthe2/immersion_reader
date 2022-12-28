@@ -20,49 +20,53 @@ class BookGoalProgressWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isShowReadingLabel = (isShowTitle == null || isShowTitle!);
-    return Column(children: [
-      SleekCircularSlider(
-          appearance: CircularSliderAppearance(
-              size: 300,
-              startAngle: 180,
-              angleRange: 180,
-              customWidths: CustomSliderWidths(progressBarWidth: 10),
-              customColors: CustomSliderColors(
-                  progressBarColor: const Color(0xFFDCD8FF),
-                  dotColor: const Color(0xFFDCD8FF),
-                  hideShadow: true,
-                  trackColor: CupertinoColors.systemGroupedBackground)),
-          initialValue: profileDailyProgress.getPercentageReadToday(),
-          innerWidget: (double value) {
-            return Padding(
-                padding: const EdgeInsets.only(top: 60),
-                child: Column(
-                  children: [
-                    if (isShowReadingLabel)
-                      Text(todaysReadingLabel,
-                          style: TextStyle(
-                              color:
-                                  CupertinoColors.label.resolveFrom(context))),
-                    Text(
-                      profileDailyProgress.getTimeReadToday(),
-                      style: TextStyle(
-                          fontSize: isShowReadingLabel ? 50 : 70,
-                          color: CupertinoColors.label.resolveFrom(context)),
-                    ),
-                    Text(
-                      'of my ${profileDailyProgress.getGoalMinutes()}-minute goal',
-                      style: TextStyle(
-                          color: CupertinoColors.label.resolveFrom(context)),
-                    ),
-                    if (onTapBook != null) const SizedBox(height: 25),
-                    if (onTapBook != null)
-                      ReadRecentButton(
-                          profileDailyProgress: profileDailyProgress,
-                          onTapBook: onTapBook!),
-                    if (child != null) child!
-                  ],
-                ));
-          }),
-    ]);
+    return ClipRect(
+        child: Align(
+            alignment: Alignment.topCenter,
+            heightFactor: 0.55,
+            child: SleekCircularSlider(
+                appearance: CircularSliderAppearance(
+                    size: 350,
+                    startAngle: 180,
+                    angleRange: 180,
+                    customWidths: CustomSliderWidths(progressBarWidth: 10),
+                    customColors: CustomSliderColors(
+                        progressBarColor: const Color(0xFFDCD8FF),
+                        dotColor: const Color(0xFFDCD8FF),
+                        hideShadow: true,
+                        trackColor: CupertinoColors.systemGroupedBackground)),
+                initialValue: profileDailyProgress.getPercentageReadToday(),
+                innerWidget: (double value) {
+                  return Padding(
+                      padding: const EdgeInsets.only(top: 60),
+                      child: Column(
+                        children: [
+                          if (isShowReadingLabel)
+                            Text(todaysReadingLabel,
+                                style: TextStyle(
+                                    color: CupertinoColors.label
+                                        .resolveFrom(context))),
+                          Text(
+                            profileDailyProgress.getTimeReadToday(),
+                            style: TextStyle(
+                                fontSize: isShowReadingLabel ? 65 : 85,
+                                color:
+                                    CupertinoColors.label.resolveFrom(context)),
+                          ),
+                          Text(
+                            'of my ${profileDailyProgress.getGoalMinutes()}-minute goal',
+                            style: TextStyle(
+                                color:
+                                    CupertinoColors.label.resolveFrom(context)),
+                          ),
+                          if (onTapBook != null) const SizedBox(height: 25),
+                          if (onTapBook != null)
+                            ReadRecentButton(
+                                profileDailyProgress: profileDailyProgress,
+                                onTapBook: onTapBook!),
+                          if (child != null) child!
+                        ],
+                      ));
+                })));
   }
 }
