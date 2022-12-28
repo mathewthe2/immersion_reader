@@ -54,12 +54,21 @@ class BookGoalProgressWidget extends StatelessWidget {
                                 color:
                                     CupertinoColors.label.resolveFrom(context)),
                           ),
-                          Text(
-                            'of my ${profileDailyProgress.getGoalMinutes()}-minute goal',
-                            style: TextStyle(
-                                color:
-                                    CupertinoColors.label.resolveFrom(context)),
-                          ),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'of my ${profileDailyProgress.getGoalMinutes()}-minute goal',
+                                  style: TextStyle(
+                                      color: CupertinoColors.label
+                                          .resolveFrom(context)),
+                                ),
+                                if (onTapBook != null)
+                                  const Icon(
+                                      size: 18,
+                                      CupertinoIcons.forward,
+                                      color: CupertinoColors.inactiveGray),
+                              ]),
                           if (onTapBook != null) const SizedBox(height: 25),
                           if (onTapBook != null)
                             ReadRecentButton(
