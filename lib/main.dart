@@ -188,7 +188,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
           paymentProvider: paymentProvider!,
           profileProvider: profileProvider!,
           localAssetsServer: localAssetsServerProvider!.server,
-          dictionaryProvider: dictionaryProvider!),
+          dictionaryProvider: dictionaryProvider!,
+          settingsProvider: settingsProvider!),
       //  Browser(
       //     browserProvider: browserProvider,
       //     dictionaryProvider: dictionaryProvider!),

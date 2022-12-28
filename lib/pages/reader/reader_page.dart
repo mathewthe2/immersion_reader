@@ -3,6 +3,7 @@ import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
 import 'package:immersion_reader/providers/profile_provider.dart';
+import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/widgets/my_books/browser_catalog.dart';
 import 'package:immersion_reader/widgets/my_books/my_books_widget.dart';
 import 'package:local_assets_server/local_assets_server.dart';
@@ -13,13 +14,15 @@ class ReaderPage extends StatefulWidget {
   final ProfileProvider profileProvider;
   final PaymentProvider paymentProvider;
   final DictionaryProvider dictionaryProvider;
+  final SettingsProvider settingsProvider;
   const ReaderPage(
       {super.key,
       required this.browserProvider,
       required this.paymentProvider,
       required this.profileProvider,
       required this.localAssetsServer,
-      required this.dictionaryProvider});
+      required this.dictionaryProvider,
+      required this.settingsProvider});
 
   @override
   State<ReaderPage> createState() => _ReaderPageState();
@@ -50,7 +53,8 @@ class _ReaderPageState extends State<ReaderPage> {
                     MyBooksWidget(
                         dictionaryProvider: widget.dictionaryProvider,
                         localAssetsServer: widget.localAssetsServer,
-                        profileProvider: widget.profileProvider),
+                        profileProvider: widget.profileProvider,
+                        settingsProvider: widget.settingsProvider),
                     // GestureDetector(onTap: ()=>_requestPurchase("immersion_reader_plus"), )
                     BrowserCatalog(
                         paymentProvider: widget.paymentProvider,

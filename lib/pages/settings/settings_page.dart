@@ -26,20 +26,15 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = CupertinoDynamicColor.resolve(
-        const CupertinoDynamicColor.withBrightness(
-            color: CupertinoColors.systemGroupedBackground,
-            darkColor: CupertinoColors.black),
-        context);
     return CupertinoPageScaffold(
-        backgroundColor: backgroundColor,
+        backgroundColor: CupertinoColors.systemGroupedBackground.resolveFrom(context),
         child: CustomScrollView(slivers: [
           (const CupertinoSliverNavigationBar(
             largeTitle: Text('Settings'),
           )),
           SliverFillRemaining(
               child: Container(
-                  color: backgroundColor,
+                  color: CupertinoColors.systemGroupedBackground.resolveFrom(context),
                   child: Column(children: [
                     CupertinoListSection(children: [
                       CupertinoListTile(

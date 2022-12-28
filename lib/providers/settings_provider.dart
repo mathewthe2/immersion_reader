@@ -28,6 +28,19 @@ class SettingsProvider {
     return data.appearanceSetting.showFrequencyTags;
   }
 
+  Future<void> toggleEnableReaderFullScreen(bool enableReaderFullScreen) async {
+    await settingsStorage!.changeConfigSettings(
+        AppearanceSetting.enableReaderFullScreenKey,
+        enableReaderFullScreen ? "1" : "0",
+        onSuccessCallback: () => settingsStorage!.settingsCache!
+            .appearanceSetting.enableReaderFullScreen = enableReaderFullScreen);
+  }
+
+  Future<bool> getIsEnabledReaderFullScreen() async {
+    return settingsStorage!
+        .settingsCache!.appearanceSetting.enableReaderFullScreen;
+  }
+
   Future<void> toggleEnableSlideAnimation(bool enableSlideAnimation) async {
     await settingsStorage!.changeConfigSettings(
         AppearanceSetting.enableSlideAnimationKey,
