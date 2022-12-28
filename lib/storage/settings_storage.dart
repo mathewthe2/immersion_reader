@@ -114,7 +114,7 @@ class SettingsStorage {
       Map<String, Object?> map = categoryEntry.value as Map<String, Object?>;
       for (MapEntry<String, Object?> entry in map.entries) {
         if (!configMap.containsKey(categoryEntry.key) ||
-            configMap[categoryEntry.key]!.containsKey(entry.key)) {
+            !configMap[categoryEntry.key]!.containsKey(entry.key)) {
           batch.rawInsert(
               "INSERT INTO Config(title, customValue, category) VALUES(?, ?, ?)",
               [entry.key, entry.value, categoryEntry.key]);
