@@ -4,11 +4,14 @@ import 'package:immersion_reader/extensions/datetime_extension.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 
 class ProfileDailyProgress {
+  int goalId;
   int goalSeconds;
   List<ProfileContentSession> contentSessions;
 
   ProfileDailyProgress(
-      {required this.goalSeconds, required this.contentSessions});
+      {required this.goalId,
+      required this.goalSeconds,
+      required this.contentSessions});
 
   List<ProfileContentSession> _getSessionsToday() {
     return contentSessions
@@ -29,6 +32,15 @@ class ProfileDailyProgress {
     return min(100, _getTotalSecondsReadToday() / goalSeconds * 100);
   }
 
+  int _getMinutesToGo() {
+    return 1 + (goalSeconds - _getTotalSecondsReadToday()) ~/ 60;
+  }
+
+  String getReadingTimeToGo() {
+    int minutesToGo = _getMinutesToGo();
+    return '$minutesToGo ${minutesToGo > 1 ? 'minutes' : 'minute'} to go';
+  }
+
   String getTimeReadToday() {
     int totalSeconds = _getTotalSecondsReadToday();
     int minutes = totalSeconds ~/ 60;
@@ -43,7 +55,6 @@ class ProfileDailyProgress {
     }
     return contentSessions.first.title;
   }
-
 
   String getMediaIdentifier() {
     return 'http://localhost:${LocalAssetsServerProvider.port}/b.html?id=${_getRecentBookKey()}';

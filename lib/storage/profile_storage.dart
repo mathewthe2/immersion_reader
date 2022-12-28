@@ -128,4 +128,9 @@ class ProfileStorage {
       return [];
     }
   }
+
+  Future<void> setGoalSeconds(int goalId, int goalSeconds) async {
+    await database!.rawUpdate(
+        'UPDATE Goals SET goalSeconds = ? WHERE id = ?', [goalSeconds, goalId]);
+  }
 }

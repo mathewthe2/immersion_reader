@@ -28,12 +28,16 @@ class ProfileProvider {
   }
 
   Future<ProfileDailyProgress?> getDailyReadingProgress() async {
-     if (profileStorage == null) {
+    if (profileStorage == null) {
       return null;
     }
     ProfileGoal profileGoal = await profileStorage!.getGoalOrCreate();
-    List<ProfileContentSession> sessions = await profileStorage!.getContentSessions();
-    return ProfileDailyProgress(goalSeconds: profileGoal.goalSeconds, contentSessions: sessions);
+    List<ProfileContentSession> sessions =
+        await profileStorage!.getContentSessions();
+    return ProfileDailyProgress(
+        goalId: profileGoal.id,
+        goalSeconds: profileGoal.goalSeconds,
+        contentSessions: sessions);
   }
 
   Future<void> startSession(ProfileContent content) async {
@@ -51,12 +55,12 @@ class ProfileProvider {
   }
 
   Future<void> restartSession() async {
-     if (currentSession != null && !currentSession!.active) {
-        currentSession!.durationSeconds = 0;
-        currentSession!.active = true;
-         _stopCounting();
-         _startCounting();
-     }
+    if (currentSession != null && !currentSession!.active) {
+      currentSession!.durationSeconds = 0;
+      currentSession!.active = true;
+      _stopCounting();
+      _startCounting();
+    }
   }
 
   // session ended but can be restarted. accessible by switching tabs
@@ -65,7 +69,8 @@ class ProfileProvider {
       currentSession!.durationSeconds = _hearbeatCount;
       _stopCounting();
       currentSession!.active = false;
-      await profileStorage!.createSession(currentSession!); // saves session to database
+      await profileStorage!
+          .createSession(currentSession!); // saves session to database
     }
   }
 
@@ -86,11 +91,16 @@ class ProfileProvider {
     _hearbeatCount = 0;
   }
 
-  static ProfileSession createEmptySession({required int contentId, required int goalId}) {
+  static ProfileSession createEmptySession(
+      {required int contentId, required int goalId}) {
     return ProfileSession(
         startTime: DateTime.now(),
         durationSeconds: 0,
         contentId: contentId,
         goalId: goalId);
+  }
+
+  void updateGoalMinutes(int goalId, int goalMinutes) {
+    profileStorage?.setGoalSeconds(goalId, goalMinutes * 60);
   }
 }
