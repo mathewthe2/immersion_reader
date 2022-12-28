@@ -20,10 +20,11 @@ class BookGoalProgressWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isShowReadingLabel = (isShowTitle == null || isShowTitle!);
+    bool isShowBottomContent = isShowReadingLabel || child != null;
     return ClipRect(
         child: Align(
             alignment: Alignment.topCenter,
-            heightFactor: 0.55,
+            heightFactor: isShowBottomContent ? 0.75 : 0.55,
             child: SleekCircularSlider(
                 appearance: CircularSliderAppearance(
                     size: 350,
