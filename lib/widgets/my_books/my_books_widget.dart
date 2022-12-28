@@ -3,6 +3,7 @@ import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import 'package:immersion_reader/providers/profile_provider.dart';
 import 'package:immersion_reader/providers/reader_session_provider.dart';
+import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/widgets/my_books/book_goal/book_goal_widget.dart';
 import 'package:immersion_reader/widgets/reader/reader.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
@@ -16,12 +17,14 @@ class MyBooksWidget extends StatefulWidget {
   final LocalAssetsServer? localAssetsServer;
   final DictionaryProvider dictionaryProvider;
   final ProfileProvider profileProvider;
+  final SettingsProvider settingsProvider;
   static const String contentType = 'book';
   const MyBooksWidget(
       {super.key,
       required this.localAssetsServer,
       required this.dictionaryProvider,
-      required this.profileProvider});
+      required this.profileProvider,
+      required this.settingsProvider});
 
   @override
   State<MyBooksWidget> createState() => _MyBooksWidgetState();
@@ -62,16 +65,13 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Color textColor = CupertinoDynamicColor.resolve(
-        const CupertinoDynamicColor.withBrightness(
-            color: CupertinoColors.black, darkColor: CupertinoColors.white),
-        context);
     ReaderSessionProvider readerSessionProvider = ReaderSessionProvider.create(
         widget.profileProvider, MyBooksWidget.contentType);
-    void navigateToBook(String mediaIdentifier) {
-      Navigator.push(
-          context,
-          SwipeablePageRoute(
+    // bool rootNavigator = widget.settingsProvider.getIsEnabledReaderFullScreen();
+    void navigateToBook(
+        {required String mediaIdentifier, bool isFullScreen = false}) {
+      Navigator.of(context, rootNavigator: isFullScreen)
+          .push(SwipeablePageRoute(
               canOnlySwipeFromEdge: true,
               backGestureDetectionWidth: 25,
               builder: (context) {
@@ -80,71 +80,86 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                     localAssetsServer: widget.localAssetsServer,
                     dictionaryProvider: widget.dictionaryProvider,
                     readerSessionProvider: readerSessionProvider);
-              })).then((value) {
+              }))
+          .then((value) {
         setState(() {
           // refresh state
         });
       });
     }
 
-    return Column(children: [
-      BookGoalWidget(
-          profileProvider: widget.profileProvider,
-          onTapBook: (String mediaIdentifier) =>
-              navigateToBook(mediaIdentifier)),
-      headlineWidget(
-          title: "EPUB Reader",
-          iconData: FontAwesomeIcons.bookOpen,
-          textColor: textColor,
-          onTap: () {
-            Navigator.push(
-                context,
-                SwipeablePageRoute(
-                    canOnlySwipeFromEdge: true,
-                    backGestureDetectionWidth: 25,
-                    builder: (context) {
-                      return Reader(
-                          isAddBook: true,
-                          initialUrl:
-                              'http://localhost:${LocalAssetsServerProvider.port}',
-                          localAssetsServer: widget.localAssetsServer,
-                          dictionaryProvider: widget.dictionaryProvider,
-                          readerSessionProvider: readerSessionProvider);
-                    })).then((value) {
-              setState(() {
-                // refresh state
-              });
-            });
-          }),
-      FutureBuilder<List<Book>>(
-          future: TtuSource.getBooksHistory(widget.localAssetsServer!),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              if (snapshot.data!.isEmpty) {
-                return SizedBox(
-                    height: 200,
-                    child: Column(children: [
-                      const SizedBox(height: 80),
-                      Text('No Books Added', style: TextStyle(color: textColor))
-                    ]));
-              }
-              return SizedBox(
-                  height: 200,
-                  child: ListView(
-                      physics: const BouncingScrollPhysics(),
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        ...snapshot.data!.asMap().entries.map((entry) =>
-                            BookWidget(
-                                width: 130,
-                                book: entry.value,
-                                onTap: (mediaIdentifier) =>
-                                    navigateToBook(mediaIdentifier)))
-                      ]));
-            } else {
-              return const SizedBox(height: 200);
-            }
-          }),
-    ]);
+    return FutureBuilder<bool>(
+        future: widget.settingsProvider.getIsEnabledReaderFullScreen(),
+        builder: ((context, snapshot) {
+          bool isEnabledReaderFullScreen =
+              snapshot.hasData ? snapshot.data! : false;
+          return Column(children: [
+            BookGoalWidget(
+                profileProvider: widget.profileProvider,
+                onTapBook: (String mediaIdentifier) => navigateToBook(
+                    mediaIdentifier: mediaIdentifier,
+                    isFullScreen: isEnabledReaderFullScreen)),
+            headlineWidget(
+                title: "EPUB Reader",
+                iconData: FontAwesomeIcons.bookOpen,
+                textColor: CupertinoColors.label.resolveFrom(context),
+                onTap: () {
+                  Navigator.of(context,
+                          rootNavigator: isEnabledReaderFullScreen)
+                      .push(SwipeablePageRoute(
+                          canOnlySwipeFromEdge: true,
+                          backGestureDetectionWidth: 25,
+                          builder: (context) {
+                            return Reader(
+                                isAddBook: true,
+                                initialUrl:
+                                    'http://localhost:${LocalAssetsServerProvider.port}',
+                                localAssetsServer: widget.localAssetsServer,
+                                dictionaryProvider: widget.dictionaryProvider,
+                                readerSessionProvider: readerSessionProvider);
+                          }))
+                      .then((value) {
+                    setState(() {
+                      // refresh state
+                    });
+                  });
+                }),
+            FutureBuilder<List<Book>>(
+                future: TtuSource.getBooksHistory(widget.localAssetsServer!),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    if (snapshot.data!.isEmpty) {
+                      return SizedBox(
+                          height: 200,
+                          child: Column(children: [
+                            const SizedBox(height: 80),
+                            Text('No Books Added',
+                                style: TextStyle(
+                                    color: CupertinoColors.label
+                                        .resolveFrom(context)))
+                          ]));
+                    }
+                    return SizedBox(
+                        height: 200,
+                        child: ListView(
+                            physics: const BouncingScrollPhysics(),
+                            scrollDirection: Axis.horizontal,
+                            children: [
+                              ...snapshot.data!.asMap().entries.map((entry) =>
+                                  BookWidget(
+                                      width: 130,
+                                      book: entry.value,
+                                      onTap: (mediaIdentifier) =>
+                                          navigateToBook(
+                                              mediaIdentifier: mediaIdentifier,
+                                              isFullScreen:
+                                                  isEnabledReaderFullScreen)))
+                            ]));
+                  } else {
+                    return const SizedBox(height: 200);
+                  }
+                }),
+          ]);
+        }));
   }
 }

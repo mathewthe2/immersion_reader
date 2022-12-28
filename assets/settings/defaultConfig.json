@@ -3,7 +3,8 @@
         "popup_dictionary_theme": "dark",
         "enable_slide_animation": "1",
         "show_frequency_tags": "1",
-        "pitch_accent_display_style": "graph"
+        "pitch_accent_display_style": "graph",
+        "enable_full_screen": "0"
     },
     "browser": {
         "enable_ad_block": "1",
