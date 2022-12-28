@@ -35,7 +35,7 @@ class _BrowserState extends State<Browser> {
   late PopupDictionary popupDictionary;
   late MessageController messageController;
   late String initialUrl;
-  late List<ContentBlocker> contentBlockers;
+  List<ContentBlocker> contentBlockers = [];
 
   @override
   void initState() {
