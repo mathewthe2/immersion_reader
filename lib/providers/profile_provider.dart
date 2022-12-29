@@ -25,7 +25,7 @@ class ProfileProvider {
   }
 
   void dispose() {
-    _timer.cancel();
+    _stopCounting();
   }
 
   Future<ProfileDailyProgress?> getDailyReadingProgress() async {

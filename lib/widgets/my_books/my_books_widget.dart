@@ -82,6 +82,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                     readerSessionProvider: readerSessionProvider);
               }))
           .then((value) {
+        readerSessionProvider.stop();
         setState(() {
           // refresh state
         });
@@ -119,6 +120,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                                 readerSessionProvider: readerSessionProvider);
                           }))
                       .then((value) {
+                    readerSessionProvider.stop();
                     setState(() {
                       // refresh state
                     });

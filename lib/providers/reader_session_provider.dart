@@ -4,7 +4,7 @@ import 'package:immersion_reader/providers/profile_provider.dart';
 class ReaderSessionProvider {
   late ProfileProvider profileProvider;
   late String contentType;
-  ProfileContent? currentProfileContent; 
+  ProfileContent? currentProfileContent;
 
   ReaderSessionProvider._create() {
     // print("_create() (private constructor)");
@@ -19,15 +19,14 @@ class ReaderSessionProvider {
   }
 
   void start({required String key, required String title}) {
-    bool isSameContent = currentProfileContent != null && currentProfileContent!.key == key && currentProfileContent!.title == title;
+    bool isSameContent = currentProfileContent != null &&
+        currentProfileContent!.key == key &&
+        currentProfileContent!.title == title;
     if (isSameContent) {
       return;
     }
     currentProfileContent ??= ProfileContent(
-        key: key,
-        title: title,
-        type: contentType,
-        lastOpened: DateTime.now());
+        key: key, title: title, type: contentType, lastOpened: DateTime.now());
     profileProvider.startSession(currentProfileContent!);
   }
 
