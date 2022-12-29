@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 enum ProfileSessionState { active, retired, dead }
 
 class ProfileSession {
@@ -32,7 +34,11 @@ class ProfileSession {
   }
 
   void activate() {
-    sessionState = ProfileSessionState.active;
+    if (sessionState == ProfileSessionState.dead) {
+      debugPrint("Warning: tried to bring dead profile session from the dead.");
+    } else {
+      sessionState = ProfileSessionState.active;
+    }
   }
 
   void kill() {
