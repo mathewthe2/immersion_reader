@@ -56,9 +56,9 @@ class ProfileProvider {
   }
 
   Future<void> restartSession() async {
-    if (currentSession != null && !currentSession!.active) {
+    if (currentSession != null && !currentSession!.isActive()) {
       currentSession!.durationSeconds = 0;
-      currentSession!.active = true;
+      currentSession!.activate();
       _stopCounting();
       _startCounting();
     }
@@ -66,10 +66,10 @@ class ProfileProvider {
 
   // session ended but can be restarted. accessible by switching tabs
   Future<void> endSession() async {
-    if (currentSession != null && currentSession!.active) {
+    if (currentSession != null && currentSession!.isActive()) {
       currentSession!.durationSeconds = _hearbeatCount;
       _stopCounting();
-      currentSession!.active = false;
+      currentSession!.retire();
       if (currentSession!.durationSeconds >= heartBeatThreshold) {
         await profileStorage!
             .createSession(currentSession!); // saves session to database
@@ -80,7 +80,7 @@ class ProfileProvider {
   // session is ended and cannot be restarted. requires new session
   Future<void> destroySession() async {
     await endSession();
-    currentSession = null;
+    currentSession?.kill(); // garbage collect here if necessary to save memory
   }
 
   void _startCounting() {
