@@ -9,7 +9,7 @@ class ProfileSession {
   int contentId; // id of content user engaged in
   int goalId; // id of goal
 
-  ProfileSessionState sessionState = ProfileSessionState.active;
+  ProfileSessionState _sessionState = ProfileSessionState.active;
 
   ProfileSession(
       {this.id = 0,
@@ -26,22 +26,22 @@ class ProfileSession {
       goalId: map['goalId'] as int);
 
   bool isActive() {
-    return sessionState == ProfileSessionState.active;
+    return _sessionState == ProfileSessionState.active;
   }
 
   void retire() {
-    sessionState = ProfileSessionState.retired;
+    _sessionState = ProfileSessionState.retired;
   }
 
   void activate() {
-    if (sessionState == ProfileSessionState.dead) {
+    if (_sessionState == ProfileSessionState.dead) {
       debugPrint("Warning: tried to bring dead profile session from the dead.");
     } else {
-      sessionState = ProfileSessionState.active;
+      _sessionState = ProfileSessionState.active;
     }
   }
 
   void kill() {
-    sessionState = ProfileSessionState.dead;
+    _sessionState = ProfileSessionState.dead;
   }
 }
