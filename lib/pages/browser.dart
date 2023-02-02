@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';

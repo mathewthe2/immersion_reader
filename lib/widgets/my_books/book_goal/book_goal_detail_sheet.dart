@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:immersion_reader/widgets/common/divider.dart';
 import 'package:immersion_reader/dto/profile/profile_daily_progress.dart';
 import 'package:immersion_reader/providers/profile_provider.dart';
 import 'package:immersion_reader/widgets/my_books/book_goal/book_goal_progress_widget.dart';
@@ -53,12 +53,13 @@ class _BookGoalDetailSheetState extends State<BookGoalDetailSheet> {
         profileDailyProgress: widget.profileDailyProgress,
         isShowTitle: false,
       ),
-      const SizedBox(height: 10),
+      const SizedBox(height: 30),
       Divider(
           indent: 40,
           endIndent: 40,
-          color: CupertinoColors.label.resolveFrom(context)),
-      const SizedBox(height: 20),
+          color: CupertinoColors.systemGrey3.resolveFrom(context)),
+      const SizedBox(height: 30),
+      // Text(widget.profileDailyProgress.getDayOfWeek()),
       Text(BookGoalProgressWidget.todaysReadingLabel,
           style: TextStyle(
               color: CupertinoColors.label.resolveFrom(context),

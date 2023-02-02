@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/utils/system_theme.dart';
 import 'package:transparent_image/transparent_image.dart';
-// import 'package:flutter/material.dart';
 
 class BookWidget extends StatelessWidget {
   final Book book;
