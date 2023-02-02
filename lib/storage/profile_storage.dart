@@ -1,6 +1,7 @@
 import 'package:immersion_reader/data/database/sql_repository.dart';
 import 'package:immersion_reader/data/profile/profile_content.dart';
 import 'package:immersion_reader/data/profile/profile_content_session.dart';
+import 'package:immersion_reader/data/profile/profile_daily_stats.dart';
 import 'package:immersion_reader/data/profile/profile_goal.dart';
 import 'package:immersion_reader/data/profile/profile_session.dart';
 import 'package:sqflite/sqflite.dart';
@@ -117,17 +118,36 @@ class ProfileStorage {
     }
   }
 
-  Future<List<ProfileSession>> getSessonsByGoalId(int goalId) async {
-    var rows = await database!
-        .rawQuery('SELECT * FROM Sessions WHERE goalId = ?', [goalId]);
-    if (rows.isNotEmpty) {
-      List<ProfileSession> profileSessions =
-          rows.map((row) => ProfileSession.fromMap(row)).toList();
-      return profileSessions;
+  Future<List<ProfileDailyStats>> getSessionStatsForMonth({required int month, required int year}) async {
+    String dateString = '${month < 10 ? '0' : ''}$month-$year';
+    var rows = await database!.rawQuery("""
+        SELECT startTime as date, goalId, SUM(durationSeconds) as totalSeconds
+        FROM Sessions 
+        WHERE strftime('%m-%Y', startTime) = ?
+        GROUP BY goalId
+        ORDER BY startTime DESC
+        LIMIT ?;
+        """, [dateString, sessionLimit]);
+      if (rows.isNotEmpty) {
+      List<ProfileDailyStats> profileDailyStats =
+          rows.map((row) => ProfileDailyStats.fromMap(row)).toList();
+      return profileDailyStats;
     } else {
       return [];
     }
   }
+
+  // Future<List<ProfileSession>> getSessonsByGoalId(int goalId) async {
+  //   var rows = await database!
+  //       .rawQuery('SELECT * FROM Sessions WHERE goalId = ?', [goalId]);
+  //   if (rows.isNotEmpty) {
+  //     List<ProfileSession> profileSessions =
+  //         rows.map((row) => ProfileSession.fromMap(row)).toList();
+  //     return profileSessions;
+  //   } else {
+  //     return [];
+  //   }
+  // }
 
   Future<void> setGoalSeconds(int goalId, int goalSeconds) async {
     await database!.rawUpdate(

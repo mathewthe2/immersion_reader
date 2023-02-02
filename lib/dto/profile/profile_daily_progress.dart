@@ -19,6 +19,17 @@ class ProfileDailyProgress {
         .toList();
   }
 
+  // Map<DateTime, int> getSessionPerDayMap() {
+  //   const sessionsMap = Map<DateTime, int>;
+  //   contentSessions.forEach((contentSession) {
+  //     sessionsMap[contentSession.startTime] = 
+  //   });
+  // }
+
+  String getDayOfWeek() {
+    return DateTime.now().dayOfWeek();
+  }
+
   int getGoalMinutes() {
     return goalSeconds ~/ 60;
   }

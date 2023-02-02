@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:immersion_reader/data/profile/profile_content.dart';
 import 'package:immersion_reader/data/profile/profile_content_session.dart';
+import 'package:immersion_reader/data/profile/profile_daily_stats.dart';
 import 'package:immersion_reader/data/profile/profile_goal.dart';
 import 'package:immersion_reader/data/profile/profile_session.dart';
 import 'package:immersion_reader/dto/profile/profile_daily_progress.dart';
@@ -12,7 +13,8 @@ class ProfileProvider {
   ProfileSession? currentSession; // reading session
   int _hearbeatCount = 0;
   late Timer _timer;
-  static const int heartBeatThreshold = 5; // minimum seconds of reading for a session
+  static const int heartBeatThreshold =
+      5; // minimum seconds of reading for a session
 
   ProfileProvider._create() {
     // print("_create() (private constructor)");
@@ -39,6 +41,15 @@ class ProfileProvider {
         goalId: profileGoal.id,
         goalSeconds: profileGoal.goalSeconds,
         contentSessions: sessions);
+  }
+
+  Future<List<ProfileDailyStats>> getDailyStats({required int month, required int year}) async {
+    if (profileStorage == null) {
+      return [];
+    }
+    List<ProfileDailyStats> dailyStats =
+        await profileStorage!.getSessionStatsForMonth(month: month, year:year);
+    return dailyStats;
   }
 
   Future<void> startSession(ProfileContent content) async {
