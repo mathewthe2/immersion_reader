@@ -1,5 +1,6 @@
 extension DateTimeExtension on DateTime {
   static const List<String> daysInWeek = ['', 'M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  static const List<String> daysInWeekFull = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   bool isToday() {
     DateTime now = DateTime.now();
@@ -21,4 +22,9 @@ extension DateTimeExtension on DateTime {
     }
     return daysInWeek[now.weekday];
   }
+
+  String dayInEnglish() {
+    return daysInWeekFull[weekday];
+  }
+
 }
