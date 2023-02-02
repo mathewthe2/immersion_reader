@@ -25,7 +25,7 @@ class PaymentProvider {
   static Future<PaymentProvider> create(
       SharedPreferences sharedPreferences) async {
     PaymentProvider provider = PaymentProvider._create();
-    var result = await FlutterInappPurchase.instance.initialize();
+    await FlutterInappPurchase.instance.initialize();
     provider._sharedPreferences = sharedPreferences;
     provider._conectionSubscription =
         FlutterInappPurchase.connectionUpdated.listen((connected) {

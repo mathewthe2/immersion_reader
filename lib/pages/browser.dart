@@ -58,8 +58,6 @@ class _BrowserState extends State<Browser> {
     if (widget.browserProvider == null) {
       return;
     }
-    print(widget.browserProvider!.settingsStorage!.settingsCache!.browserSetting
-        .enableAdBlock);
     if (widget.browserProvider!.settingsStorage!.settingsCache!.browserSetting
         .enableAdBlock) {
       List<String> urlFilters = widget.browserProvider!.settingsStorage!
@@ -69,7 +67,6 @@ class _BrowserState extends State<Browser> {
       contentBlockers = [];
     }
     if (webViewController != null) {
-      print(contentBlockers.length);
       webViewController!.setOptions(
           options: InAppWebViewGroupOptions(
               crossPlatform:
