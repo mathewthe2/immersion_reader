@@ -39,7 +39,8 @@ class _BookGoalDetailSheetState extends State<BookGoalDetailSheet> {
     if (selectedReadingMinutes < 1 || selectedReadingMinutes > maxMinutes) {
       return const Center(child: Text('Invalid goal minutes'));
     }
-    return Column(children: [
+    return SingleChildScrollView(
+        child: Column(children: [
       Align(
           alignment: Alignment.centerRight,
           child: Padding(
@@ -55,7 +56,7 @@ class _BookGoalDetailSheetState extends State<BookGoalDetailSheet> {
       //   isShowTitle: false,
       // ),
       Container(
-         margin: const EdgeInsets.symmetric(horizontal: 30),
+          margin: const EdgeInsets.symmetric(horizontal: 30),
           child: BookGoalHeatMap(
               profileProvider: widget.profileProvider,
               profileDailyProgress: widget.profileDailyProgress)),
@@ -116,8 +117,9 @@ class _BookGoalDetailSheetState extends State<BookGoalDetailSheet> {
                 }),
               ),
             );
-          })
-    ]);
+          }),
+      const SizedBox(height: 20)
+    ]));
   }
 
   void _showDialog(
