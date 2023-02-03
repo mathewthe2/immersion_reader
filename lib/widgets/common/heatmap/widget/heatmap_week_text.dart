@@ -27,7 +27,7 @@ class HeatMapWeekText extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        for (String label in DateUtil.WEEK_LABEL)
+        for (String label in DateUtil.weekLabel)
           Container(
             height: size ?? 20,
             margin: margin ?? const EdgeInsets.all(2.0),

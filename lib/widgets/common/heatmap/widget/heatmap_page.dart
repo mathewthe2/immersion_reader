@@ -12,7 +12,7 @@ class HeatMapPage extends StatelessWidget {
   /// List value of every sunday's month information.
   ///
   /// From 1: January to 12: December.
-  final List<int> _firstDayInfos = [];
+  final List<int> firstDayInfos = [];
 
   /// The number of days between [startDate] and [endDate].
   final int _dateDifferent;
@@ -105,7 +105,7 @@ class HeatMapPage extends StatelessWidget {
         datePos <= _dateDifferent;
         datePos += 7) {
       // Get first day of week by adding cursor's value to startDate.
-      DateTime _firstDay = DateUtil.changeDay(startDate, datePos);
+      DateTime firstDay = DateUtil.changeDay(startDate, datePos);
 
       columns.add(HeatMapColumn(
         // If last day is not saturday, week also includes future Date.
@@ -113,12 +113,12 @@ class HeatMapPage extends StatelessWidget {
         //
         // To make empty space to future day, we have to pass this HeatMapPage's
         // endDate to HeatMapColumn's endDate.
-        startDate: _firstDay,
+        startDate: firstDay,
         endDate: datePos <= _dateDifferent - 7
             ? DateUtil.changeDay(startDate, datePos + 6)
             : endDate,
         colorMode: colorMode,
-        numDays: min(endDate.difference(_firstDay).inDays + 1, 7),
+        numDays: min(endDate.difference(firstDay).inDays + 1, 7),
         size: size,
         fontSize: fontSize,
         defaultColor: defaultColor,
@@ -132,8 +132,8 @@ class HeatMapPage extends StatelessWidget {
         showText: showText,
       ));
 
-      // also add first day's month information to _firstDayInfos list.
-      _firstDayInfos.add(_firstDay.month);
+      // also add first day's month information to firstDayInfos list.
+      firstDayInfos.add(firstDay.month);
     }
 
     return columns;
@@ -158,7 +158,7 @@ class HeatMapPage extends StatelessWidget {
               children: [
                 // Show month labels to top of heatmap.
                 HeatMapMonthText(
-                  firstDayInfos: _firstDayInfos,
+                  firstDayInfos: firstDayInfos,
                   margin: margin,
                   fontSize: fontSize,
                   fontColor: textColor,
