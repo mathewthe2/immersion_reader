@@ -45,7 +45,11 @@ dependencies:
   kana_kit: ^2.0.0
   lean_file_picker: ^0.0.2
   local_assets_server: ^2.0.2+12
-  modal_bottom_sheet: ^2.1.2
+  modal_bottom_sheet:
+    git:
+      url: https://github.com/eli1stark/modal_bottom_sheet.git
+      ref: 2b3f9f84f46418c1b337968c88883995f65f47e7
+      path: modal_bottom_sheet
   path: ^1.8.2
   path_provider: ^2.0.11
   ruby_text: ^3.0.1
@@ -84,7 +88,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/defaultConfig.json
+    - assets/settings/defaultConfig.json
     - assets/japanese/data.db
     - assets/ttu-ebook-reader/
     - assets/ttu-ebook-reader/_app/
