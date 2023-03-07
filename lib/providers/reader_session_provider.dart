@@ -18,7 +18,7 @@ class ReaderSessionProvider {
     return observer;
   }
 
-  void start({required String key, required String title}) {
+  void start({required String key, required String title, int? contentLength}) async {
     bool isSameContent = currentProfileContent != null &&
         currentProfileContent!.key == key &&
         currentProfileContent!.title == title;
@@ -26,12 +26,19 @@ class ReaderSessionProvider {
       return;
     }
     currentProfileContent ??= ProfileContent(
-        key: key, title: title, type: contentType, lastOpened: DateTime.now());
-    profileProvider.startSession(currentProfileContent!);
+        key: key, title: title, type: contentType, contentLength: contentLength, lastOpened: DateTime.now());
+    int? contentId = await profileProvider.startSession(currentProfileContent!);
+    if (contentId != null) {
+      currentProfileContent!.id = contentId;
+    }
   }
 
   void stop() {
     profileProvider.destroySession();
     currentProfileContent = null;
+  }
+
+  void updateProgressOfCurrentContent(int currentPosition) {
+    profileProvider.updateProfileContentPosition(currentProfileContent!, currentPosition);
   }
 }

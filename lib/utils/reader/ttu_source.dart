@@ -89,6 +89,11 @@ class TtuSource {
           duration = position ~/ progress;
         }
       }
+      
+      int totalCharacters = 0;
+      for (dynamic section in data['sections']) {
+        totalCharacters += section['characters'] as int? ?? 0;
+      }
 
       String id = data['id'].toString();
       String title = data['title'] as String? ?? ' ';
@@ -107,6 +112,7 @@ class TtuSource {
         base64Image: base64Image,
         position: position,
         duration: duration,
+        totalCharacters: totalCharacters,
       );
     }).toList();
 

@@ -1,4 +1,5 @@
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_migration/sqflite_migration.dart';
 import 'package:immersion_reader/data/database/profile_storage_sql.dart';
 import 'package:immersion_reader/data/database/settings_storage_sql.dart';
 import 'package:immersion_reader/data/database/vocabulary_list_storage_sql.dart';
@@ -21,6 +22,15 @@ class SqlRepository {
         return _sqlStringToList(vocablaryListStorageSQLString);
       default:
         return [];
+    }
+  }
+
+  static MigrationConfig? getDatabaseConfig(String databaseName) {
+    switch (databaseName) {
+      case ProfileStorage.databaseName:
+        return MigrationConfig(initializationScript: _sqlStringToList(profileStorageSQLString), migrationScripts: profileStorageMigrations);
+      default:
+        return null;
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/book.dart';
+import 'package:immersion_reader/pages/reader/reader_stats/reader_stats_page.dart';
 import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import 'package:immersion_reader/providers/profile_provider.dart';
 import 'package:immersion_reader/providers/reader_session_provider.dart';
@@ -73,7 +74,6 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
       Navigator.of(context, rootNavigator: isFullScreen)
           .push(SwipeablePageRoute(
               canOnlySwipeFromEdge: true,
-              backGestureDetectionWidth: 25,
               builder: (context) {
                 return Reader(
                     initialUrl: mediaIdentifier,
@@ -95,6 +95,31 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
           bool isEnabledReaderFullScreen =
               snapshot.hasData ? snapshot.data! : false;
           return Column(children: [
+            Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 0, 20),
+                child: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(SwipeablePageRoute(
+                          canOnlySwipeFromEdge: true,
+                          backGestureDetectionWidth: 25,
+                          builder: (context) {
+                            return ReaderStatsPage(profileProvider: widget.profileProvider);
+                          }));
+                    },
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            'View Stats',
+                            style: TextStyle(
+                                color:
+                                    CupertinoColors.label.resolveFrom(context)),
+                          ),
+                          const Icon(
+                              size: 18,
+                              CupertinoIcons.forward,
+                              color: CupertinoColors.inactiveGray),
+                        ]))),
             BookGoalWidget(
                 profileProvider: widget.profileProvider,
                 onTapBook: (String mediaIdentifier) => navigateToBook(

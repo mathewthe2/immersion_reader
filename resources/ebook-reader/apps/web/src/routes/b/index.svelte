@@ -124,6 +124,7 @@
       console.log(JSON.stringify({
         "bookId": rawBookData.id,
 				"title": rawBookData.title,
+        'bookCharCount': rawBookData.sections ? rawBookData.sections.reduce((sum, section) => sum + (section.characters || 0), 0) : null,
 				"message-type": "load-book"
 			}));
     }),

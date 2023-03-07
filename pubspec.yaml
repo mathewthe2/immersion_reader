@@ -62,6 +62,8 @@ dependencies:
   transparent_image: ^2.0.0
   flutter_inapp_purchase: ^5.3.1
   sleek_circular_slider: ^2.0.1
+  sqflite_migration: ^0.3.0
+  timeago: ^3.4.0
   
 
 dev_dependencies:

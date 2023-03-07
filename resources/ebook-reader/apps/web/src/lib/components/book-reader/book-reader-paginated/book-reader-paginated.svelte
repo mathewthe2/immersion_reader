@@ -228,7 +228,7 @@
     if (isUser) {
       previousIntendedCount = exploredCharCount;
     }
-
+    notifyProgressToImmersionReader(exploredCharCount);
     bookmarkData.then(updateBookmarkScreen);
   });
 
@@ -296,6 +296,14 @@
     calculator.updateCurrentSection(sectionIndex$.getValue());
     dispatch('contentChange', scrollEl);
   }
+
+  function notifyProgressToImmersionReader(exploredCharCount: number) {
+    console.log(JSON.stringify({
+        'exploredCharCount': exploredCharCount,
+				"message-type": "content-display-change"
+			}));
+  }
+
 
   function onContentDisplayChange(_calculator: SectionCharacterStatsCalculator) {
     _calculator.updateParagraphPos();

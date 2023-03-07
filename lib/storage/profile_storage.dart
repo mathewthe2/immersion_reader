@@ -1,10 +1,12 @@
 import 'package:immersion_reader/data/database/sql_repository.dart';
 import 'package:immersion_reader/data/profile/profile_content.dart';
 import 'package:immersion_reader/data/profile/profile_content_session.dart';
+import 'package:immersion_reader/data/profile/profile_content_stats.dart';
 import 'package:immersion_reader/data/profile/profile_daily_stats.dart';
 import 'package:immersion_reader/data/profile/profile_goal.dart';
 import 'package:immersion_reader/data/profile/profile_session.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_migration/sqflite_migration.dart';
 import 'package:path/path.dart' as p;
 import 'dart:io';
 
@@ -29,16 +31,9 @@ class ProfileStorage {
     // delete existing if any
     // await deleteDatabase(path);
 
-    // opening the database
-    storage.database =
-        await openDatabase(path, version: 1, onCreate: _onCreateStorageData);
+    storage.database = await openDatabaseWithMigration(
+        path, SqlRepository.getDatabaseConfig(ProfileStorage.databaseName)!);
     return storage;
-  }
-
-  static Future<void> _onCreateStorageData(Database db, int version) async {
-    Batch batch = await SqlRepository.insertTablesForDatabase(
-        db, ProfileStorage.databaseName);
-    await batch.commit();
   }
 
   Future<int> getContentIdElseCreate(ProfileContent content) async {
@@ -46,11 +41,29 @@ class ProfileStorage {
         'SELECT * FROM Content WHERE key = ? AND title = ? LIMIT 1;',
         [content.key.trim(), content.title.trim()]);
     if (rows.isNotEmpty) {
-      ProfileContent profileContent = ProfileContent.fromMap(rows.first);
-      return profileContent.id;
+      ProfileContent oldContent = ProfileContent.fromMap(rows.first);
+      await updateContentInDB(oldContent, content);
+      return oldContent.id;
     } else {
       return _createContent(content);
     }
+  }
+
+  Future<void> updateContentInDB(
+      ProfileContent oldContent, ProfileContent newContent) async {
+    await database!.rawUpdate(
+        'UPDATE Content SET contentLength = ?, lastOpened = ? WHERE id = ?', [
+      newContent.contentLength,
+      newContent.lastOpened.toIso8601String(),
+      oldContent.id
+    ]);
+  }
+
+  Future<void> updateContentCurrentPosition(
+      ProfileContent content, int position) async {
+    await database!.rawUpdate(
+        'UPDATE Content SET currentPosition = ? WHERE id = ?',
+        [position, content.id]);
   }
 
   Future<int> _createContent(ProfileContent content) async {
@@ -103,7 +116,7 @@ class ProfileStorage {
 
   Future<List<ProfileContentSession>> getContentSessions() async {
     var rows = await database!.rawQuery("""
-      SELECT Content.id as 'contentId', Content.key as 'contentKey', Content.title, Content.type, Sessions.startTime, Sessions.durationSeconds
+      SELECT Content.id as 'contentId', Content.key as 'contentKey', Content.contentLength as 'contentLength', Content.title, Content.type, Sessions.startTime, Sessions.durationSeconds
       FROM Sessions
       INNER JOIN Content ON Content.id = Sessions.contentId
       ORDER BY Sessions.startTime DESC
@@ -118,7 +131,8 @@ class ProfileStorage {
     }
   }
 
-  Future<List<ProfileDailyStats>> getSessionStatsForMonth({required int month, required int year}) async {
+  Future<List<ProfileDailyStats>> getSessionStatsForMonth(
+      {required int month, required int year}) async {
     String dateString = '${month < 10 ? '0' : ''}$month-$year';
     var rows = await database!.rawQuery("""
         SELECT startTime as date, goalId, SUM(durationSeconds) as totalSeconds
@@ -128,10 +142,28 @@ class ProfileStorage {
         ORDER BY startTime DESC
         LIMIT ?;
         """, [dateString, sessionLimit]);
-      if (rows.isNotEmpty) {
+    if (rows.isNotEmpty) {
       List<ProfileDailyStats> profileDailyStats =
           rows.map((row) => ProfileDailyStats.fromMap(row)).toList();
       return profileDailyStats;
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<ProfileContentStats>> getProfileContentStats() async {
+    var rows = await database!.rawQuery("""
+        SELECT Content.id, Content.key, Content.title, Content.contentLength, Content.currentPosition, Content.lastOpened, Content.type, SUM(Sessions.durationSeconds) as totalSeconds
+        FROM Sessions
+        INNER JOIN Content ON Content.id = Sessions.contentId
+        GROUP BY contentId
+        ORDER BY Sessions.startTime DESC
+        LIMIT ?;
+        """, [sessionLimit]);
+    if (rows.isNotEmpty) {
+      List<ProfileContentStats> profileContentStats =
+          rows.map((row) => ProfileContentStats.fromMap(row)).toList();
+      return profileContentStats;
     } else {
       return [];
     }

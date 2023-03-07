@@ -6,3 +6,10 @@ const String profileStorageSQLString = '''
   CREATE INDEX index_Content_key ON Content(key)
   CREATE INDEX index_Content_title ON Content(key)
   CREATE INDEX index_Content_lastOpened ON Content(lastOpened)''';
+
+const List<String> profileStorageMigrations = [
+  'ALTER TABLE Content ADD COLUMN contentLength INTEGER',
+  'ALTER TABLE Content ADD COLUMN completedDate TEXT',
+  'ALTER TABLE Sessions ADD COLUMN progressCount INTEGER',
+  'ALTER TABLE Content ADD COLUMN currentPosition INTEGER',
+];

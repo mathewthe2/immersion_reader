@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:immersion_reader/data/profile/profile_content.dart';
 import 'package:immersion_reader/data/profile/profile_content_session.dart';
+import 'package:immersion_reader/data/profile/profile_content_stats.dart';
 import 'package:immersion_reader/data/profile/profile_daily_stats.dart';
 import 'package:immersion_reader/data/profile/profile_goal.dart';
 import 'package:immersion_reader/data/profile/profile_session.dart';
@@ -52,9 +53,25 @@ class ProfileProvider {
     return dailyStats;
   }
 
-  Future<void> startSession(ProfileContent content) async {
+  Future<List<ProfileContentStats>> getProfileContentStats() async {
     if (profileStorage == null) {
-      return;
+      return [];
+    }
+     List<ProfileContentStats> profileContentStats =
+        await profileStorage!.getProfileContentStats();
+    return profileContentStats;
+  }
+
+  Future<void> updateProfileContentPosition(ProfileContent content, int position) async {
+    await profileStorage!.updateContentCurrentPosition(content, position);
+  }
+
+  // Create or get content in database
+  // Start counting heartbeats
+  // Return content id
+  Future<int?> startSession(ProfileContent content) async {
+    if (profileStorage == null) {
+      return null;
     }
     int contentId = await profileStorage!.getContentIdElseCreate(content);
     int goalId = await profileStorage!.getGoalIdElseCreate();
@@ -64,6 +81,7 @@ class ProfileProvider {
       _startCounting();
     }
     currentSession = createEmptySession(contentId: contentId, goalId: goalId);
+    return contentId;
   }
 
   Future<void> restartSession() async {

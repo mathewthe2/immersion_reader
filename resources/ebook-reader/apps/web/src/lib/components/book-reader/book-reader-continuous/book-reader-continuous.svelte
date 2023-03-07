@@ -235,13 +235,19 @@
       pageManagerConcrete.scrollTo(scrollPos);
     });
 
+  function notifyProgressToImmersionReader(exploredCharCount: number) {
+    console.log(JSON.stringify({
+        'exploredCharCount': exploredCharCount,
+				"message-type": "content-display-change"
+			}));
+  }
+
   function onContentDisplayChange(_calculator: CharacterStatsCalculator) {
     _calculator.updateParagraphPos();
     exploredCharCount = _calculator.calcExploredCharCount();
 
     if (scrollWhenReady) {
       scrollWhenReady = false;
-
       bookmarkData
         .then((data) => {
           if (!data || !bookmarkManager) {
@@ -339,6 +345,7 @@
       if (!calculator) return;
 
       exploredCharCount = calculator.calcExploredCharCount();
+      notifyProgressToImmersionReader(exploredCharCount);
       if (!isResizeScroll) {
         prevIntendedCharCount = exploredCharCount;
       }

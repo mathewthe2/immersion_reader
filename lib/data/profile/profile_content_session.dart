@@ -2,6 +2,7 @@
 class ProfileContentSession {
   int contentId;
   String contentKey;
+  int? contentLength;
   String type;
   String title;
   DateTime startTime;
@@ -10,6 +11,7 @@ class ProfileContentSession {
   ProfileContentSession(
       {required this.contentId,
       required this.contentKey,
+      this.contentLength,
       required this.type,
       required this.title,
       required this.startTime,
@@ -19,6 +21,7 @@ class ProfileContentSession {
       ProfileContentSession(
           contentId: map['contentId'] as int,
           contentKey: map['contentKey'] as String,
+          contentLength: map['contentLength'] as int?,
           startTime: DateTime.parse(map['startTime'] as String),
           durationSeconds: map['durationSeconds'] as int,
           title: map['title'] as String,

@@ -1,0 +1,36 @@
+import 'package:immersion_reader/data/profile/profile_content.dart';
+
+class ProfileContentStats {
+  ProfileContent profileContent;
+  int totalSeconds;
+  static String unknownValue = '???';
+
+  ProfileContentStats(
+      {required this.profileContent, required this.totalSeconds});
+
+  factory ProfileContentStats.fromMap(Map<String, Object?> map) =>
+      ProfileContentStats(
+          profileContent: ProfileContent.fromMap(map),
+          totalSeconds: map['totalSeconds'] as int);
+
+  static String _getValue(dynamic value) {
+    return value == null ? unknownValue : value.toString();
+  }
+
+  String charactersReadPerSecond() {
+    if (profileContent.currentPosition == null) {
+      return unknownValue;
+    } else {
+      return (profileContent.currentPosition! / totalSeconds)
+          .toStringAsFixed(2);
+    }
+  }
+
+  String charactersReadOverTotal() {
+    return '${_getValue(profileContent.currentPosition)} / ${_getValue(profileContent.contentLength)}';
+  }
+
+  // int? estimatedSecondsToFinish() {
+
+  // }
+}

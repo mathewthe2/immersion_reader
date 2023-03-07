@@ -12,6 +12,7 @@ class Book {
   String? mediaIdentifier;
   int? position;
   int? duration;
+  int? totalCharacters;
   Book(
       {required this.title,
       this.base64Image,
@@ -20,7 +21,8 @@ class Book {
       this.authorIdentifier,
       this.mediaIdentifier,
       this.position,
-      this.duration});
+      this.duration,
+      this.totalCharacters});
 
   String get uniqueKey => '$title/$authorIdentifier';
 

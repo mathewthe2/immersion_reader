@@ -79,8 +79,11 @@ class MessageController {
               {
                 int bookId = messageJson['bookId'];
                 String title = messageJson['title'];
+                int? totalCharacters = messageJson['bookCharCount'];
                 readerSessionProvider?.start(
-                    key: bookId.toString(), title: title);
+                    key: bookId.toString(),
+                    title: title,
+                    contentLength: totalCharacters);
                 isReadingBook = true;
                 break;
               }
@@ -90,6 +93,13 @@ class MessageController {
                 isReadingBook = false;
                 break;
               }
+            case 'content-display-change':
+            {
+              int? readCharacters = messageJson['exploredCharCount'];
+              if (readCharacters != null) {
+                  readerSessionProvider?.updateProgressOfCurrentContent(readCharacters);
+              }
+            }
           }
         }
     }
