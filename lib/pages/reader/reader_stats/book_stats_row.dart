@@ -41,8 +41,10 @@ class BookStatsRow extends StatelessWidget {
                         contentStats.charactersReadOverTotal()),
                     statsRow('Reading speed',
                         '${contentStats.charactersReadPerSecond()} char/s'),
-                           statsRow('Last read',
+                    statsRow('Last read',
                         timeago.format(contentStats.profileContent.lastOpened)),
+                    statsRow('Vocabulary mined',
+                        contentStats.profileContent.vocabularyMined.toString()),
                   ],
                 ))
           ])),

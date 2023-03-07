@@ -12,4 +12,5 @@ const List<String> profileStorageMigrations = [
   'ALTER TABLE Content ADD COLUMN completedDate TEXT',
   'ALTER TABLE Sessions ADD COLUMN progressCount INTEGER',
   'ALTER TABLE Content ADD COLUMN currentPosition INTEGER',
+  'ALTER TABLE Content ADD COLUMN vocabularyMined INTEGER DEFAULT 0',
 ];

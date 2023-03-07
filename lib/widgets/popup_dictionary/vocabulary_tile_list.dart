@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
+import 'package:immersion_reader/providers/profile_provider.dart';
 import 'package:immersion_reader/widgets/vocabulary/frequency_widget.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_definition.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_tile.dart';
@@ -13,6 +14,7 @@ class VocabularyTileList extends StatefulWidget {
   final List<Vocabulary> vocabularyList;
   final PopupDictionaryThemeData popupDictionaryThemeData;
   final VocabularyListStorage? vocabularyListStorage;
+  final ProfileProvider? profileProvider;
   final DictionaryProvider dictionaryProvider;
   final String text;
   final int targetIndex;
@@ -22,6 +24,7 @@ class VocabularyTileList extends StatefulWidget {
       required this.popupDictionaryThemeData,
       required this.targetIndex,
       required this.dictionaryProvider,
+      this.profileProvider,
       required this.vocabularyList,
       required this.vocabularyListStorage});
 
@@ -55,10 +58,16 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
         // remove vocabulary
         await widget.vocabularyListStorage!
             .deleteVocabularyItem(vocabulary.getIdentifier());
+        if (widget.profileProvider != null) {
+          widget.profileProvider!.decrementVocabularyMined();
+        }
         existingVocabularyIds.remove(vocabulary.getIdentifier());
       } else {
         // add vocabulary
         await widget.vocabularyListStorage!.addVocabularyItem(vocabulary);
+           if (widget.profileProvider != null) {
+          widget.profileProvider!.incrementVocabularyMined();
+        }
         existingVocabularyIds.add(vocabulary.getIdentifier());
       }
       setState(() {});

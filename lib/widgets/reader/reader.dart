@@ -41,6 +41,7 @@ class _ReaderState extends State<Reader> {
     vocabularyListStorage = await VocabularyListStorage.create();
     popupDictionary = PopupDictionary(
         parentContext: context,
+        profileProvider: widget.readerSessionProvider.profileProvider,
         vocabularyListStorage: vocabularyListStorage!,
         dictionaryProvider: widget.dictionaryProvider);
     messageController = MessageController(

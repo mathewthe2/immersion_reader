@@ -42,14 +42,14 @@ class ProfileStorage {
         [content.key.trim(), content.title.trim()]);
     if (rows.isNotEmpty) {
       ProfileContent oldContent = ProfileContent.fromMap(rows.first);
-      await updateContentInDB(oldContent, content);
+      await updateContentOnLaunch(oldContent, content);
       return oldContent.id;
     } else {
       return _createContent(content);
     }
   }
 
-  Future<void> updateContentInDB(
+  Future<void> updateContentOnLaunch(
       ProfileContent oldContent, ProfileContent newContent) async {
     await database!.rawUpdate(
         'UPDATE Content SET contentLength = ?, lastOpened = ? WHERE id = ?', [
@@ -59,11 +59,17 @@ class ProfileStorage {
     ]);
   }
 
-  Future<void> updateContentCurrentPosition(
-      ProfileContent content, int position) async {
+  Future<void> updateContentVocabularyMined(
+      int contentId, int difference) async {
+    await database!.rawUpdate(
+        'UPDATE Content SET vocabularyMined = vocabularyMined + ? WHERE id = ? ${difference < 0 ? 'AND vocabularyMined > 0' : ''}',
+        [difference, contentId]);
+  }
+
+  Future<void> updateContentCurrentPosition(int contentId, int position) async {
     await database!.rawUpdate(
         'UPDATE Content SET currentPosition = ? WHERE id = ?',
-        [position, content.id]);
+        [position, contentId]);
   }
 
   Future<int> _createContent(ProfileContent content) async {
@@ -153,7 +159,9 @@ class ProfileStorage {
 
   Future<List<ProfileContentStats>> getProfileContentStats() async {
     var rows = await database!.rawQuery("""
-        SELECT Content.id, Content.key, Content.title, Content.contentLength, Content.currentPosition, Content.lastOpened, Content.type, SUM(Sessions.durationSeconds) as totalSeconds
+        SELECT Content.id, Content.key, Content.title, 
+        Content.contentLength, Content.currentPosition, Content.vocabularyMined,
+        Content.lastOpened, Content.type, SUM(Sessions.durationSeconds) as totalSeconds
         FROM Sessions
         INNER JOIN Content ON Content.id = Sessions.contentId
         GROUP BY contentId

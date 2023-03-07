@@ -44,12 +44,13 @@ class ProfileProvider {
         contentSessions: sessions);
   }
 
-  Future<List<ProfileDailyStats>> getDailyStats({required int month, required int year}) async {
+  Future<List<ProfileDailyStats>> getDailyStats(
+      {required int month, required int year}) async {
     if (profileStorage == null) {
       return [];
     }
     List<ProfileDailyStats> dailyStats =
-        await profileStorage!.getSessionStatsForMonth(month: month, year:year);
+        await profileStorage!.getSessionStatsForMonth(month: month, year: year);
     return dailyStats;
   }
 
@@ -57,13 +58,28 @@ class ProfileProvider {
     if (profileStorage == null) {
       return [];
     }
-     List<ProfileContentStats> profileContentStats =
+    List<ProfileContentStats> profileContentStats =
         await profileStorage!.getProfileContentStats();
     return profileContentStats;
   }
 
-  Future<void> updateProfileContentPosition(ProfileContent content, int position) async {
-    await profileStorage!.updateContentCurrentPosition(content, position);
+  Future<void> updateProfileContentPosition(
+      ProfileContent content, int position) async {
+    await profileStorage!.updateContentCurrentPosition(content.id, position);
+  }
+
+  Future<void> incrementVocabularyMined() async {
+    if (currentSession != null) {
+      await profileStorage!
+          .updateContentVocabularyMined(currentSession!.contentId, 1);
+    }
+  }
+
+  Future<void> decrementVocabularyMined() async {
+    if (currentSession != null) {
+      await profileStorage!
+          .updateContentVocabularyMined(currentSession!.contentId, -1);
+    }
   }
 
   // Create or get content in database
