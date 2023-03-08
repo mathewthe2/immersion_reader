@@ -63,6 +63,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   Future<void> setupApp() async {
     await setupProviders();
+    LocalAssetsServerManager.create();
     await startLocalAssetsServer();
   }
 
@@ -82,27 +83,20 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   }
 
   Future<void> startLocalAssetsServer() async {
-    await LocalAssetsServerManager().server!.serve();
+    await LocalAssetsServerManager().start();
     setState(() {
       isLocalAssetsServerReady = true;
     });
   }
 
-  Future<void> stopLocalAssetsServer() async {
-    await LocalAssetsServerManager().server!.stop();
-    setState(() {
-      isLocalAssetsServerReady = true;
-    });
-  }
-
-  Future<void> handleAppResume() async {
-    startLocalAssetsServer();
+  void handleAppResume() {
     ProfileManager().restartSession();
+    LocalAssetsServerManager().start();
   }
 
-  Future<void> handleAppSleep() async {
-    stopLocalAssetsServer();
+  void handleAppSleep() {
     ProfileManager().endSession();
+    LocalAssetsServerManager().stop();
   }
 
   @override

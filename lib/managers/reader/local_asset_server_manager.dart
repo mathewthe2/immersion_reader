@@ -1,5 +1,6 @@
 import 'package:local_assets_server/local_assets_server.dart';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 class LocalAssetsServerManager {
   LocalAssetsServer? server;
@@ -10,7 +11,8 @@ class LocalAssetsServerManager {
 
   static final LocalAssetsServerManager _singleton =
       LocalAssetsServerManager._internal();
-  factory LocalAssetsServerManager() {
+  factory LocalAssetsServerManager() => _singleton;
+  factory LocalAssetsServerManager.create() {  // create has to be called first to init server
     _singleton.server = LocalAssetsServer(
       address: InternetAddress.loopbackIPv4,
       assetsBasePath: 'assets/ttu-ebook-reader',
@@ -20,4 +22,17 @@ class LocalAssetsServerManager {
     return _singleton;
   }
   LocalAssetsServerManager._internal();
+
+  Future<void> start() async {
+    try {
+      await server?.serve();
+    } catch (e) {
+      debugPrint(
+          'Failed to serve. Error: ${e.toString()}'); // may occur if port is already binded
+    }
+  }
+
+  Future<void> stop() async {
+    await server?.stop();
+  }
 }
