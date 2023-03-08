@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/providers/profile_provider.dart';
-import 'package:immersion_reader/utils/dictionary/dictionary_manager.dart';
+import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/widgets/vocabulary/frequency_widget.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_definition.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_tile.dart';

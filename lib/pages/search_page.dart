@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/search/search_result.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
-import 'package:immersion_reader/utils/dictionary/dictionary_manager.dart';
+import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/widgets/search/search_results_section.dart';
 
 class SearchPage extends StatefulWidget {

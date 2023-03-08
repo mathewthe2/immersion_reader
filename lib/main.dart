@@ -6,7 +6,7 @@ import 'package:immersion_reader/pages/reader/reader_page.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
 import 'package:immersion_reader/providers/profile_provider.dart';
-import 'package:immersion_reader/utils/dictionary/dictionary_manager.dart';
+import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/utils/reader/local_asset_server_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
