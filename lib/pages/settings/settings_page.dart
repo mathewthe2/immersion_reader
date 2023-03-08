@@ -1,15 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:immersion_reader/pages/settings/about/about_page.dart';
-import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/widgets/settings/dictionary_settings.dart';
 import 'package:immersion_reader/widgets/settings/appearance_settings.dart';
 
 class SettingsPage extends StatefulWidget {
-  final SettingsProvider? settingsProvider;
   const SettingsPage(
-      {super.key,
-      required this.settingsProvider});
+      {super.key});
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -39,8 +36,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         onTap: () => {
                           Navigator.push(context,
                               SwipeablePageRoute(builder: (context) {
-                            return AppearanceSettings(
-                                settingsProvider: widget.settingsProvider!);
+                            return const AppearanceSettings();
                           }))
                         },
                         leading: Container(

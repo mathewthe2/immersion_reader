@@ -1,16 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import "package:immersion_reader/extensions/string_extension.dart";
-import 'package:immersion_reader/providers/settings_provider.dart';
+import 'package:immersion_reader/managers/settings/settings_manager.dart';
 
 class PopupDictionaryThemeSettings extends StatefulWidget {
   final String popupDictionaryThemeString;
-  final SettingsProvider settingsProvider;
   final ValueNotifier popupDictionaryThemeValueNotifier;
   const PopupDictionaryThemeSettings(
       {super.key,
       required this.popupDictionaryThemeString,
-      required this.settingsProvider,
       required this.popupDictionaryThemeValueNotifier});
 
   @override
@@ -42,7 +40,7 @@ class _PopupDictionaryThemeSettingsState
                     setState(() {
                       popupDictionaryThemeString = theme.name;
                     });
-                    await widget.settingsProvider
+                    await SettingsManager()
                         .updatePopupDictionaryTheme(theme);
                     widget.popupDictionaryThemeValueNotifier.value =
                         !widget.popupDictionaryThemeValueNotifier.value;

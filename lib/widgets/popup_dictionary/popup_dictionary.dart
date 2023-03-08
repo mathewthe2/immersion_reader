@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
+import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
-import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_tile_list.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -23,11 +23,11 @@ class PopupDictionary {
       index += 1;
     }
     PopupDictionaryTheme popupDictionaryTheme =
-        await DictionaryManager().settingsProvider!.getPopupDictionaryTheme();
+        await SettingsManager().getPopupDictionaryTheme();
     PopupDictionaryThemeData popupDictionaryThemeData =
         PopupDictionaryThemeData(popupDictionaryTheme: popupDictionaryTheme);
     bool enableSlideAnimation =
-        await DictionaryManager().settingsProvider!.getIsEnabledSlideAnimation();
+        await SettingsManager().getIsEnabledSlideAnimation();
     showCupertinoModalBottomSheet<void>(
         duration: Duration(milliseconds: enableSlideAnimation ? 400 : 0),
         context: parentContext,

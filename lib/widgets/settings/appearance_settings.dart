@@ -1,14 +1,13 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/widgets/settings/popup_dictionary_theme_settings.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import "package:immersion_reader/extensions/string_extension.dart";
-import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/widgets/settings/pitch_accent_style_settings.dart';
 
 class AppearanceSettings extends StatefulWidget {
-  final SettingsProvider settingsProvider;
 
-  const AppearanceSettings({super.key, required this.settingsProvider});
+  const AppearanceSettings({super.key});
 
   @override
   State<AppearanceSettings> createState() => _AppearanceSettingsState();
@@ -39,9 +38,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                       return PopupDictionaryThemeSettings(
                           popupDictionaryThemeValueNotifier:
                               _popupDictionaryThemeValueNotifier,
-                          settingsProvider: widget.settingsProvider,
-                          popupDictionaryThemeString: widget
-                              .settingsProvider
+                          popupDictionaryThemeString: SettingsManager()
                               .settingsStorage!
                               .settingsCache!
                               .appearanceSetting
@@ -50,8 +47,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                   },
                   additionalInfo: ValueListenableBuilder(
                       valueListenable: _popupDictionaryThemeValueNotifier,
-                      builder: (context, val, child) => Text(widget
-                          .settingsProvider
+                      builder: (context, val, child) => Text(SettingsManager()
                           .settingsStorage!
                           .settingsCache!
                           .appearanceSetting
@@ -65,9 +61,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                         SwipeablePageRoute(builder: (context) {
                       return PitchAccentStyleSettings(
                           pitchAccentValueNotifier: _pitchAccentValueNotifier,
-                          settingsProvider: widget.settingsProvider,
-                          pitchAccentStyleString: widget
-                              .settingsProvider
+                          pitchAccentStyleString: SettingsManager()
                               .settingsStorage!
                               .settingsCache!
                               .appearanceSetting
@@ -76,8 +70,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                   },
                   additionalInfo: ValueListenableBuilder(
                       valueListenable: _pitchAccentValueNotifier,
-                      builder: (context, val, child) => Text(widget
-                          .settingsProvider
+                      builder: (context, val, child) => Text(SettingsManager()
                           .settingsStorage!
                           .settingsCache!
                           .appearanceSetting
@@ -88,21 +81,20 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                   title: const Text('Show Frequency Tags'),
                   trailing: CupertinoSwitch(
                       onChanged: (bool? value) {
-                        widget.settingsProvider.toggleShowFrequencyTags(value!);
+                      SettingsManager().toggleShowFrequencyTags(value!);
                         setState(() {});
                       },
-                      value: widget.settingsProvider.settingsStorage!
+                      value: SettingsManager().settingsStorage!
                           .settingsCache!.appearanceSetting.showFrequencyTags)),
               CupertinoListTile(
                   title: const Text('Enable Slide Animation'),
                   trailing: CupertinoSwitch(
                       onChanged: (bool? value) {
-                        widget.settingsProvider
+                       SettingsManager()
                             .toggleEnableSlideAnimation(value!);
                         setState(() {});
                       },
-                      value: widget
-                          .settingsProvider
+                      value: SettingsManager()
                           .settingsStorage!
                           .settingsCache!
                           .appearanceSetting
@@ -120,9 +112,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                         return PopupDictionaryThemeSettings(
                             popupDictionaryThemeValueNotifier:
                                 _popupDictionaryThemeValueNotifier,
-                            settingsProvider: widget.settingsProvider,
-                            popupDictionaryThemeString: widget
-                                .settingsProvider
+                            popupDictionaryThemeString: SettingsManager()
                                 .settingsStorage!
                                 .settingsCache!
                                 .appearanceSetting
@@ -131,12 +121,11 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                     },
                     trailing: CupertinoSwitch(
                         onChanged: (bool? value) {
-                          widget.settingsProvider
+                         SettingsManager()
                               .toggleEnableReaderFullScreen(value!);
                           setState(() {});
                         },
-                        value: widget
-                            .settingsProvider
+                        value: SettingsManager()
                             .settingsStorage!
                             .settingsCache!
                             .appearanceSetting

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
+import 'package:immersion_reader/managers/settings/settings_manager.dart';
 // import 'package:immersion_reader/pages/browser.dart';
 import 'package:immersion_reader/pages/discover.dart';
 import 'package:immersion_reader/pages/reader/reader_page.dart';
@@ -10,7 +11,6 @@ import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/storage/profile_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
 import 'pages/settings/settings_page.dart';
@@ -38,7 +38,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   BrowserProvider? browserProvider;
   ProfileStorage? _profileStorage;
   SettingsStorage? _settingsStorage;
-  SettingsProvider? settingsProvider;
   PaymentProvider? paymentProvider;
   bool isLocalAssetsServerReady = false;
   bool isProvidersReady = false;
@@ -75,8 +74,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     _profileStorage = await ProfileStorage.create();
     ProfileManager.createProfile(_profileStorage!);
     browserProvider = await BrowserProvider.create(_settingsStorage!);
-    settingsProvider = SettingsProvider.create(_settingsStorage!);
-    DictionaryManager.createDictionary(settingsProvider!);
+    SettingsManager.createSettings(_settingsStorage!);
+    DictionaryManager.createDictionary(_settingsStorage!);
     setState(() {
       isProvidersReady = true;
     });
@@ -182,8 +181,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
           sharedPreferences: sharedPreferences!),
       ReaderPage(
           browserProvider: browserProvider,
-          paymentProvider: paymentProvider!,
-          settingsProvider: settingsProvider!),
+          paymentProvider: paymentProvider!),
       //  Browser(
       //     browserProvider: browserProvider,
       //     dictionaryProvider: dictionaryProvider!),
@@ -193,7 +191,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
               vocabularyListProvider: vocabularyListProvider!,
               notifier: _notifier)),
       const SearchPage(),
-      SettingsPage(settingsProvider: settingsProvider)
+      const SettingsPage()
     ];
     return viewWidgets[index];
   }

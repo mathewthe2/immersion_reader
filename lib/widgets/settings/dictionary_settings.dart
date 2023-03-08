@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
+import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:lean_file_picker/lean_file_picker.dart';
 import 'package:immersion_reader/data/settings/dictionary_setting.dart';
 import 'package:immersion_reader/dictionary/dictionary_parser.dart';
@@ -36,8 +37,7 @@ class _DictionarySettingsState extends State<DictionarySettings> {
       });
       File zipFile = File(file.path);
       UserDictionary userDictionary = await parseDictionary(zipFile);
-      await DictionaryManager()
-          .settingsProvider!
+      await SettingsManager()
           .settingsStorage!
           .addDictionary(userDictionary);
       setState(() {
@@ -53,8 +53,7 @@ class _DictionarySettingsState extends State<DictionarySettings> {
     setState(() {
       isProcessingDictionary = true;
     });
-    await DictionaryManager()
-        .settingsProvider!
+    await SettingsManager()
         .settingsStorage!
         .removeDictionary(dictionaryId);
     setState(() {
@@ -90,8 +89,7 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                   : const Text('Edit')),
         ),
         child: FutureBuilder<List<DictionarySetting>>(
-            future: DictionaryManager()
-                .settingsProvider!
+            future: SettingsManager()
                 .settingsStorage!
                 .getDictionarySettings(),
             builder: (context, snapshot) {

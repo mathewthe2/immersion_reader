@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
+import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/pages/reader/reader_stats_page.dart';
-import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/widgets/my_books/book_goal/book_goal_widget.dart';
 import 'package:immersion_reader/widgets/reader/reader.dart';
@@ -12,11 +12,9 @@ import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MyBooksWidget extends StatefulWidget {
-  final SettingsProvider settingsProvider;
   static const String contentType = 'book';
   const MyBooksWidget(
-      {super.key,
-      required this.settingsProvider});
+      {super.key});
 
   @override
   State<MyBooksWidget> createState() => _MyBooksWidgetState();
@@ -58,7 +56,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
   @override
   Widget build(BuildContext context) {
     ReaderSessionManager.createSession(MyBooksWidget.contentType);
-    // bool rootNavigator = widget.settingsProvider.getIsEnabledReaderFullScreen();
+    // bool rootNavigator = SettingsManager().getIsEnabledReaderFullScreen();
     void navigateToBook(
         {required String mediaIdentifier, bool isFullScreen = false}) {
       Navigator.of(context, rootNavigator: isFullScreen)
@@ -78,7 +76,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
     }
 
     return FutureBuilder<bool>(
-        future: widget.settingsProvider.getIsEnabledReaderFullScreen(),
+        future: SettingsManager().getIsEnabledReaderFullScreen(),
         builder: ((context, snapshot) {
           bool isEnabledReaderFullScreen =
               snapshot.hasData ? snapshot.data! : false;

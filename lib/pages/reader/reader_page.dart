@@ -1,19 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
-import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/widgets/my_books/browser_catalog.dart';
 import 'package:immersion_reader/widgets/my_books/my_books_widget.dart';
 
 class ReaderPage extends StatefulWidget {
   final BrowserProvider? browserProvider;
   final PaymentProvider paymentProvider;
-  final SettingsProvider settingsProvider;
   const ReaderPage(
       {super.key,
       required this.browserProvider,
-      required this.paymentProvider,
-      required this.settingsProvider});
+      required this.paymentProvider});
 
   @override
   State<ReaderPage> createState() => _ReaderPageState();
@@ -41,8 +38,7 @@ class _ReaderPageState extends State<ReaderPage> {
                       child: SingleChildScrollView(
                           child: Column(children: [
                     const SizedBox(height: 20),
-                    MyBooksWidget(
-                        settingsProvider: widget.settingsProvider),
+                    const MyBooksWidget(),
                     // GestureDetector(onTap: ()=>_requestPurchase("immersion_reader_plus"), )
                     BrowserCatalog(
                         paymentProvider: widget.paymentProvider,

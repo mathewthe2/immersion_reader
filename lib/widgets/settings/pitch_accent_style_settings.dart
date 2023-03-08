@@ -1,16 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import "package:immersion_reader/extensions/string_extension.dart";
-import 'package:immersion_reader/providers/settings_provider.dart';
+import 'package:immersion_reader/managers/settings/settings_manager.dart';
 
 class PitchAccentStyleSettings extends StatefulWidget {
   final String pitchAccentStyleString;
-  final SettingsProvider settingsProvider;
   final ValueNotifier pitchAccentValueNotifier;
   const PitchAccentStyleSettings(
       {super.key,
       required this.pitchAccentStyleString,
-      required this.settingsProvider,
       required this.pitchAccentValueNotifier});
 
   @override
@@ -41,7 +39,7 @@ class _PitchAccentStyleSettingsState extends State<PitchAccentStyleSettings> {
                     setState(() {
                       pitchAccentStyleString = style.name;
                     });
-                    await widget.settingsProvider.updatePitchAccentStyle(style);
+                    await SettingsManager().updatePitchAccentStyle(style);
                     widget.pitchAccentValueNotifier.value =
                         !widget.pitchAccentValueNotifier.value;
                   },
