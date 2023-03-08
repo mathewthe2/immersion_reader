@@ -52,7 +52,7 @@ class _ReaderStatsPageState extends State<ReaderStatsPage> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
         navigationBar:
-            const CupertinoNavigationBar(middle: Text('Reader Stats')),
+            const CupertinoNavigationBar(middle: Text('Reader Statistics')),
         child: SafeArea(child: readTime()));
   }
 }

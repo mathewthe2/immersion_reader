@@ -64,6 +64,9 @@ class BookStatsRow extends StatelessWidget {
                   trackColor: CupertinoColors.systemGroupedBackground)));
     }
 
+    final String charactersRead = contentStats.charactersRead();
+    final int vocabularyMined = contentStats.profileContent.vocabularyMined;
+    final String charactersPerSecond = contentStats.charactersReadPerSecond();
     return Column(children: [
       SizedBox(
           height: 200,
@@ -89,17 +92,16 @@ class BookStatsRow extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   statsRow(
-                      label: 'characters read',
-                      value: contentStats.charactersRead(),
+                      label: 'character${charactersRead != '1' ? 's' : ''} read',
+                      value: charactersRead,
                       icon: FontAwesomeIcons.font),
                   statsRow(
-                      label: 'character/sec',
-                      value: contentStats.charactersReadPerSecond(),
+                      label: 'character${charactersPerSecond != '1.00' ? 's' : ''}/sec',
+                      value: charactersPerSecond,
                       icon: FontAwesomeIcons.bolt),
                   statsRow(
-                      label: 'words mined',
-                      value: contentStats.profileContent.vocabularyMined
-                          .toString(),
+                      label: 'word${vocabularyMined != 1 ? 's' : ''} mined',
+                      value: vocabularyMined.toString(),
                       icon: FontAwesomeIcons.solidStar),
                 ],
               ))
