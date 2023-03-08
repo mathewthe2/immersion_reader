@@ -53,7 +53,8 @@ class BookStatsRow extends StatelessWidget {
               infoProperties: InfoProperties(
                   mainLabelStyle: TextStyle(
                       fontSize: 30,
-                      fontWeight: isDarkMode() ? FontWeight.w300 : FontWeight.w100,
+                      fontWeight:
+                          isDarkMode() ? FontWeight.w300 : FontWeight.w100,
                       color: CupertinoColors.label.resolveFrom(context))),
               customWidths: CustomSliderWidths(progressBarWidth: 8),
               customColors: CustomSliderColors(
@@ -82,25 +83,26 @@ class BookStatsRow extends StatelessWidget {
             progressWidget(),
           ])),
       const SizedBox(height: 12),
-      Align(
-          alignment: Alignment.bottomLeft,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              statsRow(
-                  label: 'characters read',
-                  value: contentStats.charactersReadPerSecond(),
-                  icon: FontAwesomeIcons.font),
-              statsRow(
-                  label: 'character/sec',
-                  value: contentStats.charactersReadPerSecond(),
-                  icon: FontAwesomeIcons.bolt),
-              statsRow(
-                  label: 'words mined',
-                  value: contentStats.profileContent.vocabularyMined.toString(),
-                  icon: FontAwesomeIcons.solidStar),
-            ],
-          ))
+      Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  statsRow(
+                      label: 'characters read',
+                      value: contentStats.charactersRead(),
+                      icon: FontAwesomeIcons.font),
+                  statsRow(
+                      label: 'character/sec',
+                      value: contentStats.charactersReadPerSecond(),
+                      icon: FontAwesomeIcons.bolt),
+                  statsRow(
+                      label: 'words mined',
+                      value: contentStats.profileContent.vocabularyMined
+                          .toString(),
+                      icon: FontAwesomeIcons.solidStar),
+                ],
+              ))
     ]);
   }
 }

@@ -17,6 +17,10 @@ class ProfileContentStats {
     return value == null ? unknownValue : value.toString();
   }
 
+   String charactersRead() {
+    return _getValue(profileContent.currentPosition);
+  }
+
   String charactersReadPerSecond() {
     if (profileContent.currentPosition == null) {
       return unknownValue;
