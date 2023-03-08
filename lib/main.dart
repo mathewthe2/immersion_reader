@@ -177,11 +177,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   Widget getViewWidget(int index) {
     List<Widget> viewWidgets = [
-      Discover(
-          sharedPreferences: sharedPreferences!),
+      Discover(sharedPreferences: sharedPreferences!),
       ReaderPage(
-          browserProvider: browserProvider,
-          paymentProvider: paymentProvider!),
+          browserProvider: browserProvider, paymentProvider: paymentProvider!),
       //  Browser(
       //     browserProvider: browserProvider,
       //     dictionaryProvider: dictionaryProvider!),
