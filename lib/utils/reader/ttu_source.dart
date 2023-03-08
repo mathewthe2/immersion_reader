@@ -1,8 +1,8 @@
 import 'dart:convert';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/book.dart';
+import 'package:immersion_reader/utils/reader/book_image_manager.dart';
 import 'package:immersion_reader/utils/reader/get_history_js.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -89,7 +89,7 @@ class TtuSource {
           duration = position ~/ progress;
         }
       }
-      
+
       int totalCharacters = 0;
       for (dynamic section in data['sections']) {
         totalCharacters += section['characters'] as int? ?? 0;
@@ -101,6 +101,7 @@ class TtuSource {
       try {
         Uri.parse(data['coverImage']);
         base64Image = data['coverImage'];
+        BookImageManager.saveImageIfNotExists(base64Image: base64Image!, key: id, title: title);
       } catch (e) {
         base64Image = null;
       }
@@ -118,4 +119,5 @@ class TtuSource {
 
     return items;
   }
+
 }

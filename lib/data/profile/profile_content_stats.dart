@@ -30,7 +30,10 @@ class ProfileContentStats {
     return '${_getValue(profileContent.currentPosition)} / ${_getValue(profileContent.contentLength)}';
   }
 
-  // int? estimatedSecondsToFinish() {
-
-  // }
+  double? getReadPercentage() {
+    if (profileContent.currentPosition == null || profileContent.contentLength == null) {
+      return null;
+    }
+    return profileContent.currentPosition! / profileContent.contentLength! * 100; 
+  }
 }

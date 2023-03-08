@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/profile/profile_content_stats.dart';
-import 'package:immersion_reader/pages/reader/reader_stats/book_stats_row.dart';
+import 'package:immersion_reader/widgets/reader/reader_stats/book_stats_row.dart';
 import 'package:immersion_reader/providers/profile_provider.dart';
 
 class ReaderStatsPage extends StatefulWidget {
@@ -33,15 +33,19 @@ class _ReaderStatsPageState extends State<ReaderStatsPage> {
     } else if (profileContentStats!.isEmpty) {
       return const Text('Nothing to see here. Start reading!');
     } else {
-      return Column(children: [
+      profileContentStats!.sort((a, b) =>
+          b.profileContent.lastOpened.compareTo(a.profileContent.lastOpened));
+      return SingleChildScrollView(
+          child: Column(children: [
         ...profileContentStats!
             .map((ProfileContentStats stat) => Column(children: [
                   const SizedBox(height: 20),
                   Padding(
                       padding: const EdgeInsets.only(left: 12),
                       child: BookStatsRow(contentStats: stat))
-                ]))
-      ]);
+                ])),
+        const SizedBox(height: 40)
+      ]));
     }
   }
 

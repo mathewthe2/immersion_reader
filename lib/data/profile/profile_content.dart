@@ -1,4 +1,5 @@
 import 'package:immersion_reader/data/reader/book.dart';
+import 'package:immersion_reader/utils/reader/book_image_manager.dart';
 
 class ProfileContent {
   int id;
@@ -30,5 +31,8 @@ class ProfileContent {
       vocabularyMined: map['vocabularyMined'] as int,
       lastOpened: DateTime.parse(map['lastOpened'] as String));
 
-   Book get book  =>  Book(title: title);
+   Future<Book> getBook() async {
+    String? base64Image = await BookImageManager.getImageBase64(key: key, title: title);
+    return Book(title: title, base64Image: base64Image);
+   }
 }

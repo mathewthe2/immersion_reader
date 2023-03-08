@@ -25,6 +25,7 @@ Map<String, Map<String, String>> acknowledgements = {
     'modal_bottom_sheet': 'https://github.com/jamesblasco/modal_bottom_sheet',
     'share_plus': 'https://github.com/fluttercommunity/community',
     'sqflite': 'https://github.com/tekartik/sqflite/tree/master/sqflite',
+    'sqflite_migration': 'https://github.com/flutterings/sqflite_migration',
     'swipeable_page_route': 'https://github.com/JonasWanke/swipeable_page_route'
   }
 };
