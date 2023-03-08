@@ -2,12 +2,12 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/book.dart';
-import 'package:immersion_reader/utils/reader/book_image_manager.dart';
+import 'package:immersion_reader/managers/reader/book_image_manager.dart';
 import 'package:immersion_reader/utils/reader/get_history_js.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter/foundation.dart';
-import 'package:immersion_reader/utils/reader/local_asset_server_manager.dart';
+import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
 import 'package:local_assets_server/local_assets_server.dart';
 
 class TtuSource {

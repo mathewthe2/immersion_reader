@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/profile/profile_content.dart';
 import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
-import 'package:immersion_reader/utils/reader/local_asset_server_manager.dart';
+import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
 import 'package:immersion_reader/widgets/reader/message_controller.dart';
 import 'package:local_assets_server/local_assets_server.dart';

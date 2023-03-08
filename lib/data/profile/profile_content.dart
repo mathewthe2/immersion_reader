@@ -1,5 +1,5 @@
 import 'package:immersion_reader/data/reader/book.dart';
-import 'package:immersion_reader/utils/reader/book_image_manager.dart';
+import 'package:immersion_reader/managers/reader/book_image_manager.dart';
 
 class ProfileContent {
   int id;

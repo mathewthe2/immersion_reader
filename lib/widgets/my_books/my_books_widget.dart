@@ -4,7 +4,7 @@ import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
 import 'package:immersion_reader/pages/reader/reader_stats_page.dart';
 import 'package:immersion_reader/providers/profile_provider.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
-import 'package:immersion_reader/utils/reader/local_asset_server_manager.dart';
+import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/widgets/my_books/book_goal/book_goal_widget.dart';
 import 'package:immersion_reader/widgets/reader/reader.dart';
 import 'package:immersion_reader/utils/reader/ttu_source.dart';
