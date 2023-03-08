@@ -7,7 +7,7 @@ import 'package:immersion_reader/utils/reader/get_history_js.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter/foundation.dart';
-import 'package:immersion_reader/providers/local_asset_server_provider.dart';
+import 'package:immersion_reader/utils/reader/local_asset_server_manager.dart';
 import 'package:local_assets_server/local_assets_server.dart';
 
 class TtuSource {
@@ -22,7 +22,7 @@ class TtuSource {
     HeadlessInAppWebView webView = HeadlessInAppWebView(
       initialUrlRequest: URLRequest(
           url: Uri.parse(
-        'http://localhost:${LocalAssetsServerProvider.port}',
+        'http://localhost:${LocalAssetsServerManager.port}',
       )),
       onLoadStop: (controller, url) async {
         controller.evaluateJavascript(source: getHistoryJs);
@@ -105,10 +105,9 @@ class TtuSource {
       } catch (e) {
         base64Image = null;
       }
-
       return Book(
         mediaIdentifier:
-            'http://localhost:${LocalAssetsServerProvider.port}/b.html?id=$id',
+            'http://localhost:${LocalAssetsServerManager.port}/b.html?id=$id',
         title: title,
         base64Image: base64Image,
         position: position,

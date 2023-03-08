@@ -6,14 +6,11 @@ import 'package:immersion_reader/pages/browser.dart';
 import 'package:immersion_reader/widgets/my_books/book_widget.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
-import 'package:local_assets_server/local_assets_server.dart';
 
 class RecommendedWidget extends StatelessWidget {
-  final LocalAssetsServer? localAssetsServer;
   final DictionaryProvider dictionaryProvider;
   const RecommendedWidget(
       {super.key,
-      required this.localAssetsServer,
       required this.dictionaryProvider});
 
   Widget headlineWidget(String title, IconData iconData, Color textColor) {

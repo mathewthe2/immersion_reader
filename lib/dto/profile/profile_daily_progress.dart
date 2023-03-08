@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:immersion_reader/data/profile/profile_content_session.dart';
 import 'package:immersion_reader/extensions/datetime_extension.dart';
-import 'package:immersion_reader/providers/local_asset_server_provider.dart';
+import 'package:immersion_reader/utils/reader/local_asset_server_manager.dart';
 
 class ProfileDailyProgress {
   int goalId;
@@ -70,7 +70,7 @@ class ProfileDailyProgress {
   }
 
   String getMediaIdentifier() {
-    return 'http://localhost:${LocalAssetsServerProvider.port}/b.html?id=${_getRecentBookKey()}';
+    return 'http://localhost:${LocalAssetsServerManager.port}/b.html?id=${_getRecentBookKey()}';
   }
 
   String _getRecentBookKey() {

@@ -6,11 +6,9 @@ import 'package:immersion_reader/providers/profile_provider.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/widgets/my_books/browser_catalog.dart';
 import 'package:immersion_reader/widgets/my_books/my_books_widget.dart';
-import 'package:local_assets_server/local_assets_server.dart';
 
 class ReaderPage extends StatefulWidget {
   final BrowserProvider? browserProvider;
-  final LocalAssetsServer? localAssetsServer;
   final ProfileProvider profileProvider;
   final PaymentProvider paymentProvider;
   final DictionaryProvider dictionaryProvider;
@@ -20,7 +18,6 @@ class ReaderPage extends StatefulWidget {
       required this.browserProvider,
       required this.paymentProvider,
       required this.profileProvider,
-      required this.localAssetsServer,
       required this.dictionaryProvider,
       required this.settingsProvider});
 
@@ -52,7 +49,6 @@ class _ReaderPageState extends State<ReaderPage> {
                     const SizedBox(height: 20),
                     MyBooksWidget(
                         dictionaryProvider: widget.dictionaryProvider,
-                        localAssetsServer: widget.localAssetsServer,
                         profileProvider: widget.profileProvider,
                         settingsProvider: widget.settingsProvider),
                     // GestureDetector(onTap: ()=>_requestPurchase("immersion_reader_plus"), )

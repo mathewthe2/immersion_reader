@@ -1,28 +1,25 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/pages/reader/reader_stats_page.dart';
-import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import 'package:immersion_reader/providers/profile_provider.dart';
 import 'package:immersion_reader/providers/reader_session_provider.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
+import 'package:immersion_reader/utils/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/widgets/my_books/book_goal/book_goal_widget.dart';
 import 'package:immersion_reader/widgets/reader/reader.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/utils/reader/ttu_source.dart';
 import 'package:immersion_reader/widgets/my_books/book_widget.dart';
-import 'package:local_assets_server/local_assets_server.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MyBooksWidget extends StatefulWidget {
-  final LocalAssetsServer? localAssetsServer;
   final DictionaryProvider dictionaryProvider;
   final ProfileProvider profileProvider;
   final SettingsProvider settingsProvider;
   static const String contentType = 'book';
   const MyBooksWidget(
       {super.key,
-      required this.localAssetsServer,
       required this.dictionaryProvider,
       required this.profileProvider,
       required this.settingsProvider});
@@ -77,7 +74,6 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
               builder: (context) {
                 return Reader(
                     initialUrl: mediaIdentifier,
-                    localAssetsServer: widget.localAssetsServer,
                     dictionaryProvider: widget.dictionaryProvider,
                     readerSessionProvider: readerSessionProvider);
               }))
@@ -139,8 +135,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                             return Reader(
                                 isAddBook: true,
                                 initialUrl:
-                                    'http://localhost:${LocalAssetsServerProvider.port}',
-                                localAssetsServer: widget.localAssetsServer,
+                                    'http://localhost:${LocalAssetsServerManager.port}',
                                 dictionaryProvider: widget.dictionaryProvider,
                                 readerSessionProvider: readerSessionProvider);
                           }))
@@ -152,7 +147,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                   });
                 }),
             FutureBuilder<List<Book>>(
-                future: TtuSource.getBooksHistory(widget.localAssetsServer!),
+                future: TtuSource.getBooksHistory(LocalAssetsServerManager().server!),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     if (snapshot.data!.isEmpty) {

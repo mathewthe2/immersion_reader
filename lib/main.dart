@@ -6,10 +6,10 @@ import 'package:immersion_reader/pages/reader/reader_page.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
 import 'package:immersion_reader/providers/profile_provider.dart';
+import 'package:immersion_reader/utils/reader/local_asset_server_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
-import 'package:immersion_reader/providers/local_asset_server_provider.dart';
 import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
 import 'pages/settings/settings_page.dart';
@@ -33,7 +33,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   final int vocabularyListPageIndex = 2;
   int currentIndex = 0;
   SharedPreferences? sharedPreferences;
-  LocalAssetsServerProvider? localAssetsServerProvider;
   VocabularyListProvider? vocabularyListProvider;
   BrowserProvider? browserProvider;
   SettingsStorage? _settingsStorage;
@@ -71,7 +70,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   Future<void> setupProviders() async {
     sharedPreferences = await SharedPreferences.getInstance();
     paymentProvider = await PaymentProvider.create(sharedPreferences!);
-    localAssetsServerProvider = await LocalAssetsServerProvider.create();
     vocabularyListProvider = await VocabularyListProvider.create();
     _settingsStorage = await SettingsStorage.create();
     profileProvider = await ProfileProvider.create();
@@ -84,14 +82,14 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   }
 
   Future<void> startLocalAssetsServer() async {
-    await localAssetsServerProvider!.server!.serve();
+    await LocalAssetsServerManager().server!.serve();
     setState(() {
       isLocalAssetsServerReady = true;
     });
   }
 
   Future<void> stopLocalAssetsServer() async {
-    await localAssetsServerProvider!.server!.stop();
+    await LocalAssetsServerManager().server!.stop();
     setState(() {
       isLocalAssetsServerReady = true;
     });
@@ -181,13 +179,11 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     List<Widget> viewWidgets = [
       Discover(
           sharedPreferences: sharedPreferences!,
-          localAssetsServer: localAssetsServerProvider!.server,
           dictionaryProvider: dictionaryProvider!),
       ReaderPage(
           browserProvider: browserProvider,
           paymentProvider: paymentProvider!,
           profileProvider: profileProvider!,
-          localAssetsServer: localAssetsServerProvider!.server,
           dictionaryProvider: dictionaryProvider!,
           settingsProvider: settingsProvider!),
       //  Browser(

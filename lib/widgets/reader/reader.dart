@@ -4,7 +4,7 @@ import 'package:immersion_reader/data/profile/profile_content.dart';
 import 'package:immersion_reader/providers/reader_session_provider.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
-import 'package:immersion_reader/providers/local_asset_server_provider.dart';
+import 'package:immersion_reader/utils/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
 import 'package:immersion_reader/widgets/reader/message_controller.dart';
 import 'package:local_assets_server/local_assets_server.dart';
@@ -12,7 +12,6 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import '../../utils/reader/reader_js.dart';
 
 class Reader extends StatefulWidget {
-  final LocalAssetsServer? localAssetsServer;
   final DictionaryProvider dictionaryProvider;
   final ReaderSessionProvider readerSessionProvider;
   final String? initialUrl;
@@ -20,7 +19,6 @@ class Reader extends StatefulWidget {
 
   const Reader(
       {super.key,
-      required this.localAssetsServer,
       required this.dictionaryProvider,
       required this.readerSessionProvider,
       this.initialUrl,
@@ -59,7 +57,8 @@ class _ReaderState extends State<Reader> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.localAssetsServer == null) {
+    LocalAssetsServer? localAssetsServer = LocalAssetsServerManager().server;
+    if (localAssetsServer == null) {
       return const Center(
           child: CupertinoActivityIndicator(
         animating: true,
@@ -77,7 +76,7 @@ class _ReaderState extends State<Reader> {
                 initialUrlRequest: URLRequest(
                   url: Uri.parse(
                     widget.initialUrl ??
-                        'http://localhost:${LocalAssetsServerProvider.port}',
+                        'http://localhost:${LocalAssetsServerManager.port}',
                   ),
                 ),
                 onWebViewCreated: (controller) {

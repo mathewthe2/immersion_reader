@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/providers/dictionary_provider.dart';
-import 'package:local_assets_server/local_assets_server.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:immersion_reader/widgets/discover/category_box.dart';
 import 'package:immersion_reader/widgets/discover/recommended_widget.dart';
@@ -8,13 +7,11 @@ import 'package:immersion_reader/widgets/discover/recommended_widget.dart';
 
 class Discover extends StatefulWidget {
   final SharedPreferences sharedPreferences;
-  final LocalAssetsServer? localAssetsServer;
   final DictionaryProvider dictionaryProvider;
 
   const Discover(
       {super.key,
       required this.sharedPreferences,
-      required this.localAssetsServer,
       required this.dictionaryProvider});
 
   @override
@@ -50,7 +47,6 @@ class _DiscoverState extends State<Discover> {
     switch (selectedTab) {
       case 0:
         activeWidget = RecommendedWidget(
-            localAssetsServer: widget.localAssetsServer,
             dictionaryProvider: widget.dictionaryProvider);
         break;
       // case 1:
