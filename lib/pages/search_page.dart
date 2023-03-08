@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/search/search_result.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
-import 'package:immersion_reader/providers/dictionary_provider.dart';
+import 'package:immersion_reader/utils/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/widgets/search/search_results_section.dart';
 
 class SearchPage extends StatefulWidget {
-  final DictionaryProvider? dictionaryProvider;
-  const SearchPage({super.key, required this.dictionaryProvider});
+  const SearchPage({super.key});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -29,31 +28,26 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void handleSearch(String input) async {
-    if (widget.dictionaryProvider != null) {
-      searchResult =
-          await widget.dictionaryProvider!.findTermForUserSearch(input);
-      setState(() {
-        searchResult = searchResult;
-      });
-    }
+    searchResult = await DictionaryManager().findTermForUserSearch(input);
+    setState(() {
+      searchResult = searchResult;
+    });
   }
 
   Widget searchResultSection(SearchResult result) {
-    return CupertinoListSection(
-        header: const Text('Exact Matches'),
-        children: [
-          ...searchResult!.exactMatches.map((Vocabulary vocabulary) {
-            return CupertinoListTile(
-                title: Text(vocabulary.expression ?? ''),
-                subtitle: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.7,
-                  child: Text(
-                    vocabulary.getFirstGlossary(),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ));
-          })
-        ]);
+    return CupertinoListSection(header: const Text('Exact Matches'), children: [
+      ...searchResult!.exactMatches.map((Vocabulary vocabulary) {
+        return CupertinoListTile(
+            title: Text(vocabulary.expression ?? ''),
+            subtitle: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.7,
+              child: Text(
+                vocabulary.getFirstGlossary(),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ));
+      })
+    ]);
   }
 
   @override

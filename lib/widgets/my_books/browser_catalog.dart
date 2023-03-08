@@ -1,20 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/pages/browser.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
-import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class BrowserCatalog extends StatefulWidget {
   final BrowserProvider browserProvider;
-  final DictionaryProvider dictionaryProvider;
   final PaymentProvider paymentProvider;
   const BrowserCatalog(
       {super.key,
       required this.paymentProvider,
-      required this.browserProvider,
-      required this.dictionaryProvider});
+      required this.browserProvider});
 
   @override
   State<BrowserCatalog> createState() => _BrowserCatalogState();
@@ -54,9 +51,7 @@ class _BrowserCatalogState extends State<BrowserCatalog> {
                                     builder: (context) {
                                       return Browser(
                                           browserProvider:
-                                              widget.browserProvider,
-                                          dictionaryProvider:
-                                              widget.dictionaryProvider);
+                                              widget.browserProvider);
                                     })));
                       },
                       child: Text('Open', style: TextStyle(color: textColor)))

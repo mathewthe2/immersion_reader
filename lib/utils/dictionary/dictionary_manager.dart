@@ -4,22 +4,22 @@ import 'package:immersion_reader/japanese/translator.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
 
-class DictionaryProvider {
+class DictionaryManager {
   List<int>? disabledDictionaryIds;
   bool? isShowFrequencyTags;
   SettingsProvider? settingsProvider;
   Translator? translator;
 
-  DictionaryProvider._create() {
-    // print("_create() (private constructor)");
-  }
+  static final DictionaryManager _singleton = DictionaryManager._internal();
+  DictionaryManager._internal();
 
-  static DictionaryProvider create(SettingsProvider settingsProvider) {
-    DictionaryProvider provider = DictionaryProvider._create();
-    provider.settingsProvider = settingsProvider;
-    provider.translator = Translator.create(settingsProvider.settingsStorage!);
-    return provider;
+  factory DictionaryManager.createDictionary(SettingsProvider settingsProvider) {
+    _singleton.settingsProvider = settingsProvider;
+    _singleton.translator = Translator.create(settingsProvider.settingsStorage!);
+    return _singleton;
   }
+  
+  factory DictionaryManager() => _singleton;
 
   Future<DictionaryOptions> getOptions() async {
     return DictionaryOptions(

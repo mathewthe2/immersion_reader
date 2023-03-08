@@ -6,9 +6,9 @@ import 'package:immersion_reader/pages/reader/reader_page.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
 import 'package:immersion_reader/providers/profile_provider.dart';
+import 'package:immersion_reader/utils/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/utils/reader/local_asset_server_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
@@ -37,7 +37,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   BrowserProvider? browserProvider;
   SettingsStorage? _settingsStorage;
   ProfileProvider? profileProvider;
-  DictionaryProvider? dictionaryProvider;
   SettingsProvider? settingsProvider;
   PaymentProvider? paymentProvider;
   bool isLocalAssetsServerReady = false;
@@ -75,7 +74,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     profileProvider = await ProfileProvider.create();
     browserProvider = await BrowserProvider.create(_settingsStorage!);
     settingsProvider = SettingsProvider.create(_settingsStorage!);
-    dictionaryProvider = DictionaryProvider.create(settingsProvider!);
+    DictionaryManager.createDictionary(settingsProvider!);
     setState(() {
       isProvidersReady = true;
     });
@@ -178,13 +177,11 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   Widget getViewWidget(int index) {
     List<Widget> viewWidgets = [
       Discover(
-          sharedPreferences: sharedPreferences!,
-          dictionaryProvider: dictionaryProvider!),
+          sharedPreferences: sharedPreferences!),
       ReaderPage(
           browserProvider: browserProvider,
           paymentProvider: paymentProvider!,
           profileProvider: profileProvider!,
-          dictionaryProvider: dictionaryProvider!,
           settingsProvider: settingsProvider!),
       //  Browser(
       //     browserProvider: browserProvider,
@@ -194,13 +191,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
           builder: (context, val, child) => VocabularyListPage(
               vocabularyListProvider: vocabularyListProvider!,
               notifier: _notifier)),
-      SearchPage(
-        dictionaryProvider: dictionaryProvider,
-      ),
-      SettingsPage(
-        dictionaryProvider: dictionaryProvider,
-        settingsProvider: settingsProvider,
-      )
+      const SearchPage(),
+      SettingsPage(settingsProvider: settingsProvider)
     ];
     return viewWidgets[index];
   }

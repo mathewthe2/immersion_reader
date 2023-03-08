@@ -5,13 +5,10 @@ import 'package:immersion_reader/data/discover/recommended_catalog.dart';
 import 'package:immersion_reader/pages/browser.dart';
 import 'package:immersion_reader/widgets/my_books/book_widget.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
-import 'package:immersion_reader/providers/dictionary_provider.dart';
 
 class RecommendedWidget extends StatelessWidget {
-  final DictionaryProvider dictionaryProvider;
   const RecommendedWidget(
-      {super.key,
-      required this.dictionaryProvider});
+      {super.key});
 
   Widget headlineWidget(String title, IconData iconData, Color textColor) {
     return Padding(
@@ -59,8 +56,7 @@ class RecommendedWidget extends StatelessWidget {
                               builder: (context) {
                                 return Browser(
                                     initialUrl: mediaIdentifier,
-                                    hasUserControls: false,
-                                    dictionaryProvider: dictionaryProvider);
+                                    hasUserControls: false);
                               }));
                     }))
               ])),
@@ -83,8 +79,7 @@ class RecommendedWidget extends StatelessWidget {
                               builder: (context) {
                                 return Browser(
                                     initialUrl: mediaIdentifier,
-                                    hasUserControls: false,
-                                    dictionaryProvider: dictionaryProvider);
+                                    hasUserControls: false);
                               }));
                     }))
               ])),

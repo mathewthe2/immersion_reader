@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
-import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
 import 'package:immersion_reader/providers/profile_provider.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
@@ -11,14 +10,12 @@ class ReaderPage extends StatefulWidget {
   final BrowserProvider? browserProvider;
   final ProfileProvider profileProvider;
   final PaymentProvider paymentProvider;
-  final DictionaryProvider dictionaryProvider;
   final SettingsProvider settingsProvider;
   const ReaderPage(
       {super.key,
       required this.browserProvider,
       required this.paymentProvider,
       required this.profileProvider,
-      required this.dictionaryProvider,
       required this.settingsProvider});
 
   @override
@@ -48,14 +45,12 @@ class _ReaderPageState extends State<ReaderPage> {
                           child: Column(children: [
                     const SizedBox(height: 20),
                     MyBooksWidget(
-                        dictionaryProvider: widget.dictionaryProvider,
                         profileProvider: widget.profileProvider,
                         settingsProvider: widget.settingsProvider),
                     // GestureDetector(onTap: ()=>_requestPurchase("immersion_reader_plus"), )
                     BrowserCatalog(
                         paymentProvider: widget.paymentProvider,
-                        browserProvider: widget.browserProvider!,
-                        dictionaryProvider: widget.dictionaryProvider)
+                        browserProvider: widget.browserProvider!)
                   ])))))
         ]));
   }

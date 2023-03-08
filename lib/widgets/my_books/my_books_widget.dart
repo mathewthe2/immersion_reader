@@ -7,20 +7,17 @@ import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/utils/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/widgets/my_books/book_goal/book_goal_widget.dart';
 import 'package:immersion_reader/widgets/reader/reader.dart';
-import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/utils/reader/ttu_source.dart';
 import 'package:immersion_reader/widgets/my_books/book_widget.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MyBooksWidget extends StatefulWidget {
-  final DictionaryProvider dictionaryProvider;
   final ProfileProvider profileProvider;
   final SettingsProvider settingsProvider;
   static const String contentType = 'book';
   const MyBooksWidget(
       {super.key,
-      required this.dictionaryProvider,
       required this.profileProvider,
       required this.settingsProvider});
 
@@ -74,7 +71,6 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
               builder: (context) {
                 return Reader(
                     initialUrl: mediaIdentifier,
-                    dictionaryProvider: widget.dictionaryProvider,
                     readerSessionProvider: readerSessionProvider);
               }))
           .then((value) {
@@ -136,7 +132,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                                 isAddBook: true,
                                 initialUrl:
                                     'http://localhost:${LocalAssetsServerManager.port}',
-                                dictionaryProvider: widget.dictionaryProvider,
+
                                 readerSessionProvider: readerSessionProvider);
                           }))
                       .then((value) {

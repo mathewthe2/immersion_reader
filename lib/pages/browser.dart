@@ -4,7 +4,6 @@ import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/utils/browser/browser_content_blockers.dart';
 import 'package:immersion_reader/utils/browser/browser_js.dart';
-import 'package:immersion_reader/providers/dictionary_provider.dart';
 import 'package:immersion_reader/widgets/browser/browser_bottom_bar.dart';
 import 'package:immersion_reader/widgets/browser/browser_top_bar.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
@@ -12,14 +11,12 @@ import 'package:immersion_reader/widgets/reader/message_controller.dart';
 
 class Browser extends StatefulWidget {
   final BrowserProvider? browserProvider;
-  final DictionaryProvider dictionaryProvider;
   final bool hasUserControls;
   final String? initialUrl;
 
   const Browser(
       {super.key,
       this.browserProvider,
-      required this.dictionaryProvider,
       this.initialUrl,
       this.hasUserControls = true});
 
@@ -46,7 +43,6 @@ class _BrowserState extends State<Browser> {
     vocabularyListStorage = await VocabularyListStorage.create();
     popupDictionary = PopupDictionary(
         parentContext: context,
-        dictionaryProvider: widget.dictionaryProvider,
         vocabularyListStorage: vocabularyListStorage!);
     messageController = MessageController(popupDictionary: popupDictionary);
     if (widget.browserProvider != null) {

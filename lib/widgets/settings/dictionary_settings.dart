@@ -1,16 +1,14 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/utils/dictionary/dictionary_manager.dart';
 import 'package:lean_file_picker/lean_file_picker.dart';
 import 'package:immersion_reader/data/settings/dictionary_setting.dart';
 import 'package:immersion_reader/dictionary/dictionary_parser.dart';
 import 'package:immersion_reader/dictionary/user_dictionary.dart';
 import 'package:immersion_reader/utils/system_dialog.dart';
-import 'package:immersion_reader/providers/dictionary_provider.dart';
 
 class DictionarySettings extends StatefulWidget {
-  final DictionaryProvider dictionaryProvider;
-
-  const DictionarySettings({super.key, required this.dictionaryProvider});
+  const DictionarySettings({super.key});
 
   @override
   State<DictionarySettings> createState() => _DictionarySettingsState();
@@ -38,7 +36,9 @@ class _DictionarySettingsState extends State<DictionarySettings> {
       });
       File zipFile = File(file.path);
       UserDictionary userDictionary = await parseDictionary(zipFile);
-      await widget.dictionaryProvider.settingsProvider!.settingsStorage!
+      await DictionaryManager()
+          .settingsProvider!
+          .settingsStorage!
           .addDictionary(userDictionary);
       setState(() {
         isProcessingDictionary = false;
@@ -53,7 +53,9 @@ class _DictionarySettingsState extends State<DictionarySettings> {
     setState(() {
       isProcessingDictionary = true;
     });
-    await widget.dictionaryProvider.settingsProvider!.settingsStorage!
+    await DictionaryManager()
+        .settingsProvider!
+        .settingsStorage!
         .removeDictionary(dictionaryId);
     setState(() {
       isProcessingDictionary = false;
@@ -88,7 +90,9 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                   : const Text('Edit')),
         ),
         child: FutureBuilder<List<DictionarySetting>>(
-            future: widget.dictionaryProvider.settingsProvider!.settingsStorage!
+            future: DictionaryManager()
+                .settingsProvider!
+                .settingsStorage!
                 .getDictionarySettings(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
@@ -122,7 +126,7 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                                   : CupertinoSwitch(
                                       value: enabledDictionaries[index],
                                       onChanged: (bool? value) {
-                                        widget.dictionaryProvider
+                                        DictionaryManager()
                                             .toggleDictionaryEnabled(
                                                 dictionarySetting);
                                         setState(() {});

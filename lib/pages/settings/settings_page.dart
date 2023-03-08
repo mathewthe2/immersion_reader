@@ -4,14 +4,11 @@ import 'package:immersion_reader/pages/settings/about/about_page.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/widgets/settings/dictionary_settings.dart';
 import 'package:immersion_reader/widgets/settings/appearance_settings.dart';
-import 'package:immersion_reader/providers/dictionary_provider.dart';
 
 class SettingsPage extends StatefulWidget {
-  final DictionaryProvider? dictionaryProvider;
   final SettingsProvider? settingsProvider;
   const SettingsPage(
       {super.key,
-      required this.dictionaryProvider,
       required this.settingsProvider});
 
   @override
@@ -64,8 +61,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         onTap: () => {
                           Navigator.push(context,
                               SwipeablePageRoute(builder: (context) {
-                            return DictionarySettings(
-                                dictionaryProvider: widget.dictionaryProvider!);
+                            return const DictionarySettings();
                           }))
                         },
                         leading: Container(
