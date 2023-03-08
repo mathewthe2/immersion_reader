@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
-import 'package:immersion_reader/providers/profile_provider.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_tile_list.dart';
@@ -9,12 +8,10 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class PopupDictionary {
   final VocabularyListStorage vocabularyListStorage;
-  final ProfileProvider? profileProvider;
   final BuildContext parentContext;
 
   PopupDictionary(
       {required this.vocabularyListStorage,
-      this.profileProvider,
       required this.parentContext});
 
   Future<void> showVocabularyList(String text, int index) async {
@@ -48,7 +45,6 @@ class PopupDictionary {
                               targetIndex: index,
                               popupDictionaryThemeData:
                                   popupDictionaryThemeData,
-                              profileProvider: profileProvider,
                               vocabularyList: const [],
                               vocabularyListStorage: vocabularyListStorage)))));
         });

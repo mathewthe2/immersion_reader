@@ -1,17 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/profile/profile_daily_stats.dart';
 import 'package:immersion_reader/dto/profile/profile_daily_progress.dart';
-import 'package:immersion_reader/providers/profile_provider.dart';
+import 'package:immersion_reader/managers/profile/profile_manager.dart';
 import 'package:immersion_reader/widgets/common/heatmap/heatmap_calendar.dart';
 import 'package:immersion_reader/extensions/datetime_extension.dart';
 
 class BookGoalHeatMap extends StatefulWidget {
-  final ProfileProvider profileProvider;
   final ProfileDailyProgress profileDailyProgress;
 
   const BookGoalHeatMap(
       {super.key,
-      required this.profileProvider,
       required this.profileDailyProgress});
 
   @override
@@ -29,7 +27,7 @@ class _BookGoalHeatMapState extends State<BookGoalHeatMap> {
   }
 
   Future<void> setDailyStats(DateTime datetime) async {
-    List<ProfileDailyStats> dailyStats = await widget.profileProvider
+    List<ProfileDailyStats> dailyStats = await ProfileManager()
         .getDailyStats(month: datetime.month, year: datetime.year);
     setState(() {
       datasets = {

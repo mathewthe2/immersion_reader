@@ -9,23 +9,22 @@ import 'package:immersion_reader/data/profile/profile_session.dart';
 import 'package:immersion_reader/dto/profile/profile_daily_progress.dart';
 import 'package:immersion_reader/storage/profile_storage.dart';
 
-class ProfileProvider {
+class ProfileManager {
   ProfileStorage? profileStorage;
   ProfileSession? currentSession; // reading session
   int _hearbeatCount = 0;
   late Timer _timer;
   static const int heartBeatThreshold =
       5; // minimum seconds of reading for a session
+  static final ProfileManager _singleton = ProfileManager._internal();
+  ProfileManager._internal();
 
-  ProfileProvider._create() {
-    // print("_create() (private constructor)");
+  factory ProfileManager.createProfile(ProfileStorage profileStorage) {
+    _singleton.profileStorage = profileStorage;
+    return _singleton;
   }
 
-  static Future<ProfileProvider> create() async {
-    ProfileProvider provider = ProfileProvider._create();
-    provider.profileStorage = await ProfileStorage.create();
-    return provider;
-  }
+  factory ProfileManager() => _singleton;
 
   void dispose() {
     _stopCounting();
@@ -65,21 +64,17 @@ class ProfileProvider {
 
   Future<void> updateProfileContentPosition(
       ProfileContent content, int position) async {
-    await profileStorage!.updateContentCurrentPosition(content.id, position);
+    await profileStorage?.updateContentCurrentPosition(content.id, position);
   }
 
   Future<void> incrementVocabularyMined() async {
-    if (currentSession != null) {
-      await profileStorage!
-          .updateContentVocabularyMined(currentSession!.contentId, 1);
-    }
+    await profileStorage?.updateContentVocabularyMined(
+        currentSession!.contentId, 1);
   }
 
   Future<void> decrementVocabularyMined() async {
-    if (currentSession != null) {
-      await profileStorage!
-          .updateContentVocabularyMined(currentSession!.contentId, -1);
-    }
+    await profileStorage?.updateContentVocabularyMined(
+        currentSession!.contentId, -1);
   }
 
   // Create or get content in database
@@ -116,8 +111,8 @@ class ProfileProvider {
       _stopCounting();
       currentSession!.retire();
       if (currentSession!.durationSeconds >= heartBeatThreshold) {
-        await profileStorage!
-            .createSession(currentSession!); // saves session to database
+        await profileStorage
+            ?.createSession(currentSession!); // saves session to database
       }
     }
   }

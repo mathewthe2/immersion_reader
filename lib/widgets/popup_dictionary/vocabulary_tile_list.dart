@@ -2,8 +2,8 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
-import 'package:immersion_reader/providers/profile_provider.dart';
 import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
+import 'package:immersion_reader/managers/profile/profile_manager.dart';
 import 'package:immersion_reader/widgets/vocabulary/frequency_widget.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_definition.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_tile.dart';
@@ -14,7 +14,6 @@ class VocabularyTileList extends StatefulWidget {
   final List<Vocabulary> vocabularyList;
   final PopupDictionaryThemeData popupDictionaryThemeData;
   final VocabularyListStorage? vocabularyListStorage;
-  final ProfileProvider? profileProvider;
   final String text;
   final int targetIndex;
   const VocabularyTileList(
@@ -22,7 +21,6 @@ class VocabularyTileList extends StatefulWidget {
       required this.text,
       required this.popupDictionaryThemeData,
       required this.targetIndex,
-      this.profileProvider,
       required this.vocabularyList,
       required this.vocabularyListStorage});
 
@@ -56,16 +54,12 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
         // remove vocabulary
         await widget.vocabularyListStorage!
             .deleteVocabularyItem(vocabulary.getIdentifier());
-        if (widget.profileProvider != null) {
-          widget.profileProvider!.decrementVocabularyMined();
-        }
+        ProfileManager().decrementVocabularyMined();
         existingVocabularyIds.remove(vocabulary.getIdentifier());
       } else {
         // add vocabulary
         await widget.vocabularyListStorage!.addVocabularyItem(vocabulary);
-           if (widget.profileProvider != null) {
-          widget.profileProvider!.incrementVocabularyMined();
-        }
+        ProfileManager().incrementVocabularyMined();
         existingVocabularyIds.add(vocabulary.getIdentifier());
       }
       setState(() {});
@@ -116,8 +110,7 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
       return;
     }
     String sentence = widget.text.substring(index, widget.text.length);
-    List<Vocabulary> vocabs =
-        await DictionaryManager().findTerm(sentence);
+    List<Vocabulary> vocabs = await DictionaryManager().findTerm(sentence);
     for (Vocabulary vocab in vocabs) {
       vocab.sentence = LanguageUtils.findSentence(widget.text, index);
     }

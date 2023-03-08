@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/managers/profile/profile_manager.dart';
 // import 'package:immersion_reader/pages/browser.dart';
 import 'package:immersion_reader/pages/discover.dart';
 import 'package:immersion_reader/pages/reader/reader_page.dart';
 import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
-import 'package:immersion_reader/providers/profile_provider.dart';
 import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
+import 'package:immersion_reader/storage/profile_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
@@ -35,8 +36,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   SharedPreferences? sharedPreferences;
   VocabularyListProvider? vocabularyListProvider;
   BrowserProvider? browserProvider;
+  ProfileStorage? _profileStorage;
   SettingsStorage? _settingsStorage;
-  ProfileProvider? profileProvider;
   SettingsProvider? settingsProvider;
   PaymentProvider? paymentProvider;
   bool isLocalAssetsServerReady = false;
@@ -71,7 +72,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     paymentProvider = await PaymentProvider.create(sharedPreferences!);
     vocabularyListProvider = await VocabularyListProvider.create();
     _settingsStorage = await SettingsStorage.create();
-    profileProvider = await ProfileProvider.create();
+    _profileStorage = await ProfileStorage.create();
+    ProfileManager.createProfile(_profileStorage!);
     browserProvider = await BrowserProvider.create(_settingsStorage!);
     settingsProvider = SettingsProvider.create(_settingsStorage!);
     DictionaryManager.createDictionary(settingsProvider!);
@@ -96,12 +98,12 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   Future<void> handleAppResume() async {
     startLocalAssetsServer();
-    profileProvider?.restartSession();
+    ProfileManager().restartSession();
   }
 
   Future<void> handleAppSleep() async {
     stopLocalAssetsServer();
-    profileProvider?.endSession();
+    ProfileManager().endSession();
   }
 
   @override
@@ -137,9 +139,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
     // handle leave reader session
     if (currentIndex == readerPageIndex) {
-      profileProvider?.endSession();
+      ProfileManager().endSession();
     } else if (index == readerPageIndex && currentIndex != index) {
-      profileProvider?.restartSession();
+      ProfileManager().restartSession();
     }
 
     currentIndex = index;
@@ -163,7 +165,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     paymentProvider?.dispose();
-    profileProvider?.dispose();
+    ProfileManager().dispose();
     super.dispose();
   }
 
@@ -181,7 +183,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       ReaderPage(
           browserProvider: browserProvider,
           paymentProvider: paymentProvider!,
-          profileProvider: profileProvider!,
           settingsProvider: settingsProvider!),
       //  Browser(
       //     browserProvider: browserProvider,

@@ -1,16 +1,14 @@
 import 'package:immersion_reader/data/profile/profile_content.dart';
-import 'package:immersion_reader/providers/profile_provider.dart';
+import 'package:immersion_reader/managers/profile/profile_manager.dart';
 
 class ReaderSessionManager {
-  late ProfileProvider profileProvider;
   late String contentType;
   ProfileContent? currentProfileContent;
 
   static final ReaderSessionManager _singleton = ReaderSessionManager._internal();
   ReaderSessionManager._internal();
 
-  factory ReaderSessionManager.createSession(ProfileProvider profileProvider, String contentType) {
-    _singleton.profileProvider = profileProvider;
+  factory ReaderSessionManager.createSession(String contentType) {
     _singleton.contentType = contentType;
     return _singleton;
   }
@@ -26,18 +24,18 @@ class ReaderSessionManager {
     }
     currentProfileContent ??= ProfileContent(
         key: key, title: title, type: contentType, contentLength: contentLength, lastOpened: DateTime.now());
-    int? contentId = await profileProvider.startSession(currentProfileContent!);
+    int? contentId = await ProfileManager().startSession(currentProfileContent!);
     if (contentId != null) {
       currentProfileContent!.id = contentId;
     }
   }
 
   void stop() {
-    profileProvider.destroySession();
+    ProfileManager().destroySession();
     currentProfileContent = null;
   }
 
   void updateProgressOfCurrentContent(int currentPosition) {
-    profileProvider.updateProfileContentPosition(currentProfileContent!, currentPosition);
+    ProfileManager().updateProfileContentPosition(currentProfileContent!, currentPosition);
   }
 }

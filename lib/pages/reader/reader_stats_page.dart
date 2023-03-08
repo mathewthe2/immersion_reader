@@ -1,11 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/profile/profile_content_stats.dart';
+import 'package:immersion_reader/managers/profile/profile_manager.dart';
 import 'package:immersion_reader/widgets/reader/reader_stats/book_stats_row.dart';
-import 'package:immersion_reader/providers/profile_provider.dart';
 
 class ReaderStatsPage extends StatefulWidget {
-  final ProfileProvider profileProvider;
-  const ReaderStatsPage({super.key, required this.profileProvider});
+  const ReaderStatsPage({super.key});
 
   @override
   State<ReaderStatsPage> createState() => _ReaderStatsPageState();
@@ -21,7 +20,7 @@ class _ReaderStatsPageState extends State<ReaderStatsPage> {
   }
 
   Future<void> loadStats() async {
-    var contentStats = await widget.profileProvider.getProfileContentStats();
+    var contentStats = await ProfileManager().getProfileContentStats();
     setState(() {
       profileContentStats = contentStats;
     });

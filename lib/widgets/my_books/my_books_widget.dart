@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
 import 'package:immersion_reader/pages/reader/reader_stats_page.dart';
-import 'package:immersion_reader/providers/profile_provider.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/widgets/my_books/book_goal/book_goal_widget.dart';
@@ -13,12 +12,10 @@ import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MyBooksWidget extends StatefulWidget {
-  final ProfileProvider profileProvider;
   final SettingsProvider settingsProvider;
   static const String contentType = 'book';
   const MyBooksWidget(
       {super.key,
-      required this.profileProvider,
       required this.settingsProvider});
 
   @override
@@ -60,8 +57,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
 
   @override
   Widget build(BuildContext context) {
-    ReaderSessionManager.createSession(
-        widget.profileProvider, MyBooksWidget.contentType);
+    ReaderSessionManager.createSession(MyBooksWidget.contentType);
     // bool rootNavigator = widget.settingsProvider.getIsEnabledReaderFullScreen();
     void navigateToBook(
         {required String mediaIdentifier, bool isFullScreen = false}) {
@@ -95,8 +91,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                           canOnlySwipeFromEdge: true,
                           backGestureDetectionWidth: 25,
                           builder: (context) {
-                            return ReaderStatsPage(
-                                profileProvider: widget.profileProvider);
+                            return const ReaderStatsPage();
                           }));
                     },
                     child: Row(
@@ -114,7 +109,6 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                               color: CupertinoColors.inactiveGray),
                         ]))),
             BookGoalWidget(
-                profileProvider: widget.profileProvider,
                 onTapBook: (String mediaIdentifier) => navigateToBook(
                     mediaIdentifier: mediaIdentifier,
                     isFullScreen: isEnabledReaderFullScreen)),
