@@ -1,22 +1,21 @@
 import 'package:immersion_reader/data/profile/profile_content.dart';
 import 'package:immersion_reader/providers/profile_provider.dart';
 
-class ReaderSessionProvider {
+class ReaderSessionManager {
   late ProfileProvider profileProvider;
   late String contentType;
   ProfileContent? currentProfileContent;
 
-  ReaderSessionProvider._create() {
-    // print("_create() (private constructor)");
-  }
+  static final ReaderSessionManager _singleton = ReaderSessionManager._internal();
+  ReaderSessionManager._internal();
 
-  static ReaderSessionProvider create(
-      ProfileProvider profileProvider, String contentType) {
-    ReaderSessionProvider observer = ReaderSessionProvider._create();
-    observer.profileProvider = profileProvider;
-    observer.contentType = contentType;
-    return observer;
+  factory ReaderSessionManager.createSession(ProfileProvider profileProvider, String contentType) {
+    _singleton.profileProvider = profileProvider;
+    _singleton.contentType = contentType;
+    return _singleton;
   }
+  
+  factory ReaderSessionManager() => _singleton;
 
   void start({required String key, required String title, int? contentLength}) async {
     bool isSameContent = currentProfileContent != null &&

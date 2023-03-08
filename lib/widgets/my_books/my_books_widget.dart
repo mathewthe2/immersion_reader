@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/book.dart';
+import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
 import 'package:immersion_reader/pages/reader/reader_stats_page.dart';
 import 'package:immersion_reader/providers/profile_provider.dart';
-import 'package:immersion_reader/providers/reader_session_provider.dart';
 import 'package:immersion_reader/providers/settings_provider.dart';
 import 'package:immersion_reader/utils/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/widgets/my_books/book_goal/book_goal_widget.dart';
@@ -60,7 +60,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
 
   @override
   Widget build(BuildContext context) {
-    ReaderSessionProvider readerSessionProvider = ReaderSessionProvider.create(
+    ReaderSessionManager.createSession(
         widget.profileProvider, MyBooksWidget.contentType);
     // bool rootNavigator = widget.settingsProvider.getIsEnabledReaderFullScreen();
     void navigateToBook(
@@ -70,11 +70,11 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
               canOnlySwipeFromEdge: true,
               builder: (context) {
                 return Reader(
-                    initialUrl: mediaIdentifier,
-                    readerSessionProvider: readerSessionProvider);
+                  initialUrl: mediaIdentifier,
+                );
               }))
           .then((value) {
-        readerSessionProvider.stop();
+        ReaderSessionManager().stop();
         setState(() {
           // refresh state
         });
@@ -95,7 +95,8 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                           canOnlySwipeFromEdge: true,
                           backGestureDetectionWidth: 25,
                           builder: (context) {
-                            return ReaderStatsPage(profileProvider: widget.profileProvider);
+                            return ReaderStatsPage(
+                                profileProvider: widget.profileProvider);
                           }));
                     },
                     child: Row(
@@ -131,19 +132,18 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                             return Reader(
                                 isAddBook: true,
                                 initialUrl:
-                                    'http://localhost:${LocalAssetsServerManager.port}',
-
-                                readerSessionProvider: readerSessionProvider);
+                                    'http://localhost:${LocalAssetsServerManager.port}');
                           }))
                       .then((value) {
-                    readerSessionProvider.stop();
+                    ReaderSessionManager().stop();
                     setState(() {
                       // refresh state
                     });
                   });
                 }),
             FutureBuilder<List<Book>>(
-                future: TtuSource.getBooksHistory(LocalAssetsServerManager().server!),
+                future: TtuSource.getBooksHistory(
+                    LocalAssetsServerManager().server!),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     if (snapshot.data!.isEmpty) {

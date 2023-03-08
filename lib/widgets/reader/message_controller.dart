@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:immersion_reader/providers/reader_session_provider.dart';
+import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
 
 class MessageController {
@@ -10,25 +10,21 @@ class MessageController {
   bool hasShownAddedDialog = false;
   bool hasInjectedPopupJs = false;
   bool isReadingBook = false;
-  ReaderSessionProvider? readerSessionProvider;
   PopupDictionary popupDictionary;
   VoidCallback? exitCallback;
   VoidCallback? readerSettingsCallback;
 
   MessageController._internal(
       {required this.popupDictionary,
-      this.readerSessionProvider,
       this.exitCallback,
       this.readerSettingsCallback});
 
   factory MessageController(
           {required PopupDictionary popupDictionary,
-          ReaderSessionProvider? readerSessionProvider,
           VoidCallback? exitCallback,
           VoidCallback? readerSettingsCallback}) =>
       MessageController._internal(
           popupDictionary: popupDictionary,
-          readerSessionProvider: readerSessionProvider,
           exitCallback: exitCallback,
           readerSettingsCallback: readerSettingsCallback);
 
@@ -80,7 +76,7 @@ class MessageController {
                 int bookId = messageJson['bookId'];
                 String title = messageJson['title'];
                 int? totalCharacters = messageJson['bookCharCount'];
-                readerSessionProvider?.start(
+                ReaderSessionManager().start(
                     key: bookId.toString(),
                     title: title,
                     contentLength: totalCharacters);
@@ -89,7 +85,7 @@ class MessageController {
               }
             case 'load-manager':
               {
-                readerSessionProvider?.stop();
+                ReaderSessionManager().stop();
                 isReadingBook = false;
                 break;
               }
@@ -97,7 +93,7 @@ class MessageController {
             {
               int? readCharacters = messageJson['exploredCharCount'];
               if (readCharacters != null) {
-                  readerSessionProvider?.updateProgressOfCurrentContent(readCharacters);
+                  ReaderSessionManager().updateProgressOfCurrentContent(readCharacters);
               }
             }
           }
