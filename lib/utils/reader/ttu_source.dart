@@ -101,7 +101,7 @@ class TtuSource {
       try {
         Uri.parse(data['coverImage']);
         base64Image = data['coverImage'];
-        BookImageManager.saveImageIfNotExists(base64Image: base64Image!, key: id, title: title);
+        BookImageManager().saveImageIfNotExists(base64Image: base64Image!, key: id, title: title);
       } catch (e) {
         base64Image = null;
       }
