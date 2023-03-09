@@ -13,8 +13,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MyBooksWidget extends StatefulWidget {
   static const String contentType = 'book';
-  const MyBooksWidget(
-      {super.key});
+  const MyBooksWidget({super.key});
 
   @override
   State<MyBooksWidget> createState() => _MyBooksWidgetState();
@@ -56,7 +55,6 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
   @override
   Widget build(BuildContext context) {
     ReaderSessionManager.createSession(MyBooksWidget.contentType);
-    // bool rootNavigator = SettingsManager().getIsEnabledReaderFullScreen();
     void navigateToBook(
         {required String mediaIdentifier, bool isFullScreen = false}) {
       Navigator.of(context, rootNavigator: isFullScreen)
@@ -75,101 +73,95 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
       });
     }
 
-    return FutureBuilder<bool>(
-        future: SettingsManager().getIsEnabledReaderFullScreen(),
-        builder: ((context, snapshot) {
-          bool isEnabledReaderFullScreen =
-              snapshot.hasData ? snapshot.data! : false;
-          return Column(children: [
-            Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 0, 20),
-                child: GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(SwipeablePageRoute(
-                          canOnlySwipeFromEdge: true,
-                          backGestureDetectionWidth: 25,
-                          builder: (context) {
-                            return const ReaderStatsPage();
-                          }));
-                    },
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            'View Stats',
-                            style: TextStyle(
-                                color:
-                                    CupertinoColors.label.resolveFrom(context)),
-                          ),
-                          const Icon(
-                              size: 18,
-                              CupertinoIcons.forward,
-                              color: CupertinoColors.inactiveGray),
-                        ]))),
-            BookGoalWidget(
-                onTapBook: (String mediaIdentifier) => navigateToBook(
-                    mediaIdentifier: mediaIdentifier,
-                    isFullScreen: isEnabledReaderFullScreen)),
-            headlineWidget(
-                title: "EPUB Reader",
-                iconData: FontAwesomeIcons.bookOpen,
-                textColor: CupertinoColors.label.resolveFrom(context),
-                onTap: () {
-                  Navigator.of(context,
-                          rootNavigator: isEnabledReaderFullScreen)
-                      .push(SwipeablePageRoute(
-                          canOnlySwipeFromEdge: true,
-                          backGestureDetectionWidth: 25,
-                          builder: (context) {
-                            return Reader(
-                                isAddBook: true,
-                                initialUrl:
-                                    'http://localhost:${LocalAssetsServerManager.port}');
-                          }))
-                      .then((value) {
-                    ReaderSessionManager().stop();
-                    setState(() {
-                      // refresh state
-                    });
-                  });
-                }),
-            FutureBuilder<List<Book>>(
-                future: TtuSource.getBooksHistory(
-                    LocalAssetsServerManager().server!),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    if (snapshot.data!.isEmpty) {
-                      return SizedBox(
-                          height: 200,
-                          child: Column(children: [
-                            const SizedBox(height: 80),
-                            Text('No Books Added',
-                                style: TextStyle(
-                                    color: CupertinoColors.label
-                                        .resolveFrom(context)))
-                          ]));
-                    }
-                    return SizedBox(
-                        height: 200,
-                        child: ListView(
-                            physics: const BouncingScrollPhysics(),
-                            scrollDirection: Axis.horizontal,
-                            children: [
-                              ...snapshot.data!.asMap().entries.map((entry) =>
-                                  BookWidget(
-                                      width: 130,
-                                      book: entry.value,
-                                      onTap: (mediaIdentifier) =>
-                                          navigateToBook(
-                                              mediaIdentifier: mediaIdentifier,
-                                              isFullScreen:
-                                                  isEnabledReaderFullScreen)))
-                            ]));
-                  } else {
-                    return const SizedBox(height: 200);
-                  }
-                }),
-          ]);
-        }));
+    return Column(children: [
+      Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 0, 20),
+          child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(SwipeablePageRoute(
+                    canOnlySwipeFromEdge: true,
+                    backGestureDetectionWidth: 25,
+                    builder: (context) {
+                      return const ReaderStatsPage();
+                    }));
+              },
+              child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                Text(
+                  'View Stats',
+                  style: TextStyle(
+                      color: CupertinoColors.label.resolveFrom(context)),
+                ),
+                const Icon(
+                    size: 18,
+                    CupertinoIcons.forward,
+                    color: CupertinoColors.inactiveGray),
+              ]))),
+      BookGoalWidget(
+          onTapBook: (String mediaIdentifier) => navigateToBook(
+              mediaIdentifier: mediaIdentifier,
+              isFullScreen: SettingsManager()
+                  .cachedAppearanceSettings()
+                  .enableReaderFullScreen)),
+      headlineWidget(
+          title: "EPUB Reader",
+          iconData: FontAwesomeIcons.bookOpen,
+          textColor: CupertinoColors.label.resolveFrom(context),
+          onTap: () {
+            Navigator.of(context,
+                    rootNavigator: SettingsManager()
+                        .cachedAppearanceSettings()
+                        .enableReaderFullScreen)
+                .push(SwipeablePageRoute(
+                    canOnlySwipeFromEdge: true,
+                    backGestureDetectionWidth: 25,
+                    builder: (context) {
+                      return Reader(
+                          isAddBook: true,
+                          initialUrl:
+                              'http://localhost:${LocalAssetsServerManager.port}');
+                    }))
+                .then((value) {
+              ReaderSessionManager().stop();
+              setState(() {
+                // refresh state
+              });
+            });
+          }),
+      FutureBuilder<List<Book>>(
+          future: TtuSource.getBooksHistory(LocalAssetsServerManager().server!),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              if (snapshot.data!.isEmpty) {
+                return SizedBox(
+                    height: 200,
+                    child: Column(children: [
+                      const SizedBox(height: 80),
+                      Text('No Books Added',
+                          style: TextStyle(
+                              color:
+                                  CupertinoColors.label.resolveFrom(context)))
+                    ]));
+              }
+              return SizedBox(
+                  height: 200,
+                  child: ListView(
+                      physics: const BouncingScrollPhysics(),
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        ...snapshot.data!.asMap().entries.map((entry) =>
+                            BookWidget(
+                                width: 130,
+                                book: entry.value,
+                                onTap: (mediaIdentifier) => navigateToBook(
+                                    mediaIdentifier: mediaIdentifier,
+                                    isFullScreen: SettingsManager()
+                                        .cachedAppearanceSettings()
+                                        .enableReaderFullScreen)))
+                      ]));
+            } else {
+              return const SizedBox(height: 200);
+            }
+          }),
+    ]);
   }
 }

@@ -22,8 +22,18 @@ class SettingsManager {
 
   factory SettingsManager() => _singleton;
 
+  AppearanceSetting cachedAppearanceSettings() {
+    if (settingsStorage?.settingsCache != null) {
+      return settingsStorage!.settingsCache!.appearanceSetting;
+    } else {
+      return defaultConfigCache!.appearanceSetting;
+    }
+  }
+
   Future<SettingsData> _getSettingsData() async {
-    return settingsStorage == null ? await _getDefaultConfig() : await settingsStorage!.getConfigSettings();
+    return settingsStorage == null
+        ? await _getDefaultConfig()
+        : await settingsStorage!.getConfigSettings();
   }
 
   Future<SettingsData> _getDefaultConfig() async {
