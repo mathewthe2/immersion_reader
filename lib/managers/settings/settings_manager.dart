@@ -22,9 +22,13 @@ class SettingsManager {
 
   factory SettingsManager() => _singleton;
 
+  SettingsData? cachedSettings() {
+    return settingsStorage?.settingsCache;
+  }
+
   AppearanceSetting cachedAppearanceSettings() {
-    if (settingsStorage?.settingsCache != null) {
-      return settingsStorage!.settingsCache!.appearanceSetting;
+    if (cachedSettings() != null) {
+      return cachedSettings()!.appearanceSetting;
     } else {
       return defaultConfigCache!.appearanceSetting;
     }

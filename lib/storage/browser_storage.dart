@@ -1,31 +1,18 @@
 import 'package:immersion_reader/data/browser/browser_bookmark.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart' as p;
-import 'dart:io';
+import 'package:immersion_reader/storage/abstract_storage.dart';
 
-class BrowserStorage {
-  Database? database;
-  static const databaseName = 'browser.db';
+class BrowserStorage extends AbstractStorage {
+  @override
+  String get databaseStorageName => databaseName;
 
-  BrowserStorage._create() {
-    // print("_create() (private constructor)");
-  }
+  static const String databaseName = 'browser.db';
+
+  BrowserStorage._create();
 
   static Future<BrowserStorage> create() async {
-    BrowserStorage browserStorage = BrowserStorage._create();
-    String databasesPath = await getDatabasesPath();
-     String path = p.join(databasesPath, databaseName);
-    try {
-      await Directory(databasesPath).create(recursive: true);
-    } catch (_) {}
-
-    // delete existing if any
-    // await deleteDatabase(path);
-
-    // opening the database
-    browserStorage.database =
-        await openDatabase(path, version: 1, onCreate: _onCreateStorageData);
-    return browserStorage;
+    BrowserStorage storage = BrowserStorage._create();
+    storage.initDatabase();
+    return storage;
   }
 
   Future<List<BrowserBookmark>> getBookmarks() async {
@@ -52,22 +39,5 @@ class BrowserStorage {
   Future<void> deleteBookmark(int bookmarkId) async {
     await database!
         .rawDelete('DELETE FROM Bookmarks WHERE id = ?', [bookmarkId]);
-  }
-
-  static Future<void> _onCreateStorageData(Database db, int version) async {
-    Batch batch = db.batch();
-    batch.execute('''
-            CREATE TABLE Bookmarks (
-            id INTEGER PRIMARY KEY, name TEXT, url TEXT, parent INTEGER, 
-            type INTEGER)
-          ''');
-    batch.execute('''
-            CREATE TABLE History (
-            id INTEGER PRIMARY KEY, name TEXT, url TEXT, timestamp INTEGER)
-          ''');
-
-    // indexes
-    batch.execute("CREATE INDEX index_Bookmarks_parent ON Bookmarks(parent)");
-    await batch.commit();
   }
 }

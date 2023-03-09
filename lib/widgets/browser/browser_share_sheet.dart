@@ -1,14 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:immersion_reader/data/browser/browser_bookmark.dart';
-import 'package:immersion_reader/providers/browser_provider.dart';
+import 'package:immersion_reader/managers/browser/browser_manager.dart';
 
 class BrowserShareSheet extends StatefulWidget {
-  final BrowserProvider? browserProvider;
   final InAppWebViewController? webViewController;
   const BrowserShareSheet(
       {super.key,
-      required this.browserProvider,
       required this.webViewController});
 
   @override
@@ -24,7 +22,7 @@ class _BrowserShareSheetState extends State<BrowserShareSheet> {
           await widget.webViewController!.getTitle() ?? url.toString();
       // List<Favicon> icons = await widget.webViewController!.getFavicons();
       // print(icons);
-      await widget.browserProvider!.addBookmarkWithUrl(BrowserBookmark.fromLink(name, url));
+      await BrowserManager().addBookmarkWithUrl(BrowserBookmark.fromLink(name, url));
     }
   }
 

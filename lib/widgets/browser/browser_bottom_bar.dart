@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/widgets/browser/bookmarks_sheet.dart';
 import 'package:immersion_reader/widgets/browser/settings/browser_settings_sheet.dart';
 import 'package:immersion_reader/widgets/browser/browser_share_sheet.dart';
@@ -8,12 +7,10 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 
 class BrowserBottomBar extends StatefulWidget {
-  final BrowserProvider? browserProvider;
   final InAppWebViewController? webViewController;
   final ValueNotifier notifier;
   const BrowserBottomBar(
       {super.key,
-      required this.browserProvider,
       required this.webViewController,
       required this.notifier});
 
@@ -84,8 +81,7 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                               color: backgroundColor,
                               height: MediaQuery.of(context).size.height * .40,
                               child: BrowserShareSheet(
-                                  webViewController: widget.webViewController,
-                                  browserProvider: widget.browserProvider))))),
+                                  webViewController: widget.webViewController))))),
               toolbarIconButton(
                   CupertinoIcons.book,
                   () => showCupertinoModalBottomSheet(
@@ -97,7 +93,6 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                               color: backgroundColor,
                               height: MediaQuery.of(context).size.height * .40,
                               child: BookmarksSheet(
-                                  browserProvider: widget.browserProvider,
                                   webViewController:
                                       widget.webViewController))))),
               toolbarIconButton(
@@ -113,8 +108,6 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                                       backgroundColor: backgroundColor,
                                       child: GestureDetector(
                                         child: BrowserSettingsSheet(
-                                            browserProvider:
-                                                widget.browserProvider,
                                             notifier: widget.notifier),
                                         onTap: () {
                                           // context2 or context3 will return the Navigator inside the modal

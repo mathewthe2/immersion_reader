@@ -1,15 +1,18 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/managers/browser/browser_manager.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 // import 'package:immersion_reader/pages/browser.dart';
 import 'package:immersion_reader/pages/discover.dart';
 import 'package:immersion_reader/pages/reader/reader_page.dart';
-import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
 import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
+import 'package:immersion_reader/storage/abstract_storage.dart';
+import 'package:immersion_reader/storage/browser_storage.dart';
 import 'package:immersion_reader/storage/profile_storage.dart';
+import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
@@ -35,9 +38,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   int currentIndex = 0;
   SharedPreferences? sharedPreferences;
   VocabularyListProvider? vocabularyListProvider;
-  BrowserProvider? browserProvider;
-  ProfileStorage? _profileStorage;
-  SettingsStorage? _settingsStorage;
   PaymentProvider? paymentProvider;
   bool isLocalAssetsServerReady = false;
   bool isProvidersReady = false;
@@ -71,12 +71,23 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     sharedPreferences = await SharedPreferences.getInstance();
     paymentProvider = await PaymentProvider.create(sharedPreferences!);
     vocabularyListProvider = await VocabularyListProvider.create();
-    _settingsStorage = await SettingsStorage.create();
-    _profileStorage = await ProfileStorage.create();
-    ProfileManager.createProfile(_profileStorage!);
-    browserProvider = await BrowserProvider.create(_settingsStorage!);
-    SettingsManager.createSettings(_settingsStorage!);
-    DictionaryManager.createDictionary(_settingsStorage!);
+
+    const resultMap= {
+      BrowserStorage: 0,
+      ProfileStorage: 1,
+      SettingsStorage: 2,
+      VocabularyListStorage: 3
+    };
+    List<dynamic> results = await Future.wait([
+      BrowserStorage.create(),
+      ProfileStorage.create(),
+      SettingsStorage.create(),
+      VocabularyListStorage.create(),
+    ]);
+    ProfileManager.createProfile(results[resultMap[ProfileStorage]!]);
+    BrowserManager.create(results[resultMap[BrowserStorage]!], results[resultMap[SettingsStorage]!]);
+    SettingsManager.createSettings(results[resultMap[SettingsStorage]!]);
+    DictionaryManager.createDictionary(results[resultMap[SettingsStorage]!]);
     setState(() {
       isProvidersReady = true;
     });
@@ -172,11 +183,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   Widget getViewWidget(int index) {
     List<Widget> viewWidgets = [
       Discover(sharedPreferences: sharedPreferences!),
-      ReaderPage(
-          browserProvider: browserProvider, paymentProvider: paymentProvider!),
-      //  Browser(
-      //     browserProvider: browserProvider,
-      //     dictionaryProvider: dictionaryProvider!),
+      ReaderPage(paymentProvider: paymentProvider!),
+      //  const Browser(),
       ValueListenableBuilder(
           valueListenable: _notifier,
           builder: (context, val, child) => VocabularyListPage(

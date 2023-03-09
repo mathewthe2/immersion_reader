@@ -1,3 +1,5 @@
+import 'package:immersion_reader/data/database/browser_storage_sql.dart';
+import 'package:immersion_reader/storage/browser_storage.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_migration/sqflite_migration.dart';
 import 'package:immersion_reader/data/database/profile_storage_sql.dart';
@@ -29,6 +31,8 @@ class SqlRepository {
     switch (databaseName) {
       case ProfileStorage.databaseName:
         return MigrationConfig(initializationScript: _sqlStringToList(profileStorageSQLString), migrationScripts: profileStorageMigrations);
+      case BrowserStorage.databaseName:
+       return MigrationConfig(initializationScript: _sqlStringToList(browserStorageSQLString), migrationScripts: browserStorageMigrations);
       default:
         return null;
     }

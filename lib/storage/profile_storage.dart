@@ -1,38 +1,24 @@
-import 'package:immersion_reader/data/database/sql_repository.dart';
 import 'package:immersion_reader/data/profile/profile_content.dart';
 import 'package:immersion_reader/data/profile/profile_content_session.dart';
 import 'package:immersion_reader/data/profile/profile_content_stats.dart';
 import 'package:immersion_reader/data/profile/profile_daily_stats.dart';
 import 'package:immersion_reader/data/profile/profile_goal.dart';
 import 'package:immersion_reader/data/profile/profile_session.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:sqflite_migration/sqflite_migration.dart';
-import 'package:path/path.dart' as p;
-import 'dart:io';
+import 'package:immersion_reader/storage/abstract_storage.dart';
 
-class ProfileStorage {
-  Database? database;
-  static const databaseName = 'profile.db';
+class ProfileStorage extends AbstractStorage {
+  @override
+  String get databaseStorageName => databaseName;
+
+  static const String databaseName = 'profile.db';
   static const int goalSeconds = 900;
   static const int sessionLimit = 500;
 
-  ProfileStorage._create() {
-    // print("_create() (private constructor)");
-  }
+  ProfileStorage._create();
 
   static Future<ProfileStorage> create() async {
     ProfileStorage storage = ProfileStorage._create();
-    String databasesPath = await getDatabasesPath();
-    String path = p.join(databasesPath, databaseName);
-    try {
-      await Directory(databasesPath).create(recursive: true);
-    } catch (_) {}
-
-    // delete existing if any
-    // await deleteDatabase(path);
-
-    storage.database = await openDatabaseWithMigration(
-        path, SqlRepository.getDatabaseConfig(ProfileStorage.databaseName)!);
+    storage.initDatabase();
     return storage;
   }
 

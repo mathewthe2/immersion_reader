@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:immersion_reader/providers/browser_provider.dart';
+import 'package:immersion_reader/managers/browser/browser_manager.dart';
+import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/utils/browser/browser_content_blockers.dart';
 import 'package:immersion_reader/utils/browser/browser_js.dart';
@@ -10,13 +11,11 @@ import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart'
 import 'package:immersion_reader/widgets/reader/message_controller.dart';
 
 class Browser extends StatefulWidget {
-  final BrowserProvider? browserProvider;
   final bool hasUserControls;
   final String? initialUrl;
 
   const Browser(
       {super.key,
-      this.browserProvider,
       this.initialUrl,
       this.hasUserControls = true});
 
@@ -45,19 +44,16 @@ class _BrowserState extends State<Browser> {
         parentContext: context,
         vocabularyListStorage: vocabularyListStorage!);
     messageController = MessageController(popupDictionary: popupDictionary);
-    if (widget.browserProvider != null) {
-      widget.browserProvider!.getBookmarks();
-    }
+    BrowserManager().getBookmarks();
   }
 
   void setupContentBlockers() {
-    if (widget.browserProvider == null) {
+    if (SettingsManager().cachedSettings() == null) {
       return;
     }
-    if (widget.browserProvider!.settingsStorage!.settingsCache!.browserSetting
+    if (SettingsManager().cachedSettings()!.browserSetting
         .enableAdBlock) {
-      List<String> urlFilters = widget.browserProvider!.settingsStorage!
-          .settingsCache!.browserSetting.urlFilters;
+      List<String> urlFilters = SettingsManager().cachedSettings()!.browserSetting.urlFilters;
       contentBlockers = BrowserContentBlockers.getContentBlockers(urlFilters);
     } else {
       contentBlockers = [];
@@ -118,7 +114,6 @@ class _BrowserState extends State<Browser> {
                         hasNoUserControls
                             ? Container()
                             : BrowserBottomBar(
-                                browserProvider: widget.browserProvider,
                                 webViewController: webViewController,
                                 notifier: _notifier),
                       ]))

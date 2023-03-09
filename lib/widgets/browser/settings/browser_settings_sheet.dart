@@ -1,13 +1,11 @@
 import 'package:flutter/cupertino.dart';
-import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/widgets/browser/settings/browser_ad_block_page.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 
 class BrowserSettingsSheet extends StatefulWidget {
-  final BrowserProvider? browserProvider;
   final ValueNotifier notifier;
   const BrowserSettingsSheet(
-      {super.key, required this.browserProvider, required this.notifier});
+      {super.key, required this.notifier});
 
   @override
   State<BrowserSettingsSheet> createState() => _BrowserSettingsSheetState();
@@ -35,7 +33,6 @@ class _BrowserSettingsSheetState extends State<BrowserSettingsSheet> {
                   Navigator.push(context,
                       SwipeablePageRoute(builder: (context) {
                     return BrowserAdBlockPage(
-                        browserProvider: widget.browserProvider,
                         notifier: widget.notifier);
                   }))
                 })

@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/settings/browser_setting.dart';
-import 'package:immersion_reader/providers/browser_provider.dart';
+import 'package:immersion_reader/managers/browser/browser_manager.dart';
 
 class BrowserAdBlockPage extends StatefulWidget {
-  final BrowserProvider? browserProvider;
   final ValueNotifier notifier;
   const BrowserAdBlockPage(
-      {super.key, required this.browserProvider, required this.notifier});
+      {super.key, required this.notifier});
 
   @override
   State<BrowserAdBlockPage> createState() => _BrowserAdBlockPageState();
@@ -33,7 +32,7 @@ class _BrowserAdBlockPageState extends State<BrowserAdBlockPage> {
         navigationBar: const CupertinoNavigationBar(middle: Text('Ad Block')),
         child: SafeArea(
             child: FutureBuilder<BrowserSetting>(
-          future: widget.browserProvider!.getBrowserSettings(),
+          future: BrowserManager().getBrowserSettings(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               BrowserSetting browserSetting = snapshot.data!;
@@ -46,7 +45,7 @@ class _BrowserAdBlockPageState extends State<BrowserAdBlockPage> {
                       title: const Text('Enable Ad Block'),
                       trailing: CupertinoSwitch(
                           onChanged: (bool? value) async {
-                            await widget.browserProvider?.toggleEnableAdBlock(value!);
+                            await BrowserManager().toggleEnableAdBlock(value!);
                             widget.notifier.value = !widget.notifier.value;
                             setState(() {});
                           },
@@ -60,8 +59,7 @@ class _BrowserAdBlockPageState extends State<BrowserAdBlockPage> {
                           minLines: 1,
                           controller: _textController,
                           onChanged: (value) async {
-                            await widget.browserProvider
-                                ?.updateUrlFilters(value.split('\n'));
+                            await BrowserManager().updateUrlFilters(value.split('\n'));
                             widget.notifier.value = !widget.notifier.value;
                           },
                           decoration: BoxDecoration(

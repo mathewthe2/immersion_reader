@@ -2,14 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:immersion_reader/data/browser/browser_bookmark.dart';
-import 'package:immersion_reader/providers/browser_provider.dart';
-
+import 'package:immersion_reader/managers/browser/browser_manager.dart';
 class BookmarksSheet extends StatefulWidget {
-  final BrowserProvider? browserProvider;
   final InAppWebViewController? webViewController;
   const BookmarksSheet(
       {super.key,
-      required this.browserProvider,
       required this.webViewController});
 
   @override
@@ -36,7 +33,7 @@ class _BookmarksSheetState extends State<BookmarksSheet> {
   }
 
   Future<void> handleDeleteBookmark(BrowserBookmark bookmark) async {
-    await widget.browserProvider?.deleteBookmark(bookmark.id);
+    await BrowserManager().deleteBookmark(bookmark.id);
     setState(() {
       bookmarks.removeWhere((element) => element.id == bookmark.id);
     });
@@ -57,7 +54,7 @@ class _BookmarksSheetState extends State<BookmarksSheet> {
           child: Text('Bookmarks',
               style: TextStyle(color: textColor, fontSize: 20))),
       FutureBuilder<List<BrowserBookmark>>(
-          future: widget.browserProvider?.getBookmarks(),
+          future: BrowserManager().getBookmarks(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               bookmarks = snapshot.data!;

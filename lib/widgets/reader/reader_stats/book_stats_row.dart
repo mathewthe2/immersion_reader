@@ -33,6 +33,7 @@ class BookStatsRow extends StatelessWidget {
                 TextStyle(color: CupertinoColors.label.resolveFrom(context))),
         Text(label,
             style: TextStyle(
+                fontSize: 14,
                 color: CupertinoColors.secondaryLabel.resolveFrom(context))),
       ]);
     }
@@ -87,24 +88,25 @@ class BookStatsRow extends StatelessWidget {
           ])),
       const SizedBox(height: 12),
       Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  statsRow(
-                      label: 'character${charactersRead != '1' ? 's' : ''} read',
-                      value: charactersRead,
-                      icon: FontAwesomeIcons.font),
-                  statsRow(
-                      label: 'character${charactersPerSecond != '1.00' ? 's' : ''}/sec',
-                      value: charactersPerSecond,
-                      icon: FontAwesomeIcons.bolt),
-                  statsRow(
-                      label: 'word${vocabularyMined != 1 ? 's' : ''} mined',
-                      value: vocabularyMined.toString(),
-                      icon: FontAwesomeIcons.solidStar),
-                ],
-              ))
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              statsRow(
+                  label: 'character${charactersRead != '1' ? 's' : ''} read',
+                  value: charactersRead,
+                  icon: FontAwesomeIcons.font),
+              statsRow(
+                  label:
+                      'character${charactersPerSecond != '1.00' ? 's' : ''}/sec',
+                  value: charactersPerSecond,
+                  icon: FontAwesomeIcons.bolt),
+              statsRow(
+                  label: 'word${vocabularyMined != 1 ? 's' : ''} mined',
+                  value: vocabularyMined.toString(),
+                  icon: FontAwesomeIcons.solidStar),
+            ],
+          ))
     ]);
   }
 }

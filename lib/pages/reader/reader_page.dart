@@ -1,15 +1,12 @@
 import 'package:flutter/cupertino.dart';
-import 'package:immersion_reader/providers/browser_provider.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
 import 'package:immersion_reader/widgets/my_books/browser_catalog.dart';
 import 'package:immersion_reader/widgets/my_books/my_books_widget.dart';
 
 class ReaderPage extends StatefulWidget {
-  final BrowserProvider? browserProvider;
   final PaymentProvider paymentProvider;
   const ReaderPage(
       {super.key,
-      required this.browserProvider,
       required this.paymentProvider});
 
   @override
@@ -40,9 +37,7 @@ class _ReaderPageState extends State<ReaderPage> {
                     const SizedBox(height: 20),
                     const MyBooksWidget(),
                     // GestureDetector(onTap: ()=>_requestPurchase("immersion_reader_plus"), )
-                    BrowserCatalog(
-                        paymentProvider: widget.paymentProvider,
-                        browserProvider: widget.browserProvider!)
+                    BrowserCatalog(paymentProvider: widget.paymentProvider)
                   ])))))
         ]));
   }
