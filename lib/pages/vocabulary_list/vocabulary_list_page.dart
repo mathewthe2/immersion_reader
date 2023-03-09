@@ -1,21 +1,17 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/managers/vocabulary_list/vocabulary_list_manager.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:immersion_reader/pages/vocabulary_list/vocabulary_detail_edit_page.dart';
-import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:immersion_reader/utils/exporter.dart';
 import 'package:immersion_reader/utils/system_dialog.dart';
 
 class VocabularyListPage extends StatefulWidget {
-  final VocabularyListProvider vocabularyListProvider;
-  final ValueNotifier notifier;
+  final ValueNotifier<bool> notifier;
 
-  const VocabularyListPage(
-      {super.key,
-      required this.vocabularyListProvider,
-      required this.notifier});
+  const VocabularyListPage({super.key, required this.notifier});
 
   @override
   State<VocabularyListPage> createState() => _VocabularyListPageState();
@@ -23,12 +19,12 @@ class VocabularyListPage extends StatefulWidget {
 
 class _VocabularyListPageState extends State<VocabularyListPage> {
   Future<void> deleteVocabulary(Vocabulary vocabulary) async {
-    await widget.vocabularyListProvider.deleteVocabularyItem(vocabulary);
+    await VocabularyListManager().deleteVocabularyItem(vocabulary);
     widget.notifier.value = !widget.notifier.value;
   }
 
   Future<void> deleteAllVocabulary() async {
-    await widget.vocabularyListProvider.deleteAllVocabularyItems();
+    await VocabularyListManager().deleteAllVocabularyItems();
     widget.notifier.value = !widget.notifier.value;
   }
 
@@ -45,88 +41,93 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
             child: const Icon(CupertinoIcons.ellipsis)),
       )),
       SliverFillRemaining(
-          child: widget.vocabularyListProvider.vocabularyList.isNotEmpty
-              ? Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Container(
-                      color: CupertinoDynamicColor.resolve(
-                          const CupertinoDynamicColor.withBrightness(
-                              color: CupertinoColors.systemGroupedBackground,
-                              darkColor: CupertinoColors.black),
-                          context),
-                      child: CupertinoScrollbar(
-                          child: SingleChildScrollView(
-                              child: SafeArea(
-                                  child: CupertinoListSection
-                                      .insetGrouped(
+          child: ValueListenableBuilder(
+              valueListenable: widget.notifier,
+              builder: (context, val, child) => VocabularyListManager()
+                      .vocabularyList
+                      .isNotEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Container(
+                          color: CupertinoDynamicColor.resolve(
+                              const CupertinoDynamicColor.withBrightness(
+                                  color:
+                                      CupertinoColors.systemGroupedBackground,
+                                  darkColor: CupertinoColors.black),
+                              context),
+                          child: CupertinoScrollbar(
+                              child: SingleChildScrollView(
+                                  child: SafeArea(
+                                      child: CupertinoListSection.insetGrouped(
                                           // header: const Text('My Words'),
                                           children: [
-                            ...widget.vocabularyListProvider.vocabularyList
-                                .map((Vocabulary vocabulary) {
-                              return GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(context,
-                                        SwipeablePageRoute(builder: (context) {
-                                      return VocabularyDetailEditPage(
-                                          vocabularyListProvider:
-                                              widget.vocabularyListProvider,
-                                          vocabulary: vocabulary,
-                                          notifier: widget.notifier);
-                                    }));
-                                  },
-                                  child: Slidable(
-                                      key: ValueKey<String>(
-                                          vocabulary.getIdentifier()),
+                                ...VocabularyListManager()
+                                    .vocabularyList
+                                    .map((Vocabulary vocabulary) {
+                                  return GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(context,
+                                            SwipeablePageRoute(
+                                                builder: (context) {
+                                          return VocabularyDetailEditPage(
+                                              vocabulary: vocabulary,
+                                              notifier: widget.notifier);
+                                        }));
+                                      },
+                                      child: Slidable(
+                                          key: ValueKey<String>(
+                                              vocabulary.uniqueId),
 
-                                      // The end action pane is the one at the right or the bottom side.
-                                      endActionPane: ActionPane(
-                                        motion: const ScrollMotion(),
-                                        children: [
-                                          // SlidableAction(
-                                          //   onPressed: (context) {},
-                                          //   backgroundColor:
-                                          //       CupertinoColors.systemBlue,
-                                          //   foregroundColor:
-                                          //       CupertinoColors.white,
-                                          //   icon: CupertinoIcons.share,
-                                          // ),
-                                          // SlidableAction(
-                                          //   onPressed: (context) {},
-                                          //   backgroundColor:
-                                          //       CupertinoColors.systemPurple,
-                                          //   foregroundColor:
-                                          //       CupertinoColors.white,
-                                          //   icon: CupertinoIcons.folder_fill,
-                                          // ),
-                                          SlidableAction(
-                                            onPressed: (context) =>
-                                                deleteVocabulary(vocabulary),
-                                            backgroundColor:
-                                                CupertinoColors.destructiveRed,
-                                            foregroundColor:
-                                                CupertinoColors.white,
-                                            icon: CupertinoIcons.delete,
-                                            // label: 'Delete',
+                                          // The end action pane is the one at the right or the bottom side.
+                                          endActionPane: ActionPane(
+                                            motion: const ScrollMotion(),
+                                            children: [
+                                              // SlidableAction(
+                                              //   onPressed: (context) {},
+                                              //   backgroundColor:
+                                              //       CupertinoColors.systemBlue,
+                                              //   foregroundColor:
+                                              //       CupertinoColors.white,
+                                              //   icon: CupertinoIcons.share,
+                                              // ),
+                                              // SlidableAction(
+                                              //   onPressed: (context) {},
+                                              //   backgroundColor:
+                                              //       CupertinoColors.systemPurple,
+                                              //   foregroundColor:
+                                              //       CupertinoColors.white,
+                                              //   icon: CupertinoIcons.folder_fill,
+                                              // ),
+                                              SlidableAction(
+                                                onPressed: (context) =>
+                                                    deleteVocabulary(
+                                                        vocabulary),
+                                                backgroundColor: CupertinoColors
+                                                    .destructiveRed,
+                                                foregroundColor:
+                                                    CupertinoColors.white,
+                                                icon: CupertinoIcons.delete,
+                                                // label: 'Delete',
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
-                                      child: CupertinoListTile
-                                          .notched(
-                                        title:
-                                            Text(vocabulary.expression ?? ""),
-                                        subtitle: SizedBox(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.7,
-                                            child: Text(
-                                              vocabulary.getFirstGlossary(),
-                                              overflow: TextOverflow.ellipsis,
-                                            )),
-                                      )));
-                            }).toList()
-                          ]))))))
-              : Container())
+                                          child: CupertinoListTile.notched(
+                                            title: Text(
+                                                vocabulary.expression ?? ""),
+                                            subtitle: SizedBox(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.7,
+                                                child: Text(
+                                                  vocabulary.getFirstGlossary(),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                )),
+                                          )));
+                                }).toList()
+                              ]))))))
+                  : Container()))
     ]);
   }
 
@@ -145,7 +146,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
           onPressed: () async {
             Navigator.pop(context);
             String filePath = await exportToAnkiDojoCSV(
-                widget.vocabularyListProvider.vocabularyList);
+                VocabularyListManager().vocabularyList);
             if (filePath.isNotEmpty) {
               if (filePath.isNotEmpty) {
                 final box = context.findRenderObject() as RenderBox?;

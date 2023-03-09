@@ -90,10 +90,10 @@ class Dictionary {
       Vocabulary vocabulary = Vocabulary(entries: [dictionaryEntry]);
       // to do: refactor to remove extra data in vocabulary
       vocabulary.tags = dictionaryEntry.meaningTags;
-      vocabulary.id = vocabulary.getIdentifier();
+      vocabulary.id = vocabulary.uniqueId;
       vocabulary.expression = dictionaryEntry.term;
       vocabulary.reading = dictionaryEntry.reading;
-      String vocabularyKey = vocabulary.getIdentifier();
+      String vocabularyKey = vocabulary.uniqueId;
       if (vocabularyMap.containsKey(vocabularyKey)) {
         vocabularyMap[vocabularyKey]!.entries = [
           ...vocabularyMap[vocabularyKey]!.entries,
@@ -149,11 +149,11 @@ class Dictionary {
 
       // to do: refactor to remove extra data in vocabulary
       vocabulary.tags = dictionaryEntry.meaningTags + addons;
-      vocabulary.id = vocabulary.getIdentifier();
+      vocabulary.id = vocabulary.uniqueId;
       vocabulary.expression = dictionaryEntry.term;
       vocabulary.reading = dictionaryEntry.reading;
 
-      String vocabularyKey = vocabulary.getIdentifier();
+      String vocabularyKey = vocabulary.uniqueId;
       if (vocabularyMap.containsKey(vocabularyKey)) {
         vocabularyMap[vocabularyKey]!.entries = [
           ...vocabularyMap[vocabularyKey]!.entries,

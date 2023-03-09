@@ -4,16 +4,15 @@ import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
+import 'package:immersion_reader/managers/vocabulary_list/vocabulary_list_manager.dart';
 import 'package:immersion_reader/widgets/vocabulary/frequency_widget.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_definition.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_tile.dart';
-import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/utils/language_utils.dart';
 
 class VocabularyTileList extends StatefulWidget {
   final List<Vocabulary> vocabularyList;
   final PopupDictionaryThemeData popupDictionaryThemeData;
-  final VocabularyListStorage? vocabularyListStorage;
   final String text;
   final int targetIndex;
   const VocabularyTileList(
@@ -21,8 +20,7 @@ class VocabularyTileList extends StatefulWidget {
       required this.text,
       required this.popupDictionaryThemeData,
       required this.targetIndex,
-      required this.vocabularyList,
-      required this.vocabularyListStorage});
+      required this.vocabularyList});
 
   @override
   State<VocabularyTileList> createState() => _VocabularyTileListState();
@@ -43,31 +41,35 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
   }
 
   Future<void> _checkExistsVocabulary(List<Vocabulary> vocabularyList) async {
-    existingVocabularyIds = await widget.vocabularyListStorage!
+    existingVocabularyIds = await VocabularyListManager()
+        .vocabularyListStorage!
         .getExistsVocabularyList(vocabularyList);
     setState(() {});
   }
 
   Future<void> addOrRemoveFromVocabularyList(Vocabulary vocabulary) async {
-    if (widget.vocabularyListStorage != null) {
+    if (VocabularyListManager().vocabularyListStorage != null) {
       if (ifVocabularyExists(vocabulary)) {
         // remove vocabulary
-        await widget.vocabularyListStorage!
-            .deleteVocabularyItem(vocabulary.getIdentifier());
+        await VocabularyListManager()
+            .vocabularyListStorage!
+            .deleteVocabularyItem(vocabulary.uniqueId);
         ProfileManager().decrementVocabularyMined();
-        existingVocabularyIds.remove(vocabulary.getIdentifier());
+        existingVocabularyIds.remove(vocabulary.uniqueId);
       } else {
         // add vocabulary
-        await widget.vocabularyListStorage!.addVocabularyItem(vocabulary);
+        await VocabularyListManager()
+            .vocabularyListStorage!
+            .addVocabularyItem(vocabulary);
         ProfileManager().incrementVocabularyMined();
-        existingVocabularyIds.add(vocabulary.getIdentifier());
+        existingVocabularyIds.add(vocabulary.uniqueId);
       }
       setState(() {});
     }
   }
 
   bool ifVocabularyExists(Vocabulary vocabulary) {
-    return existingVocabularyIds.contains(vocabulary.getIdentifier());
+    return existingVocabularyIds.contains(vocabulary.uniqueId);
   }
 
   List<String> _getNeighboringText(String text, int index) {

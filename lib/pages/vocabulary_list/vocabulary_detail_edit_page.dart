@@ -1,18 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
-import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
 import "package:immersion_reader/extensions/string_extension.dart";
+import 'package:immersion_reader/managers/vocabulary_list/vocabulary_list_manager.dart';
 import 'package:immersion_reader/utils/system_dialog.dart';
 
 class VocabularyDetailEditPage extends StatefulWidget {
   final Vocabulary vocabulary;
-  final VocabularyListProvider vocabularyListProvider;
   final ValueNotifier notifier;
   const VocabularyDetailEditPage(
-      {super.key,
-      required this.vocabulary,
-      required this.vocabularyListProvider,
-      required this.notifier});
+      {super.key, required this.vocabulary, required this.notifier});
 
   @override
   State<VocabularyDetailEditPage> createState() =>
@@ -73,7 +69,7 @@ class _VocabularyDetailEditPageState extends State<VocabularyDetailEditPage> {
                         context)),
               ),
               onChanged: (value) async {
-                await widget.vocabularyListProvider
+                await VocabularyListManager()
                     .updateVocabularyItem(widget.vocabulary, key, value);
                 widget.notifier.value = !widget.notifier.value;
               },
@@ -100,7 +96,7 @@ class _VocabularyDetailEditPageState extends State<VocabularyDetailEditPage> {
                       showAlertDialog(context,
                           "Do you want to delete ${widget.vocabulary.getValueByInformationKey(VocabularyInformationKey.expression)}?",
                           () {
-                        widget.vocabularyListProvider
+                        VocabularyListManager()
                             .deleteVocabularyItem(widget.vocabulary);
                         Navigator.pop(context);
                       });

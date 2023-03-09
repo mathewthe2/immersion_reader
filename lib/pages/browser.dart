@@ -39,10 +39,8 @@ class _BrowserState extends State<Browser> {
   }
 
   Future<void> getDictionaryAndBookmarks() async {
-    vocabularyListStorage = await VocabularyListStorage.create();
     popupDictionary = PopupDictionary(
-        parentContext: context,
-        vocabularyListStorage: vocabularyListStorage!);
+        parentContext: context);
     messageController = MessageController(popupDictionary: popupDictionary);
     BrowserManager().getBookmarks();
   }

@@ -11,7 +11,7 @@ enum VocabularyInformationKey {
 }
 
 class Vocabulary {
-  String? id;
+  String? id; // expressoin_reading
   int folderId = 1; // default folder id
   String? expression;
   String? reading;
@@ -30,6 +30,8 @@ class Vocabulary {
   String glossary = ''; // grouped meanings from all entries
   // dictionaryEntries
   List<DictionaryEntry> entries = [];
+
+  String get uniqueId => '${expression}_$reading';
 
   Vocabulary(
       {this.id,
@@ -77,10 +79,6 @@ class Vocabulary {
     return [
       ...{...list}
     ];
-  }
-
-  String getIdentifier() {
-    return '${expression}_$reading';
   }
 
   double getPopularity() {

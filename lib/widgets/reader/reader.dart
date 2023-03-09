@@ -32,8 +32,7 @@ class _ReaderState extends State<Reader> {
   Future<void> createPopupDictionary() async {
     vocabularyListStorage = await VocabularyListStorage.create();
     popupDictionary = PopupDictionary(
-        parentContext: context,
-        vocabularyListStorage: vocabularyListStorage!);
+        parentContext: context);
     messageController = MessageController(
         popupDictionary: popupDictionary,
         exitCallback: () => Navigator.of(context).pop());

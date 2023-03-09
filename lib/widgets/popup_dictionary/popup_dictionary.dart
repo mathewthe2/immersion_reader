@@ -7,12 +7,10 @@ import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_tile_list.d
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class PopupDictionary {
-  final VocabularyListStorage vocabularyListStorage;
   final BuildContext parentContext;
 
   PopupDictionary(
-      {required this.vocabularyListStorage,
-      required this.parentContext});
+      {required this.parentContext});
 
   Future<void> showVocabularyList(String text, int index) async {
     if (index < 0 || index >= text.length) {
@@ -45,8 +43,7 @@ class PopupDictionary {
                               targetIndex: index,
                               popupDictionaryThemeData:
                                   popupDictionaryThemeData,
-                              vocabularyList: const [],
-                              vocabularyListStorage: vocabularyListStorage)))));
+                              vocabularyList: const [])))));
         });
   }
 }

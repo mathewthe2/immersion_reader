@@ -6,6 +6,7 @@ import 'package:immersion_reader/japanese/vocabulary.dart';
 
 class VocabularyListStorage {
   Database? database;
+  List<Vocabulary> vocabularyListCache = [];
 
   static const databaseName = 'vocabulary_list.db';
   static const String defaultFolderName = 'Favorties';
@@ -37,6 +38,7 @@ class VocabularyListStorage {
       await batch.commit();
     });
 
+    vocabularyListStorage.vocabularyListCache = await vocabularyListStorage.getVocabularyItems();
     return vocabularyListStorage;
   }
 
@@ -46,7 +48,7 @@ class VocabularyListStorage {
       return [];
     }
     List<String> vocabularyIdentifierList = vocabularyList
-        .map((Vocabulary vocabulary) => vocabulary.getIdentifier())
+        .map((Vocabulary vocabulary) => vocabulary.uniqueId)
         .toList();
     List<Map> list = await database!.rawQuery('''
         with cte(vocab_id) as
@@ -64,7 +66,7 @@ class VocabularyListStorage {
     int id = await database!.rawInsert(
         'INSERT INTO Vocabulary(id, folderId, expression, reading, glossary, tags, sentence) VALUES(?, ?, ?, ?, ?, ?, ?)',
         [
-          vocabulary.getIdentifier(),
+          vocabulary.uniqueId,
           vocabulary.folderId,
           vocabulary.expression,
           vocabulary.reading,
@@ -72,6 +74,8 @@ class VocabularyListStorage {
           (vocabulary.tags ?? []).join(' '),
           vocabulary.sentence
         ]);
+    vocabulary.id = vocabulary.uniqueId;
+    vocabularyListCache = [...vocabularyListCache, vocabulary];
     return id;
   }
 
@@ -83,6 +87,7 @@ class VocabularyListStorage {
         .rawQuery('SELECT * FROM Vocabulary'); // to do: add limit
     List<Vocabulary> vocabularyList =
         rows.map((row) => Vocabulary.fromMap(row)).toList();
+    vocabularyListCache = vocabularyList;
     return vocabularyList;
   }
 
@@ -91,7 +96,7 @@ class VocabularyListStorage {
     if (database == null) {
       return vocabulary;
     }
-    String vocabularyId = vocabulary.getIdentifier();
+    String vocabularyId = vocabulary.uniqueId;
     int count = await database!.rawUpdate(
         'UPDATE Vocabulary SET ${Vocabulary.vocabularyDatabaseMap[key]} = ? WHERE id = ?',
         [value, vocabularyId]);
@@ -99,9 +104,14 @@ class VocabularyListStorage {
     if (count > 0 &&
         [VocabularyInformationKey.expression, VocabularyInformationKey.reading]
             .contains(key)) {
-      String newId = vocabulary.getIdentifier();
+      String newId = vocabulary.uniqueId;
       await database!.rawUpdate(
           'UPDATE Vocabulary SET id = ? WHERE id = ?', [newId, vocabularyId]);
+    }
+    vocabulary.entries = []; // remove dictionary entries and only keep glossary; temporary patch for getCompleteGlossary() as glossary updates not showing
+    int index = vocabularyListCache.indexOf(vocabulary);
+    if (index >= 0 && index < vocabularyListCache.length) {
+      vocabularyListCache[index] = vocabulary;
     }
     return vocabulary;
   }
@@ -112,6 +122,7 @@ class VocabularyListStorage {
     }
     int count = await database!
         .rawDelete('DELETE FROM Vocabulary WHERE id = ?', [vocabularyId]);
+    vocabularyListCache = List.from(vocabularyListCache)..removeWhere((vocabulary) => vocabulary.uniqueId == vocabularyId);
     return count;
   }
 
@@ -120,6 +131,7 @@ class VocabularyListStorage {
       return 0;
     }
     int count = await database!.rawDelete('DELETE FROM Vocabulary');
+    vocabularyListCache = [];
     return count;
   }
 }

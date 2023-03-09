@@ -3,18 +3,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/managers/browser/browser_manager.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
-// import 'package:immersion_reader/pages/browser.dart';
+import 'package:immersion_reader/managers/vocabulary_list/vocabulary_list_manager.dart';
 import 'package:immersion_reader/pages/discover.dart';
 import 'package:immersion_reader/pages/reader/reader_page.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
 import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
-import 'package:immersion_reader/storage/abstract_storage.dart';
 import 'package:immersion_reader/storage/browser_storage.dart';
 import 'package:immersion_reader/storage/profile_storage.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:immersion_reader/providers/vocabulary_list_provider.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
 import 'pages/settings/settings_page.dart';
 import 'pages/search_page.dart';
@@ -37,7 +35,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   final int vocabularyListPageIndex = 2;
   int currentIndex = 0;
   SharedPreferences? sharedPreferences;
-  VocabularyListProvider? vocabularyListProvider;
+  // VocabularyListProvider? vocabularyListProvider;
   PaymentProvider? paymentProvider;
   bool isLocalAssetsServerReady = false;
   bool isProvidersReady = false;
@@ -70,9 +68,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   Future<void> setupProviders() async {
     sharedPreferences = await SharedPreferences.getInstance();
     paymentProvider = await PaymentProvider.create(sharedPreferences!);
-    vocabularyListProvider = await VocabularyListProvider.create();
 
-    const resultMap= {
+    const resultMap = {
       BrowserStorage: 0,
       ProfileStorage: 1,
       SettingsStorage: 2,
@@ -85,9 +82,11 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       VocabularyListStorage.create(),
     ]);
     ProfileManager.createProfile(results[resultMap[ProfileStorage]!]);
-    BrowserManager.create(results[resultMap[BrowserStorage]!], results[resultMap[SettingsStorage]!]);
+    BrowserManager.create(results[resultMap[BrowserStorage]!],
+        results[resultMap[SettingsStorage]!]);
     SettingsManager.createSettings(results[resultMap[SettingsStorage]!]);
     DictionaryManager.createDictionary(results[resultMap[SettingsStorage]!]);
+    VocabularyListManager.create(results[resultMap[VocabularyListStorage]!]);
     setState(() {
       isProvidersReady = true;
     });
@@ -129,6 +128,12 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     return isProvidersReady && isLocalAssetsServerReady;
   }
 
+  void notifyVocabularyListToUpdate() {
+    setState(() {
+        _notifier.value = !_notifier.value;
+      });
+    }
+
   void handleSwitchNavigation(int index) async {
     if (index != readerPageIndex || currentIndex == index) {
       // exclude reader tab
@@ -137,8 +142,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
           ?.popUntil((r) => r.isFirst); // pop to root of each page
     }
 
-    if (index == vocabularyListPageIndex && vocabularyListProvider != null) {
-      await vocabularyListProvider!.getVocabularyList();
+    if (index == vocabularyListPageIndex && isReady()) {
+      notifyVocabularyListToUpdate();
     }
 
     // handle leave reader session
@@ -187,9 +192,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       //  const Browser(),
       ValueListenableBuilder(
           valueListenable: _notifier,
-          builder: (context, val, child) => VocabularyListPage(
-              vocabularyListProvider: vocabularyListProvider!,
-              notifier: _notifier)),
+          builder: (context, val, child) =>
+              VocabularyListPage(notifier: _notifier)),
       const SearchPage(),
       const SettingsPage()
     ];
