@@ -1,46 +1,22 @@
-import 'package:immersion_reader/data/database/sql_repository.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart' as p;
-import 'dart:io';
+import 'package:immersion_reader/storage/abstract_storage.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 
-class VocabularyListStorage {
-  Database? database;
-  List<Vocabulary> vocabularyListCache = [];
+class VocabularyListStorage extends AbstractStorage {
+  @override
+  String get databaseStorageName => databaseName;
 
-  static const databaseName = 'vocabulary_list.db';
-  static const String defaultFolderName = 'Favorties';
-  static const int defaultFolderId = 1;
+  static const String databaseName = 'vocabulary_list.db';
 
-  VocabularyListStorage._create() {
-    // print("_create() (private constructor)");
-  }
+  VocabularyListStorage._create();
 
   static Future<VocabularyListStorage> create() async {
-    VocabularyListStorage vocabularyListStorage =
-        VocabularyListStorage._create();
-    String databasesPath = await getDatabasesPath();
-    String path = p.join(databasesPath, databaseName);
-    try {
-      await Directory(databasesPath).create(recursive: true);
-    } catch (_) {}
-
-    // delete existing if any
-    // await deleteDatabase(path);
-
-    // opening the database
-    vocabularyListStorage.database = await openDatabase(path, version: 1,
-        onCreate: (Database db, int version) async {
-      // When creating the db, create the table\
-      Batch batch = await SqlRepository.insertTablesForDatabase(db, VocabularyListStorage.databaseName);
-      batch.rawInsert("INSERT INTO Folder(id, name) VALUES(?, ?)",
-          [defaultFolderId, defaultFolderName]);
-      await batch.commit();
-    });
-
-    vocabularyListStorage.vocabularyListCache = await vocabularyListStorage.getVocabularyItems();
-    return vocabularyListStorage;
+    VocabularyListStorage storage = VocabularyListStorage._create();
+    storage.initDatabase();
+    storage.vocabularyListCache = await storage.getVocabularyItems();
+    return storage;
   }
+
+  List<Vocabulary> vocabularyListCache = [];
 
   Future<List<String>> getExistsVocabularyList(
       List<Vocabulary> vocabularyList) async {

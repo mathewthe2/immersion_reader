@@ -35,7 +35,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   final int vocabularyListPageIndex = 2;
   int currentIndex = 0;
   SharedPreferences? sharedPreferences;
-  // VocabularyListProvider? vocabularyListProvider;
   PaymentProvider? paymentProvider;
   bool isLocalAssetsServerReady = false;
   bool isProvidersReady = false;

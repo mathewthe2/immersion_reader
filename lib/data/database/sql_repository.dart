@@ -33,6 +33,8 @@ class SqlRepository {
         return MigrationConfig(initializationScript: _sqlStringToList(profileStorageSQLString), migrationScripts: profileStorageMigrations);
       case BrowserStorage.databaseName:
        return MigrationConfig(initializationScript: _sqlStringToList(browserStorageSQLString), migrationScripts: browserStorageMigrations);
+      case VocabularyListStorage.databaseName:
+        return MigrationConfig(initializationScript: _sqlStringToList(vocablaryListStorageSQLString), migrationScripts: vocablaryListStorageMigrations);
       default:
         return null;
     }
