@@ -1,19 +1,13 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
-import 'package:immersion_reader/managers/browser/browser_manager.dart';
+import 'package:immersion_reader/managers/manager_service.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
-import 'package:immersion_reader/managers/settings/settings_manager.dart';
-import 'package:immersion_reader/managers/vocabulary_list/vocabulary_list_manager.dart';
 import 'package:immersion_reader/pages/discover.dart';
 import 'package:immersion_reader/pages/reader/reader_page.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
-import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
-import 'package:immersion_reader/storage/browser_storage.dart';
-import 'package:immersion_reader/storage/profile_storage.dart';
-import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
+import 'package:immersion_reader/storage/storage_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:immersion_reader/storage/settings_storage.dart';
 import 'pages/settings/settings_page.dart';
 import 'pages/search_page.dart';
 import 'pages/vocabulary_list/vocabulary_list_page.dart';
@@ -36,6 +30,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   int currentIndex = 0;
   SharedPreferences? sharedPreferences;
   PaymentProvider? paymentProvider;
+  late StorageProvider storageProvider;
   bool isLocalAssetsServerReady = false;
   bool isProvidersReady = false;
 
@@ -67,25 +62,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   Future<void> setupProviders() async {
     sharedPreferences = await SharedPreferences.getInstance();
     paymentProvider = await PaymentProvider.create(sharedPreferences!);
-
-    const resultMap = {
-      BrowserStorage: 0,
-      ProfileStorage: 1,
-      SettingsStorage: 2,
-      VocabularyListStorage: 3
-    };
-    List<dynamic> results = await Future.wait([
-      BrowserStorage.create(),
-      ProfileStorage.create(),
-      SettingsStorage.create(),
-      VocabularyListStorage.create(),
-    ]);
-    ProfileManager.createProfile(results[resultMap[ProfileStorage]!]);
-    BrowserManager.create(results[resultMap[BrowserStorage]!],
-        results[resultMap[SettingsStorage]!]);
-    SettingsManager.createSettings(results[resultMap[SettingsStorage]!]);
-    DictionaryManager.createDictionary(results[resultMap[SettingsStorage]!]);
-    VocabularyListManager.create(results[resultMap[VocabularyListStorage]!]);
+    storageProvider = await StorageProvider.create();
+    ManagerService.setupAll(storageProvider);
     setState(() {
       isProvidersReady = true;
     });
@@ -129,9 +107,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   void notifyVocabularyListToUpdate() {
     setState(() {
-        _notifier.value = !_notifier.value;
-      });
-    }
+      _notifier.value = !_notifier.value;
+    });
+  }
 
   void handleSwitchNavigation(int index) async {
     if (index != readerPageIndex || currentIndex == index) {

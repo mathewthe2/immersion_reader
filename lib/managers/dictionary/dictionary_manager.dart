@@ -13,7 +13,7 @@ class DictionaryManager {
   static final DictionaryManager _singleton = DictionaryManager._internal();
   DictionaryManager._internal();
 
-  factory DictionaryManager.createDictionary(SettingsStorage settingsStorage) {
+  factory DictionaryManager.create(SettingsStorage settingsStorage) {
     _singleton.translator = Translator.create(settingsStorage);
     return _singleton;
   }

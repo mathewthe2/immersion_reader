@@ -19,7 +19,7 @@ class ProfileManager {
   static final ProfileManager _singleton = ProfileManager._internal();
   ProfileManager._internal();
 
-  factory ProfileManager.createProfile(ProfileStorage profileStorage) {
+  factory ProfileManager.create(ProfileStorage profileStorage) {
     _singleton.profileStorage = profileStorage;
     return _singleton;
   }

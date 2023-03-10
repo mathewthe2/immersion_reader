@@ -1,3 +1,7 @@
+import 'package:immersion_reader/storage/browser_storage.dart';
+import 'package:immersion_reader/storage/profile_storage.dart';
+import 'package:immersion_reader/storage/settings_storage.dart';
+import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/utils/sqflite_migrations/sqflite_migrations.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:immersion_reader/data/database/sql_repository.dart';
@@ -12,6 +16,26 @@ abstract class AbstractStorage {
   Function? onCreateCallback; // callback after database is created
   Function? onOpenCallback; // callback after database is open
   String? databasePrototypePath; // clone from existing database file if exists
+
+  static Future<AbstractStorage?> create(Type? storageType) async {
+    AbstractStorage? storage;
+    switch (storageType) {
+      case BrowserStorage:
+        storage = BrowserStorage();
+        break;
+      case ProfileStorage: 
+        storage = ProfileStorage();
+        break;
+      case SettingsStorage:
+        storage = SettingsStorage();
+        break;
+      case VocabularyListStorage:
+        storage = VocabularyListStorage();
+        break;
+    }
+    await storage?.initDatabase();
+    return storage;
+  }
 
   Future<void> initDatabase() async {
     String databasesPath = await getDatabasesPath();

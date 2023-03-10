@@ -14,13 +14,9 @@ class ProfileStorage extends AbstractStorage {
   static const int goalSeconds = 900;
   static const int sessionLimit = 500;
 
-  ProfileStorage._create();
-
-  static Future<ProfileStorage> create() async {
-    ProfileStorage storage = ProfileStorage._create();
-    storage.initDatabase();
-    return storage;
-  }
+  static final ProfileStorage _singleton = ProfileStorage._internal();
+  ProfileStorage._internal();
+  factory ProfileStorage() => _singleton;
 
   Future<int> getContentIdElseCreate(ProfileContent content) async {
     var rows = await database!.rawQuery(

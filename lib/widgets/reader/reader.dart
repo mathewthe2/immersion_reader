@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/profile/profile_content.dart';
-import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
 import 'package:immersion_reader/widgets/reader/message_controller.dart';
@@ -23,14 +22,12 @@ class Reader extends StatefulWidget {
 }
 
 class _ReaderState extends State<Reader> {
-  VocabularyListStorage? vocabularyListStorage;
   InAppWebViewController? webViewController;
   ProfileContent? currentProfileContent;
   late PopupDictionary popupDictionary;
   late MessageController messageController;
 
   Future<void> createPopupDictionary() async {
-    vocabularyListStorage = await VocabularyListStorage.create();
     popupDictionary = PopupDictionary(
         parentContext: context);
     messageController = MessageController(

@@ -16,7 +16,7 @@ class PaymentProvider {
   List<IAPItem>? _items;
   List<PurchasedItem>? _purchases;
   bool hasConnectionError = false;
-  static bool devMode = true; // avoid payments for simulator
+  static bool devMode = false; // avoid payments for simulator
 
   PaymentProvider._create() {
     // print("_create() (private constructor)");

@@ -5,18 +5,21 @@ class VocabularyListStorage extends AbstractStorage {
   @override
   String get databaseStorageName => databaseName;
 
+  @override
+  Function get onOpenCallback => (() => initCache());
+
   static const String databaseName = 'vocabulary_list.db';
 
-  VocabularyListStorage._create();
-
-  static Future<VocabularyListStorage> create() async {
-    VocabularyListStorage storage = VocabularyListStorage._create();
-    storage.initDatabase();
-    storage.vocabularyListCache = await storage.getVocabularyItems();
-    return storage;
-  }
+  static final VocabularyListStorage _singleton =
+      VocabularyListStorage._internal();
+  VocabularyListStorage._internal();
+  factory VocabularyListStorage() => _singleton;
 
   List<Vocabulary> vocabularyListCache = [];
+
+  Future<void> initCache() async {
+    vocabularyListCache = await getVocabularyItems();
+  }
 
   Future<List<String>> getExistsVocabularyList(
       List<Vocabulary> vocabularyList) async {
@@ -84,7 +87,8 @@ class VocabularyListStorage extends AbstractStorage {
       await database!.rawUpdate(
           'UPDATE Vocabulary SET id = ? WHERE id = ?', [newId, vocabularyId]);
     }
-    vocabulary.entries = []; // remove dictionary entries and only keep glossary; temporary patch for getCompleteGlossary() as glossary updates not showing
+    vocabulary.entries =
+        []; // remove dictionary entries and only keep glossary; temporary patch for getCompleteGlossary() as glossary updates not showing
     int index = vocabularyListCache.indexOf(vocabulary);
     if (index >= 0 && index < vocabularyListCache.length) {
       vocabularyListCache[index] = vocabulary;
@@ -98,7 +102,8 @@ class VocabularyListStorage extends AbstractStorage {
     }
     int count = await database!
         .rawDelete('DELETE FROM Vocabulary WHERE id = ?', [vocabularyId]);
-    vocabularyListCache = List.from(vocabularyListCache)..removeWhere((vocabulary) => vocabulary.uniqueId == vocabularyId);
+    vocabularyListCache = List.from(vocabularyListCache)
+      ..removeWhere((vocabulary) => vocabulary.uniqueId == vocabularyId);
     return count;
   }
 

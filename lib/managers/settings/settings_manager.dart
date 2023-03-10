@@ -15,7 +15,7 @@ class SettingsManager {
   static final SettingsManager _singleton = SettingsManager._internal();
   SettingsManager._internal();
 
-  factory SettingsManager.createSettings(SettingsStorage settingsStorage) {
+  factory SettingsManager.create(SettingsStorage settingsStorage) {
     _singleton.settingsStorage = settingsStorage;
     return _singleton;
   }

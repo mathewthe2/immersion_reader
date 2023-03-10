@@ -7,13 +7,9 @@ class BrowserStorage extends AbstractStorage {
 
   static const String databaseName = 'browser.db';
 
-  BrowserStorage._create();
-
-  static Future<BrowserStorage> create() async {
-    BrowserStorage storage = BrowserStorage._create();
-    storage.initDatabase();
-    return storage;
-  }
+  static final BrowserStorage _singleton = BrowserStorage._internal();
+  BrowserStorage._internal();
+  factory BrowserStorage() => _singleton;
 
   Future<List<BrowserBookmark>> getBookmarks() async {
     if (database == null) {

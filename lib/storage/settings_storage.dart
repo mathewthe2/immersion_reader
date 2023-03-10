@@ -19,20 +19,16 @@ class SettingsStorage extends AbstractStorage {
   Function get onCreateCallback => (() => insertDefaultSettings());
 
   @override
-  Function get onOpenCallback => (() =>initCache());
+  Function get onOpenCallback => (() => initCache());
 
   @override
   String get databasePrototypePath => p.join("assets", "japanese", "data.db");
 
+  static final SettingsStorage _singleton = SettingsStorage._internal();
+  SettingsStorage._internal();
+  factory SettingsStorage() => _singleton;
+
   static const String databaseName = 'data.db';
-
-  SettingsStorage._create();
-
-  static Future<SettingsStorage> create() async {
-    SettingsStorage storage = SettingsStorage._create();
-    storage.initDatabase();
-    return storage;
-  }
 
   List<DictionarySetting>? dictionarySettingCache;
   SettingsData? settingsCache;
