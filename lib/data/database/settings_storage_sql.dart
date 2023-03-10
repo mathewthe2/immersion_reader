@@ -14,3 +14,5 @@ const String settingsStorageSQLString = '''
   CREATE INDEX index_VocabFreq_reading ON VocabFreq(reading)
   CREATE INDEX index_VocabPitch_expression ON VocabPitch(expression ASC)
   CREATE INDEX index_VocabPitch_reading ON VocabPitch(reading ASC)''';
+
+  const List<String> settingsStorageMigrations = [];

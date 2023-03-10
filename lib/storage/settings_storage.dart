@@ -1,8 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:immersion_reader/data/database/sql_repository.dart';
+import 'package:immersion_reader/storage/abstract_storage.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 import 'package:immersion_reader/data/settings/settings_data.dart';
@@ -12,50 +11,32 @@ import 'package:immersion_reader/dictionary/pitch_data.dart';
 import 'package:immersion_reader/data/settings/dictionary_setting.dart';
 import 'package:immersion_reader/dictionary/dictionary_entry.dart';
 
-class SettingsStorage {
-  Database? database;
-  List<DictionarySetting>? dictionarySettingCache;
-  SettingsData? settingsCache;
-  static const databaseName = 'data.db';
+class SettingsStorage extends AbstractStorage {
+  @override
+  String get databaseStorageName => databaseName;
 
-  SettingsStorage._create() {
-    // print("_create() (private constructor)");
-  }
+  @override
+  Function get onCreateCallback => (() => insertDefaultSettings());
+
+  @override
+  Function get onOpenCallback => (() =>initCache());
+
+  @override
+  String get databasePrototypePath => p.join("assets", "japanese", "data.db");
+
+  static const String databaseName = 'data.db';
+
+  SettingsStorage._create();
 
   static Future<SettingsStorage> create() async {
-    SettingsStorage settingsStorage = SettingsStorage._create();
-    String databasesPath = await getDatabasesPath();
-    String path = p.join(databasesPath, databaseName);
-    debugPrint('path; $path');
-    try {
-      await Directory(databasesPath).create(recursive: true);
-    } catch (_) {}
-
-    // delete existing if any
-    // await deleteDatabase(path);
-
-    // copy from resources if data doesn't exist
-    await File(path).exists();
-    if (!File(path).existsSync()) {
-      // Copy from asset
-      ByteData data =
-          await rootBundle.load(p.join("assets", "japanese", "data.db"));
-      List<int> bytes =
-          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-      await File(path).writeAsBytes(bytes, flush: true);
-    }
-
-    // opening the database
-    settingsStorage.database = await openDatabase(
-      path,
-      version: 1,
-      onCreate: onCreateStorageData,
-    );
-
-    settingsStorage.settingsCache = await settingsStorage.getConfigSettings();
-    return settingsStorage;
+    SettingsStorage storage = SettingsStorage._create();
+    storage.initDatabase();
+    return storage;
   }
 
+  List<DictionarySetting>? dictionarySettingCache;
+  SettingsData? settingsCache;
+  
   Future<List<DictionarySetting>> getDictionarySettings() async {
     if (database == null) {
       return [];
@@ -70,6 +51,10 @@ class SettingsStorage {
         rows.map((row) => DictionarySetting.fromMap(row)).toList();
     dictionarySettingCache = dictionarySettingList;
     return dictionarySettingList;
+  }
+
+  Future<void> initCache() async {
+    settingsCache = await getConfigSettings();
   }
 
   Future<String> getDictionaryNameFromId(int dictionaryId) async {
@@ -273,26 +258,24 @@ class SettingsStorage {
           enabled: true));
     }
   }
-}
 
-void onCreateStorageData(Database db, int version) async {
-  Batch batch = await SqlRepository.insertTablesForDatabase(db, SettingsStorage.databaseName);
-  batch = await insertDefaultSettings(batch);
-  await batch.commit();
-}
-
-Future<Batch> insertDefaultSettings(Batch batch) async {
-  ByteData bytes =
-      await rootBundle.load(p.join("assets", "settings", "defaultConfig.json"));
-  String jsonStr = const Utf8Decoder().convert(bytes.buffer.asUint8List());
-  Map<String, Object?> json = jsonDecode(jsonStr);
-  for (MapEntry<String, Object?> categoryEntry in json.entries) {
-    Map<String, Object?> map = categoryEntry.value as Map<String, Object?>;
-    for (MapEntry<String, Object?> entry in map.entries) {
-      batch.rawInsert(
-          "INSERT INTO Config(title, customValue, category) VALUES(?, ?, ?)",
-          [entry.key, entry.value, categoryEntry.key]);
+  Future<void> insertDefaultSettings() async {
+    if (database == null) {
+      return;
     }
+    Batch batch = database!.batch();
+    ByteData bytes = await rootBundle
+        .load(p.join("assets", "settings", "defaultConfig.json"));
+    String jsonStr = const Utf8Decoder().convert(bytes.buffer.asUint8List());
+    Map<String, Object?> json = jsonDecode(jsonStr);
+    for (MapEntry<String, Object?> categoryEntry in json.entries) {
+      Map<String, Object?> map = categoryEntry.value as Map<String, Object?>;
+      for (MapEntry<String, Object?> entry in map.entries) {
+        batch.rawInsert(
+            "INSERT INTO Config(title, customValue, category) VALUES(?, ?, ?)",
+            [entry.key, entry.value, categoryEntry.key]);
+      }
+    }
+    await batch.commit();
   }
-  return batch;
 }

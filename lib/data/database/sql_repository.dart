@@ -1,7 +1,7 @@
 import 'package:immersion_reader/data/database/browser_storage_sql.dart';
 import 'package:immersion_reader/storage/browser_storage.dart';
+import 'package:immersion_reader/utils/sqflite_migrations/migration_config.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:sqflite_migration/sqflite_migration.dart';
 import 'package:immersion_reader/data/database/profile_storage_sql.dart';
 import 'package:immersion_reader/data/database/settings_storage_sql.dart';
 import 'package:immersion_reader/data/database/vocabulary_list_storage_sql.dart';
@@ -29,18 +29,30 @@ class SqlRepository {
 
   static MigrationConfig? getDatabaseConfig(String databaseName) {
     switch (databaseName) {
-      case ProfileStorage.databaseName:
-        return MigrationConfig(initializationScript: _sqlStringToList(profileStorageSQLString), migrationScripts: profileStorageMigrations);
       case BrowserStorage.databaseName:
-       return MigrationConfig(initializationScript: _sqlStringToList(browserStorageSQLString), migrationScripts: browserStorageMigrations);
+        return MigrationConfig(
+            initializationScript: _sqlStringToList(browserStorageSQLString),
+            migrationScripts: browserStorageMigrations);
+      case ProfileStorage.databaseName:
+        return MigrationConfig(
+            initializationScript: _sqlStringToList(profileStorageSQLString),
+            migrationScripts: profileStorageMigrations);
+      case SettingsStorage.databaseName:
+        return MigrationConfig(
+            initializationScript: _sqlStringToList(settingsStorageSQLString),
+            migrationScripts: settingsStorageMigrations);
       case VocabularyListStorage.databaseName:
-        return MigrationConfig(initializationScript: _sqlStringToList(vocablaryListStorageSQLString), migrationScripts: vocablaryListStorageMigrations);
+        return MigrationConfig(
+            initializationScript:
+                _sqlStringToList(vocablaryListStorageSQLString),
+            migrationScripts: vocablaryListStorageMigrations);
       default:
         return null;
     }
   }
 
-  static Future<Batch> insertTablesForDatabase(Database database, String databaseName) async {
+  static Future<Batch> insertTablesForDatabase(
+      Database database, String databaseName) async {
     Batch batch = database.batch();
     for (String sqlCommand in _getSqlCommands(databaseName)) {
       batch.execute(sqlCommand);
