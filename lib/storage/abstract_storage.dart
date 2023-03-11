@@ -52,11 +52,11 @@ abstract class AbstractStorage {
         List<int> bytes =
             data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
         await File(path).writeAsBytes(bytes, flush: true);
+        if (onCreateCallback != null) {
+          await onCreateCallback!();
+        }
       }
       database = await openDatabase(path);
-      if (onCreateCallback != null) {
-        await onCreateCallback!();
-      }
     }
 
     database = await SqfliteMigrations.openDatabaseWithMigration(
