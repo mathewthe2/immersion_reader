@@ -86,7 +86,6 @@ class _BrowserShareSheetState extends State<BrowserShareSheet> {
   Widget _selectHTMLModalBuilder(BuildContext context) {
     return CupertinoActionSheet(
       title: const Text('Select HTML file'),
-      // message: const Text('Message'),
       actions: [
         ..._htmlFiles.map((String htmlPath) => CupertinoActionSheetAction(
               child: Text(htmlPath),

@@ -77,9 +77,11 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                                       child: Slidable(
                                           key: ValueKey<String>(
                                               vocabulary.uniqueId),
-
                                           // The end action pane is the one at the right or the bottom side.
                                           endActionPane: ActionPane(
+                                            dismissible: DismissiblePane(
+                                                onDismissed: () {},
+                                                motion: const BehindMotion()),
                                             motion: const ScrollMotion(),
                                             children: [
                                               // SlidableAction(
@@ -99,9 +101,18 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                                               //   icon: CupertinoIcons.folder_fill,
                                               // ),
                                               SlidableAction(
-                                                onPressed: (context) =>
-                                                    deleteVocabulary(
-                                                        vocabulary),
+                                                autoClose: false,
+                                                onPressed: (context) async {
+                                                  var state =
+                                                      Slidable.of(context);
+                                                  await state?.dismiss(
+                                                      ResizeRequest(
+                                                          const Duration(
+                                                              milliseconds:
+                                                                  300),
+                                                          () {}));
+                                                  deleteVocabulary(vocabulary);
+                                                },
                                                 backgroundColor: CupertinoColors
                                                     .destructiveRed,
                                                 foregroundColor:
