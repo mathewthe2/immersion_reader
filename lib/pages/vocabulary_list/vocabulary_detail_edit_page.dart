@@ -95,7 +95,7 @@ class _VocabularyDetailEditPageState extends State<VocabularyDetailEditPage> {
                     onPressed: () {
                       showAlertDialog(context,
                           "Do you want to delete ${widget.vocabulary.getValueByInformationKey(VocabularyInformationKey.expression)}?",
-                          () {
+                          onConfirmCallback: () {
                         VocabularyListManager()
                             .deleteVocabularyItem(widget.vocabulary);
                         Navigator.pop(context);

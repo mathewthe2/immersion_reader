@@ -71,7 +71,7 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
               toolbarIconButton(CupertinoIcons.chevron_forward,
                   () => widget.webViewController?.goForward()),
               toolbarIconButton(
-                  CupertinoIcons.share,
+                  CupertinoIcons.tray,
                   () => showCupertinoModalBottomSheet(
                       context: context,
                       useRootNavigator: true,

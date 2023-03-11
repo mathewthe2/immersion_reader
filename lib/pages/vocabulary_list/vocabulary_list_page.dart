@@ -148,7 +148,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
             String filePath = await exportToAnkiDojoCSV(
                 VocabularyListManager().vocabularyList);
             if (filePath.isNotEmpty) {
-              if (filePath.isNotEmpty) {
+              if (filePath.isNotEmpty && context.mounted) {
                 final box = context.findRenderObject() as RenderBox?;
                 Share.shareFiles([filePath],
                     sharePositionOrigin:
@@ -168,7 +168,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
           onPressed: () async {
             Navigator.pop(context);
             showAlertDialog(context, "Do you want to delete all your words?",
-                deleteAllVocabulary);
+                onConfirmCallback: deleteAllVocabulary);
           },
         ),
       ],

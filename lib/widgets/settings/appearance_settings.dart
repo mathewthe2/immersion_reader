@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:immersion_reader/data/settings/appearance_setting.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/widgets/settings/popup_dictionary_theme_settings.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';

@@ -1,7 +1,17 @@
 import 'package:flutter/cupertino.dart';
 
-void showAlertDialog(
-    BuildContext context, String message, VoidCallback onConfirmCallback) {
+void showInfoDialog(BuildContext context, String message,
+    {VoidCallback? onConfirmCallback}) {
+  showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+            title: const Text('Information'),
+            content: Text(message),
+          ));
+}
+
+void showAlertDialog(BuildContext context, String message,
+    {VoidCallback? onConfirmCallback}) {
   showCupertinoModalPopup<void>(
       context: context,
       builder: (BuildContext context) => CupertinoAlertDialog(
@@ -19,7 +29,9 @@ void showAlertDialog(
                 isDestructiveAction: true,
                 onPressed: () {
                   Navigator.pop(context);
-                  onConfirmCallback();
+                  if (onConfirmCallback != null) {
+                    onConfirmCallback();
+                  }
                 },
                 child: const Text('Yes'),
               ),

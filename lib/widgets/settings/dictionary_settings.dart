@@ -110,7 +110,7 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                                         showAlertDialog(
                                             context,
                                             "Do you want to delete ${dictionarySetting.title}?",
-                                            () => removeDictionary(
+                                            onConfirmCallback: () => removeDictionary(
                                                 dictionarySetting.id))
                                       },
                                       child: const Icon(
