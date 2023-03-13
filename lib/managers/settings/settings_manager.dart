@@ -77,6 +77,18 @@ class SettingsManager {
     return data.appearanceSetting.enableReaderFullScreen;
   }
 
+  Future<void> toggleKeepScreenOn(bool isKeepScreenOn) async {
+    await settingsStorage?.changeConfigSettings(
+        AppearanceSetting.isKeepScreenOnKey, isKeepScreenOn ? "1" : "0",
+        onSuccessCallback: () => settingsStorage!
+            .settingsCache!.appearanceSetting.isKeepScreenOn = isKeepScreenOn);
+  }
+
+  Future<bool> getIsKeepScreenOn() async {
+    SettingsData data = await _getSettingsData();
+    return data.appearanceSetting.isKeepScreenOn;
+  }
+
   Future<void> toggleEnableSlideAnimation(bool enableSlideAnimation) async {
     await settingsStorage?.changeConfigSettings(
         AppearanceSetting.enableSlideAnimationKey,

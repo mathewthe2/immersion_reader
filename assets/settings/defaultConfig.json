@@ -4,7 +4,8 @@
         "enable_slide_animation": "1",
         "show_frequency_tags": "1",
         "pitch_accent_display_style": "graph",
-        "enable_full_screen": "0"
+        "enable_full_screen": "0",
+        "keep_screen_on": "0"
     },
     "browser": {
         "enable_ad_block": "1",

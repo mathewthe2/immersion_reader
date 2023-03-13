@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:wakelock/wakelock.dart';
 import 'package:immersion_reader/managers/manager_service.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
+import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/pages/discover.dart';
 import 'package:immersion_reader/pages/reader/reader_page.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
@@ -111,7 +113,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     });
   }
 
-  void handleSwitchNavigation(int index) async {
+  void handleSwitchNavigation(int index) {
     if (index != readerPageIndex || currentIndex == index) {
       // exclude reader tab
       tabNavKeys[index]
@@ -123,14 +125,26 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       notifyVocabularyListToUpdate();
     }
 
-    // handle leave reader session
-    if (currentIndex == readerPageIndex) {
-      ProfileManager().endSession();
-    } else if (index == readerPageIndex && currentIndex != index) {
-      ProfileManager().restartSession();
-    }
-
+    handleReaderSession(
+        isStartSession: (index == readerPageIndex && currentIndex != index),
+        isTerminateSession: (currentIndex == readerPageIndex));
     currentIndex = index;
+  }
+
+  Future<void> handleReaderSession(
+      {required bool isTerminateSession, required bool isStartSession}) async {
+    if (isTerminateSession) {
+      ProfileManager().endSession();
+      Wakelock.disable();
+    } else if (isStartSession) {
+      ProfileManager().restartSession();
+      bool isKeepScreenOn = await SettingsManager().getIsKeepScreenOn();
+      if (isKeepScreenOn) {
+        Wakelock.enable();
+      } else {
+        Wakelock.disable();
+      }
+    }
   }
 
   @override

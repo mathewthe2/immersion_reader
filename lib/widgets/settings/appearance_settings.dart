@@ -18,9 +18,14 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
       ValueNotifier(false);
   static const String dictionaryAppearanceLabel = 'Dictionary Appearance';
   static const String readerAppearanceLabel = 'Reader Appearance';
-  bool _showFrequencyTags = SettingsManager().cachedAppearanceSettings().showFrequencyTags;
-  bool _enableFullScreen = SettingsManager().cachedAppearanceSettings().enableReaderFullScreen;
-  bool _enableSlideAnimation = SettingsManager().cachedAppearanceSettings().enableSlideAnimation;
+  bool _showFrequencyTags =
+      SettingsManager().cachedAppearanceSettings().showFrequencyTags;
+  bool _enableFullScreen =
+      SettingsManager().cachedAppearanceSettings().enableReaderFullScreen;
+  bool _enableSlideAnimation =
+      SettingsManager().cachedAppearanceSettings().enableSlideAnimation;
+  bool _isKeepScreenOn =
+      SettingsManager().cachedAppearanceSettings().isKeepScreenOn;
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +90,9 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                   trailing: CupertinoSwitch(
                       onChanged: (bool? value) {
                         SettingsManager().toggleShowFrequencyTags(value!);
-                        setState(() { _showFrequencyTags = value;});
+                        setState(() {
+                          _showFrequencyTags = value;
+                        });
                       },
                       value: _showFrequencyTags)),
               CupertinoListTile(
@@ -105,19 +112,6 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
               children: [
                 CupertinoListTile(
                     title: const Text('Enable Full Screen'),
-                    onTap: () {
-                      Navigator.push(context,
-                          SwipeablePageRoute(builder: (context) {
-                        return PopupDictionaryThemeSettings(
-                            popupDictionaryThemeValueNotifier:
-                                _popupDictionaryThemeValueNotifier,
-                            popupDictionaryThemeString: SettingsManager()
-                                .settingsStorage!
-                                .settingsCache!
-                                .appearanceSetting
-                                .popupDictionaryThemeString);
-                      }));
-                    },
                     trailing: CupertinoSwitch(
                         onChanged: (bool? value) {
                           SettingsManager()
@@ -127,6 +121,16 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                           });
                         },
                         value: _enableFullScreen)),
+                CupertinoListTile(
+                    title: const Text('Keep Screen On'),
+                    trailing: CupertinoSwitch(
+                        onChanged: (bool? value) {
+                          SettingsManager().toggleKeepScreenOn(value!);
+                          setState(() {
+                            _isKeepScreenOn = value;
+                          });
+                        },
+                        value: _isKeepScreenOn)),
               ])
         ])));
   }
