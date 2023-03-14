@@ -22,6 +22,9 @@ class _BrowserShareSheetState extends State<BrowserShareSheet> {
   // late String _selectedHtmlFile;
   Directory? _workingDirectoryCache;
 
+  static const String pdfViewerUrl =
+      'https://mozilla.github.io/pdf.js/web/viewer.html';
+
   Future<void> handleAddBookmark() async {
     Uri? url = await widget.webViewController!.getUrl();
     if (url != null) {
@@ -83,6 +86,12 @@ class _BrowserShareSheetState extends State<BrowserShareSheet> {
     if (context.mounted) Navigator.pop(context);
   }
 
+  Future<void> handleLoadPDF() async {
+    Navigator.pop(context);
+    await widget.webViewController
+        ?.loadUrl(urlRequest: URLRequest(url: Uri.parse(pdfViewerUrl)));
+  }
+
   Widget _selectHTMLModalBuilder(BuildContext context) {
     return CupertinoActionSheet(
       title: const Text('Select HTML file'),
@@ -122,6 +131,13 @@ class _BrowserShareSheetState extends State<BrowserShareSheet> {
               handleLoadFiles();
             },
             trailing: Icon(CupertinoIcons.folder, color: textColor),
+          ),
+          CupertinoListTile(
+            title: const Text("PDF Viewer"),
+            onTap: () {
+              handleLoadPDF();
+            },
+            trailing: Icon(CupertinoIcons.book_circle, color: textColor),
           ),
         ])
       ],
