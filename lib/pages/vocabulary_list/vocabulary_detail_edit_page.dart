@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import "package:immersion_reader/extensions/string_extension.dart";
+import 'package:immersion_reader/managers/navigation/navigation_manager.dart';
 import 'package:immersion_reader/managers/vocabulary_list/vocabulary_list_manager.dart';
 import 'package:immersion_reader/utils/system_dialog.dart';
 
 class VocabularyDetailEditPage extends StatefulWidget {
   final Vocabulary vocabulary;
-  final ValueNotifier notifier;
   const VocabularyDetailEditPage(
-      {super.key, required this.vocabulary, required this.notifier});
+      {super.key, required this.vocabulary});
 
   @override
   State<VocabularyDetailEditPage> createState() =>
@@ -71,7 +71,7 @@ class _VocabularyDetailEditPageState extends State<VocabularyDetailEditPage> {
               onChanged: (value) async {
                 await VocabularyListManager()
                     .updateVocabularyItem(widget.vocabulary, key, value);
-                widget.notifier.value = !widget.notifier.value;
+                NavigationManager().notifyVocabularyListPage();
               },
               maxLines: 10,
               minLines: 1,

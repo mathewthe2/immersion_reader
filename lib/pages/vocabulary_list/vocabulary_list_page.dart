@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/managers/navigation/navigation_manager.dart';
 import 'package:immersion_reader/managers/vocabulary_list/vocabulary_list_manager.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -9,9 +10,7 @@ import 'package:immersion_reader/utils/exporter.dart';
 import 'package:immersion_reader/utils/system_dialog.dart';
 
 class VocabularyListPage extends StatefulWidget {
-  final ValueNotifier<bool> notifier;
-
-  const VocabularyListPage({super.key, required this.notifier});
+  const VocabularyListPage({super.key});
 
   @override
   State<VocabularyListPage> createState() => _VocabularyListPageState();
@@ -20,12 +19,12 @@ class VocabularyListPage extends StatefulWidget {
 class _VocabularyListPageState extends State<VocabularyListPage> {
   Future<void> deleteVocabulary(Vocabulary vocabulary) async {
     await VocabularyListManager().deleteVocabularyItem(vocabulary);
-    widget.notifier.value = !widget.notifier.value;
+    NavigationManager().notifyVocabularyListPage();
   }
 
   Future<void> deleteAllVocabulary() async {
     await VocabularyListManager().deleteAllVocabularyItems();
-    widget.notifier.value = !widget.notifier.value;
+    NavigationManager().notifyVocabularyListPage();
   }
 
   @override
@@ -42,7 +41,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
       )),
       SliverFillRemaining(
           child: ValueListenableBuilder(
-              valueListenable: widget.notifier,
+              valueListenable: NavigationManager().vocabularyListNotifier,
               builder: (context, val, child) => VocabularyListManager()
                       .vocabularyList
                       .isNotEmpty
@@ -70,8 +69,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                                             SwipeablePageRoute(
                                                 builder: (context) {
                                           return VocabularyDetailEditPage(
-                                              vocabulary: vocabulary,
-                                              notifier: widget.notifier);
+                                              vocabulary: vocabulary);
                                         }));
                                       },
                                       child: Slidable(

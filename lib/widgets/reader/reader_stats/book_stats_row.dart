@@ -3,7 +3,8 @@ import 'package:immersion_reader/data/profile/profile_content_stats.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/utils/system_theme.dart';
 import 'package:immersion_reader/widgets/my_books/book_widget.dart';
-import 'package:sleek_circular_slider/sleek_circular_slider.dart';
+import 'package:immersion_reader/utils/sleek_circular_slider/appearance.dart';
+import 'package:immersion_reader/utils/sleek_circular_slider/circular_slider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class BookStatsRow extends StatelessWidget {

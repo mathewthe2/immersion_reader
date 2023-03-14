@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:immersion_reader/managers/navigation/navigation_manager.dart';
 import 'package:immersion_reader/managers/manager_service.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
-import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/pages/discover.dart';
 import 'package:immersion_reader/pages/reader/reader_page.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
@@ -26,7 +25,6 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> with WidgetsBindingObserver {
-  final ValueNotifier<bool> _notifier = ValueNotifier(false);
   final int readerPageIndex = 1;
   final int vocabularyListPageIndex = 2;
   int currentIndex = 0;
@@ -107,12 +105,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     return isProvidersReady && isLocalAssetsServerReady;
   }
 
-  void notifyVocabularyListToUpdate() {
-    setState(() {
-      _notifier.value = !_notifier.value;
-    });
-  }
-
   void handleSwitchNavigation(int index) {
     if (index != readerPageIndex || currentIndex == index) {
       // exclude reader tab
@@ -122,29 +114,13 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     }
 
     if (index == vocabularyListPageIndex && isReady()) {
-      notifyVocabularyListToUpdate();
+      NavigationManager().notifyVocabularyListPage();
     }
 
-    handleReaderSession(
+    NavigationManager().handleReaderSession(
         isStartSession: (index == readerPageIndex && currentIndex != index),
         isTerminateSession: (currentIndex == readerPageIndex));
     currentIndex = index;
-  }
-
-  Future<void> handleReaderSession(
-      {required bool isTerminateSession, required bool isStartSession}) async {
-    if (isTerminateSession) {
-      ProfileManager().endSession();
-      Wakelock.disable();
-    } else if (isStartSession) {
-      ProfileManager().restartSession();
-      bool isKeepScreenOn = await SettingsManager().getIsKeepScreenOn();
-      if (isKeepScreenOn) {
-        Wakelock.enable();
-      } else {
-        Wakelock.disable();
-      }
-    }
   }
 
   @override
@@ -181,10 +157,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       Discover(sharedPreferences: sharedPreferences!),
       ReaderPage(paymentProvider: paymentProvider!),
       //  const Browser(),
-      ValueListenableBuilder(
-          valueListenable: _notifier,
-          builder: (context, val, child) =>
-              VocabularyListPage(notifier: _notifier)),
+      const VocabularyListPage(),
       const SearchPage(),
       const SettingsPage()
     ];
