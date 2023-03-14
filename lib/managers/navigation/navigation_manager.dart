@@ -13,11 +13,11 @@ class NavigationManager {
   factory NavigationManager() => _singleton;
 
   Future<void> handleReaderSession(
-      {required bool isTerminateSession, required bool isStartSession}) async {
+      {required bool isTerminateSession, required bool isStartSession, required bool isSamePage}) async {
     if (isTerminateSession) {
       ProfileManager().endSession();
       Wakelock.disable();
-      leaveReaderPageNotifier.value = true;
+      if (!isSamePage) leaveReaderPageNotifier.value = true;
     } else if (isStartSession) {
       ProfileManager().restartSession();
       bool isKeepScreenOn = await SettingsManager().getIsKeepScreenOn();

@@ -119,7 +119,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
     NavigationManager().handleReaderSession(
         isStartSession: (index == readerPageIndex && currentIndex != index),
-        isTerminateSession: (currentIndex == readerPageIndex));
+        isSamePage: (currentIndex == readerPageIndex && index == readerPageIndex),
+        isTerminateSession: (currentIndex == readerPageIndex)); // if user exits the reader and stays on the reader page, that still triggers termination
     currentIndex = index;
   }
 
