@@ -133,7 +133,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
             if (snapshot.hasData) {
               if (snapshot.data!.isEmpty) {
                 return SizedBox(
-                    height: 200,
+                    height: MediaQuery.of(context).size.width / 2.15,
                     child: Column(children: [
                       const SizedBox(height: 80),
                       Text('No Books Added',
@@ -143,7 +143,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                     ]));
               }
               return SizedBox(
-                  height: 200,
+                  height: MediaQuery.of(context).size.width / 2.15,
                   child: ListView(
                       physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
@@ -159,7 +159,9 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                                         .enableReaderFullScreen)))
                       ]));
             } else {
-              return const SizedBox(height: 200);
+              return SizedBox(
+                height: MediaQuery.of(context).size.width / 2.15,
+              );
             }
           }),
     ]);
