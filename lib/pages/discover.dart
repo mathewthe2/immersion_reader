@@ -7,9 +7,10 @@ import 'package:immersion_reader/widgets/discover/recommended_widget.dart';
 class Discover extends StatefulWidget {
   final SharedPreferences sharedPreferences;
 
-  const Discover(
-      {super.key,
-      required this.sharedPreferences,});
+  const Discover({
+    super.key,
+    required this.sharedPreferences,
+  });
 
   @override
   State<Discover> createState() => _DiscoverState();
@@ -61,35 +62,37 @@ class _DiscoverState extends State<Discover> {
               backgroundColor: backgroundColor,
               border: const Border())),
           SliverFillRemaining(
-              child: Container(
-                  color: backgroundColor,
-                  child: SingleChildScrollView(
+              child: SafeArea(
+                  child: Container(
+                      color: backgroundColor,
+                      child: SingleChildScrollView(
                           child: Column(children: [
-                    SizedBox(
-                        height: 80,
-                        child: ListView(
-                            physics: const BouncingScrollPhysics(),
-                            scrollDirection: Axis.horizontal,
-                            children: [
-                              const SizedBox(
-                                width: 18,
-                              ),
-                              ...discoverCategories
-                                  .asMap()
-                                  .entries
-                                  .map((entry) => CategoryBox(
-                                        text: entry.value,
-                                        onPressed: () {
-                                          setState(() {
-                                            selectedTab = entry.key;
-                                          });
-                                          setSelectedTab(selectedTab!);
-                                        },
-                                        isSelected: selectedTab == entry.key,
-                                      )),
-                            ])),
-                    activeWidget
-                  ]))))
+                        SizedBox(
+                            height: 80,
+                            child: ListView(
+                                physics: const BouncingScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
+                                children: [
+                                  const SizedBox(
+                                    width: 18,
+                                  ),
+                                  ...discoverCategories
+                                      .asMap()
+                                      .entries
+                                      .map((entry) => CategoryBox(
+                                            text: entry.value,
+                                            onPressed: () {
+                                              setState(() {
+                                                selectedTab = entry.key;
+                                              });
+                                              setSelectedTab(selectedTab!);
+                                            },
+                                            isSelected:
+                                                selectedTab == entry.key,
+                                          )),
+                                ])),
+                        activeWidget,
+                      ])))))
         ]));
   }
 }

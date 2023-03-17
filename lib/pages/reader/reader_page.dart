@@ -5,9 +5,7 @@ import 'package:immersion_reader/widgets/my_books/my_books_widget.dart';
 
 class ReaderPage extends StatefulWidget {
   final PaymentProvider paymentProvider;
-  const ReaderPage(
-      {super.key,
-      required this.paymentProvider});
+  const ReaderPage({super.key, required this.paymentProvider});
 
   @override
   State<ReaderPage> createState() => _ReaderPageState();
@@ -29,15 +27,16 @@ class _ReaderPageState extends State<ReaderPage> {
               backgroundColor: backgroundColor,
               border: const Border())),
           SliverFillRemaining(
-              child: Container(
-                  color: backgroundColor,
-                  child: SingleChildScrollView(
+              child: SafeArea(
+                  child: Container(
+                      color: backgroundColor,
+                      child: SingleChildScrollView(
                           child: Column(children: [
-                    const SizedBox(height: 20),
-                    const MyBooksWidget(),
-                    // GestureDetector(onTap: ()=>_requestPurchase("immersion_reader_plus"), )
-                    BrowserCatalog(paymentProvider: widget.paymentProvider)
-                  ]))))
+                        const SizedBox(height: 20),
+                        const MyBooksWidget(),
+                        // GestureDetector(onTap: ()=>_requestPurchase("immersion_reader_plus"), )
+                        BrowserCatalog(paymentProvider: widget.paymentProvider),
+                      ])))))
         ]));
   }
 }

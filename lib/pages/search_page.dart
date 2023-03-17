@@ -52,7 +52,8 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(slivers: [
+    return SafeArea(
+        child: CustomScrollView(slivers: [
       (const CupertinoSliverNavigationBar(
         largeTitle: Text('My Dictionary'),
       )),
@@ -68,8 +69,8 @@ class _SearchPageState extends State<SearchPage> {
             onSubmitted: handleSearch),
         if (searchResult != null)
           SearchResultsSection(
-              searchResult: searchResult!, parentContext: context)
+              searchResult: searchResult!, parentContext: context),
       ]))))
-    ]);
+    ]));
   }
 }
