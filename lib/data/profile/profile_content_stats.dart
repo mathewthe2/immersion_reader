@@ -4,6 +4,7 @@ class ProfileContentStats {
   ProfileContent profileContent;
   int totalSeconds;
   static String unknownValue = '???';
+  static int secondsReadThreshold = 60;
 
   ProfileContentStats(
       {required this.profileContent, required this.totalSeconds});
@@ -21,11 +22,11 @@ class ProfileContentStats {
     return _getValue(profileContent.currentPosition);
   }
 
-  String charactersReadPerSecond() {
-    if (profileContent.currentPosition == null) {
+  String charactersReadPerMinute() {
+    if (profileContent.currentPosition == null || totalSeconds < secondsReadThreshold) {
       return unknownValue;
     } else {
-      return (profileContent.currentPosition! / totalSeconds)
+      return (profileContent.currentPosition! / totalSeconds * 60)
           .toStringAsFixed(2);
     }
   }

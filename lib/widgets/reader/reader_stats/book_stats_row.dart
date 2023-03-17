@@ -68,7 +68,7 @@ class BookStatsRow extends StatelessWidget {
 
     final String charactersRead = contentStats.charactersRead();
     final int vocabularyMined = contentStats.profileContent.vocabularyMined;
-    final String charactersPerSecond = contentStats.charactersReadPerSecond();
+    final String charactersPerMinute = contentStats.charactersReadPerMinute();
     return Column(children: [
       SizedBox(
           height: 200,
@@ -99,8 +99,8 @@ class BookStatsRow extends StatelessWidget {
                   icon: FontAwesomeIcons.font),
               statsRow(
                   label:
-                      'character${charactersPerSecond != '1.00' ? 's' : ''}/sec',
-                  value: charactersPerSecond,
+                      'character${charactersPerMinute != '1.00' ? 's' : ''}/min',
+                  value: charactersPerMinute,
                   icon: FontAwesomeIcons.bolt),
               statsRow(
                   label: 'word${vocabularyMined != 1 ? 's' : ''} mined',
