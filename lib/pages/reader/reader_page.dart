@@ -31,14 +31,13 @@ class _ReaderPageState extends State<ReaderPage> {
           SliverFillRemaining(
               child: Container(
                   color: backgroundColor,
-                  child: SafeArea(
-                      child: SingleChildScrollView(
+                  child: SingleChildScrollView(
                           child: Column(children: [
                     const SizedBox(height: 20),
                     const MyBooksWidget(),
                     // GestureDetector(onTap: ()=>_requestPurchase("immersion_reader_plus"), )
                     BrowserCatalog(paymentProvider: widget.paymentProvider)
-                  ])))))
+                  ]))))
         ]));
   }
 }

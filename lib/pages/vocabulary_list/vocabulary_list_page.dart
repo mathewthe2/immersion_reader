@@ -56,8 +56,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                               context),
                           child: CupertinoScrollbar(
                               child: SingleChildScrollView(
-                                  child: SafeArea(
-                                      child: CupertinoListSection.insetGrouped(
+                                  child: CupertinoListSection.insetGrouped(
                                           // header: const Text('My Words'),
                                           children: [
                                 ...VocabularyListManager()
@@ -135,7 +134,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                                                 )),
                                           )));
                                 }).toList()
-                              ]))))))
+                              ])))))
                   : Container()))
     ]);
   }

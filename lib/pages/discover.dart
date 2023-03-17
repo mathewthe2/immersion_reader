@@ -63,8 +63,7 @@ class _DiscoverState extends State<Discover> {
           SliverFillRemaining(
               child: Container(
                   color: backgroundColor,
-                  child: SafeArea(
-                      child: SingleChildScrollView(
+                  child: SingleChildScrollView(
                           child: Column(children: [
                     SizedBox(
                         height: 80,
@@ -90,7 +89,7 @@ class _DiscoverState extends State<Discover> {
                                       )),
                             ])),
                     activeWidget
-                  ])))))
+                  ]))))
         ]));
   }
 }

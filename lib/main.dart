@@ -126,8 +126,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: CupertinoTabScaffold(
+    return  CupertinoTabScaffold(
       tabBar: CupertinoTabBar(onTap: handleSwitchNavigation, items: [
         ...navigationItems.entries.map((entry) =>
             BottomNavigationBarItem(icon: Icon(entry.value), label: entry.key))
@@ -135,7 +134,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       tabBuilder: (BuildContext context, int index) {
         return buildViews(index);
       },
-    ));
+    );
   }
 
   @override
