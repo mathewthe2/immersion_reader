@@ -28,7 +28,9 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void handleSearch(String input) async {
-    searchResult = await DictionaryManager().findTermForUserSearch(input);
+    searchResult = input.isEmpty
+        ? SearchResult(exactMatches: [], additionalMatches: [])
+        : await DictionaryManager().findTermForUserSearch(input);
     setState(() {
       searchResult = searchResult;
     });
@@ -52,25 +54,27 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return CupertinoPageScaffold(
+        backgroundColor:
+            CupertinoColors.systemGroupedBackground.resolveFrom(context),
         child: CustomScrollView(slivers: [
-      (const CupertinoSliverNavigationBar(
-        largeTitle: Text('My Dictionary'),
-      )),
-      SliverFillRemaining(
-          child: CupertinoScrollbar(
-              child: SingleChildScrollView(
-                  child: Column(children: [
-        const SizedBox(height: 20),
-        CupertinoSearchTextField(
-            autocorrect: false,
-            controller: textController,
-            placeholder: 'Search',
-            onSubmitted: handleSearch),
-        if (searchResult != null)
-          SearchResultsSection(
-              searchResult: searchResult!, parentContext: context),
-      ]))))
-    ]));
+          (const CupertinoSliverNavigationBar(
+            largeTitle: Text('My Dictionary'),
+          )),
+          SliverFillRemaining(
+              child: CupertinoScrollbar(
+                  child: SingleChildScrollView(
+                      child: Column(children: [
+            const SizedBox(height: 20),
+            CupertinoSearchTextField(
+                autocorrect: false,
+                controller: textController,
+                placeholder: 'Search',
+                onSubmitted: handleSearch),
+            if (searchResult != null)
+              SearchResultsSection(
+                  searchResult: searchResult!, parentContext: context),
+          ]))))
+        ]));
   }
 }

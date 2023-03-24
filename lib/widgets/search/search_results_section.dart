@@ -26,27 +26,27 @@ class _SearchResultsSectionState extends State<SearchResultsSection> {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      CupertinoListSection(
-          header: const Text('Exact Matches'),
-          children: [
-            ...widget.searchResult.exactMatches.map((Vocabulary vocabulary) {
-              return VocabularyTile(
-                  vocabulary: vocabulary,
-                  parentContext: widget.parentContext,
-                  textColor: textColor);
-            })
-          ]),
-      CupertinoListSection(
-          header: const Text('Additional Matches'),
-          children: [
-            ...widget.searchResult.additionalMatches
-                .map((Vocabulary vocabulary) {
-              return VocabularyTile(
-                  vocabulary: vocabulary,
-                  parentContext: widget.parentContext,
-                  textColor: textColor);
-            })
-          ])
+      if (widget.searchResult.exactMatches.isNotEmpty)
+        CupertinoListSection(header: const Text('Exact Matches'), children: [
+          ...widget.searchResult.exactMatches.map((Vocabulary vocabulary) {
+            return VocabularyTile(
+                vocabulary: vocabulary,
+                parentContext: widget.parentContext,
+                textColor: textColor);
+          })
+        ]),
+      if (widget.searchResult.additionalMatches.isNotEmpty)
+        CupertinoListSection(
+            header: const Text('Additional Matches'),
+            children: [
+              ...widget.searchResult.additionalMatches
+                  .map((Vocabulary vocabulary) {
+                return VocabularyTile(
+                    vocabulary: vocabulary,
+                    parentContext: widget.parentContext,
+                    textColor: textColor);
+              })
+            ])
     ]);
   }
 }
