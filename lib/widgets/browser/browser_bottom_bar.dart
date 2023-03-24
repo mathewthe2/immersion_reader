@@ -10,9 +10,7 @@ class BrowserBottomBar extends StatefulWidget {
   final InAppWebViewController? webViewController;
   final ValueNotifier notifier;
   const BrowserBottomBar(
-      {super.key,
-      required this.webViewController,
-      required this.notifier});
+      {super.key, required this.webViewController, required this.notifier});
 
   @override
   State<BrowserBottomBar> createState() => _BrowserBottomBarState();
@@ -81,7 +79,8 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                               color: backgroundColor,
                               height: MediaQuery.of(context).size.height * .40,
                               child: BrowserShareSheet(
-                                  webViewController: widget.webViewController))))),
+                                  webViewController:
+                                      widget.webViewController))))),
               toolbarIconButton(
                   CupertinoIcons.book,
                   () => showCupertinoModalBottomSheet(
@@ -108,6 +107,8 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                                       backgroundColor: backgroundColor,
                                       child: GestureDetector(
                                         child: BrowserSettingsSheet(
+                                            webViewController:
+                                                widget.webViewController,
                                             notifier: widget.notifier),
                                         onTap: () {
                                           // context2 or context3 will return the Navigator inside the modal
