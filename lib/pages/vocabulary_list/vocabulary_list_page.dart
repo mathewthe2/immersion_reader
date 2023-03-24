@@ -47,8 +47,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                       .isNotEmpty
                   ? Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: SafeArea(
-                          child: Container(
+                      child: Container(
                               color: CupertinoDynamicColor.resolve(
                                   const CupertinoDynamicColor.withBrightness(
                                       color: CupertinoColors
@@ -141,7 +140,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                                                     )),
                                               )));
                                     }).toList()
-                                  ]))))))
+                                  ])))))
                   : Container())),
     ]);
   }
