@@ -37,9 +37,7 @@ class _DictionarySettingsState extends State<DictionarySettings> {
       });
       File zipFile = File(file.path);
       UserDictionary userDictionary = await parseDictionary(zipFile);
-      await SettingsManager()
-          .settingsStorage!
-          .addDictionary(userDictionary);
+      await SettingsManager().settingsStorage!.addDictionary(userDictionary);
       setState(() {
         isProcessingDictionary = false;
         editMode = false;
@@ -53,9 +51,7 @@ class _DictionarySettingsState extends State<DictionarySettings> {
     setState(() {
       isProcessingDictionary = true;
     });
-    await SettingsManager()
-        .settingsStorage!
-        .removeDictionary(dictionaryId);
+    await SettingsManager().settingsStorage!.removeDictionary(dictionaryId);
     setState(() {
       isProcessingDictionary = false;
     });
@@ -89,9 +85,7 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                   : const Text('Edit')),
         ),
         child: FutureBuilder<List<DictionarySetting>>(
-            future: SettingsManager()
-                .settingsStorage!
-                .getDictionarySettings(),
+            future: SettingsManager().settingsStorage!.getDictionarySettings(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 getEnabledDictionaries(snapshot.data!);
@@ -104,21 +98,21 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                           DictionarySetting dictionarySetting = entry.value;
                           return CupertinoListTile(
                               title: Text(dictionarySetting.title),
-                              leading: editMode
-                                  ? GestureDetector(
+                              leading: !editMode
+                                  ? null
+                                  : GestureDetector(
                                       onTap: () => {
-                                        showAlertDialog(
-                                            context,
+                                        showAlertDialog(context,
                                             "Do you want to delete ${dictionarySetting.title}?",
-                                            onConfirmCallback: () => removeDictionary(
-                                                dictionarySetting.id))
+                                            onConfirmCallback: () =>
+                                                removeDictionary(
+                                                    dictionarySetting.id))
                                       },
                                       child: const Icon(
                                           CupertinoIcons.minus_circle_fill,
                                           color:
                                               CupertinoColors.destructiveRed),
-                                    )
-                                  : const SizedBox(),
+                                    ),
                               trailing: editMode
                                   ? const SizedBox()
                                   : CupertinoSwitch(

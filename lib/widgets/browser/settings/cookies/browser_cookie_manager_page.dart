@@ -33,6 +33,10 @@ class _BrowserCookieManagerPageState extends State<BrowserCookieManagerPage> {
     return null;
   }
 
+  void refreshCookieListScreen() {
+    cookieManagerNotifier.value = !cookieManagerNotifier.value;
+  }
+
   @override
   Widget build(BuildContext context) {
     Color backgroundColor = CupertinoDynamicColor.resolve(
@@ -44,7 +48,7 @@ class _BrowserCookieManagerPageState extends State<BrowserCookieManagerPage> {
     return CupertinoPageScaffold(
         backgroundColor: backgroundColor,
         navigationBar: CupertinoNavigationBar(
-          middle: const Text('Cookie Manager'),
+          middle: const Text('Cookies'),
           leading: !editMode
               ? null
               : CupertinoButton(
@@ -100,14 +104,37 @@ class _BrowserCookieManagerPageState extends State<BrowserCookieManagerPage> {
                                         "Do you want to delete clear all cookies?",
                                         onConfirmCallback: () {
                                       cookieManager.deleteAllCookies();
-                                      cookieManagerNotifier.value =
-                                          !cookieManagerNotifier.value;
+                                      refreshCookieListScreen();
+                                      setState(() {
+                                        editMode = false;
+                                      });
                                     });
                                   },
                                 ),
                               ...snapshot.data!.cookies.map((Cookie cookie) =>
                                   CupertinoListTile(
                                       title: Text(cookie.name),
+                                      leading: editMode
+                                          ? GestureDetector(
+                                              onTap: () => {
+                                                showAlertDialog(context,
+                                                    "Do you want to delete ${cookie.name}? \n\n Note: some cookies are automatically refetched by the website.",
+                                                    onConfirmCallback: () {
+                                                  if (url != null) {
+                                                    cookieManager.deleteCookie(
+                                                        url: url!,
+                                                        name: cookie.name);
+                                                    refreshCookieListScreen();
+                                                  }
+                                                })
+                                              },
+                                              child: const Icon(
+                                                  CupertinoIcons
+                                                      .minus_circle_fill,
+                                                  color: CupertinoColors
+                                                      .destructiveRed),
+                                            )
+                                          : null,
                                       trailing:
                                           const Icon(CupertinoIcons.forward),
                                       additionalInfo: Text(cookie.value

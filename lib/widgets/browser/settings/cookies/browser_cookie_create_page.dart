@@ -22,11 +22,7 @@ class BrowserCookieCreatePage extends StatefulWidget {
 class _BrowserCookieCreatePageState extends State<BrowserCookieCreatePage> {
   final Map<CookieCreateInformationKey, TextEditingController>
       _textControllerMap = {};
-
-  // static const List<CookieCreateInformationKey> _nonEditableFields = [
-  //   CookieCreateInformationKey.expiration
-  // ];
-
+      
   @override
   void initState() {
     super.initState();
@@ -69,15 +65,10 @@ class _BrowserCookieCreatePageState extends State<BrowserCookieCreatePage> {
                       color: CupertinoDynamicColor.resolve(
                           const CupertinoDynamicColor.withBrightness(
                               color: CupertinoColors.inactiveGray,
-                              darkColor: CupertinoColors.inactiveGray),
+                              darkColor: CupertinoColors.systemGrey),
                           context))))),
       CupertinoScrollbar(
           child:
-              // _nonEditableFields.contains(key)
-              //     ? Align(
-              //         alignment: Alignment.centerLeft,
-              //         child: Text(_textControllerMap[key]?.text ?? ''))
-              //     :
               CupertinoTextField(
                   controller: _textControllerMap[key],
                   decoration: BoxDecoration(

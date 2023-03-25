@@ -50,7 +50,7 @@ class _VocabularyDetailEditPageState extends State<VocabularyDetailEditPage> {
                       color: CupertinoDynamicColor.resolve(
                           const CupertinoDynamicColor.withBrightness(
                               color: CupertinoColors.inactiveGray,
-                              darkColor: CupertinoColors.inactiveGray),
+                              darkColor: CupertinoColors.systemGrey),
                           context))))),
       CupertinoScrollbar(
           child: CupertinoTextField(

@@ -93,13 +93,15 @@ class _BrowserCookieEditPageState extends State<BrowserCookieEditPage> {
                       color: CupertinoDynamicColor.resolve(
                           const CupertinoDynamicColor.withBrightness(
                               color: CupertinoColors.inactiveGray,
-                              darkColor: CupertinoColors.inactiveGray),
+                              darkColor: CupertinoColors.systemGrey),
                           context))))),
       CupertinoScrollbar(
           child: _nonEditableFields.contains(key)
               ? Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(_textControllerMap[key]?.text ?? ''))
+                  child: Text(_textControllerMap[key]?.text ?? '',
+                      style: TextStyle(
+                          color: CupertinoColors.label.resolveFrom(context))))
               : CupertinoTextField(
                   controller: _textControllerMap[key],
                   decoration: BoxDecoration(
@@ -133,7 +135,7 @@ class _BrowserCookieEditPageState extends State<BrowserCookieEditPage> {
     return CupertinoPageScaffold(
         backgroundColor: backgroundColor,
         navigationBar: CupertinoNavigationBar(
-            middle: const Text('Edit'),
+            middle: const Text('Edit Cookie'),
             trailing: CupertinoButton(
                 onPressed: () {
                   showAlertDialog(context, "Do you want to delete this cookie?",

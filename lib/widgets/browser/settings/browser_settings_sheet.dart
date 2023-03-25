@@ -40,7 +40,7 @@ class _BrowserSettingsSheetState extends State<BrowserSettingsSheet> {
                   }))
                 }),
                  CupertinoListTile(
-            title: const Text('Cookie Manager'),
+            title: const Text('Cookies'),
             trailing: const Icon(CupertinoIcons.forward),
             onTap: () {
                   Navigator.push(context,
