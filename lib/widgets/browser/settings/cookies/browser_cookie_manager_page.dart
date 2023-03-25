@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:immersion_reader/utils/system_dialog.dart';
 import 'package:immersion_reader/widgets/browser/settings/cookies/browser_cookie_create_page.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:immersion_reader/dto/browser/browser_cookies.dart';
@@ -19,6 +20,7 @@ class _BrowserCookieManagerPageState extends State<BrowserCookieManagerPage> {
   ValueNotifier<bool> cookieManagerNotifier = ValueNotifier(false);
   CookieManager cookieManager = CookieManager.instance();
   Uri? url;
+  bool editMode = false;
 
   Future<BrowserCookies?> getCookies() async {
     if (widget.webViewController != null) {
@@ -43,18 +45,34 @@ class _BrowserCookieManagerPageState extends State<BrowserCookieManagerPage> {
         backgroundColor: backgroundColor,
         navigationBar: CupertinoNavigationBar(
           middle: const Text('Cookie Manager'),
+          leading: !editMode
+              ? null
+              : CupertinoButton(
+                  padding: const EdgeInsets.all(0.0),
+                  child: const Icon(CupertinoIcons.plus),
+                  onPressed: () {
+                    setState(() {
+                      editMode = !editMode;
+                    });
+                    Navigator.push(
+                        context,
+                        SwipeablePageRoute(
+                            builder: (context) => BrowserCookieCreatePage(
+                                  url: url,
+                                  cookieManager: cookieManager,
+                                  cookieManagerNotifier: cookieManagerNotifier,
+                                )));
+                  }),
           trailing: CupertinoButton(
             padding: const EdgeInsets.all(0.0),
-            child: const Icon(CupertinoIcons.plus),
+            child: editMode
+                ? const Text('Done',
+                    style: TextStyle(fontWeight: FontWeight.bold))
+                : const Text('Edit'), // const Icon(CupertinoIcons.plus),
             onPressed: () {
-              Navigator.push(
-                  context,
-                  SwipeablePageRoute(
-                      builder: (context) => BrowserCookieCreatePage(
-                            url: url,
-                            cookieManager: cookieManager,
-                            cookieManagerNotifier: cookieManagerNotifier,
-                          )));
+              setState(() {
+                editMode = !editMode;
+              });
             },
           ),
         ),
@@ -65,10 +83,28 @@ class _BrowserCookieManagerPageState extends State<BrowserCookieManagerPage> {
                   return FutureBuilder<BrowserCookies?>(
                       future: getCookies(),
                       builder: (context, snapshot) {
-                        if (snapshot.hasData && snapshot.data != null) {
+                        if (snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data!.cookies.isNotEmpty) {
                           return SingleChildScrollView(
                               child: Column(children: [
                             CupertinoListSection(children: [
+                              if (editMode)
+                                CupertinoListTile(
+                                  backgroundColor: CupertinoColors.systemFill
+                                      .resolveFrom(context),
+                                  title: const Center(
+                                      child: Text('Clear cookies')),
+                                  onTap: () {
+                                    showAlertDialog(context,
+                                        "Do you want to delete clear all cookies?",
+                                        onConfirmCallback: () {
+                                      cookieManager.deleteAllCookies();
+                                      cookieManagerNotifier.value =
+                                          !cookieManagerNotifier.value;
+                                    });
+                                  },
+                                ),
                               ...snapshot.data!.cookies.map((Cookie cookie) =>
                                   CupertinoListTile(
                                       title: Text(cookie.name),
