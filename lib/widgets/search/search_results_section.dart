@@ -70,14 +70,17 @@ class VocabularyTile extends StatelessWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       CupertinoListTile(
           title: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.9,
+              width: MediaQuery.of(context).size.width * 0.9, // space for padding
               child: RichText(
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
+                  textHeightBehavior:
+                      const TextHeightBehavior(applyHeightToLastDescent: false),
                   text: TextSpan(
                       text: vocabulary.expression ?? '',
                       style: TextStyle(
                           fontSize: 20,
+                          height: 1.8, // spacing for second line
                           color: CupertinoDynamicColor.resolve(
                               textColor, parentContext)),
                       children: [
@@ -93,12 +96,9 @@ class VocabularyTile extends StatelessWidget {
                                         popupDictionaryTheme: isDarkMode()
                                             ? PopupDictionaryTheme.dark
                                             : PopupDictionaryTheme.light))
-                                : const SizedBox()),
-                        // TextSpan(
-                        //     text: vocabulary.reading ?? '',
-                        //     style: const TextStyle(
-                        //         color: CupertinoColors.inactiveGray))
-                      ])))),
+                                : const SizedBox())
+                      ])
+                  ))),
       if (vocabulary.frequencyTags.isNotEmpty)
         Padding(
             padding: const EdgeInsetsDirectional.only(

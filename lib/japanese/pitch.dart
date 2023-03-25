@@ -18,10 +18,10 @@ class Pitch {
     return pitch;
   }
 
-  Future<String> getPitch(String text,
+  Future<List<String>> getPitches(String text,
       {wildcards = false, String reading = ''}) async {
     if (settingsStorage == null) {
-      return '';
+      return [];
     }
     List<Map<String, Object?>> rows = [];
     try {
@@ -39,9 +39,9 @@ class Pitch {
       debugPrint(e.toString());
     }
     if (rows.isNotEmpty) {
-      return rows[0]['pitch'] as String;
+      return rows.map((row) => row['pitch'] as String).toList();
     }
-    return '';
+    return [];
   }
 
   Future<List<String>> makePitch(String expression,
@@ -52,24 +52,11 @@ class Pitch {
     if (expression.isEmpty) {
       return result;
     }
-    String pitch = await getPitch(expression, reading: reading);
-    if (pitch.isEmpty) {
+    List<String> pitches = await getPitches(expression, reading: reading);
+    if (pitches.isEmpty) {
       return result;
     }
-    pitch = pitch.replaceAll(
-        RegExp(r'\((.*?)\)'), ''); // remove paranthesis content
-    List<String> pitches = [];
-    if (pitch.contains(',')) {
-      List<String> pitchesByWord = pitch.split(',');
-      for (String pitchByWord in pitchesByWord) {
-        pitchByWord =
-            pitchByWord.replaceAll(RegExp(r'[^\w]'), ''); // remove symbols
-        pitches.add(pitchByWord);
-      }
-    } else {
-      pitch = pitch.replaceAll(RegExp(r'[^\w]'), ''); // remove symbols
-      pitches = [pitch];
-    }
+    // call _parseRawPitchStrings() here for older pitch dictionaries
     Set<int> parsedPitches = {};
     for (String rawPitch in pitches) {
       bool isPitchNumeric = int.tryParse(rawPitch) != null;
@@ -103,3 +90,22 @@ class Pitch {
     return result;
   }
 }
+
+// not necessary for newer pitch dictionaries
+// List<String> _parseRawPitchStrings(String pitch) {
+//     pitch = pitch.replaceAll(
+//         RegExp(r'\((.*?)\)'), ''); // remove paranthesis content
+//     List<String> pitches = [];
+//     if (pitch.contains(',')) {
+//       List<String> pitchesByWord = pitch.split(',');
+//       for (String pitchByWord in pitchesByWord) {
+//         pitchByWord =
+//             pitchByWord.replaceAll(RegExp(r'[^\w]'), ''); // remove symbols
+//         pitches.add(pitchByWord);
+//       }
+//     } else {
+//       pitch = pitch.replaceAll(RegExp(r'[^\w]'), ''); // remove symbols
+//       pitches = [pitch];
+//     }
+//     return pitches;
+// }

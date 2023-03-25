@@ -9,6 +9,8 @@ class PitchWidget extends StatelessWidget {
   final PopupDictionaryThemeData themeData;
   const PitchWidget(
       {super.key, required this.vocabulary, required this.themeData});
+  static const double _widgetHeight = 30;
+  static const double _widgetWidthFactor = 0.5;
 
   String colorCorrectedPitch(String pitchSvg, BuildContext context) {
     pitchSvg = pitchSvg
@@ -25,9 +27,18 @@ class PitchWidget extends StatelessWidget {
     switch (vocabulary.pitchAccentDisplayStyle) {
       case PitchAccentDisplayStyle.graph:
         {
-          return SvgPicture.string(
-              colorCorrectedPitch(vocabulary.pitchValues[0], context),
-              height: 30);
+          return SizedBox(
+              height: _widgetHeight,
+              width: MediaQuery.of(context).size.width * _widgetWidthFactor,
+              child: ListView(
+                  physics: const BouncingScrollPhysics(),
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    ...vocabulary.pitchValues.map((String pitchValue) =>
+                        SvgPicture.string(
+                            colorCorrectedPitch(pitchValue, context),
+                            height: _widgetHeight))
+                  ]));
         }
       case PitchAccentDisplayStyle.number:
         {

@@ -57,15 +57,33 @@ class _VocabularyTileState extends State<VocabularyTile> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(children: [
-                      vocabularyExpression(widget.vocabulary),
-                      const SizedBox(width: 20),
-                      hasPitch(widget.vocabulary)
-                          ? PitchWidget(
-                              vocabulary: widget.vocabulary,
-                              themeData: widget.popupDictionaryThemeData)
-                          : Container()
-                    ]),
+                    SizedBox(
+                        width: MediaQuery.of(context).size.width *
+                            0.8, // make space for adding vocabulary and padding
+                        child: RichText(
+                            maxLines: 2,
+                            textHeightBehavior: const TextHeightBehavior(
+                                applyHeightToLastDescent: false),
+                            text: TextSpan(
+                                style: const TextStyle(
+                                    height: 1.8,
+                                    fontSize: 20), // spacing for second line
+                                children: [
+                                  WidgetSpan(
+                                      child: vocabularyExpression(
+                                          widget.vocabulary)),
+                                  const WidgetSpan(
+                                      child: SizedBox(
+                                    width: 20,
+                                  )),
+                                  WidgetSpan(
+                                      child: hasPitch(widget.vocabulary)
+                                          ? PitchWidget(
+                                              vocabulary: widget.vocabulary,
+                                              themeData: widget
+                                                  .popupDictionaryThemeData)
+                                          : const SizedBox())
+                                ])))
                   ],
                 ),
               ]),

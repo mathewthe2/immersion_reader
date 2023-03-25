@@ -5,6 +5,7 @@ import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
 import 'package:immersion_reader/managers/vocabulary_list/vocabulary_list_manager.dart';
+import 'package:immersion_reader/widgets/common/padding_bottom.dart';
 import 'package:immersion_reader/widgets/vocabulary/frequency_widget.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_definition.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_tile.dart';
@@ -227,7 +228,8 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
                                                 ? CupertinoIcons.star_fill
                                                 : CupertinoIcons.star,
                                             size: 20,
-                                          ))),
+                                          ))
+                                          ),
                                   if (vocabulary.frequencyTags.isNotEmpty)
                                     Padding(
                                         padding:
@@ -250,7 +252,7 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
                                 ]),
                               )
                               .toList(),
-                          const SizedBox(height: 20) // Safe Space
+                          const PaddingBottom()
                         ])))
         ]);
   }
