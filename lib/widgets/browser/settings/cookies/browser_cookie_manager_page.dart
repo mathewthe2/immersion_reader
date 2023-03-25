@@ -64,7 +64,7 @@ class _BrowserCookieManagerPageState extends State<BrowserCookieManagerPage> {
                             builder: (context) => BrowserCookieCreatePage(
                                   url: url,
                                   cookieManager: cookieManager,
-                                  cookieManagerNotifier: cookieManagerNotifier,
+                                  refreshCookieListScreen: refreshCookieListScreen,
                                 )));
                   }),
           trailing: CupertinoButton(
@@ -146,8 +146,7 @@ class _BrowserCookieManagerPageState extends State<BrowserCookieManagerPage> {
                                                 builder: (context) {
                                           return BrowserCookieEditPage(
                                               cookieManager: cookieManager,
-                                              cookieManagerNotifier:
-                                                  cookieManagerNotifier,
+                                              refreshCookieListScreen: refreshCookieListScreen,
                                               url: snapshot.data!.url,
                                               cookie: cookie);
                                         }));

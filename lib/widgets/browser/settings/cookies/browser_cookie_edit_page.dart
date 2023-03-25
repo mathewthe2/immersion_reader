@@ -9,13 +9,13 @@ class BrowserCookieEditPage extends StatefulWidget {
   final CookieManager cookieManager;
   final Cookie cookie;
   final Uri url;
-  final ValueNotifier<bool> cookieManagerNotifier;
+  final VoidCallback refreshCookieListScreen;
   const BrowserCookieEditPage(
       {super.key,
       required this.cookieManager,
       required this.url,
       required this.cookie,
-      required this.cookieManagerNotifier});
+      required this.refreshCookieListScreen});
 
   @override
   State<BrowserCookieEditPage> createState() => _BrowserCookieEditPageState();
@@ -41,8 +41,8 @@ class _BrowserCookieEditPageState extends State<BrowserCookieEditPage> {
         expiresDate: widget.cookie.expiresDate);
     _textControllerMap[CookieInformationKey.name] =
         TextEditingController(text: widget.cookie.name);
-    _textControllerMap[CookieInformationKey.value] =
-        TextEditingController(text: widget.cookie.value);
+    _textControllerMap[CookieInformationKey.value] = TextEditingController(
+        text: widget.cookie.value.trim().isEmpty ? '' : widget.cookie.value);
     _textControllerMap[CookieInformationKey.domain] =
         TextEditingController(text: widget.cookie.domain);
     _textControllerMap[CookieInformationKey.expiration] = TextEditingController(
@@ -63,12 +63,19 @@ class _BrowserCookieEditPageState extends State<BrowserCookieEditPage> {
   void onChangeCookie(
       {required CookieInformationKey key, required String value}) {
     if (key == CookieInformationKey.name) {
+      if (value.isEmpty) {
+        widget.cookieManager
+            .deleteCookie(url: widget.url, name: _currentCookie.name);
+        widget.refreshCookieListScreen();
+        return;
+      }
       _currentCookie.name = value;
       widget.cookieManager
           .deleteCookie(name: widget.cookie.name, url: widget.url);
       widget.cookie.name = _currentCookie.name;
     } else if (key == CookieInformationKey.value) {
-      _currentCookie.value = value;
+      _currentCookie.value =
+          value.isEmpty ? ' ' : value; // value cannot be empty
     } else {
       return;
     }
@@ -76,7 +83,7 @@ class _BrowserCookieEditPageState extends State<BrowserCookieEditPage> {
         url: widget.url,
         name: _currentCookie.name,
         value: _currentCookie.value);
-    widget.cookieManagerNotifier.value = !widget.cookieManagerNotifier.value;
+    widget.refreshCookieListScreen();
   }
 
   Widget cookieEditField(
@@ -142,8 +149,7 @@ class _BrowserCookieEditPageState extends State<BrowserCookieEditPage> {
                       onConfirmCallback: () {
                     widget.cookieManager.deleteCookie(
                         url: widget.url, name: widget.cookie.name);
-                    widget.cookieManagerNotifier.value =
-                        !widget.cookieManagerNotifier.value;
+                    widget.refreshCookieListScreen();
                     Navigator.pop(context);
                   });
                 },

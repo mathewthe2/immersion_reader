@@ -7,12 +7,12 @@ enum CookieCreateInformationKey { name, value, url }
 class BrowserCookieCreatePage extends StatefulWidget {
   final Uri? url;
   final CookieManager cookieManager;
-  final ValueNotifier<bool> cookieManagerNotifier;
+  final VoidCallback refreshCookieListScreen;
   const BrowserCookieCreatePage(
       {super.key,
       required this.url,
       required this.cookieManager,
-      required this.cookieManagerNotifier});
+      required this.refreshCookieListScreen});
 
   @override
   State<BrowserCookieCreatePage> createState() =>
@@ -22,6 +22,7 @@ class BrowserCookieCreatePage extends StatefulWidget {
 class _BrowserCookieCreatePageState extends State<BrowserCookieCreatePage> {
   final Map<CookieCreateInformationKey, TextEditingController>
       _textControllerMap = {};
+  bool canCreate = false;
       
   @override
   void initState() {
@@ -34,6 +35,13 @@ class _BrowserCookieCreatePageState extends State<BrowserCookieCreatePage> {
         text: widget.url == null ? '' : widget.url.toString());
   }
 
+  void checkIfCanCreate() {
+    String name = _textControllerMap[CookieCreateInformationKey.name]!.text;
+     setState(() {
+        canCreate = name.isNotEmpty;
+      });
+  }
+
   void onCreateCookie() async {
     String url = _textControllerMap[CookieCreateInformationKey.url]!.text;
     String name = _textControllerMap[CookieCreateInformationKey.name]!.text;
@@ -41,11 +49,11 @@ class _BrowserCookieCreatePageState extends State<BrowserCookieCreatePage> {
     await widget.cookieManager.setCookie(
       url: Uri.parse(url),
       name: name,
-      value: value,
+      value: value.isEmpty ? ' ' : value, // value cannot be empty
       // expiresDate: ,
       isSecure: true,
     );
-    widget.cookieManagerNotifier.value = !widget.cookieManagerNotifier.value;
+    widget.refreshCookieListScreen();
     if (context.mounted) {
       Navigator.pop(context);
     }
@@ -84,7 +92,7 @@ class _BrowserCookieCreatePageState extends State<BrowserCookieCreatePage> {
                                 darkColor: CupertinoColors.white),
                             context)),
                   ),
-                  onChanged: (_) {},
+                  onChanged: (_) => checkIfCanCreate(),
                   maxLines: 10,
                   minLines: 1,
                   keyboardType: TextInputType.multiline))
@@ -103,7 +111,7 @@ class _BrowserCookieCreatePageState extends State<BrowserCookieCreatePage> {
         navigationBar: CupertinoNavigationBar(
             middle: const Text('Create Cookie'),
             trailing: CupertinoButton(
-                onPressed: () => onCreateCookie(),
+                onPressed: canCreate ? () => onCreateCookie() : null,
                 padding: const EdgeInsets.all(0.0),
                 child: const Text('Create'))),
         child: SafeArea(
