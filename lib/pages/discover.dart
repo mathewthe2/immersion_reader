@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/widgets/common/padding_bottom.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:immersion_reader/widgets/discover/category_box.dart';
 import 'package:immersion_reader/widgets/discover/recommended_widget.dart';
@@ -61,38 +62,34 @@ class _DiscoverState extends State<Discover> {
               largeTitle: const Text('Discover'),
               backgroundColor: backgroundColor,
               border: const Border())),
-          SliverFillRemaining(
-              child: SafeArea(
-                  child: Container(
-                      color: backgroundColor,
-                      child: SingleChildScrollView(
-                          child: Column(children: [
-                        SizedBox(
-                            height: 80,
-                            child: ListView(
-                                physics: const BouncingScrollPhysics(),
-                                scrollDirection: Axis.horizontal,
-                                children: [
-                                  const SizedBox(
-                                    width: 18,
-                                  ),
-                                  ...discoverCategories
-                                      .asMap()
-                                      .entries
-                                      .map((entry) => CategoryBox(
-                                            text: entry.value,
-                                            onPressed: () {
-                                              setState(() {
-                                                selectedTab = entry.key;
-                                              });
-                                              setSelectedTab(selectedTab!);
-                                            },
-                                            isSelected:
-                                                selectedTab == entry.key,
-                                          )),
-                                ])),
-                        activeWidget,
-                      ])))))
+          SliverList(
+              delegate: SliverChildListDelegate([
+            SizedBox(
+                height: 80,
+                child: ListView(
+                    physics: const BouncingScrollPhysics(),
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      const SizedBox(
+                        width: 18,
+                      ),
+                      ...discoverCategories
+                          .asMap()
+                          .entries
+                          .map((entry) => CategoryBox(
+                                text: entry.value,
+                                onPressed: () {
+                                  setState(() {
+                                    selectedTab = entry.key;
+                                  });
+                                  setSelectedTab(selectedTab!);
+                                },
+                                isSelected: selectedTab == entry.key,
+                              )),
+                    ])),
+            activeWidget,
+            const PaddingBottom()
+          ]))
         ]));
   }
 }

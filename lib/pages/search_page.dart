@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/search/search_result.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
+import 'package:immersion_reader/widgets/common/padding_bottom.dart';
 import 'package:immersion_reader/widgets/search/search_results_section.dart';
 
 class SearchPage extends StatefulWidget {
@@ -58,23 +59,29 @@ class _SearchPageState extends State<SearchPage> {
         backgroundColor:
             CupertinoColors.systemGroupedBackground.resolveFrom(context),
         child: CustomScrollView(slivers: [
-          (const CupertinoSliverNavigationBar(
-            largeTitle: Text('My Dictionary'),
-          )),
-          SliverFillRemaining(
-              child: CupertinoScrollbar(
-                  child: SingleChildScrollView(
-                      child: Column(children: [
-            const SizedBox(height: 20),
-            CupertinoSearchTextField(
-                autocorrect: false,
-                controller: textController,
-                placeholder: 'Search',
-                onSubmitted: handleSearch),
+          CupertinoSliverNavigationBar(
+            middle: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('My Dictionary'))),
+            largeTitle: Column(children: [
+              Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: CupertinoSearchTextField(
+                      autocorrect: false,
+                      controller: textController,
+                      placeholder: 'Search',
+                      onSubmitted: handleSearch)),
+            ]),
+          ),
+          SliverList(
+              delegate: SliverChildListDelegate([
             if (searchResult != null)
-              SearchResultsSection(
-                  searchResult: searchResult!, parentContext: context),
-          ]))))
+              PaddingBottom(
+                  child: SearchResultsSection(
+                      searchResult: searchResult!, parentContext: context))
+          ])),
         ]));
   }
 }

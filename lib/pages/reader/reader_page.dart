@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
+import 'package:immersion_reader/widgets/common/padding_bottom.dart';
 import 'package:immersion_reader/widgets/my_books/browser_catalog.dart';
 import 'package:immersion_reader/widgets/my_books/my_books_widget.dart';
 
@@ -26,16 +27,13 @@ class _ReaderPageState extends State<ReaderPage> {
               largeTitle: const Text('Reader'),
               backgroundColor: backgroundColor,
               border: const Border())),
-          SliverFillRemaining(
-              child: Container(
-                  color: backgroundColor,
-                  child: SingleChildScrollView(
-                      child: SafeArea(
-                          child: Column(children: [
-                    const MyBooksWidget(),
-                    // GestureDetector(onTap: ()=>_requestPurchase("immersion_reader_plus"), )
-                    BrowserCatalog(paymentProvider: widget.paymentProvider),
-                  ])))))
+          SliverList(
+              delegate: SliverChildListDelegate([
+            const MyBooksWidget(),
+            // GestureDetector(onTap: ()=>_requestPurchase("immersion_reader_plus"), )
+            BrowserCatalog(paymentProvider: widget.paymentProvider),
+            const PaddingBottom()
+          ]))
         ]));
   }
 }
