@@ -1,17 +1,17 @@
 import 'package:flutter/cupertino.dart';
-import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/data/search/search_result.dart';
-import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
-import 'package:immersion_reader/utils/system_theme.dart';
-import 'package:immersion_reader/widgets/vocabulary/frequency_widget.dart';
-import 'package:immersion_reader/widgets/vocabulary/pitch_widget.dart';
+import 'package:immersion_reader/widgets/search/search_vocabulary_tile.dart';
 
 class SearchResultsSection extends StatefulWidget {
   final SearchResult searchResult;
+  final Function(Vocabulary) addOrRemoveFromVocabularyList;
   final BuildContext parentContext;
   const SearchResultsSection(
-      {super.key, required this.searchResult, required this.parentContext});
+      {super.key,
+      required this.searchResult,
+      required this.addOrRemoveFromVocabularyList,
+      required this.parentContext});
 
   @override
   State<SearchResultsSection> createState() => _SearchResultsSectionState();
@@ -23,14 +23,22 @@ class _SearchResultsSectionState extends State<SearchResultsSection> {
     darkColor: CupertinoColors.lightBackgroundGray,
   );
 
+  bool _vocabularyIsExists(Vocabulary vocabulary) {
+    return widget.searchResult.existingVocabularyIds
+        .contains(vocabulary.uniqueId);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(children: [
       if (widget.searchResult.exactMatches.isNotEmpty)
         CupertinoListSection(header: const Text('Exact Matches'), children: [
           ...widget.searchResult.exactMatches.map((Vocabulary vocabulary) {
-            return VocabularyTile(
+            return SearchVocabularyTile(
                 vocabulary: vocabulary,
+                vocabularyIsExists: _vocabularyIsExists(vocabulary),
+                addOrRemoveFromVocabularyList:
+                    widget.addOrRemoveFromVocabularyList,
                 parentContext: widget.parentContext,
                 textColor: textColor);
           })
@@ -41,86 +49,15 @@ class _SearchResultsSectionState extends State<SearchResultsSection> {
             children: [
               ...widget.searchResult.additionalMatches
                   .map((Vocabulary vocabulary) {
-                return VocabularyTile(
+                return SearchVocabularyTile(
                     vocabulary: vocabulary,
+                    vocabularyIsExists: _vocabularyIsExists(vocabulary),
+                    addOrRemoveFromVocabularyList:
+                        widget.addOrRemoveFromVocabularyList,
                     parentContext: widget.parentContext,
                     textColor: textColor);
               })
             ])
-    ]);
-  }
-}
-
-class VocabularyTile extends StatelessWidget {
-  final Vocabulary vocabulary;
-  final CupertinoDynamicColor textColor;
-  final BuildContext parentContext;
-  const VocabularyTile(
-      {super.key,
-      required this.vocabulary,
-      required this.textColor,
-      required this.parentContext});
-
-  bool hasPitch(Vocabulary vocabulary) {
-    return vocabulary.pitchValues.isNotEmpty;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      CupertinoListTile(
-          title: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.9, // space for padding
-              child: RichText(
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textHeightBehavior:
-                      const TextHeightBehavior(applyHeightToLastDescent: false),
-                  text: TextSpan(
-                      text: vocabulary.expression ?? '',
-                      style: TextStyle(
-                          fontSize: 20,
-                          height: 1.8, // spacing for second line
-                          color: CupertinoDynamicColor.resolve(
-                              textColor, parentContext)),
-                      children: [
-                        const WidgetSpan(
-                            child: SizedBox(
-                          width: 20,
-                        )),
-                        WidgetSpan(
-                            child: hasPitch(vocabulary)
-                                ? PitchWidget(
-                                    vocabulary: vocabulary,
-                                    themeData: PopupDictionaryThemeData(
-                                        popupDictionaryTheme: isDarkMode()
-                                            ? PopupDictionaryTheme.dark
-                                            : PopupDictionaryTheme.light))
-                                : const SizedBox())
-                      ])
-                  ))),
-      if (vocabulary.frequencyTags.isNotEmpty)
-        Padding(
-            padding: const EdgeInsetsDirectional.only(
-                start: 20.0, end: 14.0, bottom: 5.0),
-            child: FrequencyWidget(
-                parentContext: parentContext, vocabulary: vocabulary)),
-      Padding(
-          padding: const EdgeInsetsDirectional.only(
-              start: 20.0, end: 14.0, bottom: 5.0),
-          child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.7,
-              child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(vocabulary.getCompleteGlossary(),
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontSize: 12,
-                        height: 1.5,
-                        color: CupertinoDynamicColor.resolve(
-                            textColor, parentContext),
-                      )))))
     ]);
   }
 }

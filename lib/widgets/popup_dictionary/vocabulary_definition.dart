@@ -21,6 +21,10 @@ class _VocabularyDefinitionState extends State<VocabularyDefinition> {
   @override
   void initState() {
     super.initState();
+    resetExpandedDefinitions();
+  }
+
+  void resetExpandedDefinitions() {
     for (DictionaryEntry entry in widget.vocabulary.entries) {
       definitionsExpanded[entry] = false;
     }
@@ -32,9 +36,14 @@ class _VocabularyDefinitionState extends State<VocabularyDefinition> {
       ...widget.vocabulary.entries
           .map((DictionaryEntry entry) => GestureDetector(
               onTap: () {
-                setState(() {
-                  definitionsExpanded[entry] = !definitionsExpanded[entry]!;
-                });
+                if (definitionsExpanded[entry] == null) { // workaround when widget.vocabulary is updated but definitionExpanded is stall
+                  resetExpandedDefinitions();
+                }
+                if (definitionsExpanded[entry] != null) {
+                  setState(() {
+                    definitionsExpanded[entry] = !definitionsExpanded[entry]!;
+                  });
+                }
               },
               child: Align(
                   alignment: Alignment.centerLeft,
