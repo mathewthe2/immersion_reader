@@ -70,22 +70,6 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  Widget searchResultSection(SearchResult result) {
-    return CupertinoListSection(header: const Text('Exact Matches'), children: [
-      ...searchResult!.exactMatches.map((Vocabulary vocabulary) {
-        return CupertinoListTile(
-            title: Text(vocabulary.expression ?? ''),
-            subtitle: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.7,
-              child: Text(
-                vocabulary.getFirstGlossary(),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ));
-      })
-    ]);
-  }
-
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(

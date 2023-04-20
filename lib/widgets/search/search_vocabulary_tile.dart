@@ -29,6 +29,11 @@ class SearchVocabularyTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    PopupDictionaryThemeData popupDictionaryThemeData =
+        PopupDictionaryThemeData(
+            popupDictionaryTheme: isDarkMode()
+                ? PopupDictionaryTheme.dark
+                : PopupDictionaryTheme.light);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       CupertinoListTile(
           trailing: CupertinoButton(
@@ -68,10 +73,7 @@ class SearchVocabularyTile extends StatelessWidget {
                             child: hasPitch(vocabulary)
                                 ? PitchWidget(
                                     vocabulary: vocabulary,
-                                    themeData: PopupDictionaryThemeData(
-                                        popupDictionaryTheme: isDarkMode()
-                                            ? PopupDictionaryTheme.dark
-                                            : PopupDictionaryTheme.light))
+                                    themeData: popupDictionaryThemeData)
                                 : const SizedBox())
                       ])))),
       if (vocabulary.frequencyTags.isNotEmpty)
@@ -89,8 +91,7 @@ class SearchVocabularyTile extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: VocabularyDefinition(
                       vocabulary: vocabulary,
-                      popupDictionaryThemeData: PopupDictionaryThemeData(
-                          popupDictionaryTheme: PopupDictionaryTheme.dark)))))
+                      popupDictionaryThemeData: popupDictionaryThemeData))))
     ]);
   }
 }
