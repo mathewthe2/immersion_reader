@@ -37,7 +37,8 @@ class TtuSource {
         late Map<String, dynamic> messageJson;
         try {
           messageJson = jsonDecode(message.message);
-          if (messageJson['messageType'] != null) {
+          if (messageJson.containsKey('messageType') &&
+              messageJson['messageType'] == 'history') {
             try {
               books = getBooksFromJson(messageJson);
             } catch (error, stack) {
@@ -101,7 +102,8 @@ class TtuSource {
       try {
         Uri.parse(data['coverImage']);
         base64Image = data['coverImage'];
-        BookImageManager().saveImageIfNotExists(base64Image: base64Image!, key: id, title: title);
+        BookImageManager().saveImageIfNotExists(
+            base64Image: base64Image!, key: id, title: title);
       } catch (e) {
         base64Image = null;
       }
@@ -118,5 +120,4 @@ class TtuSource {
 
     return items;
   }
-
 }
