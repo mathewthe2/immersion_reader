@@ -125,7 +125,11 @@
 <div class="grid grid-cols-1 items-center sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:md:gap-8">
   <div class="sm:col-span-2 lg:col-span-3">
     <SettingsItemGroup title="Theme">
-      <ButtonToggleGroup options={optionsForTheme} bind:selectedOptionId={selectedTheme} />
+      <ButtonToggleGroup
+        optionKey="selectedTheme"
+        options={optionsForTheme}
+        bind:selectedOptionId={selectedTheme}
+      />
     </SettingsItemGroup>
   </div>
   <SettingsItemGroup title="Font size">
@@ -171,36 +175,72 @@
     />
   </SettingsItemGroup>
   <SettingsItemGroup title="View mode">
-    <ButtonToggleGroup options={optionsForViewMode} bind:selectedOptionId={viewMode} />
+    <ButtonToggleGroup
+      optionKey="viewMode"
+      options={optionsForViewMode}
+      bind:selectedOptionId={viewMode}
+    />
   </SettingsItemGroup>
   <SettingsItemGroup title="Writing mode">
-    <ButtonToggleGroup options={optionsForWritingMode} bind:selectedOptionId={writingMode} />
+    <ButtonToggleGroup
+      optionKey="writingMode"
+      options={optionsForWritingMode}
+      bind:selectedOptionId={writingMode}
+    />
   </SettingsItemGroup>
   <SettingsItemGroup
     title="Auto Bookmark"
     tooltip={'Set a bookmark after 3 seconds without scrolling/page change'}
   >
-    <ButtonToggleGroup options={optionsForToggle} bind:selectedOptionId={autoBookmark} />
+    <ButtonToggleGroup
+      optionKey="autoBookmark"
+      options={optionsForToggle}
+      bind:selectedOptionId={autoBookmark}
+    />
   </SettingsItemGroup>
   <SettingsItemGroup title="Blur image">
-    <ButtonToggleGroup options={optionsForToggle} bind:selectedOptionId={blurImage} />
+    <ButtonToggleGroup
+      optionKey="blurImage"
+      options={optionsForToggle}
+      bind:selectedOptionId={blurImage}
+    />
   </SettingsItemGroup>
   <SettingsItemGroup title="Hide furigana">
-    <ButtonToggleGroup options={optionsForToggle} bind:selectedOptionId={hideFurigana} />
+    <ButtonToggleGroup
+      optionKey="hideFurigana"
+      options={optionsForToggle}
+      bind:selectedOptionId={hideFurigana}
+    />
   </SettingsItemGroup>
   <SettingsItemGroup title="Hide furigana style" tooltip={furiganaStyleTooltip}>
-    <ButtonToggleGroup options={optionsForFuriganaStyle} bind:selectedOptionId={furiganaStyle} />
+    <ButtonToggleGroup
+      optionKey="furiganaStyle"
+      options={optionsForFuriganaStyle}
+      bind:selectedOptionId={furiganaStyle}
+    />
   </SettingsItemGroup>
   <SettingsItemGroup title="Persistent storage">
-    <ButtonToggleGroup options={optionsForToggle} bind:selectedOptionId={persistentStorage} />
+    <ButtonToggleGroup
+      optionKey="persistentStorage"
+      options={optionsForToggle}
+      bind:selectedOptionId={persistentStorage}
+    />
   </SettingsItemGroup>
   {#if viewMode === ViewMode.Continuous}
     <SettingsItemGroup title="Auto position on resize">
-      <ButtonToggleGroup options={optionsForToggle} bind:selectedOptionId={autoPositionOnResize} />
+      <ButtonToggleGroup
+        optionKey="autoPositionOnResize"
+        options={optionsForToggle}
+        bind:selectedOptionId={autoPositionOnResize}
+      />
     </SettingsItemGroup>
   {:else}
     <SettingsItemGroup title="Avoid Page Break" tooltip={avoidPageBreakTooltip}>
-      <ButtonToggleGroup options={optionsForToggle} bind:selectedOptionId={avoidPageBreak} />
+      <ButtonToggleGroup
+        optionKey="avoidPageBreak"
+        options={optionsForToggle}
+        bind:selectedOptionId={avoidPageBreak}
+      />
     </SettingsItemGroup>
     {#if !verticalMode}
       <SettingsItemGroup title="Page Columns">

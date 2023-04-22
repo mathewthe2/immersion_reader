@@ -9,7 +9,7 @@ class BrowserSetting {
   BrowserSetting({required this.enableAdBlock, required this.urlFilters});
 
   factory BrowserSetting.fromMap(Map<String, Object?> map) => BrowserSetting(
-      enableAdBlock: (map[enableAdBlockKey] as String) == "1" ? true : false,
+      enableAdBlock: (map[enableAdBlockKey] as String) == "1",
       urlFilters: (map[urlFiltersKey] as String).split("\n"));
 
   static String urlFiltersToString(List<String> urlFilters) {

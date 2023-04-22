@@ -1,7 +1,8 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
+import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
 
 class MessageController {
@@ -13,6 +14,8 @@ class MessageController {
   PopupDictionary popupDictionary;
   VoidCallback? exitCallback;
   VoidCallback? readerSettingsCallback;
+
+  ValueNotifier<bool> messageControllerNotifier = ValueNotifier(false);
 
   MessageController._internal(
       {required this.popupDictionary,
@@ -62,7 +65,7 @@ class MessageController {
           if (isRecentMessage) {
             return;
           }
-          switch (messageJson['message-type']) {
+          switch (messageJson['messageType']) {
             case 'lookup':
               {
                 int index = messageJson['index'];
@@ -90,12 +93,25 @@ class MessageController {
                 break;
               }
             case 'content-display-change':
-            {
-              int? readCharacters = messageJson['exploredCharCount'];
-              if (readCharacters != null) {
-                  ReaderSessionManager().updateProgressOfCurrentContent(readCharacters);
+              {
+                int? readCharacters = messageJson['exploredCharCount'];
+                if (readCharacters != null) {
+                  ReaderSessionManager()
+                      .updateProgressOfCurrentContent(readCharacters);
+                }
+                break;
               }
-            }
+            case 'settings-change':
+              {
+                String optionKey = messageJson['optionKey'];
+                String optionValue = messageJson['optionValue'];
+                if (optionKey == 'selectedTheme') {
+                  SettingsManager().setReaderBackgroundColor(optionValue);
+                  messageControllerNotifier.value =
+                      !messageControllerNotifier.value;
+                }
+                break;
+              }
           }
         }
     }

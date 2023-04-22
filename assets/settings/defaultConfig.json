@@ -5,7 +5,8 @@
         "show_frequency_tags": "1",
         "pitch_accent_display_style": "graph",
         "enable_full_screen": "0",
-        "keep_screen_on": "0"
+        "keep_screen_on": "0",
+        "reader_theme": "light-theme"
     },
     "browser": {
         "enable_ad_block": "1",

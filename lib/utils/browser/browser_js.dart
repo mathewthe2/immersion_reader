@@ -5,7 +5,7 @@ function tapToSelect(e) {
 	  console.log(JSON.stringify({
 				  "index": -1,
 				  "text": getSelectionText(),
-				  "message-type": "lookup",
+				  "messageType": "lookup",
           "timestamp": Date.now(),
 		  "x": e.clientX,
 		  "y": e.clientY,
@@ -90,7 +90,7 @@ function tapToSelect(e) {
 		  console.log(JSON.stringify({
 				  "index": index,
 				  "text": text,
-				  "message-type": "lookup",
+				  "messageType": "lookup",
           "timestamp": Date.now(),
 		  "x": e.clientX,
 		  "y": e.clientY,

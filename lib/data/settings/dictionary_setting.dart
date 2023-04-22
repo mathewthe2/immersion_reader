@@ -10,5 +10,5 @@ class DictionarySetting {
       DictionarySetting(
           id: map['id'] as int,
           title: map['title'] as String,
-          enabled: (map['enabled'] as int?) == 1 ? true : false);
+          enabled: (map['enabled'] as int?) == 1);
 }

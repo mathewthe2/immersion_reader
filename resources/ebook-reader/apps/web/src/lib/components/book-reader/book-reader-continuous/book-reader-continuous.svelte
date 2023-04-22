@@ -236,10 +236,12 @@
     });
 
   function notifyProgressToImmersionReader(exploredCharCount: number) {
-    console.log(JSON.stringify({
-        'exploredCharCount': exploredCharCount,
-				"message-type": "content-display-change"
-			}));
+    console.log(
+      JSON.stringify({
+        exploredCharCount: exploredCharCount,
+        messageType: 'content-display-change'
+      })
+    );
   }
 
   function onContentDisplayChange(_calculator: CharacterStatsCalculator) {

@@ -298,12 +298,13 @@
   }
 
   function notifyProgressToImmersionReader(exploredCharCount: number) {
-    console.log(JSON.stringify({
-        'exploredCharCount': exploredCharCount,
-				"message-type": "content-display-change"
-			}));
+    console.log(
+      JSON.stringify({
+        exploredCharCount: exploredCharCount,
+        messageType: 'content-display-change'
+      })
+    );
   }
-
 
   function onContentDisplayChange(_calculator: SectionCharacterStatsCalculator) {
     _calculator.updateParagraphPos();
@@ -441,7 +442,10 @@
 
   .book-content-container {
     column-count: var(--book-content-column-count, 1);
-    column-width: var(--book-content-child-column-width, auto); // required for WebKit + column-count 1
+    column-width: var(
+      --book-content-child-column-width,
+      auto
+    ); // required for WebKit + column-count 1
     column-gap: 20px;
     column-fill: auto;
     height: var(--book-content-child-height, 95vh);

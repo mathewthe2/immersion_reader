@@ -25,9 +25,11 @@
 
   // notify immersion reader that manager is loaded and stop current session
   onMount(() => {
-    console.log(JSON.stringify({
-				"message-type": "load-manager"
-			}));
+    console.log(
+      JSON.stringify({
+        messageType: 'load-manager'
+      })
+    );
   });
 
   const bookCards$: Observable<BookCardProps[]> = combineLatest([
@@ -178,7 +180,7 @@
   }
 
   function onExitReaderClick() {
-    console.log("launch-immersion-reader");
+    console.log('launch-immersion-reader');
   }
 </script>
 
@@ -220,11 +222,11 @@
     />
   {:else}
     <div class="flex justify-center pt-44 text-gray-400 text-opacity-40">
-      <div class="flex justify-center w-3/6 xl:w-3/12">
+      <div class="flex w-3/6 justify-center xl:w-3/12">
         <Fa icon={faUpload} style="width: 100%; height: auto" />
       </div>
     </div>
-    <label class="fixed z-0 inset-0">
+    <label class="fixed inset-0 z-0">
       <input type="file" accept=".htmlz,.epub" multiple hidden use:inputFile={onFilesChange} />
     </label>
   {/if}

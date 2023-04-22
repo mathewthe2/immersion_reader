@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:wakelock/wakelock.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
@@ -13,11 +14,16 @@ class NavigationManager {
   factory NavigationManager() => _singleton;
 
   Future<void> handleReaderSession(
-      {required bool isTerminateSession, required bool isStartSession, required bool isSamePage}) async {
+      {required bool isTerminateSession,
+      required bool isStartSession,
+      required bool isSamePage}) async {
     if (isTerminateSession) {
       ProfileManager().endSession();
       Wakelock.disable();
-      if (!isSamePage) leaveReaderPageNotifier.value = true;
+      if (!isSamePage) {
+        leaveReaderPageNotifier.value = true;
+        _showSystemUI();
+      }
     } else if (isStartSession) {
       ProfileManager().restartSession();
       bool isKeepScreenOn = await SettingsManager().getIsKeepScreenOn();
@@ -28,6 +34,11 @@ class NavigationManager {
       }
       leaveReaderPageNotifier.value = false;
     }
+  }
+
+  void _showSystemUI() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]);
   }
 
   void notifyVocabularyListPage() {

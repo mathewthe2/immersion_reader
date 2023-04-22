@@ -29,20 +29,23 @@ class PopupDictionary {
           duration: Duration(milliseconds: enableSlideAnimation ? 400 : 0),
           context: parentContext,
           builder: (BuildContext context) {
-            return SafeArea(
-                child: Container(
-                    height: MediaQuery.of(context).size.height * .40,
-                    color: popupDictionaryThemeData
-                        .getColor(DictionaryColor.backgroundColor),
-                    child: CupertinoScrollbar(
-                        child: SingleChildScrollView(
-                            controller: ModalScrollController.of(context),
-                            child: VocabularyTileList(
-                                text: text,
-                                targetIndex: index,
-                                popupDictionaryThemeData:
-                                    popupDictionaryThemeData,
-                                vocabularyList: const [])))));
+            return Container(
+                color: popupDictionaryThemeData
+                    .getColor(DictionaryColor.backgroundColor),
+                child: SafeArea(
+                    child: Container(
+                        height: MediaQuery.of(context).size.height * .40,
+                        color: popupDictionaryThemeData
+                            .getColor(DictionaryColor.backgroundColor),
+                        child: CupertinoScrollbar(
+                            child: SingleChildScrollView(
+                                controller: ModalScrollController.of(context),
+                                child: VocabularyTileList(
+                                    text: text,
+                                    targetIndex: index,
+                                    popupDictionaryThemeData:
+                                        popupDictionaryThemeData,
+                                    vocabularyList: const []))))));
           });
     }
   }

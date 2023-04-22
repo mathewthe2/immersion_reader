@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:collection/collection.dart';
 import 'package:path/path.dart' as p;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:immersion_reader/data/settings/appearance_setting.dart';
@@ -116,7 +118,8 @@ class SettingsManager {
     SettingsData data = await _getSettingsData();
     String pitchAccentString = data.appearanceSetting.pitchAccentStyleString;
     return PitchAccentDisplayStyle.values
-        .firstWhere((e) => e.name == pitchAccentString);
+            .firstWhereOrNull((e) => e.name == pitchAccentString) ??
+        PitchAccentDisplayStyle.none;
   }
 
   Future<void> updatePopupDictionaryTheme(
@@ -135,5 +138,17 @@ class SettingsManager {
         data.appearanceSetting.popupDictionaryThemeString;
     return PopupDictionaryTheme.values
         .firstWhere((e) => e.name == popupDictionaryThemeString);
+  }
+
+  Future<Color> getReaderBackgroundColor() async {
+    SettingsData data = await _getSettingsData();
+    return data.appearanceSetting.readerBackgroundColor;
+  }
+
+  Future<void> setReaderBackgroundColor(String readerBackgroundColor) async {
+    await settingsStorage?.changeConfigSettings(
+        AppearanceSetting.readerThemeKey, readerBackgroundColor,
+        onSuccessCallback: () => settingsStorage!.settingsCache!
+            .appearanceSetting.readerThemeString = readerBackgroundColor);
   }
 }
