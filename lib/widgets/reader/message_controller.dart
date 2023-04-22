@@ -60,8 +60,9 @@ class MessageController {
             return;
           }
           bool isRecentMessage = lastTimestamp != null &&
+              messageJson.containsKey('timestamp') &&
               messageJson['timestamp'] - lastTimestamp < timeStampDiff;
-          lastTimestamp = messageJson['timestamp'];
+          lastTimestamp = messageJson['timestamp'] ?? lastTimestamp;
           if (isRecentMessage) {
             return;
           }
