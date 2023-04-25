@@ -8,14 +8,12 @@ class Pitch {
   Database? pitchAccentsDictionary;
   SettingsStorage? settingsStorage;
 
-  Pitch._create() {
-    // print("_create() (private constructor)");
-  }
+  static final Pitch _singleton = Pitch._internal();
+  Pitch._internal();
 
-  static Pitch create(SettingsStorage settingsStorage) {
-    Pitch pitch = Pitch._create();
-    pitch.settingsStorage = settingsStorage;
-    return pitch;
+  factory Pitch.create(SettingsStorage settingsStorage) {
+    _singleton.settingsStorage = settingsStorage;
+    return _singleton;
   }
 
   Future<List<String>> getPitches(String text,
@@ -83,7 +81,7 @@ class Pitch {
             result.add(pitchValue.toString());
             break;
           }
-          default:
+        default:
           break;
       }
     }

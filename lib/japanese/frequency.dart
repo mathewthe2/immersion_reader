@@ -8,17 +8,15 @@ class Frequency {
   Database? pitchAccentsDictionary;
   SettingsStorage? settingsStorage;
 
-  Frequency._create() {
-    // print("_create() (private constructor)");
+  static final Frequency _singleton = Frequency._internal();
+  Frequency._internal();
+
+  factory Frequency.create(SettingsStorage settingsStorage) {
+    _singleton.settingsStorage = settingsStorage;
+    return _singleton;
   }
 
   static int frequencyLimit = 150;
-
-  static Frequency create(SettingsStorage settingsStorage) {
-    Frequency frequency = Frequency._create();
-    frequency.settingsStorage = settingsStorage;
-    return frequency;
-  }
 
   Future<List<List<FrequencyTag>>> getFrequencyBatch(
       List<SearchTerm> searchTerms) async {

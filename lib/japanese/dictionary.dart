@@ -5,19 +5,15 @@ import 'package:immersion_reader/storage/settings_storage.dart';
 
 class Dictionary {
   Database? japaneseDictionary;
-  SettingsStorage? settingsStorage;
 
   static int termLimit = 1000;
 
-  Dictionary._create() {
-    // print("_create() (private constructor)");
-  }
+  static final Dictionary _singleton = Dictionary._internal();
+  Dictionary._internal();
 
-  static Dictionary create(SettingsStorage settingsStorage) {
-    Dictionary dictionary = Dictionary._create();
-    dictionary.settingsStorage = settingsStorage;
-    dictionary.japaneseDictionary = settingsStorage.database;
-    return dictionary;
+  factory Dictionary.create(SettingsStorage settingsStorage) {
+    _singleton.japaneseDictionary = settingsStorage.database;
+    return _singleton;
   }
 
   Future<List<DictionaryEntry>> findTermsBulk(List<String> terms,

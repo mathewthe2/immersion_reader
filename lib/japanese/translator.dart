@@ -29,30 +29,22 @@ class TranslatorDeinflection {
 }
 
 class Translator {
-  Dictionary dictionary;
-  Deinflector deinflector;
-  Pitch pitch;
-  Frequency frequency;
+  late Dictionary dictionary;
+  late Deinflector deinflector;
+  late Pitch pitch;
+  late Frequency frequency;
   SettingsStorage? settingsStorage;
 
-  Translator(
-      {required this.dictionary,
-      required this.deinflector,
-      required this.pitch,
-      required this.frequency,
-      this.settingsStorage});
+  static final Translator _singleton = Translator._internal();
+  Translator._internal();
 
   static Translator create(SettingsStorage settingsStorage) {
-    Dictionary dictionary = Dictionary.create(settingsStorage);
-    Pitch pitch = Pitch.create(settingsStorage);
-    Frequency frequency = Frequency.create(settingsStorage);
-    Translator translator = Translator(
-        dictionary: dictionary,
-        pitch: pitch,
-        frequency: frequency,
-        deinflector: Deinflector(),
-        settingsStorage: settingsStorage);
-    return translator;
+    _singleton.dictionary = Dictionary.create(settingsStorage);
+    _singleton.pitch = Pitch.create(settingsStorage);
+    _singleton.frequency = Frequency.create(settingsStorage);
+    _singleton.deinflector = Deinflector();
+    _singleton.settingsStorage = settingsStorage;
+    return _singleton;
   }
 
   Future<List<Vocabulary>> _findGlossaryTerms(String text,
