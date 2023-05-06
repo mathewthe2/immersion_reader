@@ -102,63 +102,63 @@ class Dictionary {
     return vocabularyMap.values.toList();
   }
 
-  Future<List<Vocabulary>> findTerm(String text,
-      {wildcards = false, String reading = ''}) async {
-    if (japaneseDictionary == null) {
-      return [];
-    }
-    List<Map<String, Object?>> rows = [];
+  // Only for reference
+  // Future<List<Vocabulary>> findTerm(String text,
+  //     {wildcards = false, String reading = ''}) async {
+  //   if (japaneseDictionary == null) {
+  //     return [];
+  //   }
+  //   List<Map<String, Object?>> rows = [];
 
-    if (reading.isNotEmpty) {
-      rows = await japaneseDictionary!.rawQuery(
-          'SELECT * FROM Vocab WHERE expression ${wildcards ? 'LIKE' : '='} ? AND reading = ? LIMIT $termLimit',
-          [text, reading]);
-    } else {
-      rows = await japaneseDictionary!.rawQuery(
-          'SELECT * FROM Vocab WHERE expression ${wildcards ? 'LIKE' : '='} ? OR reading = ? LIMIT $termLimit',
-          [text, text]);
-    }
-    // print(rows);
+  //   if (reading.isNotEmpty) {
+  //     rows = await japaneseDictionary!.rawQuery(
+  //         'SELECT * FROM Vocab WHERE expression ${wildcards ? 'LIKE' : '='} ? AND reading = ? LIMIT $termLimit',
+  //         [text, reading]);
+  //   } else {
+  //     rows = await japaneseDictionary!.rawQuery(
+  //         'SELECT * FROM Vocab WHERE expression ${wildcards ? 'LIKE' : '='} ? OR reading = ? LIMIT $termLimit',
+  //         [text, text]);
+  //   }
 
-    List<DictionaryEntry> dictionaryEntries =
-        rows.map((row) => DictionaryEntry.fromMap(row)).toList();
+  //   List<DictionaryEntry> dictionaryEntries =
+  //       rows.map((row) => DictionaryEntry.fromMap(row)).toList();
 
-    Map<String, Vocabulary> vocabularyMap = {};
-    for (DictionaryEntry dictionaryEntry in dictionaryEntries) {
-      List<Map<String, Object?>> rows = await japaneseDictionary!
-          .rawQuery('SELECT glossary From VocabGloss WHERE vocabId=?', [
-        dictionaryEntry.id,
-      ]);
+  //   Map<String, Vocabulary> vocabularyMap = {};
+  //   for (DictionaryEntry dictionaryEntry in dictionaryEntries) {
+  //     List<Map<String, Object?>> rows = await japaneseDictionary!
+  //         .rawQuery('SELECT glossary From VocabGloss WHERE vocabId=?', [
+  //       dictionaryEntry.id,
+  //     ]);
 
-      dictionaryEntry.meanings =
-          rows.map((obj) => obj['glossary'] as String).toList();
-      Vocabulary vocabulary = Vocabulary(entries: [dictionaryEntry]);
+  //     dictionaryEntry.meanings =
+  //         rows.map((obj) => obj['glossary'] as String).toList();
+  //     Vocabulary vocabulary = Vocabulary(entries: [dictionaryEntry]);
 
-      List<String> addons = [];
-      for (String tag in dictionaryEntry.meaningTags) {
-        if (tag.startsWith('v5') && tag != 'v5') {
-          addons.add('v5');
-        } else if (tag.startsWith('vs-')) {
-          addons.add('vs');
-        }
-      }
+  //     List<String> addons = [];
+  //     for (String tag in dictionaryEntry.meaningTags) {
+  //       if (tag.startsWith('v5') && tag != 'v5') {
+  //         addons.add('v5');
+  //       } else if (tag.startsWith('vs-')) {
+  //         addons.add('vs');
+  //       }
+  //     }
 
-      // to do: refactor to remove extra data in vocabulary
-      vocabulary.tags = dictionaryEntry.meaningTags + addons;
-      vocabulary.id = vocabulary.uniqueId;
-      vocabulary.expression = dictionaryEntry.term;
-      vocabulary.reading = dictionaryEntry.reading;
+  //     // to do: refactor to remove extra data in vocabulary
+  //     vocabulary.tags = dictionaryEntry.meaningTags + addons;
+  //     vocabulary.id = vocabulary.uniqueId;
+  //     vocabulary.expression = dictionaryEntry.term;
+  //     vocabulary.reading = dictionaryEntry.reading;
 
-      String vocabularyKey = vocabulary.uniqueId;
-      if (vocabularyMap.containsKey(vocabularyKey)) {
-        vocabularyMap[vocabularyKey]!.entries = [
-          ...vocabularyMap[vocabularyKey]!.entries,
-          dictionaryEntry
-        ];
-      } else {
-        vocabularyMap[vocabularyKey] = vocabulary;
-      }
-    }
-    return vocabularyMap.values.toList();
-  }
+  //     String vocabularyKey = vocabulary.uniqueId;
+  //     if (vocabularyMap.containsKey(vocabularyKey)) {
+  //       vocabularyMap[vocabularyKey]!.entries = [
+  //         ...vocabularyMap[vocabularyKey]!.entries,
+  //         dictionaryEntry
+  //       ];
+  //     } else {
+  //       vocabularyMap[vocabularyKey] = vocabulary;
+  //     }
+  //   }
+  //   return vocabularyMap.values.toList();
+  // }
 }

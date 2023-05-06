@@ -2,7 +2,7 @@ const String settingsStorageSQLString = '''
   CREATE TABLE Dictionary (id INTEGER PRIMARY KEY, title TEXT, enabled INTEGER)
   CREATE TABLE Kanji(id INTEGER PRIMARY KEY, dictionaryId INTEGER, character TEXT, kunyomi TEXT, onyomi TEXT, FOREIGN KEY(dictionaryId) REFERENCES Dictionary(id))
   CREATE TABLE KanjiGloss(glossary TEXT, kanjiId INTEGER, dictionaryId INTEGER, FOREIGN KEY(dictionaryId) REFERENCES Dictionary(id))
-  CREATE TABLE Vocab(id INTEGER PRIMARY KEY, dictionaryId INTEGER, expression TEXT, reading TEXT, sequence INTEGER, popularity REAL,  meaningTags TEXT, termTags TEXT, FOREIGN KEY(dictionaryId) REFERENCES Dictionary(id))
+  CREATE TABLE Vocab(id INTEGER PRIMARY KEY, dictionaryId INTEGER, expression TEXT, reading TEXT, sequence INTEGER, popularity REAL, meaningTags TEXT, termTags TEXT, FOREIGN KEY(dictionaryId) REFERENCES Dictionary(id))
   CREATE TABLE VocabGloss(glossary TEXT, vocabId INTEGER, dictionaryId INTEGER, FOREIGN KEY(vocabId) REFERENCES Vocab(id), FOREIGN KEY(dictionaryId) REFERENCES Dictionary(id))
   CREATE TABLE VocabFreq(expression TEXT, reading TEXT, frequency TEXT, dictionaryId INTEGER, FOREIGN KEY(dictionaryId) REFERENCES Dictionary(id))
   CREATE TABLE VocabPitch(expression TEXT, reading TEXT, pitch TEXT, dictionaryId INTEGER, FOREIGN KEY(dictionaryId) REFERENCES Dictionary(id))
@@ -15,4 +15,4 @@ const String settingsStorageSQLString = '''
   CREATE INDEX index_VocabPitch_expression ON VocabPitch(expression ASC)
   CREATE INDEX index_VocabPitch_reading ON VocabPitch(reading ASC)''';
 
-  const List<String> settingsStorageMigrations = [];
+const List<String> settingsStorageMigrations = [];
