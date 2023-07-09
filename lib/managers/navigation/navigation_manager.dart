@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:wakelock/wakelock.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
@@ -22,7 +21,6 @@ class NavigationManager {
       Wakelock.disable();
       if (!isSamePage) {
         leaveReaderPageNotifier.value = true;
-        _showSystemUI();
       }
     } else if (isStartSession) {
       ProfileManager().restartSession();
@@ -34,11 +32,6 @@ class NavigationManager {
       }
       leaveReaderPageNotifier.value = false;
     }
-  }
-
-  void _showSystemUI() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]);
   }
 
   void notifyVocabularyListPage() {

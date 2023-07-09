@@ -4,6 +4,7 @@ import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/pages/reader/reader_stats_page.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
+import 'package:immersion_reader/utils/system_ui.dart';
 import 'package:immersion_reader/widgets/my_books/book_goal/book_goal_widget.dart';
 import 'package:immersion_reader/widgets/reader/reader.dart';
 import 'package:immersion_reader/utils/reader/ttu_source.dart';
@@ -52,25 +53,31 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                 ])));
   }
 
+  void onExitReader() {
+    ReaderSessionManager().stop();
+    showSystemUI();
+    setState(() {
+      // refresh state
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     ReaderSessionManager.createSession(MyBooksWidget.contentType);
     void navigateToBook(
-        {required String mediaIdentifier, bool isFullScreen = false}) {
+        {required String mediaIdentifier,
+        bool isFullScreen = false,
+        bool isShowDeviceStatusBar = false}) {
       Navigator.of(context, rootNavigator: isFullScreen)
           .push(SwipeablePageRoute(
               canOnlySwipeFromEdge: true,
               builder: (context) {
                 return Reader(
                   initialUrl: mediaIdentifier,
+                  isShowDeviceStatusBar: isShowDeviceStatusBar,
                 );
               }))
-          .then((value) {
-        ReaderSessionManager().stop();
-        setState(() {
-          // refresh state
-        });
-      });
+          .then((_) => onExitReader());
     }
 
     return Column(children: [
@@ -101,7 +108,10 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
               mediaIdentifier: mediaIdentifier,
               isFullScreen: SettingsManager()
                   .cachedAppearanceSettings()
-                  .enableReaderFullScreen)),
+                  .enableReaderFullScreen,
+              isShowDeviceStatusBar: SettingsManager()
+                  .cachedAppearanceSettings()
+                  .isShowDeviceStatusBar)),
       headlineWidget(
           title: "EPUB Reader",
           iconData: FontAwesomeIcons.bookOpen,
@@ -117,15 +127,13 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                     builder: (context) {
                       return Reader(
                           isAddBook: true,
+                          isShowDeviceStatusBar: SettingsManager()
+                              .cachedAppearanceSettings()
+                              .isShowDeviceStatusBar,
                           initialUrl:
                               'http://localhost:${LocalAssetsServerManager.port}');
                     }))
-                .then((value) {
-              ReaderSessionManager().stop();
-              setState(() {
-                // refresh state
-              });
-            });
+                .then((_) => onExitReader());
           }),
       FutureBuilder<List<Book>>(
           future: TtuSource.getBooksHistory(LocalAssetsServerManager().server!),
@@ -154,9 +162,13 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                                 book: entry.value,
                                 onTap: (mediaIdentifier) => navigateToBook(
                                     mediaIdentifier: mediaIdentifier,
-                                    isFullScreen: SettingsManager()
+                                    isFullScreen:
+                                        SettingsManager()
+                                            .cachedAppearanceSettings()
+                                            .enableReaderFullScreen,
+                                    isShowDeviceStatusBar: SettingsManager()
                                         .cachedAppearanceSettings()
-                                        .enableReaderFullScreen)))
+                                        .isShowDeviceStatusBar)))
                       ]));
             } else {
               return SizedBox(

@@ -26,6 +26,8 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
       SettingsManager().cachedAppearanceSettings().enableSlideAnimation;
   bool _isKeepScreenOn =
       SettingsManager().cachedAppearanceSettings().isKeepScreenOn;
+  bool _isShowDeviceStatusBar =
+      SettingsManager().cachedAppearanceSettings().isShowDeviceStatusBar;
 
   @override
   Widget build(BuildContext context) {
@@ -131,6 +133,16 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                           });
                         },
                         value: _isKeepScreenOn)),
+                CupertinoListTile(
+                    title: const Text('Show Top Status Bar'),
+                    trailing: CupertinoSwitch(
+                        onChanged: (bool? value) {
+                          SettingsManager().toggleShowDeviceStatusBar(value!);
+                          setState(() {
+                            _isShowDeviceStatusBar = value;
+                          });
+                        },
+                        value: _isShowDeviceStatusBar)),
               ])
         ])));
   }

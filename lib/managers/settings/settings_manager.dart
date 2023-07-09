@@ -86,6 +86,14 @@ class SettingsManager {
             .settingsCache!.appearanceSetting.isKeepScreenOn = isKeepScreenOn);
   }
 
+  Future<void> toggleShowDeviceStatusBar(bool isShowDeviceStatusBar) async {
+    await settingsStorage?.changeConfigSettings(
+        AppearanceSetting.isShowDeviceStatusBarKey,
+        isShowDeviceStatusBar ? "1" : "0",
+        onSuccessCallback: () => settingsStorage!.settingsCache!
+            .appearanceSetting.isShowDeviceStatusBar = isShowDeviceStatusBar);
+  }
+
   Future<bool> getIsKeepScreenOn() async {
     SettingsData data = await _getSettingsData();
     return data.appearanceSetting.isKeepScreenOn;

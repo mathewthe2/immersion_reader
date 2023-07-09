@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:immersion_reader/data/profile/profile_content.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
+import 'package:immersion_reader/utils/system_ui.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
 import 'package:immersion_reader/widgets/reader/message_controller.dart';
 import 'package:local_assets_server/local_assets_server.dart';
@@ -12,8 +12,13 @@ import '../../utils/reader/reader_js.dart';
 class Reader extends StatefulWidget {
   final String? initialUrl;
   final bool isAddBook;
+  final bool isShowDeviceStatusBar;
 
-  const Reader({super.key, this.initialUrl, this.isAddBook = false});
+  const Reader(
+      {super.key,
+      this.initialUrl,
+      this.isAddBook = false,
+      this.isShowDeviceStatusBar = false});
 
   @override
   State<Reader> createState() => _ReaderState();
@@ -42,13 +47,10 @@ class _ReaderState extends State<Reader> {
   @override
   void initState() {
     super.initState();
-    _hideSystemUI();
+    if (!widget.isShowDeviceStatusBar) {
+      hideSystemUI();
+    }
     createPopupDictionary();
-  }
-
-  void _hideSystemUI() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: [SystemUiOverlay.bottom]);
   }
 
   @override

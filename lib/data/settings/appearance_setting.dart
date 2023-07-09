@@ -7,6 +7,7 @@ class AppearanceSetting {
   String popupDictionaryThemeString;
   bool enableReaderFullScreen;
   bool isKeepScreenOn;
+  bool isShowDeviceStatusBar;
   String readerThemeString;
 
   AppearanceSetting(
@@ -16,6 +17,7 @@ class AppearanceSetting {
       required this.popupDictionaryThemeString,
       required this.enableReaderFullScreen,
       required this.isKeepScreenOn,
+      required this.isShowDeviceStatusBar,
       required this.readerThemeString});
 
   static const String showFrequencyTagsKey = 'show_frequency_tags';
@@ -24,6 +26,7 @@ class AppearanceSetting {
   static const String popupDictionaryThemeKey = 'popup_dictionary_theme';
   static const String enableReaderFullScreenKey = 'enable_full_screen';
   static const String isKeepScreenOnKey = 'keep_screen_on';
+  static const String isShowDeviceStatusBarKey = 'show_device_status_bar';
   static const String readerThemeKey = 'reader_theme';
 
   static Map<String, Color> readerThemeBackgroundColorMap = {
@@ -40,12 +43,14 @@ class AppearanceSetting {
 
   factory AppearanceSetting.fromMap(Map<String, Object?> map) =>
       AppearanceSetting(
-          showFrequencyTags: (map[showFrequencyTagsKey] as String) == "1",
-          enableSlideAnimation: (map[enableSlideAnimationKey] as String) == "1",
-          pitchAccentStyleString: map[pitchAccentStyleKey] as String,
-          readerThemeString: map[readerThemeKey] as String,
-          popupDictionaryThemeString: map[popupDictionaryThemeKey] as String,
-          enableReaderFullScreen:
-              (map[enableReaderFullScreenKey] as String) == "1",
-          isKeepScreenOn: (map[isKeepScreenOnKey] as String) == "1");
+        showFrequencyTags: (map[showFrequencyTagsKey] as String) == "1",
+        enableSlideAnimation: (map[enableSlideAnimationKey] as String) == "1",
+        pitchAccentStyleString: map[pitchAccentStyleKey] as String,
+        readerThemeString: map[readerThemeKey] as String,
+        popupDictionaryThemeString: map[popupDictionaryThemeKey] as String,
+        enableReaderFullScreen:
+            (map[enableReaderFullScreenKey] as String) == "1",
+        isKeepScreenOn: (map[isKeepScreenOnKey] as String) == "1",
+        isShowDeviceStatusBar: (map[isShowDeviceStatusBarKey] as String) == "1",
+      );
 }
