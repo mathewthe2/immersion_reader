@@ -6,16 +6,18 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class BrowserCatalog extends StatefulWidget {
   final PaymentProvider paymentProvider;
-  const BrowserCatalog(
-      {super.key,
-      required this.paymentProvider});
+  const BrowserCatalog({super.key, required this.paymentProvider});
 
   @override
   State<BrowserCatalog> createState() => _BrowserCatalogState();
 }
 
 class _BrowserCatalogState extends State<BrowserCatalog> {
-  Widget headlineWidget(String title, IconData iconData, Color textColor) {
+  Widget headlineWidget(
+      {required String title,
+      String? subtitle,
+      required IconData iconData,
+      required Color textColor}) {
     return Padding(
         padding: const EdgeInsets.fromLTRB(18, 20, 10, 10),
         child: Align(
@@ -35,14 +37,24 @@ class _BrowserCatalogState extends State<BrowserCatalog> {
                             color: textColor,
                             fontWeight: FontWeight.w700,
                             fontSize: 18)),
+                    const SizedBox(width: 10),
+                    Text(subtitle!,
+                        style: TextStyle(
+                            color: CupertinoDynamicColor.resolve(
+                                const CupertinoDynamicColor.withBrightness(
+                                    color: CupertinoColors.systemPurple,
+                                    darkColor: Color(0xFFDCD8FF)),
+                                context),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14)),
                   ]),
                   GestureDetector(
                       onTap: () {
                         // print(widget.paymentProvider.getProductByString("immersion_reader_plus"));
                         widget.paymentProvider.invokePurchaseOrProceed(
                             "immersion_reader_plus",
-                            () => Navigator.of(context, rootNavigator: true).push(
-                                SwipeablePageRoute(
+                            () => Navigator.of(context, rootNavigator: true)
+                                .push(SwipeablePageRoute(
                                     canOnlySwipeFromEdge: true,
                                     backGestureDetectionWidth: 25,
                                     builder: (context) {
@@ -60,7 +72,11 @@ class _BrowserCatalogState extends State<BrowserCatalog> {
             color: CupertinoColors.black, darkColor: CupertinoColors.white),
         context);
     return Column(children: [
-      headlineWidget("Browser", FontAwesomeIcons.globe, textColor),
+      headlineWidget(
+          title: "Browser",
+          subtitle: "PLUS",
+          iconData: FontAwesomeIcons.globe,
+          textColor: textColor),
       const SizedBox(height: 40) // margin for small screens
     ]);
   }
