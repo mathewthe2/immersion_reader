@@ -114,7 +114,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
       actions: <CupertinoActionSheetAction>[
         CupertinoActionSheetAction(
           child:
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
+              const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(CupertinoIcons.arrow_down),
             SizedBox(width: 10),
             Text('Export for AnkiDojo')
@@ -134,9 +134,9 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
           },
         ),
         CupertinoActionSheetAction(
-          child: Row(
+          child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 Icon(CupertinoIcons.trash),
                 SizedBox(width: 10),
                 Text('Clear All')

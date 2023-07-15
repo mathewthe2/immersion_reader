@@ -13,7 +13,8 @@ class CacheImageProvider extends ImageProvider<CacheImageProvider> {
   CacheImageProvider(this.tag, this.img);
 
   @override
-  ImageStreamCompleter loadBuffer(CacheImageProvider key, DecoderBufferCallback decode) {
+  ImageStreamCompleter loadImage(
+      CacheImageProvider key, ImageDecoderCallback decode) {
     return MultiFrameImageStreamCompleter(
       codec: _loadAsync(decode),
       scale: 1.0,
@@ -24,7 +25,7 @@ class CacheImageProvider extends ImageProvider<CacheImageProvider> {
     );
   }
 
-  Future<Codec> _loadAsync(DecoderBufferCallback decode) async {
+  Future<Codec> _loadAsync(ImageDecoderCallback decode) async {
     // the DefaultCacheManager() encapsulation, it get cache from local storage.
     final Uint8List bytes = img;
 

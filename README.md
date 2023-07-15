@@ -33,29 +33,12 @@ flutter pub get
 flutter run
 ```
 
-## Use SkSL warmup
-
-1. Capture shaders
-
-```
-flutter run --profile --cache-sksl --purge-persistent-cache
-```
-
-2. Play with the app to trigger as many animations as possible.
-
-3. Press M at the command line of flutter run to write the captured SkSL shaders to xx.sksl.json.
-
-## Dev Notes
-- Ios animation jank during development could be ameliorated by shaders.
-- Hot reload messes up timers, including read time calculation. 
-- To update UI on separate pages, setState on callback of push navigation, or use ValueNotifier.
-
 ## Distribution
 
 - bump version in pubspec.yaml
 - update bundle identifier with unique name (per app)
 - (open Xcode )
-- flutter build ipa --bundle-sksl-path flutter_01.sksl.json
+- flutter build ipa
 - open [Apple Transport](https://apps.apple.com/us/app/transporter/id1450874784) on MacOS. Drag and drop the build/ios/ipa/*.ipa app bundle into the app.
 
 ## Acknowledgements
