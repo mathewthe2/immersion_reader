@@ -9,7 +9,9 @@ class PitchWidget extends StatelessWidget {
   final PopupDictionaryThemeData themeData;
   const PitchWidget(
       {super.key, required this.vocabulary, required this.themeData});
-  static const double _widgetHeight = 30;
+  static const double _widgetHeight = 34;
+  static const double _widgetHeightOffset = 8;
+  static const double _widgetHeightOffsetWithFurigana = 5;
   static const double _widgetWidthFactor = 0.5;
 
   String colorCorrectedPitch(String pitchSvg, BuildContext context) {
@@ -28,7 +30,10 @@ class PitchWidget extends StatelessWidget {
       case PitchAccentDisplayStyle.graph:
         {
           return SizedBox(
-              height: _widgetHeight,
+              height: _widgetHeight +
+                  (vocabulary.reading!.isEmpty
+                      ? _widgetHeightOffset
+                      : _widgetHeightOffsetWithFurigana),
               width: MediaQuery.of(context).size.width * _widgetWidthFactor,
               child: ListView(
                   physics: const BouncingScrollPhysics(),
