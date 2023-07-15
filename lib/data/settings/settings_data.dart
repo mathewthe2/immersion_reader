@@ -1,5 +1,5 @@
 import 'package:immersion_reader/data/settings/appearance_setting.dart';
-import 'package:immersion_reader/data/settings/browser_setting.dart';
+import 'package:immersion_reader/data/settings/browser/browser_setting.dart';
 import 'package:immersion_reader/data/settings/profile_setting.dart';
 
 class SettingsData {

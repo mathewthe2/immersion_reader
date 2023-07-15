@@ -95,6 +95,7 @@ flutter:
   assets:
     - assets/settings/defaultConfig.json
     - assets/japanese/data.db
+    - assets/browser/darkreader.min.js
     - assets/ttu-ebook-reader/
     - assets/ttu-ebook-reader/_app/
     - assets/ttu-ebook-reader/_app/immutable/

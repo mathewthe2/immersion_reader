@@ -11,7 +11,9 @@
     },
     "browser": {
         "enable_ad_block": "1",
-        "url_filters": ".*.doubleclick.net/.*\n.*.ads.pubmatic.com/.*\n.*.googlesyndication.com/.*\n.*.google-analytics.com/.*\n.*.adservice.google.*/.*\n.*.adbrite.com/.*\n.*.exponential.com/.*\n.*.quantserve.com/.*\n.*.scorecardresearch.com/.*\n.*.zedo.com/.*\n.*.adsafeprotected.com/.*\n.*.teads.tv/.*\n.*.outbrain.com/.*"
+        "url_filters": ".*.doubleclick.net/.*\n.*.ads.pubmatic.com/.*\n.*.googlesyndication.com/.*\n.*.google-analytics.com/.*\n.*.adservice.google.*/.*\n.*.adbrite.com/.*\n.*.exponential.com/.*\n.*.quantserve.com/.*\n.*.scorecardresearch.com/.*\n.*.zedo.com/.*\n.*.adsafeprotected.com/.*\n.*.teads.tv/.*\n.*.outbrain.com/.*",
+        "enable_dark_reader": "0",
+        "dark_reader_setting": "{\"brightness\":100,\"contrast\":90,\"sepia\":10}"
     },
     "profile": {
         "reading_goal_seconds": "900"

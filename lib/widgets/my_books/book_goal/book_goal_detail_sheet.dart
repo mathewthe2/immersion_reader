@@ -2,14 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
 import 'package:immersion_reader/widgets/common/divider.dart';
 import 'package:immersion_reader/dto/profile/profile_daily_progress.dart';
+import 'package:immersion_reader/widgets/common/action_dialog.dart';
 import 'package:immersion_reader/widgets/my_books/book_goal/book_goal_heatmap.dart';
 import 'package:immersion_reader/widgets/my_books/book_goal/book_goal_progress_widget.dart';
 
 class BookGoalDetailSheet extends StatefulWidget {
   final ProfileDailyProgress profileDailyProgress;
-  const BookGoalDetailSheet(
-      {super.key,
-      required this.profileDailyProgress});
+  const BookGoalDetailSheet({super.key, required this.profileDailyProgress});
 
   @override
   State<BookGoalDetailSheet> createState() => _BookGoalDetailSheetState();
@@ -22,7 +21,6 @@ List<int> _minutes = [for (int i = 1; i <= maxMinutes; i += 1) i];
 class _BookGoalDetailSheetState extends State<BookGoalDetailSheet> {
   // static const String shareGoalProgressLabel = 'SHARE';
   static const String adjustGoalLabel = 'ADJUST GOAL';
-  static const String doneLabel = 'Done';
   late int selectedReadingMinutes;
   bool updatedReadingMinutes = false;
 
@@ -80,7 +78,8 @@ class _BookGoalDetailSheetState extends State<BookGoalDetailSheet> {
             style: TextStyle(color: CupertinoColors.label.resolveFrom(context)),
           ),
           onPressed: () {
-            _showDialog(
+            ActionDialog.show(
+              title: 'Daily Reader Goal',
               context: context,
               whenComplete: () {
                 if (updatedReadingMinutes) {
@@ -117,54 +116,5 @@ class _BookGoalDetailSheetState extends State<BookGoalDetailSheet> {
           }),
       const SizedBox(height: 20)
     ]));
-  }
-
-  void _showDialog(
-      {required Widget child,
-      required VoidCallback whenComplete,
-      required BuildContext context}) {
-    showCupertinoModalPopup(
-        context: context,
-        builder: (BuildContext context) => Container(
-            height: MediaQuery.of(context).size.height * .40,
-            color: CupertinoColors.systemBackground.resolveFrom(context),
-            child: Column(children: [
-              Container(
-                alignment: Alignment.topCenter,
-                height: 50,
-                decoration: BoxDecoration(
-                    color:
-                        CupertinoColors.systemBackground.resolveFrom(context),
-                    border: Border(
-                        bottom: BorderSide(
-                            color: CupertinoColors.tertiarySystemFill
-                                .resolveFrom(context)))),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Daily Reading Goal',
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: CupertinoColors.label.resolveFrom(context)),
-                      ),
-                    ),
-                    Align(
-                        alignment: Alignment.centerRight,
-                        child: CupertinoButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text(doneLabel,
-                              style: TextStyle(
-                                  color: CupertinoColors.label
-                                      .resolveFrom(context))),
-                        ))
-                  ],
-                ),
-              ),
-              Expanded(child: child)
-            ]))).whenComplete(whenComplete);
   }
 }

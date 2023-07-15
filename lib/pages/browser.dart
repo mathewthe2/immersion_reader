@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:immersion_reader/data/browser/browser_dark_reader_control.dart';
 import 'package:immersion_reader/managers/browser/browser_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
@@ -14,10 +15,7 @@ class Browser extends StatefulWidget {
   final bool hasUserControls;
   final String? initialUrl;
 
-  const Browser(
-      {super.key,
-      this.initialUrl,
-      this.hasUserControls = true});
+  const Browser({super.key, this.initialUrl, this.hasUserControls = true});
 
   @override
   State<Browser> createState() => _BrowserState();
@@ -31,6 +29,7 @@ class _BrowserState extends State<Browser> {
   late MessageController messageController;
   late String initialUrl;
   List<ContentBlocker> contentBlockers = [];
+  bool scriptsLoaded = false;
 
   @override
   void initState() {
@@ -39,19 +38,35 @@ class _BrowserState extends State<Browser> {
   }
 
   Future<void> getDictionaryAndBookmarks() async {
-    popupDictionary = PopupDictionary(
-        parentContext: context);
+    popupDictionary = PopupDictionary(parentContext: context);
     messageController = MessageController(popupDictionary: popupDictionary);
     BrowserManager().getBookmarks();
+  }
+
+  Future<void> setupDarkReader() async {
+    if (SettingsManager().cachedSettings() == null ||
+        webViewController == null) {
+      return;
+    }
+    if (SettingsManager().cachedSettings()!.browserSetting.enableDarkReader) {
+      await webViewController!.evaluateJavascript(
+          source: BrowserDarkReaderControl.enableDarkMode(SettingsManager()
+              .cachedSettings()!
+              .browserSetting
+              .darkReaderSetting));
+    } else {
+      await webViewController!
+          .evaluateJavascript(source: BrowserDarkReaderControl.disableDarkMode);
+    }
   }
 
   void setupContentBlockers() {
     if (SettingsManager().cachedSettings() == null) {
       return;
     }
-    if (SettingsManager().cachedSettings()!.browserSetting
-        .enableAdBlock) {
-      List<String> urlFilters = SettingsManager().cachedSettings()!.browserSetting.urlFilters;
+    if (SettingsManager().cachedSettings()!.browserSetting.enableAdBlock) {
+      List<String> urlFilters =
+          SettingsManager().cachedSettings()!.browserSetting.urlFilters;
       contentBlockers = BrowserContentBlockers.getContentBlockers(urlFilters);
     } else {
       contentBlockers = [];
@@ -64,6 +79,12 @@ class _BrowserState extends State<Browser> {
     }
   }
 
+  void onScriptsLoaded() {
+    setupContentBlockers();
+    setupDarkReader();
+    scriptsLoaded = true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
@@ -71,7 +92,10 @@ class _BrowserState extends State<Browser> {
         builder: (context, val, _) {
           bool hasNoUserControls =
               webViewController == null || !widget.hasUserControls;
-          setupContentBlockers();
+          if (scriptsLoaded) {
+            setupContentBlockers();
+            setupDarkReader();
+          }
           return SafeArea(
               child: FutureBuilder(
                   future: getDictionaryAndBookmarks(),
@@ -98,8 +122,13 @@ class _BrowserState extends State<Browser> {
                             });
                           },
                           onLoadStop: (controller, uri) async {
-                            await controller.evaluateJavascript(
-                                source: browserJs);
+                            await Future.wait([
+                              controller.evaluateJavascript(source: browserJs),
+                              controller.injectJavascriptFileFromAsset(
+                                  assetFilePath:
+                                      "assets/browser/darkreader.min.js")
+                            ]);
+                            onScriptsLoaded();
                           },
                           onTitleChanged: (controller, title) async {
                             await controller.evaluateJavascript(

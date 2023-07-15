@@ -1,11 +1,10 @@
 import 'package:flutter/cupertino.dart';
-import 'package:immersion_reader/data/settings/browser_setting.dart';
+import 'package:immersion_reader/data/settings/browser/browser_setting.dart';
 import 'package:immersion_reader/managers/browser/browser_manager.dart';
 
 class BrowserAdBlockPage extends StatefulWidget {
   final ValueNotifier notifier;
-  const BrowserAdBlockPage(
-      {super.key, required this.notifier});
+  const BrowserAdBlockPage({super.key, required this.notifier});
 
   @override
   State<BrowserAdBlockPage> createState() => _BrowserAdBlockPageState();
@@ -39,7 +38,6 @@ class _BrowserAdBlockPageState extends State<BrowserAdBlockPage> {
               _textController = TextEditingController(
                   text: browserSetting.urlFilters.join('\n'));
               return Column(children: [
-                // CupertinoListTile(title: Text('studddff'))
                 CupertinoListSection(children: [
                   CupertinoListTile(
                       title: const Text('Enable Ad Block'),
@@ -59,7 +57,8 @@ class _BrowserAdBlockPageState extends State<BrowserAdBlockPage> {
                           minLines: 1,
                           controller: _textController,
                           onChanged: (value) async {
-                            await BrowserManager().updateUrlFilters(value.split('\n'));
+                            await BrowserManager()
+                                .updateUrlFilters(value.split('\n'));
                             widget.notifier.value = !widget.notifier.value;
                           },
                           decoration: BoxDecoration(
