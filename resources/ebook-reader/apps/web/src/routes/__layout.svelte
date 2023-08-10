@@ -1,12 +1,13 @@
 <script lang="ts">
   import { MetaTags } from 'svelte-meta-tags';
-  import { page } from '$app/stores';
+  // import { page } from '$app/stores';
   import { basePath } from '$lib/data/env';
   import { dialogManager, type Dialog } from '$lib/data/dialog-manager';
   import '../app.scss';
 
   let path = '';
-  page.subscribe((p) => (path = p.url.pathname));
+  // page.subscribe((p) => (path = p.url.pathname));
+  // ^ This line is causing issues when building
 
   let dialogs: Dialog[] = [];
   dialogManager.dialogs$.subscribe((d) => (dialogs = d));
