@@ -33,6 +33,17 @@ flutter pub get
 flutter run
 ```
 
+## Tesseract building instructions for Apple Silicon (workaround)
+Open `ios/Pods/Pods.xcodeproj` with Xcode and in the Pods tab, select `flutter_tesseract_ocr` target and under **Excluded Architecture** add `arm64` to the list for **Debug**.
+
+Update line 24 of `SwiftFlutterTesseractOcrPlugin.swift`.
+```swift
+  if let language {
+    swiftyTesseract = SwiftyTesseract(language: .custom(language))
+  }
+```
+
+
 ## Distribution
 
 - bump version in pubspec.yaml
