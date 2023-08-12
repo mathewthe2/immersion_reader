@@ -65,7 +65,8 @@ dependencies:
   timeago: ^3.4.0
   wakelock: ^0.6.2
   star_menu: ^3.1.4
-  flutter_tesseract_ocr: ^0.4.23
+  image: ^4.0.17
+  apple_vision_flutter: ^0.1.0
   # animated_flip_counter: ^0.2.5
   
 
@@ -99,8 +100,6 @@ flutter:
     - assets/settings/defaultConfig.json
     - assets/japanese/data.db
     - assets/browser/darkreader.min.js
-    - assets/tessdata_config.json
-    - assets/tessdata/eng.traineddata
     - assets/ttu-ebook-reader/
     - assets/ttu-ebook-reader/_app/
     - assets/ttu-ebook-reader/_app/immutable/
