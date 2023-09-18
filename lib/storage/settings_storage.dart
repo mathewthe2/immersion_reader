@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:immersion_reader/data/search/search_history_item.dart';
 import 'package:immersion_reader/storage/abstract_storage.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
@@ -32,7 +33,7 @@ class SettingsStorage extends AbstractStorage {
 
   List<DictionarySetting>? dictionarySettingCache;
   SettingsData? settingsCache;
-  
+
   Future<List<DictionarySetting>> getDictionarySettings() async {
     if (database == null) {
       return [];
@@ -253,6 +254,23 @@ class SettingsStorage extends AbstractStorage {
           title: userDictionary.dictionaryName,
           enabled: true));
     }
+  }
+
+  Future<void> addQueryToDictionaryHistory(String query) async {
+    await database!.rawInsert(
+        "INSERT INTO DictionaryHistory(date, query) VALUES(datetime('now'), ?)",
+        [query]);
+  }
+
+  Future<List<SearchHistoryItem>> getDictionarySearchHistory() async {
+    var rows = await database!.rawQuery(
+        'SELECT id, query FROM DictionaryHistory ORDER BY id DESC LIMIT 20;');
+    if (rows.isNotEmpty) {
+      List<SearchHistoryItem> searchHistoryItems =
+          rows.map((row) => SearchHistoryItem.fromMap(row)).toList();
+      return searchHistoryItems;
+    }
+    return [];
   }
 
   Future<void> insertDefaultSettings() async {

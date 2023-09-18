@@ -23,7 +23,7 @@ abstract class AbstractStorage {
       case BrowserStorage:
         storage = BrowserStorage();
         break;
-      case ProfileStorage: 
+      case ProfileStorage:
         storage = ProfileStorage();
         break;
       case SettingsStorage:
@@ -56,7 +56,6 @@ abstract class AbstractStorage {
           await onCreateCallback!();
         }
       }
-      database = await openDatabase(path);
     }
 
     database = await SqfliteMigrations.openDatabaseWithMigration(

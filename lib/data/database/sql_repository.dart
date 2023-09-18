@@ -16,6 +16,8 @@ class SqlRepository {
 
   static List<String> _getSqlCommands(String databaseName) {
     switch (databaseName) {
+      case BrowserStorage.databaseName:
+        return _sqlStringToList(browserStorageSQLString);
       case ProfileStorage.databaseName:
         return _sqlStringToList(profileStorageSQLString);
       case SettingsStorage.databaseName:
