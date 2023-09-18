@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/widgets/common/icon_list_tile.dart';
+import 'package:immersion_reader/widgets/settings/experimental_settings.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:immersion_reader/pages/settings/about/about_page.dart';
 import 'package:immersion_reader/widgets/settings/dictionary_settings.dart';
 import 'package:immersion_reader/widgets/settings/appearance_settings.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage(
-      {super.key});
+  const SettingsPage({super.key});
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -21,81 +22,64 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-        backgroundColor: CupertinoColors.systemGroupedBackground.resolveFrom(context),
+        backgroundColor:
+            CupertinoColors.systemGroupedBackground.resolveFrom(context),
         child: CustomScrollView(slivers: [
           (const CupertinoSliverNavigationBar(
             largeTitle: Text('Settings'),
           )),
           SliverFillRemaining(
               child: Container(
-                  color: CupertinoColors.systemGroupedBackground.resolveFrom(context),
+                  color: CupertinoColors.systemGroupedBackground
+                      .resolveFrom(context),
                   child: Column(children: [
                     CupertinoListSection(children: [
-                      CupertinoListTile(
-                        title: const Text("Appearance"),
-                        onTap: () => {
+                      IconListTile(
+                        title: "Appearance",
+                        iconData: CupertinoIcons.textformat_size,
+                        iconBackgroundColor: CupertinoColors.systemBlue,
+                        onTap: () {
                           Navigator.push(context,
                               SwipeablePageRoute(builder: (context) {
                             return const AppearanceSettings();
-                          }))
+                          }));
                         },
-                        leading: Container(
-                          padding: const EdgeInsets.all(4.0),
-                          decoration: BoxDecoration(
-                            color: CupertinoColors.systemBlue,
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          child: const Icon(
-                              size: 22,
-                              CupertinoIcons.textformat_size,
-                              color: CupertinoColors.white),
-                        ),
-                        trailing: const Icon(CupertinoIcons.forward),
                       ),
-                      CupertinoListTile(
-                        title: const Text("Dictionaries"),
-                        onTap: () => {
+                      IconListTile(
+                        title: "Dictionaries",
+                        iconData: CupertinoIcons.book_fill,
+                        iconBackgroundColor: CupertinoColors.systemOrange,
+                        onTap: () {
                           Navigator.push(context,
                               SwipeablePageRoute(builder: (context) {
                             return const DictionarySettings();
-                          }))
+                          }));
                         },
-                        leading: Container(
-                          padding: const EdgeInsets.all(4.0),
-                          decoration: BoxDecoration(
-                            color: CupertinoColors.systemOrange,
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          child: const Icon(
-                              size: 22,
-                              CupertinoIcons.book_fill,
-                              color: CupertinoColors.white),
-                        ),
-                        trailing: const Icon(CupertinoIcons.forward),
+                      ),
+                      IconListTile(
+                        title: "Experimental",
+                        iconData: CupertinoIcons.lab_flask_solid,
+                        iconBackgroundColor: CupertinoColors.systemCyan,
+                        onTap: () {
+                          Navigator.push(context,
+                              SwipeablePageRoute(builder: (context) {
+                            return const ExperimentalSettings();
+                          }));
+                        },
                       ),
                     ]),
                     CupertinoListSection(children: [
-                      CupertinoListTile(
-                        title: const Text("About"),
-                        onTap: () => {
+                      IconListTile(
+                        title: "About",
+                        iconData: CupertinoIcons.at,
+                        iconBackgroundColor: CupertinoColors.systemBlue,
+                        onTap: () {
                           Navigator.push(context,
                               SwipeablePageRoute(builder: (context) {
                             return const AboutPage();
-                          }))
+                          }));
                         },
-                        leading: Container(
-                          padding: const EdgeInsets.all(4.0),
-                          decoration: BoxDecoration(
-                            color: CupertinoColors.systemBlue,
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          child: const Icon(
-                              size: 22,
-                              CupertinoIcons.at,
-                              color: CupertinoColors.white),
-                        ),
-                        trailing: const Icon(CupertinoIcons.forward),
-                      )
+                      ),
                     ])
                   ])))
         ]));
