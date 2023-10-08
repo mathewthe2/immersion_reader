@@ -258,7 +258,7 @@ class SettingsStorage extends AbstractStorage {
 
   Future<void> addQueryToDictionaryHistory(String query) async {
     await database!.rawInsert(
-        "INSERT INTO DictionaryHistory(date, query) VALUES(datetime('now'), ?)",
+        "INSERT OR REPLACE INTO DictionaryHistory(date, query) VALUES (datetime('now'), ?)",
         [query]);
   }
 
@@ -271,6 +271,10 @@ class SettingsStorage extends AbstractStorage {
       return searchHistoryItems;
     }
     return [];
+  }
+
+  Future<void> clearDictionaryHistory() async {
+    await database!.rawDelete("DELETE FROM DictionaryHistory");
   }
 
   Future<void> insertDefaultSettings() async {

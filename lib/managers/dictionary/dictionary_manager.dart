@@ -1,3 +1,4 @@
+import 'package:immersion_reader/data/search/search_history_item.dart';
 import 'package:immersion_reader/data/search/search_result.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/japanese/translator.dart';
@@ -34,6 +35,20 @@ class DictionaryManager {
   Future<SearchResult> findTermForUserSearch(String text) async {
     return await translator!
         .findTermForUserSearch(text, options: await getOptions());
+  }
+
+  Future<void> addQueryToDictionaryHistory(String query) async {
+    await SettingsManager().settingsStorage!.addQueryToDictionaryHistory(query);
+  }
+
+  Future<void> clearDictionaryHistory() async {
+    await SettingsManager().settingsStorage!.clearDictionaryHistory();
+  }
+
+  Future<List<SearchHistoryItem>> getDictionaryHistory() async {
+    return await SettingsManager()
+        .settingsStorage!
+        .getDictionarySearchHistory();
   }
 
   Future<void> toggleDictionaryEnabled(dictionarySetting) async {

@@ -16,6 +16,6 @@ const String settingsStorageSQLString = '''
   CREATE INDEX index_VocabPitch_reading ON VocabPitch(reading ASC)''';
 
 const List<String> settingsStorageMigrations = [
-  'CREATE TABLE DictionaryHistory (id INTEGER PRIMARY KEY, date TEXT, query TEXT, vocabId INTEGER, kanjiId INTEGER, dictionaryId INTEGER, vocabJson TEXT, kanjiJson TEXT)', // add dictionary search history
+  'CREATE TABLE DictionaryHistory (id INTEGER PRIMARY KEY, date TEXT, query TEXT UNIQUE, vocabId INTEGER, kanjiId INTEGER, dictionaryId INTEGER, vocabJson TEXT, kanjiJson TEXT)', // add dictionary search history
   'CREATE INDEX index_DictionaryHistory_date ON DictionaryHistory(date)' // add index for dictionary history for ordering
 ];

@@ -4,6 +4,8 @@ import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/managers/vocabulary_list/vocabulary_list_manager.dart';
 import 'package:immersion_reader/widgets/common/padding_bottom.dart';
+import 'package:immersion_reader/widgets/search/search_history_section.dart';
+import 'package:immersion_reader/widgets/search/search_no_results_section.dart';
 import 'package:immersion_reader/widgets/search/search_results_section.dart';
 
 class SearchPage extends StatefulWidget {
@@ -30,16 +32,40 @@ class _SearchPageState extends State<SearchPage> {
     super.dispose();
   }
 
-  void handleSearch(String input) async {
-    searchResult = input.isEmpty
-        ? SearchResult(exactMatches: [], additionalMatches: [])
-        : await DictionaryManager().findTermForUserSearch(input);
-    searchResult!.existingVocabularyIds = await VocabularyListManager()
-        .vocabularyListStorage!
-        .getExistsVocabularyList([
-      ...searchResult!.exactMatches,
-      ...searchResult!.additionalMatches
-    ]);
+  /// Save query to DB as dictionary history
+  void logQueryToHistory(String query) {
+    DictionaryManager().addQueryToDictionaryHistory(query);
+  }
+
+  void clearDictionaryHistory() {
+    DictionaryManager().clearDictionaryHistory();
+  }
+
+  void handleSearchChange(String? input) async {
+    print("hello?");
+    setState(() {
+      searchResult = null;
+    });
+  }
+
+  void handleSearchWithRedirect(String input) async {
+    textController = TextEditingController(text: input);
+    handleSearchSubmission(input);
+  }
+
+  void handleSearchSubmission(String input) async {
+    if (input.isEmpty) {
+      searchResult = SearchResult(exactMatches: [], additionalMatches: []);
+    } else {
+      logQueryToHistory(input);
+      searchResult = await DictionaryManager().findTermForUserSearch(input);
+      searchResult!.existingVocabularyIds = await VocabularyListManager()
+          .vocabularyListStorage!
+          .getExistsVocabularyList([
+        ...searchResult!.exactMatches,
+        ...searchResult!.additionalMatches
+      ]);
+    }
     setState(() {
       searchResult = searchResult;
     });
@@ -89,12 +115,20 @@ class _SearchPageState extends State<SearchPage> {
                       autocorrect: false,
                       controller: textController,
                       placeholder: 'Search',
-                      onSubmitted: handleSearch)),
+                      onChanged: handleSearchChange,
+                      onSubmitted: handleSearchSubmission)),
             ]),
           ),
           SliverList(
               delegate: SliverChildListDelegate([
-            if (searchResult != null)
+            if (searchResult == null)
+              SearchHistorySection(
+                  handleSearchWithRedirect: handleSearchWithRedirect,
+                  clearDictionaryHistory: clearDictionaryHistory)
+            else if (searchResult!.exactMatches.isEmpty &&
+                searchResult!.additionalMatches.isEmpty)
+              const SearchNoResultsSection()
+            else
               PaddingBottom(
                   child: SearchResultsSection(
                       searchResult: searchResult!,
