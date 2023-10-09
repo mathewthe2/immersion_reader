@@ -2,10 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
+import 'package:immersion_reader/utils/language_utils.dart';
 import 'package:immersion_reader/utils/system_theme.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_definition.dart';
 import 'package:immersion_reader/widgets/vocabulary/frequency_widget.dart';
 import 'package:immersion_reader/widgets/vocabulary/pitch_widget.dart';
+import 'package:ruby_text/ruby_text.dart';
 
 // refactor: shares repetitive code with vocabulary_tile.dart
 // this is used for search results while VocabularyTile is used in the context of a popup dictionary
@@ -25,6 +27,28 @@ class SearchVocabularyTile extends StatelessWidget {
 
   bool hasPitch(Vocabulary vocabulary) {
     return vocabulary.pitchValues.isNotEmpty;
+  }
+
+  // TODO: repeat code in vocabulary tile
+  Widget vocabularyExpression(Vocabulary vocabulary) {
+    String? expression = vocabulary.expression;
+    if (expression == null) {
+      return const Text('');
+    }
+    String reading = vocabulary.reading ?? '';
+    TextStyle expressionStyle = TextStyle(
+        fontWeight: FontWeight.w400,
+        fontSize: 20,
+        color: dictionaryColorDataMap[DictionaryColor.primaryTextColor]?[
+            isDarkMode()
+                ? PopupDictionaryTheme.dark
+                : PopupDictionaryTheme.light]);
+    if (reading.isEmpty) {
+      return Text(expression, style: expressionStyle);
+    }
+    List<RubyTextData> furigana =
+        LanguageUtils.distributeFurigana(term: expression, reading: reading);
+    return RubyText(furigana, style: expressionStyle);
   }
 
   @override
@@ -58,13 +82,13 @@ class SearchVocabularyTile extends StatelessWidget {
                   textHeightBehavior:
                       const TextHeightBehavior(applyHeightToLastDescent: false),
                   text: TextSpan(
-                      text: vocabulary.expression ?? '',
                       style: TextStyle(
                           fontSize: 20,
                           height: 1.8, // spacing for second line
                           color: CupertinoDynamicColor.resolve(
                               textColor, parentContext)),
                       children: [
+                        WidgetSpan(child: vocabularyExpression(vocabulary)),
                         const WidgetSpan(
                             child: SizedBox(
                           width: 20,
