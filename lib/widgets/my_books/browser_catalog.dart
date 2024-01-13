@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/pages/browser.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
+import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -13,6 +14,10 @@ class BrowserCatalog extends StatefulWidget {
 }
 
 class _BrowserCatalogState extends State<BrowserCatalog> {
+  void onExitReader() {
+    PopupDictionary().dismissPopupDictionary();
+  }
+
   Widget headlineWidget(
       {required String title,
       String? subtitle,
@@ -50,7 +55,6 @@ class _BrowserCatalogState extends State<BrowserCatalog> {
                   ]),
                   GestureDetector(
                       onTap: () {
-                        // print(widget.paymentProvider.getProductByString("immersion_reader_plus"));
                         widget.paymentProvider.invokePurchaseOrProceed(
                             "immersion_reader_plus",
                             () => Navigator.of(context, rootNavigator: true)
@@ -59,7 +63,8 @@ class _BrowserCatalogState extends State<BrowserCatalog> {
                                     backGestureDetectionWidth: 25,
                                     builder: (context) {
                                       return const Browser();
-                                    })));
+                                    }))
+                                .then((_) => onExitReader()));
                       },
                       child: Text('Open', style: TextStyle(color: textColor)))
                 ])));

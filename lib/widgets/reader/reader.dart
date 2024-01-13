@@ -31,10 +31,8 @@ class _ReaderState extends State<Reader> {
   late MessageController messageController;
 
   void createPopupDictionary() {
-    popupDictionary = PopupDictionary(parentContext: context);
-    messageController = MessageController(
-        popupDictionary: popupDictionary,
-        exitCallback: () => Navigator.of(context).pop());
+    messageController =
+        MessageController(exitCallback: () => Navigator.of(context).pop());
   }
 
   static const String addFileJs = """

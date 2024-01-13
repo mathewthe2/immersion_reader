@@ -38,8 +38,7 @@ class _BrowserState extends State<Browser> {
   }
 
   Future<void> getDictionaryAndBookmarks() async {
-    popupDictionary = PopupDictionary(parentContext: context);
-    messageController = MessageController(popupDictionary: popupDictionary);
+    messageController = MessageController();
     BrowserManager().getBookmarks();
   }
 

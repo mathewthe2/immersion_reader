@@ -15,7 +15,7 @@ class PopupDictionaryToolBar extends StatelessWidget {
             color: backgroundColor,
             borderRadius: const BorderRadius.only(
                 topRight: Radius.circular(15), topLeft: Radius.circular(15))),
-        height: 25,
+        height: 30,
         child: Padding(
             padding: const EdgeInsets.fromLTRB(0, 2.5, 10, 2.5),
             child: Row(
@@ -24,7 +24,7 @@ class PopupDictionaryToolBar extends StatelessWidget {
                 GestureDetector(
                     onTap: dismissPopupDictionary,
                     child: const SizedBox(
-                      width: 25,
+                      width: 30,
                       child: Icon(CupertinoIcons.clear_thick,
                           size: 18, color: CupertinoColors.systemGrey),
                     ))

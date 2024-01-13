@@ -11,23 +11,16 @@ class MessageController {
   bool hasShownAddedDialog = false;
   bool hasInjectedPopupJs = false;
   bool isReadingBook = false;
-  PopupDictionary popupDictionary;
   VoidCallback? exitCallback;
   VoidCallback? readerSettingsCallback;
 
   ValueNotifier<bool> messageControllerNotifier = ValueNotifier(false);
 
-  MessageController._internal(
-      {required this.popupDictionary,
-      this.exitCallback,
-      this.readerSettingsCallback});
+  MessageController._internal({this.exitCallback, this.readerSettingsCallback});
 
   factory MessageController(
-          {required PopupDictionary popupDictionary,
-          VoidCallback? exitCallback,
-          VoidCallback? readerSettingsCallback}) =>
+          {VoidCallback? exitCallback, VoidCallback? readerSettingsCallback}) =>
       MessageController._internal(
-          popupDictionary: popupDictionary,
           exitCallback: exitCallback,
           readerSettingsCallback: readerSettingsCallback);
 
@@ -72,7 +65,7 @@ class MessageController {
                 int index = messageJson['index'];
                 String text = messageJson['text'];
                 // print(message.message);
-                popupDictionary.showVocabularyList(text, index);
+                PopupDictionary().showVocabularyList(text, index);
                 break;
               }
             case 'load-book':
@@ -90,7 +83,7 @@ class MessageController {
             case 'load-manager':
               {
                 ReaderSessionManager().stop();
-                popupDictionary.dismissPopupDictionary();
+                PopupDictionary().dismissPopupDictionary();
                 isReadingBook = false;
                 break;
               }

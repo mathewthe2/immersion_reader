@@ -7,9 +7,9 @@ import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_tile_list.d
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class PopupDictionary {
-  final BuildContext parentContext;
-
-  PopupDictionary({required this.parentContext});
+  static final PopupDictionary _singleton = PopupDictionary._internal();
+  factory PopupDictionary() => _singleton;
+  PopupDictionary._internal();
 
   Future<void> dismissPopupDictionary() async {
     await SmartDialog.dismiss(force: true);
@@ -30,40 +30,38 @@ class PopupDictionary {
         PopupDictionaryThemeData(popupDictionaryTheme: popupDictionaryTheme);
     bool enableSlideAnimation =
         await SettingsManager().getIsEnabledSlideAnimation();
-    if (parentContext.mounted) {
-      SmartDialog.show(
-          alignment: Alignment.bottomCenter,
-          usePenetrate: true,
-          permanent: true,
-          keepSingle: true,
-          animationTime: Duration(milliseconds: enableSlideAnimation ? 200 : 0),
-          nonAnimationTypes: [SmartNonAnimationType.continueKeepSingle],
-          builder: (context) {
-            return Container(
-                decoration: BoxDecoration(
-                    color: popupDictionaryThemeData
-                        .getColor(DictionaryColor.backgroundColor),
-                    borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(15),
-                        topLeft: Radius.circular(15))),
-                height: MediaQuery.of(context).size.height * .40,
-                child: Column(children: [
-                  PopupDictionaryToolBar(
-                      dismissPopupDictionary: () =>
-                          SmartDialog.dismiss(force: true),
-                      backgroundColor: popupDictionaryThemeData
-                          .getColor(DictionaryColor.backgroundColor)),
-                  Expanded(
-                      child: CupertinoScrollbar(
-                          child: SingleChildScrollView(
-                              child: VocabularyTileList(
-                                  text: text,
-                                  targetIndex: index,
-                                  popupDictionaryThemeData:
-                                      popupDictionaryThemeData,
-                                  vocabularyList: const []))))
-                ]));
-          });
-    }
+    SmartDialog.show(
+        alignment: Alignment.bottomCenter,
+        usePenetrate: true,
+        permanent: true,
+        keepSingle: true,
+        animationTime: Duration(milliseconds: enableSlideAnimation ? 200 : 0),
+        nonAnimationTypes: [SmartNonAnimationType.continueKeepSingle],
+        builder: (context) {
+          return Container(
+              decoration: BoxDecoration(
+                  color: popupDictionaryThemeData
+                      .getColor(DictionaryColor.backgroundColor),
+                  borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(15),
+                      topLeft: Radius.circular(15))),
+              height: MediaQuery.of(context).size.height * .40,
+              child: Column(children: [
+                PopupDictionaryToolBar(
+                    dismissPopupDictionary: () =>
+                        SmartDialog.dismiss(force: true),
+                    backgroundColor: popupDictionaryThemeData
+                        .getColor(DictionaryColor.backgroundColor)),
+                Expanded(
+                    child: CupertinoScrollbar(
+                        child: SingleChildScrollView(
+                            child: VocabularyTileList(
+                                text: text,
+                                targetIndex: index,
+                                popupDictionaryThemeData:
+                                    popupDictionaryThemeData,
+                                vocabularyList: const []))))
+              ]));
+        });
   }
 }
