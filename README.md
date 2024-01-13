@@ -19,30 +19,19 @@
 
 ```
 cd resources/ebook-reader/apps/web
-yarn install
-yarn build
+pnpm install
+pnpm build
 cp -r build/ ../../../../assets/ttu-ebook-reader/
 ```
 
-If install fails, use `pnpm install --frozen-lockfile` before running yarn install.
+If install fails, use `pnpm install --frozen-lockfile`.
 
-2. Run Flutter app
+1. Run Flutter app
 
 ```
 flutter pub get
 flutter run
 ```
-
-## Tesseract building instructions for Apple Silicon (workaround)
-Open `ios/Pods/Pods.xcodeproj` with Xcode and in the Pods tab, select `flutter_tesseract_ocr` target and under **Excluded Architecture** add `arm64` to the list for **Debug**.
-
-Update line 24 of `SwiftFlutterTesseractOcrPlugin.swift`.
-```swift
-  if let language {
-    swiftyTesseract = SwiftyTesseract(language: .custom(language))
-  }
-```
-
 
 ## Distribution
 
