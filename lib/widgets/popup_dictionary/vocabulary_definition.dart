@@ -36,7 +36,8 @@ class _VocabularyDefinitionState extends State<VocabularyDefinition> {
       ...widget.vocabulary.entries
           .map((DictionaryEntry entry) => GestureDetector(
               onTap: () {
-                if (definitionsExpanded[entry] == null) { // workaround when widget.vocabulary is updated but definitionExpanded is stall
+                if (definitionsExpanded[entry] == null) {
+                  // workaround when widget.vocabulary is updated but definitionExpanded is stall
                   resetExpandedDefinitions();
                 }
                 if (definitionsExpanded[entry] != null) {

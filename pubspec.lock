@@ -4,10 +4,11 @@ packages:
   apple_vision_flutter:
     dependency: "direct main"
     description:
-      name: apple_vision_flutter
-      sha256: c2ab7ef554afcbfc574cc074693987789cf380c0dac5f18dbe2823736a930495
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: main
+      resolved-ref: d03524875307c240266d71877cfd142dd28bdd96
+      url: "https://github.com/mathewthe2/ios-vision-flutter"
+    source: git
     version: "0.1.0"
   archive:
     dependency: transitive
@@ -210,10 +211,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_inappwebview
-      sha256: d28043f7d2a4708bc3b1656278739d738fa0412c80121572f73e875bc1fd8ece
+      sha256: f73505c792cf083d5566e1a94002311be497d984b5607f25be36d685cf6361cf
       url: "https://pub.dev"
     source: hosted
-    version: "5.7.2+2"
+    version: "5.7.2+3"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -230,6 +231,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  flutter_smart_dialog:
+    dependency: "direct main"
+    description:
+      name: flutter_smart_dialog
+      sha256: e9ee69eeac16165d142f1974b4db05ca9846cffafb7c94674a38ec07d7e6cda1
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.9.6"
   flutter_svg:
     dependency: "direct main"
     description:

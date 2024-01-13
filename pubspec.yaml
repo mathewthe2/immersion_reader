@@ -3,7 +3,7 @@ description: iOS Japanese Reader
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.4.1
+version: 1.4.2
 
 environment:
   sdk: ">=2.17.6 <3.0.0"
@@ -30,14 +30,13 @@ dependencies:
   flutter:
     sdk: flutter
 
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   collection: ^1.16.0
   csv: ^5.0.1
   cupertino_icons: ^1.0.2
   flutter_archive: ^5.0.0
-  flutter_inappwebview: ^5.7.1+2
+  flutter_inappwebview: ^5.7.2+3
   flutter_slidable: ^2.0.0
   flutter_svg: ^1.0.3
   font_awesome_flutter: ^10.2.1
@@ -66,9 +65,11 @@ dependencies:
   wakelock: ^0.6.2
   star_menu: ^3.1.4
   image: ^4.0.17
-  apple_vision_flutter: ^0.1.0
-  # animated_flip_counter: ^0.2.5
-  
+  apple_vision_flutter:
+    git:
+      url: https://github.com/mathewthe2/ios-vision-flutter
+      ref: main # branch name
+  flutter_smart_dialog: ^4.9.6
 
 dev_dependencies:
   sqflite_common_ffi:
@@ -87,7 +88,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -95,7 +95,6 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/test/test.png
     - assets/test/2.jpg
     - assets/settings/defaultConfig.json
     - assets/japanese/data.db
