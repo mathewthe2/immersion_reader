@@ -29,6 +29,7 @@ class VocabularyTileList extends StatefulWidget {
 
 class _VocabularyTileListState extends State<VocabularyTileList> {
   static int selectableCharacters = 5;
+  static double segmentedControlMaxWidth = 700; // prevent oversizing on iPads
   List<String> existingVocabularyIds = [];
   int _selectedSegmentIndex = selectableCharacters ~/ 2;
   List<Vocabulary> vocabularyList = [];
@@ -39,6 +40,15 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
   void initState() {
     super.initState();
     updateVocabulary(_selectedSegmentIndex);
+  }
+
+  @override
+  void didUpdateWidget(VocabularyTileList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.text != oldWidget.text ||
+        widget.targetIndex != oldWidget.targetIndex) {
+      updateVocabulary(_selectedSegmentIndex);
+    }
   }
 
   Future<void> _checkExistsVocabulary(List<Vocabulary> vocabularyList) async {
@@ -153,19 +163,23 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          CupertinoSlidingSegmentedControl<int>(
-              thumbColor: widget.popupDictionaryThemeData.getColor(DictionaryColor
-                  .segmentThumbColor), // https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/cupertino/sliding_segmented_control.dart#L32
-              groupValue: _selectedSegmentIndex,
-              onValueChanged: (int? value) {
-                if (value != null && _canSelectIndex(value)) {
-                  setState(() {
-                    _selectedSegmentIndex = value;
-                  });
-                  updateVocabulary(value);
-                }
-              },
-              children: selectableSegments),
+          SizedBox(
+              width: min(
+                  segmentedControlMaxWidth, MediaQuery.of(context).size.width),
+              child: CupertinoSlidingSegmentedControl<int>(
+                  thumbColor: widget.popupDictionaryThemeData.getColor(
+                      DictionaryColor
+                          .segmentThumbColor), // https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/cupertino/sliding_segmented_control.dart#L32
+                  groupValue: _selectedSegmentIndex,
+                  onValueChanged: (int? value) {
+                    if (value != null && _canSelectIndex(value)) {
+                      setState(() {
+                        _selectedSegmentIndex = value;
+                      });
+                      updateVocabulary(value);
+                    }
+                  },
+                  children: selectableSegments)),
           GestureDetector(
               behavior: HitTestBehavior.opaque,
               onPanStart: (DragStartDetails details) {
@@ -228,8 +242,7 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
                                                 ? CupertinoIcons.star_fill
                                                 : CupertinoIcons.star,
                                             size: 20,
-                                          ))
-                                          ),
+                                          ))),
                                   if (vocabulary.frequencyTags.isNotEmpty)
                                     Padding(
                                         padding:

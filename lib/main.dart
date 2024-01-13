@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/managers/navigation/navigation_manager.dart';
 import 'package:immersion_reader/managers/manager_service.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
 import 'package:immersion_reader/pages/discover.dart';
+// import 'package:immersion_reader/pages/manga/manga_page.dart';
 import 'package:immersion_reader/pages/reader/reader_page.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
@@ -14,7 +16,11 @@ import 'pages/search_page.dart';
 import 'pages/vocabulary_list/vocabulary_list_page.dart';
 
 void main() {
-  runApp(const CupertinoApp(home: App()));
+  runApp(CupertinoApp(
+    home: const App(),
+    navigatorObservers: [FlutterSmartDialog.observer],
+    builder: FlutterSmartDialog.init(),
+  ));
 }
 
 class App extends StatefulWidget {
@@ -39,7 +45,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     'Reader': CupertinoIcons.book,
     'My Words': CupertinoIcons.star_fill,
     'Search': CupertinoIcons.search,
-    // 'Browse': CupertinoIcons.globe,
+    // 'Browse': .globe,
     'Settings': CupertinoIcons.settings
   };
 
@@ -156,6 +162,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   Widget getViewWidget(int index) {
     List<Widget> viewWidgets = [
+      // const MangaPage(),
       Discover(sharedPreferences: sharedPreferences!),
       ReaderPage(paymentProvider: paymentProvider!),
       //  const Browser(),

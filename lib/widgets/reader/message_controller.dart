@@ -90,6 +90,7 @@ class MessageController {
             case 'load-manager':
               {
                 ReaderSessionManager().stop();
+                popupDictionary.dismissPopupDictionary();
                 isReadingBook = false;
                 break;
               }
