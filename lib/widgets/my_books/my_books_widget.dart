@@ -6,6 +6,7 @@ import 'package:immersion_reader/pages/reader/reader_stats_page.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/utils/system_ui.dart';
 import 'package:immersion_reader/widgets/my_books/book_goal/book_goal_widget.dart';
+import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
 import 'package:immersion_reader/widgets/reader/reader.dart';
 import 'package:immersion_reader/utils/reader/ttu_source.dart';
 import 'package:immersion_reader/widgets/my_books/book_widget.dart';
@@ -55,6 +56,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
 
   void onExitReader() {
     ReaderSessionManager().stop();
+    PopupDictionary(parentContext: context).dismissPopupDictionary();
     showSystemUI();
     setState(() {
       // refresh state

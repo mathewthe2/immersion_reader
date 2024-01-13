@@ -36,7 +36,7 @@ class PopupDictionary {
           usePenetrate: true,
           permanent: true,
           keepSingle: true,
-          animationTime: Duration(milliseconds: enableSlideAnimation ? 400 : 0),
+          animationTime: Duration(milliseconds: enableSlideAnimation ? 200 : 0),
           nonAnimationTypes: [SmartNonAnimationType.continueKeepSingle],
           builder: (context) {
             return Container(

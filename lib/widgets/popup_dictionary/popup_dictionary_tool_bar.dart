@@ -26,7 +26,7 @@ class PopupDictionaryToolBar extends StatelessWidget {
                     child: const SizedBox(
                       width: 25,
                       child: Icon(CupertinoIcons.clear_thick,
-                          size: 22, color: CupertinoColors.systemGrey),
+                          size: 18, color: CupertinoColors.systemGrey),
                     ))
               ],
             )));
