@@ -22,7 +22,7 @@ class ProfileDailyProgress {
   // Map<DateTime, int> getSessionPerDayMap() {
   //   const sessionsMap = Map<DateTime, int>;
   //   contentSessions.forEach((contentSession) {
-  //     sessionsMap[contentSession.startTime] = 
+  //     sessionsMap[contentSession.startTime] =
   //   });
   // }
 
@@ -70,7 +70,7 @@ class ProfileDailyProgress {
   }
 
   String getMediaIdentifier() {
-    return 'http://localhost:${LocalAssetsServerManager.port}/b.html?id=${_getRecentBookKey()}';
+    return 'http://127.0.0.1:${LocalAssetsServerManager.port}/b.html?id=${_getRecentBookKey()}';
   }
 
   String _getRecentBookKey() {
