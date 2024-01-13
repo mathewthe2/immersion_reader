@@ -42,7 +42,6 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void handleSearchChange(String? input) async {
-    print("hello?");
     setState(() {
       searchResult = null;
     });

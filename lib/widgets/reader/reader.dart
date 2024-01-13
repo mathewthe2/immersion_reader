@@ -77,7 +77,7 @@ class _ReaderState extends State<Reader> {
                       initialUrlRequest: URLRequest(
                         url: Uri.parse(
                           widget.initialUrl ??
-                              'http://localhost:${LocalAssetsServerManager.port}',
+                              'http://127.0.0.1:${LocalAssetsServerManager.port}',
                         ),
                       ),
                       onWebViewCreated: (controller) {

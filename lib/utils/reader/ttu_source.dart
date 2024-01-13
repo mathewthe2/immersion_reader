@@ -22,7 +22,7 @@ class TtuSource {
     HeadlessInAppWebView webView = HeadlessInAppWebView(
       initialUrlRequest: URLRequest(
           url: Uri.parse(
-        'http://localhost:${LocalAssetsServerManager.port}',
+        'http://127.0.0.1:${LocalAssetsServerManager.port}',
       )),
       onLoadStop: (controller, url) async {
         controller.evaluateJavascript(source: getHistoryJs);
@@ -109,7 +109,7 @@ class TtuSource {
       }
       return Book(
         mediaIdentifier:
-            'http://localhost:${LocalAssetsServerManager.port}/b.html?id=$id',
+            'http://127.0.0.1:${LocalAssetsServerManager.port}/b.html?id=$id',
         title: title,
         base64Image: base64Image,
         position: position,
