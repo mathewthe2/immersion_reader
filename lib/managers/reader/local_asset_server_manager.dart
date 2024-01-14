@@ -85,17 +85,20 @@ class LocalAssetsServerManager {
   Future<void> start() async {
     try {
       await server?.serve();
-      bool? canTestRun = await testRun(_testDomains[0]);
-      if (canTestRun != null) {
-        if (canTestRun) {
-          domain = _testDomains[0];
-          _sharedPreferences?.setString(preferencesDomain, _testDomains[0]);
-        } else {
-          canTestRun = await testRun(_testDomains[1]);
-          if (canTestRun == true) {
-            // not null and true
-            domain = _testDomains[1];
-            _sharedPreferences?.setString(preferencesDomain, _testDomains[1]);
+      if (_sharedPreferences != null &&
+          _sharedPreferences?.getString(preferencesDomain) == null) {
+        bool? canTestRun = await testRun(_testDomains[0]);
+        if (canTestRun != null) {
+          if (canTestRun) {
+            domain = _testDomains[0];
+            _sharedPreferences?.setString(preferencesDomain, _testDomains[0]);
+          } else {
+            canTestRun = await testRun(_testDomains[1]);
+            if (canTestRun == true) {
+              // not null and true
+              domain = _testDomains[1];
+              _sharedPreferences?.setString(preferencesDomain, _testDomains[1]);
+            }
           }
         }
       }
