@@ -70,7 +70,7 @@ class ProfileDailyProgress {
   }
 
   String getMediaIdentifier() {
-    return 'http://127.0.0.1:${LocalAssetsServerManager.port}/b.html?id=${_getRecentBookKey()}';
+    return '${LocalAssetsServerManager().getAssetUrl()}/b.html?id=${_getRecentBookKey()}';
   }
 
   String _getRecentBookKey() {

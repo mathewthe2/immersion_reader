@@ -22,7 +22,7 @@ class TtuSource {
     HeadlessInAppWebView webView = HeadlessInAppWebView(
       initialUrlRequest: URLRequest(
           url: Uri.parse(
-        'http://127.0.0.1:${LocalAssetsServerManager.port}',
+        LocalAssetsServerManager().getAssetUrl(),
       )),
       onLoadStop: (controller, url) async {
         controller.evaluateJavascript(source: getHistoryJs);
@@ -36,6 +36,10 @@ class TtuSource {
       onConsoleMessage: (controller, message) {
         late Map<String, dynamic> messageJson;
         try {
+          if (message.messageLevel == ConsoleMessageLevel.ERROR) {
+            debugPrint("Error while fetching books: ${message.message}");
+            return;
+          }
           messageJson = jsonDecode(message.message);
           if (messageJson.containsKey('messageType') &&
               messageJson['messageType'] == 'history') {
@@ -109,7 +113,7 @@ class TtuSource {
       }
       return Book(
         mediaIdentifier:
-            'http://127.0.0.1:${LocalAssetsServerManager.port}/b.html?id=$id',
+            '${LocalAssetsServerManager().getAssetUrl()}/b.html?id=$id',
         title: title,
         base64Image: base64Image,
         position: position,

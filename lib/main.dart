@@ -36,6 +36,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   int currentIndex = 0;
   SharedPreferences? sharedPreferences;
   PaymentProvider? paymentProvider;
+  LocalAssetsServerManager? localAssetsServerManager;
   late StorageProvider storageProvider;
   bool isLocalAssetsServerReady = false;
   bool isProvidersReady = false;
@@ -61,13 +62,14 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   Future<void> setupApp() async {
     await setupProviders();
-    LocalAssetsServerManager.create();
     await startLocalAssetsServer();
   }
 
   Future<void> setupProviders() async {
     sharedPreferences = await SharedPreferences.getInstance();
     paymentProvider = await PaymentProvider.create(sharedPreferences!);
+    localAssetsServerManager =
+        LocalAssetsServerManager.create(sharedPreferences!);
     storageProvider = await StorageProvider.create();
     ManagerService.setupAll(storageProvider);
     setState(() {
@@ -76,7 +78,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   }
 
   Future<void> startLocalAssetsServer() async {
-    await LocalAssetsServerManager().start();
+    await localAssetsServerManager?.start();
     setState(() {
       isLocalAssetsServerReady = true;
     });
@@ -84,12 +86,12 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   void handleAppResume() {
     ProfileManager().restartSession();
-    LocalAssetsServerManager().start();
+    localAssetsServerManager?.start();
   }
 
   void handleAppSleep() {
     ProfileManager().endSession();
-    LocalAssetsServerManager().stop();
+    localAssetsServerManager?.stop();
   }
 
   @override

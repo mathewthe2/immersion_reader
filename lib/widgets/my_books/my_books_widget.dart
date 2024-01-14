@@ -132,8 +132,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                           isShowDeviceStatusBar: SettingsManager()
                               .cachedAppearanceSettings()
                               .isShowDeviceStatusBar,
-                          initialUrl:
-                              'http://127.0.0.1:${LocalAssetsServerManager.port}');
+                          initialUrl: LocalAssetsServerManager().getAssetUrl());
                     }))
                 .then((_) => onExitReader());
           }),
