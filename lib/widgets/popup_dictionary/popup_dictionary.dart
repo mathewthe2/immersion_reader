@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
-import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary_tool_bar.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_tile_list.dart';
@@ -24,16 +23,20 @@ class PopupDictionary {
     if (text[index].trim().isEmpty && text.length > index) {
       index += 1;
     }
-    PopupDictionaryTheme popupDictionaryTheme =
-        await SettingsManager().getPopupDictionaryTheme();
+    List<dynamic> popupDictionarySettings = await Future.wait([
+      SettingsManager().getPopupDictionaryTheme(),
+      SettingsManager().getIsEnabledSlideAnimation(),
+      SettingsManager().getAllowLookupWhilePopupActive(),
+    ]);
     PopupDictionaryThemeData popupDictionaryThemeData =
-        PopupDictionaryThemeData(popupDictionaryTheme: popupDictionaryTheme);
-    bool enableSlideAnimation =
-        await SettingsManager().getIsEnabledSlideAnimation();
+        PopupDictionaryThemeData(
+            popupDictionaryTheme: popupDictionarySettings[0]);
+    bool enableSlideAnimation = popupDictionarySettings[1];
+    bool allowLookupWhilePopupActive = popupDictionarySettings[2];
     SmartDialog.show(
         alignment: Alignment.bottomCenter,
-        usePenetrate: true,
-        permanent: true,
+        usePenetrate: allowLookupWhilePopupActive,
+        permanent: allowLookupWhilePopupActive,
         keepSingle: true,
         animationTime: Duration(milliseconds: enableSlideAnimation ? 200 : 0),
         nonAnimationTypes: [SmartNonAnimationType.continueKeepSingle],

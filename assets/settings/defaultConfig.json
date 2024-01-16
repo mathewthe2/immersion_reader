@@ -2,6 +2,7 @@
     "appearance": {
         "popup_dictionary_theme": "dark",
         "enable_slide_animation": "1",
+        "allow_lookup_while_popup_active": "0",
         "show_frequency_tags": "1",
         "pitch_accent_display_style": "graph",
         "enable_full_screen": "0",

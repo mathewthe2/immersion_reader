@@ -24,6 +24,8 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
       SettingsManager().cachedAppearanceSettings().enableReaderFullScreen;
   bool _enableSlideAnimation =
       SettingsManager().cachedAppearanceSettings().enableSlideAnimation;
+  bool _allowLookupWhilePopupActive =
+      SettingsManager().cachedAppearanceSettings().allowLookupWhilePopupActive;
   bool _isKeepScreenOn =
       SettingsManager().cachedAppearanceSettings().isKeepScreenOn;
   bool _isShowDeviceStatusBar =
@@ -97,6 +99,17 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                         });
                       },
                       value: _showFrequencyTags)),
+              CupertinoListTile(
+                  title: const Text('Allow Lookup while Popup Active'),
+                  trailing: CupertinoSwitch(
+                      onChanged: (bool? value) {
+                        SettingsManager()
+                            .toggleAllowLookupWhilePopupActive(value!);
+                        setState(() {
+                          _allowLookupWhilePopupActive = value;
+                        });
+                      },
+                      value: _allowLookupWhilePopupActive)),
               CupertinoListTile(
                   title: const Text('Enable Slide Animation'),
                   trailing: CupertinoSwitch(

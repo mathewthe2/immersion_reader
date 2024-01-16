@@ -112,6 +112,22 @@ class SettingsManager {
     return data.appearanceSetting.enableSlideAnimation;
   }
 
+  Future<void> toggleAllowLookupWhilePopupActive(
+      bool allowLookupWhilePopupActive) async {
+    await settingsStorage?.changeConfigSettings(
+        AppearanceSetting.allowLookupWhilePopupActiveKey,
+        allowLookupWhilePopupActive ? "1" : "0",
+        onSuccessCallback: () => settingsStorage!
+            .settingsCache!
+            .appearanceSetting
+            .allowLookupWhilePopupActive = allowLookupWhilePopupActive);
+  }
+
+  Future<bool> getAllowLookupWhilePopupActive() async {
+    SettingsData data = await _getSettingsData();
+    return data.appearanceSetting.allowLookupWhilePopupActive;
+  }
+
   Future<void> updatePitchAccentStyle(
       PitchAccentDisplayStyle pitchAccentDisplayStyle) async {
     await settingsStorage?.changeConfigSettings(
