@@ -4,7 +4,6 @@ import 'package:immersion_reader/japanese/translator.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:sqflite/sqflite.dart';
 
 // To run tests on Window/Mac:
 // flutter test test/japanese/translator_test.dart

@@ -10,6 +10,7 @@ import 'package:immersion_reader/pages/reader/reader_page.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/storage/storage_provider.dart';
+import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/settings/settings_page.dart';
 import 'pages/search_page.dart';
@@ -42,8 +43,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   bool isProvidersReady = false;
 
   final Map<String, IconData> navigationItems = {
-    'Discover': CupertinoIcons.compass,
     'Reader': CupertinoIcons.book,
+    'Discover': CupertinoIcons.compass,
     'My Words': CupertinoIcons.star_fill,
     'Search': CupertinoIcons.search,
     // 'Browse': .globe,
@@ -67,10 +68,15 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   Future<void> setupProviders() async {
     sharedPreferences = await SharedPreferences.getInstance();
-    paymentProvider = await PaymentProvider.create(sharedPreferences!);
     localAssetsServerManager =
         LocalAssetsServerManager.create(sharedPreferences!);
-    storageProvider = await StorageProvider.create();
+    List<dynamic> asyncData = await Future.wait([
+      PaymentProvider.create(sharedPreferences!),
+      StorageProvider.create(),
+      PopupDictionary().warmUp() // warm up popup dictionary
+    ]);
+    paymentProvider = asyncData[0];
+    storageProvider = asyncData[1];
     ManagerService.setupAll(storageProvider);
     setState(() {
       isProvidersReady = true;
@@ -105,6 +111,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
         handleAppSleep();
+        break;
+      default:
         break;
     }
   }
@@ -165,8 +173,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   Widget getViewWidget(int index) {
     List<Widget> viewWidgets = [
       // const MangaPage(),
-      Discover(sharedPreferences: sharedPreferences!),
       ReaderPage(paymentProvider: paymentProvider!),
+      Discover(sharedPreferences: sharedPreferences!),
+
       //  const Browser(),
       const VocabularyListPage(),
       const SearchPage(),

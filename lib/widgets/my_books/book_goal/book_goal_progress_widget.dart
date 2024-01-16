@@ -26,7 +26,7 @@ class BookGoalProgressWidget extends StatelessWidget {
     return ClipRect(
         child: Align(
             alignment: Alignment.topCenter,
-            heightFactor: isShowBottomContent ? 0.75 : 0.55,
+            heightFactor: isShowBottomContent ? 0.8 : 0.55,
             child: ValueListenableBuilder(
                 valueListenable: NavigationManager().leaveReaderPageNotifier,
                 builder: (context, val, child) => SleekCircularSlider(

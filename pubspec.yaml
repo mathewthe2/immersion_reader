@@ -15,7 +15,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.4.2
+version: 1.4.9
 
 environment:
   sdk: ">=2.17.6 <3.0.0"
@@ -40,7 +40,7 @@ dependencies:
   flutter_slidable: ^2.0.0
   flutter_svg: ^1.0.3
   font_awesome_flutter: ^10.2.1
-  http: ^0.13.5
+  http: ^1.1.0
   kana_kit: ^2.0.0
   lean_file_picker: ^0.0.2
   local_assets_server: ^2.0.2+12
@@ -70,6 +70,7 @@ dependencies:
       url: https://github.com/mathewthe2/ios-vision-flutter
       ref: main # branch name
   flutter_smart_dialog: ^4.9.6
+  home_widget: ^0.4.1
 
 dev_dependencies:
   sqflite_common_ffi:

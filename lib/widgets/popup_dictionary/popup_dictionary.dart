@@ -14,6 +14,18 @@ class PopupDictionary {
     await SmartDialog.dismiss(force: true);
   }
 
+  Future<void> warmUp() async {
+    getPopupDictionarySettings();
+  }
+
+  Future<List<dynamic>> getPopupDictionarySettings() async {
+    return await Future.wait([
+      SettingsManager().getPopupDictionaryTheme(),
+      SettingsManager().getIsEnabledSlideAnimation(),
+      SettingsManager().getAllowLookupWhilePopupActive(),
+    ]);
+  }
+
   Future<void> showVocabularyList(String text, int index) async {
     if (index < 0 || index >= text.length) {
       await dismissPopupDictionary();
@@ -23,11 +35,7 @@ class PopupDictionary {
     if (text[index].trim().isEmpty && text.length > index) {
       index += 1;
     }
-    List<dynamic> popupDictionarySettings = await Future.wait([
-      SettingsManager().getPopupDictionaryTheme(),
-      SettingsManager().getIsEnabledSlideAnimation(),
-      SettingsManager().getAllowLookupWhilePopupActive(),
-    ]);
+    List<dynamic> popupDictionarySettings = await getPopupDictionarySettings();
     PopupDictionaryThemeData popupDictionaryThemeData =
         PopupDictionaryThemeData(
             popupDictionaryTheme: popupDictionarySettings[0]);

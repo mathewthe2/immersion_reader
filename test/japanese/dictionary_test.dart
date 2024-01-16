@@ -4,7 +4,6 @@ import 'package:immersion_reader/dictionary/dictionary_entry.dart';
 import 'package:immersion_reader/japanese/dictionary.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:sqflite/sqflite.dart';
 
 // To run tests on Window/Mac:
 // flutter test test/japanese/dictionary_test.dart
