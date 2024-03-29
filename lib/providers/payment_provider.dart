@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
@@ -25,23 +26,16 @@ class PaymentProvider {
   static Future<PaymentProvider> create(
       SharedPreferences sharedPreferences) async {
     PaymentProvider provider = PaymentProvider._create();
-    await FlutterInappPurchase.instance.initialize();
-    provider._sharedPreferences = sharedPreferences;
-    provider._conectionSubscription =
-        FlutterInappPurchase.connectionUpdated.listen((connected) {
-      debugPrint('connected: $connected');
-    });
 
-    // provider._purchaseUpdatedSubscription =
-    //     FlutterInappPurchase.purchaseUpdated.listen((productItem) {
-    //   debugPrint('purchase-updated: $productItem');
-    // });
+    if (Platform.isIOS) {
+      await FlutterInappPurchase.instance.initialize();
+      provider._sharedPreferences = sharedPreferences;
+      provider._conectionSubscription =
+          FlutterInappPurchase.connectionUpdated.listen((connected) {
+        debugPrint('connected: $connected');
+      });
+    }
 
-    // provider._purchaseErrorSubscription =
-    //     FlutterInappPurchase.purchaseError.listen((purchaseError) {
-    //   debugPrint('purchase-error: $purchaseError');
-    // });
-    
     return provider;
   }
 

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
 import 'package:immersion_reader/widgets/common/padding_bottom.dart';
@@ -31,7 +32,8 @@ class _ReaderPageState extends State<ReaderPage> {
               delegate: SliverChildListDelegate([
             const MyBooksWidget(),
             // GestureDetector(onTap: ()=>_requestPurchase("immersion_reader_plus"), )
-            BrowserCatalog(paymentProvider: widget.paymentProvider),
+            if (Platform.isIOS)
+              BrowserCatalog(paymentProvider: widget.paymentProvider),
             const PaddingBottom()
           ]))
         ]));
