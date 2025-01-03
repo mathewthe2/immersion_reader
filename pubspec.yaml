@@ -74,8 +74,8 @@ dependencies:
   flutter_smart_dialog: ^4.9.6
   home_widget: ^0.4.1
   onnxruntime: ^1.4.1
-  rust_lib_immersion_reader:
-    path: rust_builder
+  # rust_lib_immersion_reader:
+  #   path: rust_builder
   flutter_rust_bridge: 2.4.0
   vector_math: ^2.1.4
   opencv_dart: ^1.2.4

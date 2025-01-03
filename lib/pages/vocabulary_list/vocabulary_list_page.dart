@@ -126,9 +126,12 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
             if (filePath.isNotEmpty) {
               if (filePath.isNotEmpty && context.mounted) {
                 final box = context.findRenderObject() as RenderBox?;
-                Share.shareFiles([filePath],
+                Share.shareXFiles([XFile(filePath)],
                     sharePositionOrigin:
                         box!.localToGlobal(Offset.zero) & box.size);
+                // Share.shareFiles([filePath],
+                //     sharePositionOrigin:
+                //         box!.localToGlobal(Offset.zero) & box.size);
               }
             }
           },
