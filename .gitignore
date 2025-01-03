@@ -56,3 +56,10 @@ app.*.map.json
 
 # ios build data
 /ios/build/XCBuildData/
+
+# Rust related
+.cargo/
+target/
+
+# Generated messages
+*/**/messages/

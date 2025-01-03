@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
 
 class NavigationManager {
@@ -18,7 +18,7 @@ class NavigationManager {
       required bool isSamePage}) async {
     if (isTerminateSession) {
       ProfileManager().endSession();
-      Wakelock.disable();
+      WakelockPlus.disable();
       if (!isSamePage) {
         leaveReaderPageNotifier.value = true;
       }
@@ -26,9 +26,9 @@ class NavigationManager {
       ProfileManager().restartSession();
       bool isKeepScreenOn = await SettingsManager().getIsKeepScreenOn();
       if (isKeepScreenOn) {
-        Wakelock.enable();
+        WakelockPlus.enable();
       } else {
-        Wakelock.disable();
+        WakelockPlus.disable();
       }
       leaveReaderPageNotifier.value = false;
     }
