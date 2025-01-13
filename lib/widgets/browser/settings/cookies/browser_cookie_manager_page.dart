@@ -19,7 +19,7 @@ class BrowserCookieManagerPage extends StatefulWidget {
 class _BrowserCookieManagerPageState extends State<BrowserCookieManagerPage> {
   ValueNotifier<bool> cookieManagerNotifier = ValueNotifier(false);
   CookieManager cookieManager = CookieManager.instance();
-  Uri? url;
+  WebUri? url;
   bool editMode = false;
 
   Future<BrowserCookies?> getCookies() async {
@@ -64,7 +64,8 @@ class _BrowserCookieManagerPageState extends State<BrowserCookieManagerPage> {
                             builder: (context) => BrowserCookieCreatePage(
                                   url: url,
                                   cookieManager: cookieManager,
-                                  refreshCookieListScreen: refreshCookieListScreen,
+                                  refreshCookieListScreen:
+                                      refreshCookieListScreen,
                                 )));
                   }),
           trailing: CupertinoButton(
@@ -146,8 +147,11 @@ class _BrowserCookieManagerPageState extends State<BrowserCookieManagerPage> {
                                                 builder: (context) {
                                           return BrowserCookieEditPage(
                                               cookieManager: cookieManager,
-                                              refreshCookieListScreen: refreshCookieListScreen,
-                                              url: snapshot.data!.url,
+                                              refreshCookieListScreen:
+                                                  refreshCookieListScreen,
+                                              // TODO: to validate
+                                              url: WebUri.uri(
+                                                  snapshot.data!.url),
                                               cookie: cookie);
                                         }));
                                       })),

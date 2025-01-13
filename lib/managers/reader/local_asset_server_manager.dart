@@ -51,13 +51,14 @@ class LocalAssetsServerManager {
     bool isManagerLoaded = false;
     HeadlessInAppWebView webView = HeadlessInAppWebView(
       initialUrlRequest: URLRequest(
-          url: Uri.parse(
+          url: WebUri(
         'http://$domain:$port',
       )),
       onLoadStop: (controller, url) async {
         iWebViewLoaded = true;
       },
       onConsoleMessage: (controller, message) {
+        print(message.toString());
         if (message.toString().contains("manager")) {
           isManagerLoaded = true;
         }

@@ -81,15 +81,16 @@ class _BrowserShareSheetState extends State<BrowserShareSheet> {
 
   Future<void> loadHTMLFile(String htmlFile) async {
     String path = p.join(_workingDirectoryCache!.path, htmlFile);
-    await widget.webViewController
-        ?.loadUrl(urlRequest: URLRequest(url: Uri(scheme: 'file', path: path)));
+    await widget.webViewController?.loadUrl(
+        urlRequest:
+            URLRequest(url: WebUri.uri(Uri(scheme: 'file', path: path))));
     if (context.mounted) Navigator.pop(context);
   }
 
   Future<void> handleLoadPDF() async {
     Navigator.pop(context);
     await widget.webViewController
-        ?.loadUrl(urlRequest: URLRequest(url: Uri.parse(pdfViewerUrl)));
+        ?.loadUrl(urlRequest: URLRequest(url: WebUri(pdfViewerUrl)));
   }
 
   Widget _selectHTMLModalBuilder(BuildContext context) {

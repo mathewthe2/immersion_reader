@@ -75,7 +75,7 @@ class _ReaderState extends State<Reader> {
                           crossPlatform: InAppWebViewOptions(
                               cacheEnabled: true, incognito: false)),
                       initialUrlRequest: URLRequest(
-                        url: Uri.parse(
+                        url: WebUri(
                           widget.initialUrl ??
                               LocalAssetsServerManager().getAssetUrl(),
                         ),
@@ -109,6 +109,8 @@ class _ReaderState extends State<Reader> {
                         }
                       },
                       onConsoleMessage: (controller, message) {
+                        debugPrint(
+                            "reader stuff: ${message.message}"); // TODO: for debug
                         messageController.execute(message);
                       },
                     )));

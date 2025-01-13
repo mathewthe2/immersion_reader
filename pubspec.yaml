@@ -35,15 +35,16 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   collection: ^1.16.0
-  csv: ^5.0.1
+  csv: ^6.0.0
   cupertino_icons: ^1.0.2
-  flutter_archive: ^5.0.0
-  flutter_inappwebview: ^5.7.2+3
-  flutter_slidable: ^3.1.1
+  flutter_archive: ^6.0.3
+  flutter_inappwebview: ^6.1.5
+  flutter_slidable: ^3.1.2
   flutter_svg: ^1.0.3
   font_awesome_flutter: ^10.2.1
   http: ^1.1.0
   kana_kit: ^2.0.0
+  # file_picker: ^8.1.7
   lean_file_picker: ^0.0.2
   local_assets_server: ^2.0.2+12
   modal_bottom_sheet:
@@ -56,7 +57,7 @@ dependencies:
   ruby_text: ^3.0.1
   share_plus: ^10.0.2
   sqflite: ^2.1.0
-  swipeable_page_route: ^0.4.0
+  swipeable_page_route: ^0.4.6
   url_launcher: ^6.1.6
   shared_preferences: ^2.0.15
   cached_network_image: ^3.2.2
@@ -65,18 +66,18 @@ dependencies:
   # sleek_circular_slider: ^2.0.1
   timeago: ^3.4.0
   wakelock_plus: ^1.2.8
-  star_menu: ^3.1.4
+  star_menu: ^4.0.1
   image: ^4.2.0
   apple_vision_flutter:
     git:
       url: https://github.com/mathewthe2/ios-vision-flutter
       ref: main # branch name
   flutter_smart_dialog: ^4.9.6
-  home_widget: ^0.4.1
+  home_widget: ^0.7.0
   onnxruntime: ^1.4.1
   # rust_lib_immersion_reader:
   #   path: rust_builder
-  flutter_rust_bridge: 2.4.0
+  # flutter_rust_bridge: 2.4.0
   vector_math: ^2.1.4
   opencv_dart: ^1.2.4
 
@@ -90,7 +91,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -109,8 +110,8 @@ flutter:
     - assets/test/bird.jpg
     - assets/test/000b.jpg
     - assets/test/processed.jpg
-    - assets/models/comic.onnx
-    - assets/models/model.onnx
+    # - assets/models/comic.onnx
+    # - assets/models/model.onnx
     - assets/models/vocab.txt
     - assets/settings/defaultConfig.json
     - assets/japanese/data.db

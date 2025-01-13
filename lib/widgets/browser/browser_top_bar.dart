@@ -28,11 +28,8 @@ class _BrowserBarState extends State<BrowserTopBar> {
     if (!input.startsWith('http://') && !input.startsWith('https://')) {
       input = 'http://$input';
     }
-    var url = Uri.parse(input);
-    if (url.scheme.isEmpty) {
-      url = Uri.parse(input);
-    }
-    widget.webViewController.loadUrl(urlRequest: URLRequest(url: url));
+    widget.webViewController
+        .loadUrl(urlRequest: URLRequest(url: WebUri(input)));
   }
 
   @override

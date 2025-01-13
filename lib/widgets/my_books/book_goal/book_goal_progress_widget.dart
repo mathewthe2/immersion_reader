@@ -34,7 +34,7 @@ class BookGoalProgressWidget extends StatelessWidget {
                         size: 350,
                         startAngle: 180,
                         angleRange: 180,
-                        animationEnabled: !(val as bool),
+                        animationEnabled: !(val),
                         customWidths: CustomSliderWidths(progressBarWidth: 10),
                         customColors: CustomSliderColors(
                             progressBarColor: const Color(0xFFDCD8FF),

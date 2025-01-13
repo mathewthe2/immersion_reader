@@ -21,7 +21,7 @@ class TtuSource {
     List<Book>? books;
     HeadlessInAppWebView webView = HeadlessInAppWebView(
       initialUrlRequest: URLRequest(
-          url: Uri.parse(
+          url: WebUri(
         LocalAssetsServerManager().getAssetUrl(),
       )),
       onLoadStop: (controller, url) async {

@@ -3,11 +3,10 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:immersion_reader/data/browser/browser_bookmark.dart';
 import 'package:immersion_reader/managers/browser/browser_manager.dart';
+
 class BookmarksSheet extends StatefulWidget {
   final InAppWebViewController? webViewController;
-  const BookmarksSheet(
-      {super.key,
-      required this.webViewController});
+  const BookmarksSheet({super.key, required this.webViewController});
 
   @override
   State<BookmarksSheet> createState() => _BookmarksSheetState();
@@ -22,7 +21,7 @@ class _BookmarksSheetState extends State<BookmarksSheet> {
     switch (bookmark.type) {
       case BrowserBookMarkType.link:
         widget.webViewController!
-            .loadUrl(urlRequest: URLRequest(url: Uri.parse(bookmark.url)));
+            .loadUrl(urlRequest: URLRequest(url: WebUri(bookmark.url)));
         Navigator.pop(context);
         break;
       case BrowserBookMarkType.folder:
@@ -59,7 +58,10 @@ class _BookmarksSheetState extends State<BookmarksSheet> {
             if (snapshot.hasData) {
               bookmarks = snapshot.data!;
               if (bookmarks.isEmpty) {
-                return Padding(padding: const EdgeInsets.only(top: 40), child:Text("No bookmarks", style: TextStyle(color: textColor)));
+                return Padding(
+                    padding: const EdgeInsets.only(top: 40),
+                    child: Text("No bookmarks",
+                        style: TextStyle(color: textColor)));
               }
               return CupertinoListSection(children: [
                 ...bookmarks.map((BrowserBookmark bookmark) => Slidable(

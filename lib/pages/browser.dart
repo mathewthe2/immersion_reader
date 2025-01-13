@@ -71,10 +71,11 @@ class _BrowserState extends State<Browser> {
       contentBlockers = [];
     }
     if (webViewController != null) {
-      webViewController!.setOptions(
-          options: InAppWebViewGroupOptions(
-              crossPlatform:
-                  InAppWebViewOptions(contentBlockers: contentBlockers)));
+      // TODO: update contentblockers
+      // webViewController!.setOptions(
+      //     options: InAppWebViewGroupOptions(
+      //         crossPlatform:
+      //             InAppWebViewOptions(contentBlockers: contentBlockers)));
     }
   }
 
@@ -113,7 +114,7 @@ class _BrowserState extends State<Browser> {
                                   cacheEnabled: true,
                                   incognito: false)),
                           initialUrlRequest: URLRequest(
-                            url: Uri.parse(initialUrl),
+                            url: WebUri(initialUrl),
                           ),
                           onWebViewCreated: (controller) {
                             setState(() {

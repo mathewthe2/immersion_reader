@@ -23,7 +23,7 @@ class _BrowserCookieCreatePageState extends State<BrowserCookieCreatePage> {
   final Map<CookieCreateInformationKey, TextEditingController>
       _textControllerMap = {};
   bool canCreate = false;
-      
+
   @override
   void initState() {
     super.initState();
@@ -37,9 +37,9 @@ class _BrowserCookieCreatePageState extends State<BrowserCookieCreatePage> {
 
   void checkIfCanCreate() {
     String name = _textControllerMap[CookieCreateInformationKey.name]!.text;
-     setState(() {
-        canCreate = name.isNotEmpty;
-      });
+    setState(() {
+      canCreate = name.isNotEmpty;
+    });
   }
 
   void onCreateCookie() async {
@@ -47,7 +47,7 @@ class _BrowserCookieCreatePageState extends State<BrowserCookieCreatePage> {
     String name = _textControllerMap[CookieCreateInformationKey.name]!.text;
     String value = _textControllerMap[CookieCreateInformationKey.value]!.text;
     await widget.cookieManager.setCookie(
-      url: Uri.parse(url),
+      url: WebUri(url),
       name: name,
       value: value.isEmpty ? ' ' : value, // value cannot be empty
       // expiresDate: ,
@@ -76,26 +76,25 @@ class _BrowserCookieCreatePageState extends State<BrowserCookieCreatePage> {
                               darkColor: CupertinoColors.systemGrey),
                           context))))),
       CupertinoScrollbar(
-          child:
-              CupertinoTextField(
-                  controller: _textControllerMap[key],
-                  decoration: BoxDecoration(
+          child: CupertinoTextField(
+              controller: _textControllerMap[key],
+              decoration: BoxDecoration(
+                color: CupertinoDynamicColor.resolve(
+                    const CupertinoDynamicColor.withBrightness(
+                        color: CupertinoColors.white,
+                        darkColor: CupertinoColors.systemFill),
+                    context),
+                border: Border.all(
                     color: CupertinoDynamicColor.resolve(
                         const CupertinoDynamicColor.withBrightness(
-                            color: CupertinoColors.white,
-                            darkColor: CupertinoColors.systemFill),
-                        context),
-                    border: Border.all(
-                        color: CupertinoDynamicColor.resolve(
-                            const CupertinoDynamicColor.withBrightness(
-                                color: CupertinoColors.lightBackgroundGray,
-                                darkColor: CupertinoColors.white),
-                            context)),
-                  ),
-                  onChanged: (_) => checkIfCanCreate(),
-                  maxLines: 10,
-                  minLines: 1,
-                  keyboardType: TextInputType.multiline))
+                            color: CupertinoColors.lightBackgroundGray,
+                            darkColor: CupertinoColors.white),
+                        context)),
+              ),
+              onChanged: (_) => checkIfCanCreate(),
+              maxLines: 10,
+              minLines: 1,
+              keyboardType: TextInputType.multiline))
     ]);
   }
 

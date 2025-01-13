@@ -8,7 +8,7 @@ enum CookieInformationKey { name, value, domain, expiration }
 class BrowserCookieEditPage extends StatefulWidget {
   final CookieManager cookieManager;
   final Cookie cookie;
-  final Uri url;
+  final WebUri url;
   final VoidCallback refreshCookieListScreen;
   const BrowserCookieEditPage(
       {super.key,
