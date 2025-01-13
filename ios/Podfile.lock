@@ -26,8 +26,6 @@ PODS:
     - onnxruntime-objc/Core (= 1.15.1)
   - onnxruntime-objc/Core (1.15.1):
     - onnxruntime-c (= 1.15.1)
-  - opencv_dart (0.0.1):
-    - Flutter
   - OrderedSet (6.0.3)
   - package_info_plus (0.4.5):
     - Flutter
@@ -57,7 +55,6 @@ DEPENDENCIES:
   - home_widget (from `.symlinks/plugins/home_widget/ios`)
   - lean_file_picker (from `.symlinks/plugins/lean_file_picker/ios`)
   - onnxruntime (from `.symlinks/plugins/onnxruntime/ios`)
-  - opencv_dart (from `.symlinks/plugins/opencv_dart/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
@@ -90,8 +87,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/lean_file_picker/ios"
   onnxruntime:
     :path: ".symlinks/plugins/onnxruntime/ios"
-  opencv_dart:
-    :path: ".symlinks/plugins/opencv_dart/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
@@ -118,7 +113,6 @@ SPEC CHECKSUMS:
   onnxruntime: e9346181d75b8dea8733bdae512a22c298962e00
   onnxruntime-c: ebdcfd8650bcbd10121c125262f99dea681b92a3
   onnxruntime-objc: ae7acec7a3d03eaf072d340afed7a35635c1c2a6
-  opencv_dart: 25b6a7c63435efdbd51c88a8682272662539bf7a
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46

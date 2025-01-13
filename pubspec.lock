@@ -490,14 +490,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
-  opencv_dart:
-    dependency: "direct main"
-    description:
-      name: opencv_dart
-      sha256: "56a8279e1e59046b763ff3a50a33556d582035435e0d8bfaaa985e59f32d4e64"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.4"
   package_info_plus:
     dependency: transitive
     description:
@@ -920,7 +912,7 @@ packages:
     source: hosted
     version: "4.5.0"
   vector_math:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: vector_math
       sha256: "80b3257d1492ce4d091729e3a67a60407d227c27241d6927be0130c98e741803"

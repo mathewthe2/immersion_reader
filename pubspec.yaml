@@ -15,7 +15,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.4.9+2
+version: 1.5.0
 
 environment:
   # sdk: '>=2.18.5 <3.0.0'
@@ -78,8 +78,8 @@ dependencies:
   # rust_lib_immersion_reader:
   #   path: rust_builder
   # flutter_rust_bridge: 2.4.0
-  vector_math: ^2.1.4
-  opencv_dart: ^1.2.4
+  # vector_math: ^2.1.4
+  # opencv_dart: ^1.2.4
 
 dev_dependencies:
   sqflite_common_ffi:
@@ -105,14 +105,14 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/test/00.jpg
-    - assets/test/001a.jpg
-    - assets/test/bird.jpg
-    - assets/test/000b.jpg
-    - assets/test/processed.jpg
+    # - assets/test/00.jpg
+    # - assets/test/001a.jpg
+    # - assets/test/bird.jpg
+    # - assets/test/000b.jpg
+    # - assets/test/processed.jpg
     # - assets/models/comic.onnx
     # - assets/models/model.onnx
-    - assets/models/vocab.txt
+    # - assets/models/vocab.txt
     - assets/settings/defaultConfig.json
     - assets/japanese/data.db
     - assets/browser/darkreader.min.js
