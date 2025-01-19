@@ -59,7 +59,14 @@ class _DictionarySettingsState extends State<DictionarySettings> {
 
   @override
   Widget build(BuildContext context) {
+      Color backgroundColor = CupertinoDynamicColor.resolve(
+        const CupertinoDynamicColor.withBrightness(
+            color: CupertinoColors.systemGroupedBackground,
+            darkColor: CupertinoColors.black),
+        context);
+        
     return CupertinoPageScaffold(
+        backgroundColor: backgroundColor,
         navigationBar: CupertinoNavigationBar(
           middle: const Text('Dictionaries'),
           leading: editMode
@@ -90,7 +97,11 @@ class _DictionarySettingsState extends State<DictionarySettings> {
               if (snapshot.hasData) {
                 getEnabledDictionaries(snapshot.data!);
                 return SafeArea(
-                  child: CupertinoListSection(
+                  child: 
+                  SingleChildScrollView(
+                              child: Column(children:
+                            
+                  [CupertinoListSection(
                       header: const Text('Dictionary'),
                       children: [
                         ...snapshot.data!.asMap().entries.map((entry) {
@@ -123,14 +134,14 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                                                 dictionarySetting);
                                         setState(() {});
                                       }));
-                        }).toList(),
+                        }),
                         if (isProcessingDictionary)
                           const CupertinoActivityIndicator(
                             animating: true,
                             radius: 24,
                           )
                       ]),
-                );
+                ])));
               } else {
                 return const CupertinoActivityIndicator(
                   animating: true,
