@@ -4,6 +4,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
+import 'package:immersion_reader/widgets/reader/highlight_controller.dart';
 
 class MessageController {
   static int timeStampDiff = 20; // recently opened
@@ -12,17 +13,28 @@ class MessageController {
   bool hasInjectedPopupJs = false;
   bool isReadingBook = false;
   VoidCallback? exitCallback;
-  VoidCallback? readerSettingsCallback;
+  VoidCallback? readerAudioCallback;
+  Function(String javascript)? evaluateJavascript;
 
   ValueNotifier<bool> messageControllerNotifier = ValueNotifier(false);
 
-  MessageController._internal({this.exitCallback, this.readerSettingsCallback});
+  MessageController._internal(
+      {this.exitCallback, this.readerAudioCallback, this.evaluateJavascript});
 
   factory MessageController(
-          {VoidCallback? exitCallback, VoidCallback? readerSettingsCallback}) =>
+          {VoidCallback? exitCallback,
+          VoidCallback? readerAudioCallback,
+          Function(String javascript)? evaluateJavascript}) =>
       MessageController._internal(
           exitCallback: exitCallback,
-          readerSettingsCallback: readerSettingsCallback);
+          readerAudioCallback: readerAudioCallback,
+          evaluateJavascript: evaluateJavascript);
+
+  void evaluate(String javascript) {
+    if (evaluateJavascript != null) {
+      evaluateJavascript!(javascript);
+    }
+  }
 
   void execute(ConsoleMessage message) {
     debugPrint(message.message);
@@ -38,9 +50,9 @@ class MessageController {
           exitCallback!();
         }
         break;
-      case 'launch-immersion-reader-settings':
-        if (readerSettingsCallback != null) {
-          readerSettingsCallback!();
+      case 'launch-immersion-reader-audio':
+        if (readerAudioCallback != null) {
+          readerAudioCallback!();
         }
         break;
       default:
@@ -65,7 +77,10 @@ class MessageController {
                 int index = messageJson['index'];
                 String text = messageJson['text'];
                 // print(message.message);
-                PopupDictionary().showVocabularyList(text, index);
+                PopupDictionary.create(
+                        highlightController: HighlightController(
+                            evaluateJavascript: evaluateJavascript))
+                    .showVocabularyList(text, index);
                 break;
               }
             case 'load-book':
@@ -83,7 +98,7 @@ class MessageController {
             case 'load-manager':
               {
                 ReaderSessionManager().stop();
-                PopupDictionary().dismissPopupDictionary();
+                PopupDictionary.create().dismissPopupDictionary();
                 isReadingBook = false;
                 break;
               }

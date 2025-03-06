@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 class AppearanceSetting {
   bool showFrequencyTags;
   bool enableSlideAnimation;
+  bool enableLookupHighlight;
   bool allowLookupWhilePopupActive;
   String pitchAccentStyleString;
   String popupDictionaryThemeString;
@@ -14,6 +15,7 @@ class AppearanceSetting {
   AppearanceSetting(
       {required this.showFrequencyTags,
       required this.enableSlideAnimation,
+      required this.enableLookupHighlight,
       required this.allowLookupWhilePopupActive,
       required this.pitchAccentStyleString,
       required this.popupDictionaryThemeString,
@@ -24,6 +26,7 @@ class AppearanceSetting {
 
   static const String showFrequencyTagsKey = 'show_frequency_tags';
   static const String enableSlideAnimationKey = 'enable_slide_animation';
+  static const String enableLookupHighlightKey = 'enable_lookup_highlight';
   static const String allowLookupWhilePopupActiveKey =
       'allow_lookup_while_popup_active';
   static const String pitchAccentStyleKey = 'pitch_accent_display_style';
@@ -49,6 +52,7 @@ class AppearanceSetting {
       AppearanceSetting(
         showFrequencyTags: (map[showFrequencyTagsKey] as String) == "1",
         enableSlideAnimation: (map[enableSlideAnimationKey] as String) == "1",
+        enableLookupHighlight: (map[enableLookupHighlightKey] as String) == "1",
         allowLookupWhilePopupActive:
             (map[allowLookupWhilePopupActiveKey] as String) == "1",
         pitchAccentStyleString: map[pitchAccentStyleKey] as String,

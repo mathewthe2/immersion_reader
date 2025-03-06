@@ -56,7 +56,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
 
   void onExitReader() {
     ReaderSessionManager().stop();
-    PopupDictionary().dismissPopupDictionary();
+    PopupDictionary.create().dismissPopupDictionary();
     showSystemUI();
     setState(() {
       // refresh state

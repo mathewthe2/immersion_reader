@@ -15,7 +15,7 @@ class BrowserCatalog extends StatefulWidget {
 
 class _BrowserCatalogState extends State<BrowserCatalog> {
   void onExitReader() {
-    PopupDictionary().dismissPopupDictionary();
+    PopupDictionary.create().dismissPopupDictionary();
   }
 
   Widget headlineWidget(

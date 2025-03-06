@@ -16,12 +16,16 @@ class VocabularyTileList extends StatefulWidget {
   final PopupDictionaryThemeData popupDictionaryThemeData;
   final String text;
   final int targetIndex;
+  final Function(int textLength, int initialOffset)? onTapCharacterCallback;
+  final VoidCallback? removeHighlight;
   const VocabularyTileList(
       {super.key,
       required this.text,
       required this.popupDictionaryThemeData,
       required this.targetIndex,
-      required this.vocabularyList});
+      required this.vocabularyList,
+      this.onTapCharacterCallback,
+      this.removeHighlight});
 
   @override
   State<VocabularyTileList> createState() => _VocabularyTileListState();
@@ -120,10 +124,20 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
     int index =
         widget.targetIndex + selectedIndex - ((selectableCharacters - 1) ~/ 2);
     if (index < 0 || index >= widget.text.length) {
+      if (widget.removeHighlight != null) {
+        widget.removeHighlight!();
+      }
       return;
     }
     String sentence = widget.text.substring(index, widget.text.length);
     List<Vocabulary> vocabs = await DictionaryManager().findTerm(sentence);
+    if (widget.onTapCharacterCallback != null && vocabs.isNotEmpty) {
+      widget.onTapCharacterCallback!(
+          index -
+              widget
+                  .targetIndex, // relative offset from initially tapped character
+          vocabs.first.getLongestPreDeinflectedLength());
+    }
     for (Vocabulary vocab in vocabs) {
       vocab.sentence = LanguageUtils.findSentence(widget.text, index);
     }
@@ -218,53 +232,49 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
                   child: vocabularyList.isEmpty
                       ? Container()
                       : Column(children: [
-                          ...vocabularyList
-                              .map(
-                                (Vocabulary vocabulary) => Column(children: [
-                                  CupertinoListTile(
-                                      title: VocabularyTile(
-                                          vocabulary: vocabulary,
-                                          popupDictionaryThemeData:
-                                              widget.popupDictionaryThemeData,
-                                          added: ifVocabularyExists(vocabulary),
-                                          addOrRemoveVocabulary:
-                                              addOrRemoveFromVocabularyList),
-                                      trailing: CupertinoButton(
-                                          onPressed: () =>
-                                              addOrRemoveFromVocabularyList(
-                                                  vocabulary),
-                                          child: Icon(
-                                            color: widget
-                                                .popupDictionaryThemeData
-                                                .getColor(DictionaryColor
-                                                    .primaryActionColor),
-                                            ifVocabularyExists(vocabulary)
-                                                ? CupertinoIcons.star_fill
-                                                : CupertinoIcons.star,
-                                            size: 20,
-                                          ))),
-                                  if (vocabulary.frequencyTags.isNotEmpty)
-                                    Padding(
-                                        padding:
-                                            const EdgeInsetsDirectional.only(
-                                                start: 20.0,
-                                                end: 14.0,
-                                                top: 5.0,
-                                                bottom: 5.0),
-                                        child: FrequencyWidget(
-                                            parentContext: context,
-                                            vocabulary: vocabulary)),
-                                  Padding(
-                                      padding: const EdgeInsetsDirectional.only(
-                                          start: 20.0, end: 14.0),
-                                      child: VocabularyDefinition(
-                                        vocabulary: vocabulary,
-                                        popupDictionaryThemeData:
-                                            widget.popupDictionaryThemeData,
-                                      )),
-                                ]),
-                              )
-                              .toList(),
+                          ...vocabularyList.map(
+                            (Vocabulary vocabulary) => Column(children: [
+                              CupertinoListTile(
+                                  title: VocabularyTile(
+                                      vocabulary: vocabulary,
+                                      popupDictionaryThemeData:
+                                          widget.popupDictionaryThemeData,
+                                      added: ifVocabularyExists(vocabulary),
+                                      addOrRemoveVocabulary:
+                                          addOrRemoveFromVocabularyList),
+                                  trailing: CupertinoButton(
+                                      onPressed: () =>
+                                          addOrRemoveFromVocabularyList(
+                                              vocabulary),
+                                      child: Icon(
+                                        color: widget.popupDictionaryThemeData
+                                            .getColor(DictionaryColor
+                                                .primaryActionColor),
+                                        ifVocabularyExists(vocabulary)
+                                            ? CupertinoIcons.star_fill
+                                            : CupertinoIcons.star,
+                                        size: 20,
+                                      ))),
+                              if (vocabulary.frequencyTags.isNotEmpty)
+                                Padding(
+                                    padding: const EdgeInsetsDirectional.only(
+                                        start: 20.0,
+                                        end: 14.0,
+                                        top: 5.0,
+                                        bottom: 5.0),
+                                    child: FrequencyWidget(
+                                        parentContext: context,
+                                        vocabulary: vocabulary)),
+                              Padding(
+                                  padding: const EdgeInsetsDirectional.only(
+                                      start: 20.0, end: 14.0),
+                                  child: VocabularyDefinition(
+                                    vocabulary: vocabulary,
+                                    popupDictionaryThemeData:
+                                        widget.popupDictionaryThemeData,
+                                  )),
+                            ]),
+                          ),
                           const PaddingBottom()
                         ])))
         ]);

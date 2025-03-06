@@ -13,7 +13,8 @@ class DictionaryEntry {
       this.termTags = const [],
       this.popularity,
       this.sequence,
-      this.index});
+      this.index,
+      this.transformedText});
 
   factory DictionaryEntry.fromMap(Map<String, Object?> map) => DictionaryEntry(
       id: map['id'] as int?,
@@ -32,6 +33,9 @@ class DictionaryEntry {
 
   // for batch search
   int? index;
+
+  // for highlighting the original word
+  String? transformedText;
 
   /// The term represented by this dictionary entry.
   final String term;

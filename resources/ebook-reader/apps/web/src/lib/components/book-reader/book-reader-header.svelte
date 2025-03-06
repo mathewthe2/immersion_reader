@@ -5,6 +5,7 @@
   import {
     faBookmark as fasBookmark,
     faExpand,
+    faHeadphones,
     faCog,
     faList,
     faSignOutAlt,
@@ -28,7 +29,7 @@
     fullscreenClick: void;
     bookManagerClick: void;
     settingsClick: void;
-    immersionReaderSettingsClick: void;
+    immersionReaderAudioClick: void;
   }>();
 </script>
 
@@ -63,7 +64,14 @@
         <Fa icon={faExpand} />
       </div>
     {/if}
-    <!-- <a on:click={() => dispatch('immersionReaderSettingsClick')} href={null}>
+       <div
+        role="button"
+        on:click={() => dispatch('immersionReaderAudioClick')}
+        class="flex h-full items-center text-xl xl:text-lg {pHeaderFa} {opacityHeaderIcon} cursor-pointer"
+      >
+        <Fa icon={faHeadphones} />
+      </div>
+    <!-- <a on:click={() => dispatch('immersionReaderAudioClick')} href={null}>
       <span
         class="flex h-full items-center text-xl xl:text-lg {pHeaderFa} {opacityHeaderIcon} cursor-pointer"
       >
