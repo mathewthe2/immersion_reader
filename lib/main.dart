@@ -5,7 +5,6 @@ import 'package:immersion_reader/managers/navigation/navigation_manager.dart';
 import 'package:immersion_reader/managers/manager_service.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
 import 'package:immersion_reader/pages/discover.dart';
-// import 'package:immersion_reader/pages/manga/manga_page.dart';
 import 'package:immersion_reader/pages/reader/reader_page.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
@@ -47,7 +46,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     'Discover': CupertinoIcons.compass,
     'My Words': CupertinoIcons.star_fill,
     'Search': CupertinoIcons.search,
-    // 'Browse': .globe,
     'Settings': CupertinoIcons.settings
   };
 
@@ -73,7 +71,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     List<dynamic> asyncData = await Future.wait([
       PaymentProvider.create(sharedPreferences!),
       StorageProvider.create(),
-      PopupDictionary().warmUp() // warm up popup dictionary
+      PopupDictionary.warmUp(), // warm up popup dictionary
     ]);
     paymentProvider = asyncData[0];
     storageProvider = asyncData[1];
@@ -172,11 +170,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   Widget getViewWidget(int index) {
     List<Widget> viewWidgets = [
-      // const MangaPage(),
       ReaderPage(paymentProvider: paymentProvider!),
       Discover(sharedPreferences: sharedPreferences!),
-
-      //  const Browser(),
       const VocabularyListPage(),
       const SearchPage(),
       const SettingsPage()

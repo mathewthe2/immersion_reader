@@ -234,8 +234,8 @@
     bookmarkPage();
   }
 
-  function onImmersionReaderSettingsClick() {
-    console.log('launch-immersion-reader-settings');
+  function immersionReaderAudioClick() {
+    console.log('launch-immersion-reader-audio');
   }
 
   function onFullscreenClick() {
@@ -289,7 +289,7 @@
       on:bookmarkClick={bookmarkPage}
       on:bookManagerClick={onBookManagerClick}
       on:settingsClick={bookmarkPage}
-      on:immersionReaderSettingsClick={onImmersionReaderSettingsClick}
+      on:immersionReaderAudioClick={immersionReaderAudioClick}
     />
   </div>
 {/if}

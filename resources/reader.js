@@ -1,11 +1,15 @@
 /*jshint esversion: 6 */
-var lastSelectedNode;
+var lastParagraph;
+var highlightedNode;
+var lastSelectedIndex;
 function tapToSelect(e) {
 	if (getSelectionText()) {
+		// dismiss popup dictionary by returning negative index
 		console.log(JSON.stringify({
 			"index": -1,
-			"text": getSelectionText(),
+			"text": "",
 			"messageType": "lookup",
+			"timestamp": Date.now(),
 			"x": e.clientX,
 			"y": e.clientY,
 			"isCreator": "no",
@@ -36,6 +40,7 @@ function tapToSelect(e) {
 		if (paragraph == null) {
 			paragraph = result.startContainer.parentNode;
 		}
+		lastParagraph = paragraph;
 		var noFuriganaText = [];
 		var noFuriganaNodes = [];
 		var selectedFound = false;
@@ -49,7 +54,6 @@ function tapToSelect(e) {
 						index = index + value.textContent.length;
 					} else {
 						index = index + result.startOffset;
-						lastSelectedNode = value;
 						selectedFound = true;
 					}
 				}
@@ -63,7 +67,6 @@ function tapToSelect(e) {
 								index = index + node.textContent.length;
 							} else {
 								index = index + result.startOffset;
-								lastSelectedNode = node;
 								selectedFound = true;
 							}
 						}
@@ -75,7 +78,6 @@ function tapToSelect(e) {
 								index = index + node.firstChild.textContent.length;
 							} else {
 								index = index + result.startOffset;
-								lastSelectedNode = node;
 								selectedFound = true;
 							}
 						}
@@ -93,20 +95,115 @@ function tapToSelect(e) {
 			"index": index,
 			"text": text,
 			"messageType": "lookup",
+			"timestamp": Date.now(),
 			"x": e.clientX,
 			"y": e.clientY,
 		}));
 		console.log(text[index]);
-		console.log(lastSelectedNode);
-		// window.document.createRange(lastSelectedNode, 0);
-		const selection = window.getSelection();
-		const range = document.createRange();
-		range.startOffset = 10;
-		range.selectNodeContents(lastSelectedNode);
-		selection.removeAllRanges();
-		selection.addRange(range);
+		lastSelectedIndex = index;
 	}
 }
+
+function _getHighlightColor() {
+	let theme = localStorage.getItem("theme");
+	if (theme == null) {
+		theme = 'light-theme';
+	}
+	switch (theme) {
+		case 'light-theme': return "rgb(220, 220, 220)";
+		case 'ecru-theme': return "rgb(204, 153, 51)";
+		case 'water-theme': return "rgb(204, 220, 230)";
+		case 'gray-theme': return "rgb(120, 120, 120)";
+		case 'dark-theme': return "rgb(60, 60, 60)";
+		case 'black-theme': return "rgb(50, 50, 50)";
+		default: return "rgb(220, 220, 220)";
+	}
+}
+
+function _highlightRange(range) {
+	highlightedNode = document.createElement("span");
+	highlightedNode.setAttribute(
+		"style",
+		"background-color: " + _getHighlightColor() + "; display: inline;"
+	);
+	range.surroundContents(highlightedNode);
+}
+
+function removeHighlight() {
+	if (highlightedNode != null) {
+		var parentNode = highlightedNode.parentNode;
+
+		// Start with the content of the highlightedNode
+		var combinedText = '';
+
+		// Combine the text from the previous sibling if it exists
+		var previousSibling = highlightedNode.previousSibling;
+		if (previousSibling && previousSibling.nodeType === Node.TEXT_NODE) {
+			combinedText += previousSibling.textContent;
+		}
+
+		// Add the text content of the highlightedNode
+		combinedText += highlightedNode.textContent;
+
+		// Combine the text from the next sibling if it exists
+		var nextSibling = highlightedNode.nextSibling;
+		if (nextSibling && nextSibling.nodeType === Node.TEXT_NODE) {
+			combinedText += nextSibling.textContent;
+		}
+
+		// Create a single text node with the combined text content
+		var newTextNode = document.createTextNode(combinedText);
+
+		// Replace the highlightedNode (and its siblings) with the new text node
+		if (previousSibling) {
+			parentNode.removeChild(previousSibling); // Remove the previous sibling if it exists
+		}
+		parentNode.removeChild(highlightedNode); // Remove the highlightedNode
+
+		if (nextSibling) {
+			parentNode.removeChild(nextSibling); // Remove the next sibling if it exists
+		}
+
+		// Insert the new combined text node in place of the highlightedNode and siblings
+		parentNode.appendChild(newTextNode);
+
+		// Clear the reference to the highlightedNode
+		highlightedNode = null;
+	}
+}
+
+// highlight last tapped word
+function highlightLast(initialOffset, textLength) {
+	if (highlightedNode) {
+		removeHighlight();
+	}
+	if (lastParagraph && lastSelectedIndex) {
+		let textCounter = 0;
+		let remainingOffset = Math.min(textLength, lastParagraph.textContent.length);
+		for (var value of lastParagraph.childNodes.values()) {
+			if (value.nodeName === "#text") {
+				const counterSum = textCounter + value.textContent.length;
+				if (counterSum > lastSelectedIndex || (remainingOffset > 0 && value !== lastParagraph.lastChild)) {
+					const relativeOffset = Math.max(0, lastSelectedIndex + initialOffset - textCounter);
+					const endOffset = Math.min(relativeOffset + remainingOffset, value.textContent.length);
+					remainingOffset = Math.max(0, remainingOffset - endOffset);
+
+					const range = document.createRange();
+					range.selectNodeContents(value);
+					range.setStart(range.startContainer, relativeOffset);
+					range.setEnd(range.endContainer, endOffset);
+					_highlightRange(range);
+
+					if (remainingOffset === 0) {
+						return;
+					}
+				}
+				textCounter = counterSum;
+			}
+		}
+	}
+}
+
 function getSelectionText() {
 	function getRangeSelectedNodes(range) {
 		var node = range.startContainer;

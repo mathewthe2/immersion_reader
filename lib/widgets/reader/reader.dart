@@ -3,7 +3,7 @@ import 'package:immersion_reader/data/profile/profile_content.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/utils/system_ui.dart';
-import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
+import 'package:immersion_reader/widgets/reader/highlight_controller.dart';
 import 'package:immersion_reader/widgets/reader/message_controller.dart';
 import 'package:local_assets_server/local_assets_server.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -27,12 +27,19 @@ class Reader extends StatefulWidget {
 class _ReaderState extends State<Reader> {
   InAppWebViewController? webViewController;
   ProfileContent? currentProfileContent;
-  late PopupDictionary popupDictionary;
   late MessageController messageController;
+  late HighlightController highlightController;
 
   void createPopupDictionary() {
-    messageController =
-        MessageController(exitCallback: () => Navigator.of(context).pop());
+    messageController = MessageController(
+        exitCallback: () => Navigator.of(context).pop(),
+        readerAudioCallback: () => (), // TODO: to implement in the future
+        evaluateJavascript: (javascript) =>
+            webViewController?.evaluateJavascript(source: javascript));
+
+    highlightController = HighlightController(
+        evaluateJavascript: (javascript) =>
+            webViewController?.evaluateJavascript(source: javascript));
   }
 
   static const String addFileJs = """
@@ -96,9 +103,9 @@ class _ReaderState extends State<Reader> {
                       onLoadError: (controller, url, code, message) {
                         debugPrint(message);
                       },
-                      onLoadHttpError:
-                          (controller, url, statusCode, description) {
-                        debugPrint('$statusCode:$description');
+                      onReceivedHttpError: (controller, url, errorResponse) {
+                        debugPrint(
+                            '${errorResponse.statusCode}:${errorResponse.data}');
                       },
                       onTitleChanged: (controller, title) async {
                         await controller.evaluateJavascript(source: readerJs);

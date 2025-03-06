@@ -4,21 +4,29 @@ import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary_tool_bar.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_tile_list.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:immersion_reader/widgets/reader/highlight_controller.dart';
 
 class PopupDictionary {
+  HighlightController? highlightController;
+
   static final PopupDictionary _singleton = PopupDictionary._internal();
-  factory PopupDictionary() => _singleton;
   PopupDictionary._internal();
+
+  factory PopupDictionary.create({HighlightController? highlightController}) {
+    _singleton.highlightController = highlightController;
+    return _singleton;
+  }
 
   Future<void> dismissPopupDictionary() async {
     await SmartDialog.dismiss(force: true);
   }
 
-  Future<void> warmUp() async {
+  static Future<void> warmUp() async {
     getPopupDictionarySettings();
   }
 
-  Future<List<dynamic>> getPopupDictionarySettings() async {
+  // loads settings to cache
+  static Future<List<dynamic>> getPopupDictionarySettings() async {
     return await Future.wait([
       SettingsManager().getPopupDictionaryTheme(),
       SettingsManager().getIsEnabledSlideAnimation(),
@@ -46,6 +54,8 @@ class PopupDictionary {
         usePenetrate: allowLookupWhilePopupActive,
         permanent: allowLookupWhilePopupActive,
         keepSingle: true,
+        onDismiss: () => highlightController?.removeHighlight(),
+        maskColor: CupertinoColors.transparent, // hide mask
         animationTime: Duration(milliseconds: enableSlideAnimation ? 200 : 0),
         nonAnimationTypes: [SmartNonAnimationType.continueKeepSingle],
         builder: (context) {
@@ -59,8 +69,7 @@ class PopupDictionary {
               height: MediaQuery.of(context).size.height * .40,
               child: Column(children: [
                 PopupDictionaryToolBar(
-                    dismissPopupDictionary: () =>
-                        SmartDialog.dismiss(force: true),
+                    dismissPopupDictionary: dismissPopupDictionary,
                     backgroundColor: popupDictionaryThemeData
                         .getColor(DictionaryColor.backgroundColor)),
                 Expanded(
@@ -69,6 +78,12 @@ class PopupDictionary {
                             child: VocabularyTileList(
                                 text: text,
                                 targetIndex: index,
+                                onTapCharacterCallback: (initialOffset,
+                                        textLength) =>
+                                    highlightController?.highlightLastSelected(
+                                        initialOffset, textLength),
+                                removeHighlight:
+                                    highlightController?.removeHighlight,
                                 popupDictionaryThemeData:
                                     popupDictionaryThemeData,
                                 vocabularyList: const []))))

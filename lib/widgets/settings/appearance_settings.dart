@@ -24,6 +24,8 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
       SettingsManager().cachedAppearanceSettings().enableReaderFullScreen;
   bool _enableSlideAnimation =
       SettingsManager().cachedAppearanceSettings().enableSlideAnimation;
+  bool _enableLookupHighlight =
+      SettingsManager().cachedAppearanceSettings().enableLookupHighlight;
   bool _allowLookupWhilePopupActive =
       SettingsManager().cachedAppearanceSettings().allowLookupWhilePopupActive;
   bool _isKeepScreenOn =
@@ -119,7 +121,17 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                           _enableSlideAnimation = value;
                         });
                       },
-                      value: _enableSlideAnimation))
+                      value: _enableSlideAnimation)),
+              CupertinoListTile(
+                  title: const Text('Enable Highlights (Beta)'),
+                  trailing: CupertinoSwitch(
+                      onChanged: (bool? value) {
+                        SettingsManager().toggleEnableLookupHighlight(value!);
+                        setState(() {
+                          _enableLookupHighlight = value;
+                        });
+                      },
+                      value: _enableLookupHighlight))
             ],
           ),
           CupertinoListSection(

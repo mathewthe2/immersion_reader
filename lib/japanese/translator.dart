@@ -150,15 +150,12 @@ class Translator {
               ? uniqueDeinflectionsMap[term]!
               : [];
       if (!uniqueDeinflectionsMap.containsKey(term)) {
-        List<TranslatorDeinflection> deinflectionArray = [];
         uniqueDeinflectionTerms.add(term);
         uniqueDeinflectionArrays.add(deinflectionArray);
         uniqueDeinflectionsMap[term] = deinflectionArray;
       }
       deinflectionArray.add(deinflection);
     }
-
-    // List<DictionaryEntry> finalEntries = [];
 
     List<DictionaryEntry> entries = await dictionary.findTermsBulk(
         uniqueDeinflectionTerms,
@@ -171,6 +168,15 @@ class Translator {
         if (deinflectionRules == 0 ||
             (definitionRules & deinflectionRules) != 0) {
           deinflection.databaseEntries.add(entry);
+        }
+        // match corresponding deinflector with transformed text here
+        // take the longest transformed text
+        // further improvement: still edge cases to be fixed
+        if (deinflection.deinflectedText == entry.term &&
+            (entry.transformedText == null ||
+                deinflection.transformedText.length >
+                    entry.transformedText!.length)) {
+          entry.transformedText = deinflection.transformedText;
         }
       }
     }

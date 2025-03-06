@@ -75,6 +75,17 @@ class Vocabulary {
     }
   }
 
+  // for determining highlight length
+  int getLongestPreDeinflectedLength() {
+    if (entries.isNotEmpty) {
+      if (entries.first.transformedText != null) {
+        return entries.first.transformedText!.length;
+      }
+      return entries.first.term.length;
+    }
+    return expression?.length ?? 0;
+  }
+
   List<String> _removeDuplicates(List<String> list) {
     return [
       ...{...list}

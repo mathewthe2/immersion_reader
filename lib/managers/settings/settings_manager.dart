@@ -107,6 +107,19 @@ class SettingsManager {
             .appearanceSetting.enableSlideAnimation = enableSlideAnimation);
   }
 
+  Future<void> toggleEnableLookupHighlight(bool enableLookupHighlight) async {
+    await settingsStorage?.changeConfigSettings(
+        AppearanceSetting.enableLookupHighlightKey,
+        enableLookupHighlight ? "1" : "0",
+        onSuccessCallback: () => settingsStorage!.settingsCache!
+            .appearanceSetting.enableLookupHighlight = enableLookupHighlight);
+  }
+
+  Future<bool> getIsEnabledLookupHighlight() async {
+    SettingsData data = await _getSettingsData();
+    return data.appearanceSetting.enableLookupHighlight;
+  }
+
   Future<bool> getIsEnabledSlideAnimation() async {
     SettingsData data = await _getSettingsData();
     return data.appearanceSetting.enableSlideAnimation;

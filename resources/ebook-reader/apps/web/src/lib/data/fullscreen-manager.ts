@@ -8,7 +8,8 @@ import { browser } from '$app/env';
 
 class FullscreenManager {
   get fullscreenEnabled() {
-    return this.fallbackSpec('fullscreenEnabled', 'webkitFullscreenEnabled') ?? false;
+    // return this.fallbackSpec('fullscreenEnabled', 'webkitFullscreenEnabled') ?? false;
+    return false; // this is controlled by flutter app
   }
 
   get fullscreenElement() {
