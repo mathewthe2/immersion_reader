@@ -54,5 +54,7 @@
 	<false/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Access to files are requested for uploading custom dictionaries, but no photos will be requested.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>  
+	<false/>
 </dict>
 </plist>
