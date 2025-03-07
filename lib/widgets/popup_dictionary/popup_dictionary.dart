@@ -30,6 +30,7 @@ class PopupDictionary {
     return await Future.wait([
       SettingsManager().getPopupDictionaryTheme(),
       SettingsManager().getIsEnabledSlideAnimation(),
+      SettingsManager().getIsEnabledLookupHighlight(),
       SettingsManager().getAllowLookupWhilePopupActive(),
     ]);
   }
@@ -48,7 +49,15 @@ class PopupDictionary {
         PopupDictionaryThemeData(
             popupDictionaryTheme: popupDictionarySettings[0]);
     bool enableSlideAnimation = popupDictionarySettings[1];
-    bool allowLookupWhilePopupActive = popupDictionarySettings[2];
+    bool enableLookupHighlight = popupDictionarySettings[2];
+    bool allowLookupWhilePopupActive = popupDictionarySettings[3];
+
+    void onTapCharacterCallback(initialOffset, textLength) {
+      if (enableLookupHighlight) {
+        highlightController?.highlightLastSelected(initialOffset, textLength);
+      }
+    }
+
     SmartDialog.show(
         alignment: Alignment.bottomCenter,
         usePenetrate: allowLookupWhilePopupActive,
@@ -78,10 +87,7 @@ class PopupDictionary {
                             child: VocabularyTileList(
                                 text: text,
                                 targetIndex: index,
-                                onTapCharacterCallback: (initialOffset,
-                                        textLength) =>
-                                    highlightController?.highlightLastSelected(
-                                        initialOffset, textLength),
+                                onTapCharacterCallback: onTapCharacterCallback,
                                 removeHighlight:
                                     highlightController?.removeHighlight,
                                 popupDictionaryThemeData:
