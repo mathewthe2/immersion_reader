@@ -1,6 +1,6 @@
 /*jshint esversion: 6 */
 var lastParagraph;
-var highlightedNode;
+var highlightedNodeList = [];
 var lastSelectedIndex;
 function tapToSelect(e) {
 	if (getSelectionText()) {
@@ -42,13 +42,13 @@ function tapToSelect(e) {
 		}
 		lastParagraph = paragraph;
 		var noFuriganaText = [];
-		var noFuriganaNodes = [];
+		// var noFuriganaNodes = [];
 		var selectedFound = false;
 		var index = 0;
 		for (var value of paragraph.childNodes.values()) {
 			if (value.nodeName === "#text") {
 				noFuriganaText.push(value.textContent);
-				noFuriganaNodes.push(value);
+				// noFuriganaNodes.push(value);
 				if (selectedFound === false) {
 					if (selectedElement !== value) {
 						index = index + value.textContent.length;
@@ -61,7 +61,7 @@ function tapToSelect(e) {
 				for (var node of value.childNodes.values()) {
 					if (node.nodeName === "#text") {
 						noFuriganaText.push(node.textContent);
-						noFuriganaNodes.push(node);
+						// noFuriganaNodes.push(node);
 						if (selectedFound === false) {
 							if (selectedElement !== node) {
 								index = index + node.textContent.length;
@@ -70,15 +70,34 @@ function tapToSelect(e) {
 								selectedFound = true;
 							}
 						}
-					} else if (node.firstChild.nodeName === "#text" && node.nodeName !== "RT" && node.nodeName !== "RP") {
-						noFuriganaText.push(node.firstChild.textContent);
-						noFuriganaNodes.push(node.firstChild);
-						if (selectedFound === false) {
-							if (selectedElement !== node.firstChild) {
-								index = index + node.firstChild.textContent.length;
-							} else {
-								index = index + result.startOffset;
-								selectedFound = true;
+					} else if ((node.firstChild?.nodeName === "#text" || node.firstChild?.nodeName === "SPAN") && node.nodeName !== "RT" && node.nodeName !== "RP") {
+						for (const value of node.childNodes.values()) {
+							if (value.nodeName !== "RT" && value.nodeName !== "RP") {
+								noFuriganaText.push(value.textContent);
+
+								if (!selectedFound) {
+									// for higlighted furigana text
+									if (value.childNodes.length > 0) {
+										isHaveChildNodes = true;
+										for (const grandChild of value.childNodes.values()) {
+											if (selectedElement === grandChild) {
+												index = index + result.startOffset;
+												selectedFound = true;
+												break;
+											} else {
+												index += _getNodeTextContent(grandChild).length;
+											}
+										}
+									} else {
+										if (selectedElement === value) {
+											index += result.startOffset;
+											selectedFound = true;
+											break;
+										} else {
+											index += _getNodeTextContent(value).length;
+										}
+									}
+								}
 							}
 						}
 					}
@@ -127,80 +146,182 @@ function _highlightRange(range) {
 		"background-color: " + _getHighlightColor() + "; display: inline;"
 	);
 	range.surroundContents(highlightedNode);
+	highlightedNodeList.push(highlightedNode);
 }
 
 function removeHighlight() {
-	if (highlightedNode != null) {
+	for (const highlightedNode of highlightedNodeList) {
 		var parentNode = highlightedNode.parentNode;
 
-		// Start with the content of the highlightedNode
-		var combinedText = '';
+		// Case 1: If the highlighted node is part of a <ruby> structure
+		if (parentNode && parentNode.tagName === 'RUBY') {
+			// If the highlighted node is a <ruby> annotation (like <rt>)
+			if (highlightedNode.nodeName === 'RT') {
+				parentNode.removeChild(highlightedNode); // Simply remove the <rt> tag (annotation)
+			} else if (highlightedNode.nodeType === Node.TEXT_NODE) {
+				// If it's a text node, combine with adjacent text nodes
+				var combinedText = '';
+				var previousSibling = highlightedNode.previousSibling;
+				if (previousSibling && previousSibling.nodeType === Node.TEXT_NODE) {
+					combinedText += previousSibling.textContent;
+				}
+				combinedText += highlightedNode.textContent;
 
-		// Combine the text from the previous sibling if it exists
-		var previousSibling = highlightedNode.previousSibling;
-		if (previousSibling && previousSibling.nodeType === Node.TEXT_NODE) {
-			combinedText += previousSibling.textContent;
+				var nextSibling = highlightedNode.nextSibling;
+				if (nextSibling && nextSibling.nodeType === Node.TEXT_NODE) {
+					combinedText += nextSibling.textContent;
+				}
+
+				// Create a new text node with the combined content
+				var newTextNode = document.createTextNode(combinedText);
+
+				// Replace the highlighted text node with the combined text
+				parentNode.replaceChild(newTextNode, highlightedNode);
+
+				// Remove the previous and next siblings if they are text nodes
+				if (previousSibling && previousSibling !== highlightedNode) {
+					parentNode.removeChild(previousSibling);
+				}
+				if (nextSibling && nextSibling !== highlightedNode) {
+					parentNode.removeChild(nextSibling);
+				}
+			}
+		} else {
+			// Case 2: Non-<ruby> case (just text node highlight removal)
+			var previousSibling = highlightedNode.previousSibling;
+			var nextSibling = highlightedNode.nextSibling;
+
+			var combinedText = '';
+			if (previousSibling && previousSibling.nodeType === Node.TEXT_NODE) {
+				combinedText += previousSibling.textContent;
+			}
+
+			combinedText += highlightedNode.textContent;
+
+			if (nextSibling && nextSibling.nodeType === Node.TEXT_NODE) {
+				combinedText += nextSibling.textContent;
+			}
+
+			// Create a new text node with the combined text
+			var newTextNode = document.createTextNode(combinedText);
+
+			// Replace the highlighted node with the new combined text node
+			parentNode.replaceChild(newTextNode, highlightedNode);
+
+			// Remove previous and next text nodes if necessary
+			if (previousSibling && previousSibling !== highlightedNode) {
+				parentNode.removeChild(previousSibling);
+			}
+			if (nextSibling && nextSibling !== highlightedNode) {
+				parentNode.removeChild(nextSibling);
+			}
 		}
-
-		// Add the text content of the highlightedNode
-		combinedText += highlightedNode.textContent;
-
-		// Combine the text from the next sibling if it exists
-		var nextSibling = highlightedNode.nextSibling;
-		if (nextSibling && nextSibling.nodeType === Node.TEXT_NODE) {
-			combinedText += nextSibling.textContent;
-		}
-
-		// Create a single text node with the combined text content
-		var newTextNode = document.createTextNode(combinedText);
-
-		// Replace the highlightedNode (and its siblings) with the new text node
-		if (previousSibling) {
-			parentNode.removeChild(previousSibling); // Remove the previous sibling if it exists
-		}
-		parentNode.removeChild(highlightedNode); // Remove the highlightedNode
-
-		if (nextSibling) {
-			parentNode.removeChild(nextSibling); // Remove the next sibling if it exists
-		}
-
-		// Insert the new combined text node in place of the highlightedNode and siblings
-		parentNode.appendChild(newTextNode);
-
-		// Clear the reference to the highlightedNode
-		highlightedNode = null;
+		highlightedNodeList = [];
 	}
+}
+
+
+
+function _getNodeTextContent(node) {
+	if (node.childNodes.length > 0) {
+		return [...node.childNodes].filter((innerNode) => innerNode.parentElement.nodeName !== "RT"
+			&& innerNode.parentElement.nodeName !== "RP"
+			&& innerNode.parentElement.parentElement.nodeName !== "RT"
+			&& innerNode.parentElement.parentElement.nodeName !== "RP").map((innerNode) => _getNodeTextContent(innerNode)).join("");
+	} else {
+		if (node?.nodeName !== "RT" && node?.nodeName !== "RP") {
+			return node.textContent;
+		}
+	}
+	return "";
 }
 
 // highlight last tapped word
 function highlightLast(initialOffset, textLength) {
-	if (highlightedNode) {
+	if (initialOffset == null || textLength == null) {
+		return;
+	}
+	if (highlightedNodeList.length > 0) {
 		removeHighlight();
 	}
+	const rangesToHighlight = [];
 	if (lastParagraph && lastSelectedIndex) {
 		let textCounter = 0;
 		let remainingOffset = Math.min(textLength, lastParagraph.textContent.length);
 		for (var value of lastParagraph.childNodes.values()) {
-			if (value.nodeName === "#text") {
-				const counterSum = textCounter + value.textContent.length;
-				if (counterSum > lastSelectedIndex || (remainingOffset > 0 && value !== lastParagraph.lastChild)) {
-					const relativeOffset = Math.max(0, lastSelectedIndex + initialOffset - textCounter);
-					const endOffset = Math.min(relativeOffset + remainingOffset, value.textContent.length);
-					remainingOffset = Math.max(0, remainingOffset - endOffset);
+			const textContent = _getNodeTextContent(value);
+			if (textContent.length > 0) {
+				let relativeOffset = Math.max(0, lastSelectedIndex + initialOffset - textCounter);
 
-					const range = document.createRange();
-					range.selectNodeContents(value);
-					range.setStart(range.startContainer, relativeOffset);
-					range.setEnd(range.endContainer, endOffset);
-					_highlightRange(range);
+				// skip element if offset is longer than element contents
+				if (relativeOffset > textContent.length) {
+					textCounter += textContent.length;
+					continue;
+				}
+
+				const counterSum = textCounter + textContent.length;
+
+				if (counterSum > (lastSelectedIndex + initialOffset) && remainingOffset > 0) {
+					if (value.nodeName === "RUBY") {
+						const textNodes = [...value.childNodes].filter((node) => node.nodeName !== "RT" && node.nodeName !== "RP")
+						let childTextCounter = textContent.length;
+
+						for (const node of textNodes) {
+
+							// skip node
+
+							if (node.textContent.length <= relativeOffset) {
+								relativeOffset -= node.textContent.length;
+								continue;
+							}
+
+							const range = document.createRange();
+							range.selectNodeContents(node);
+
+
+							const startNode = range.startContainer?.childNodes[0] ?? range.startContainer;
+							const startOffset = startNode.textContent.length >= relativeOffset ? relativeOffset : 0;
+							range.setStart(startNode, startOffset);
+
+							const endNode = range.endContainer?.childNodes[0] ?? range.endContainer;
+							const endOffset = Math.min(relativeOffset + remainingOffset, endNode.textContent.length);
+							range.setEnd(endNode, Math.min(node.textContent.length, endOffset));
+
+							// console.log("startNode", startNode);
+							// console.log("endNode", endNode);
+							// console.log("startOffset", startOffset);
+							// console.log("endOffset", endOffset);
+							childTextCounter += node.textContent.length;
+							rangesToHighlight.push(range);
+
+							remainingOffset = Math.max(0, remainingOffset - endOffset + startOffset);
+							if (remainingOffset === 0) {
+								break;
+							}
+						}
+					} else {
+						const range = document.createRange();
+						range.selectNodeContents(value);
+						const endOffset = Math.min(relativeOffset + remainingOffset, textContent.length);
+
+						remainingOffset = Math.max(0, remainingOffset - (endOffset - relativeOffset));
+
+						range.setStart(range.startContainer, relativeOffset);
+						range.setEnd(range.endContainer, endOffset);
+
+						rangesToHighlight.push(range);
+					}
 
 					if (remainingOffset === 0) {
-						return;
+						break;
 					}
 				}
 				textCounter = counterSum;
 			}
 		}
+	}
+	for (const range of rangesToHighlight) {
+		_highlightRange(range);
 	}
 }
 
@@ -233,6 +354,7 @@ function getSelectionText() {
 		selection = window.getSelection();
 		nodesInRange = getRangeSelectedNodes(selection.getRangeAt(0));
 		nodes = nodesInRange.filter((node) => node.nodeName == "#text" && node.parentElement.nodeName !== "RT" && node.parentElement.nodeName !== "RP" && node.parentElement.parentElement.nodeName !== "RT" && node.parentElement.parentElement.nodeName !== "RP");
+
 		if (selection.anchorNode === selection.focusNode) {
 			txt = txt.concat(selection.anchorNode.textContent.substring(selection.baseOffset, selection.extentOffset));
 		} else {
@@ -272,7 +394,7 @@ function getSelectionText() {
 };
 var reader = document.getElementsByClassName('book-content');
 if (reader.length != 0) {
-	reader[0].addEventListener('click', tapToSelect);
+	reader[0].addEventListener('mousedown', tapToSelect);
 }
 document.head.insertAdjacentHTML('beforebegin', `
   <style>
