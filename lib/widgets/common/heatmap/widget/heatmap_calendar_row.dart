@@ -66,7 +66,7 @@ class HeatMapCalendarRow extends StatelessWidget {
   final Function(DateTime)? onClick;
 
   HeatMapCalendarRow({
-    Key? key,
+    super.key,
     required this.startDate,
     required this.endDate,
     required this.colorMode,
@@ -81,7 +81,7 @@ class HeatMapCalendarRow extends StatelessWidget {
     this.datasets,
     this.maxValue,
     this.onClick,
-  })  : dayContainers = List<Widget>.generate(
+  }) : dayContainers = List<Widget>.generate(
           7,
           // If current week has first day of the month and
           // the first day is not a sunday, it must have extra space on it.
@@ -129,15 +129,15 @@ class HeatMapCalendarRow extends StatelessWidget {
                           // Color the container with first value of colorsets
                           // and set opacity value to current day's datasets key
                           // devided by maxValue which is the maximum value of the month.
-                          ? colorsets?.values.first.withOpacity((datasets?[
-                                      DateTime(
+                          ? colorsets?.values.first.withValues(
+                              alpha: (datasets?[DateTime(
                                           startDate.year,
                                           startDate.month,
                                           startDate.day +
                                               i -
                                               (startDate.weekday % 7))] ??
-                                  1) /
-                              (maxValue ?? 1))
+                                      1) /
+                                  (maxValue ?? 1))
                           // Else if colorMode is ColorMode.Color.
                           //
                           // Get color value from colorsets which is filtered with DateTime value
@@ -150,8 +150,7 @@ class HeatMapCalendarRow extends StatelessWidget {
                                   startDate.day + i - (startDate.weekday % 7))])
                       : null,
                 ),
-        ),
-        super(key: key);
+        );
 
   @override
   Widget build(BuildContext context) {

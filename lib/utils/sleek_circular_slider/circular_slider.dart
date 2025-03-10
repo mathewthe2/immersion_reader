@@ -1,4 +1,4 @@
-library circular_slider;
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -31,7 +31,7 @@ class SleekCircularSlider extends StatefulWidget {
   }
 
   const SleekCircularSlider(
-      {Key? key,
+      {super.key,
       this.initialValue = 50,
       this.min = 0,
       this.max = 100,
@@ -41,8 +41,7 @@ class SleekCircularSlider extends StatefulWidget {
       this.onChangeEnd,
       this.innerWidget})
       : assert(min <= max),
-        assert(initialValue >= min && initialValue <= max),
-        super(key: key);
+        assert(initialValue >= min && initialValue <= max);
 
   @override
   State<SleekCircularSlider> createState() => _SleekCircularSliderState();

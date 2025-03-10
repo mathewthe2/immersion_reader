@@ -78,9 +78,8 @@ class _ReaderState extends State<Reader> {
                     color: snapshot.data!, // sync with reader color
                     child: SafeArea(
                         child: InAppWebView(
-                      initialOptions: InAppWebViewGroupOptions(
-                          crossPlatform: InAppWebViewOptions(
-                              cacheEnabled: true, incognito: false)),
+                      initialSettings: InAppWebViewSettings(
+                          cacheEnabled: true, incognito: false),
                       initialUrlRequest: URLRequest(
                         url: WebUri(
                           widget.initialUrl ??
@@ -100,8 +99,8 @@ class _ReaderState extends State<Reader> {
                               source: addFileJs);
                         }
                       },
-                      onLoadError: (controller, url, code, message) {
-                        debugPrint(message);
+                      onReceivedError: (controller, request, error) {
+                        debugPrint(error.description);
                       },
                       onReceivedHttpError: (controller, url, errorResponse) {
                         debugPrint(

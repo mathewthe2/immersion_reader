@@ -15,12 +15,12 @@ class HeatMapWeekText extends StatelessWidget {
   final Color? fontColor;
 
   const HeatMapWeekText({
-    Key? key,
+    super.key,
     this.margin,
     this.fontSize,
     this.size,
     this.fontColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

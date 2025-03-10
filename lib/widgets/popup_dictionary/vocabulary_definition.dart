@@ -33,8 +33,8 @@ class _VocabularyDefinitionState extends State<VocabularyDefinition> {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      ...widget.vocabulary.entries
-          .map((DictionaryEntry entry) => GestureDetector(
+      ...widget.vocabulary.entries.map((DictionaryEntry entry) =>
+          GestureDetector(
               onTap: () {
                 if (definitionsExpanded[entry] == null) {
                   // workaround when widget.vocabulary is updated but definitionExpanded is stall
@@ -58,7 +58,6 @@ class _VocabularyDefinitionState extends State<VocabularyDefinition> {
                                   definitionsExpanded[entry]!
                               ? null
                               : TextOverflow.ellipsis)))))
-          .toList()
     ]);
   }
 }

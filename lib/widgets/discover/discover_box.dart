@@ -31,8 +31,10 @@ class DiscoverBox extends StatelessWidget {
                   decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          CupertinoColors.darkBackgroundGray.withOpacity(0.2),
-                          CupertinoColors.darkBackgroundGray.withOpacity(0.4)
+                          CupertinoColors.darkBackgroundGray
+                              .withValues(alpha: 0.2),
+                          CupertinoColors.darkBackgroundGray
+                              .withValues(alpha: 0.4)
                         ],
                         begin: Alignment.bottomLeft,
                         end: Alignment.topRight,

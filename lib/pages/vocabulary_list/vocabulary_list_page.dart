@@ -101,7 +101,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                                           overflow: TextOverflow.ellipsis,
                                         )),
                                   )));
-                        }).toList()
+                        })
                       ])))
           ])),
         ]));

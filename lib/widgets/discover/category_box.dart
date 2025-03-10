@@ -27,7 +27,7 @@ class CategoryBox extends StatelessWidget {
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                          color: const Color(0xff4A80F0).withOpacity(0.3),
+                          color: const Color(0xff4A80F0).withValues(alpha: 0.3),
                           offset: const Offset(0, 4),
                           blurRadius: 12),
                     ]

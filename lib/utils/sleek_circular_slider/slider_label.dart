@@ -4,7 +4,7 @@ import 'appearance.dart';
 class SliderLabel extends StatelessWidget {
   final double value;
   final CircularSliderAppearance appearance;
-  const SliderLabel({Key? key, required this.value, required this.appearance}) : super(key: key);
+  const SliderLabel({super.key, required this.value, required this.appearance});
 
   @override
   Widget build(BuildContext context) {

@@ -108,11 +108,10 @@ class _BrowserState extends State<Browser> {
                       Expanded(
                           child: Stack(children: [
                         InAppWebView(
-                          initialOptions: InAppWebViewGroupOptions(
-                              crossPlatform: InAppWebViewOptions(
-                                  contentBlockers: contentBlockers,
-                                  cacheEnabled: true,
-                                  incognito: false)),
+                          initialSettings: InAppWebViewSettings(
+                              contentBlockers: contentBlockers,
+                              cacheEnabled: true,
+                              incognito: false),
                           initialUrlRequest: URLRequest(
                             url: WebUri(initialUrl),
                           ),

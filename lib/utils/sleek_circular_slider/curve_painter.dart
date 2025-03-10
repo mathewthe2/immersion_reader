@@ -1,4 +1,4 @@
-part of circular_slider;
+part of 'circular_slider.dart';
 
 class _CurvePainter extends CustomPainter {
   final double angle;
@@ -11,7 +11,10 @@ class _CurvePainter extends CustomPainter {
   late double radius;
 
   _CurvePainter(
-      {required this.appearance, this.angle = 30, required this.startAngle, required this.angleRange});
+      {required this.appearance,
+      this.angle = 30,
+      required this.startAngle,
+      required this.angleRange});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -135,7 +138,7 @@ class _CurvePainter extends CustomPainter {
     for (int i = 1; i <= repetitions; i++) {
       shadowPaint.strokeWidth = appearance.progressBarWidth + i * shadowStep;
       shadowPaint.color = appearance.shadowColor
-          .withOpacity(maxOpacity - (opacityStep * (i - 1)));
+          .withValues(alpha: maxOpacity - (opacityStep * (i - 1)));
       drawCircularArc(canvas: canvas, size: size, paint: shadowPaint);
     }
   }

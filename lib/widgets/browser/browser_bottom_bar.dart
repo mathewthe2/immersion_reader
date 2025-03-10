@@ -25,7 +25,7 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
         child: Icon(
           iconData,
           size: 28,
-          color: CupertinoColors.black.withOpacity(0.25),
+          color: CupertinoColors.black.withValues(alpha: 0.25),
         ));
   }
 
@@ -45,17 +45,18 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
             decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
-                  color: CupertinoColors.black.withOpacity(0.25),
+                  color: CupertinoColors.black.withValues(alpha: 0.25),
                 )
               ],
               border: Border.all(
-                  color: CupertinoColors.white.withOpacity(0.2), width: 1.0),
+                  color: CupertinoColors.white.withValues(alpha: 0.2),
+                  width: 1.0),
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  CupertinoColors.white.withOpacity(0.9),
-                  CupertinoColors.white.withOpacity(0.6)
+                  CupertinoColors.white.withValues(alpha: 0.9),
+                  CupertinoColors.white.withValues(alpha: 0.6)
                 ],
                 stops: const [0.0, 1.0],
               ),

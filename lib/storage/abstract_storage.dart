@@ -20,16 +20,16 @@ abstract class AbstractStorage {
   static Future<AbstractStorage?> create(Type? storageType) async {
     AbstractStorage? storage;
     switch (storageType) {
-      case BrowserStorage:
+      case const (BrowserStorage):
         storage = BrowserStorage();
         break;
-      case ProfileStorage:
+      case const (ProfileStorage):
         storage = ProfileStorage();
         break;
-      case SettingsStorage:
+      case const (SettingsStorage):
         storage = SettingsStorage();
         break;
-      case VocabularyListStorage:
+      case const (VocabularyListStorage):
         storage = VocabularyListStorage();
         break;
     }

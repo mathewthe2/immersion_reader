@@ -26,8 +26,6 @@ class _BookmarksSheetState extends State<BookmarksSheet> {
         break;
       case BrowserBookMarkType.folder:
         break;
-      default:
-        break;
     }
   }
 

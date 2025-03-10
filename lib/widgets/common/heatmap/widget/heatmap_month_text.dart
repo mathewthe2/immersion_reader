@@ -20,13 +20,13 @@ class HeatMapMonthText extends StatelessWidget {
   final EdgeInsets? margin;
 
   const HeatMapMonthText({
-    Key? key,
+    super.key,
     this.firstDayInfos,
     this.fontSize,
     this.fontColor,
     this.size,
     this.margin,
-  }) : super(key: key);
+  });
 
   /// The list of every month labels and fitted space.
   List<Widget> _labels() {
@@ -46,7 +46,9 @@ class HeatMapMonthText extends StatelessWidget {
         // Add Text without width margin if first week is end of the month.
         // Otherwise, add Text with width margin.
         items.add(
-          firstDayInfos!.length == 1 || (label == 0 && firstDayInfos![label] != firstDayInfos![label + 1])
+          firstDayInfos!.length == 1 ||
+                  (label == 0 &&
+                      firstDayInfos![label] != firstDayInfos![label + 1])
               ? _renderText(DateUtil.shortMonthLabel[firstDayInfos![label]])
               : Container(
                   width: (((size ?? 20) + (margin?.right ?? 2)) * 2),

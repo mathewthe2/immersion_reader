@@ -30,7 +30,7 @@ class BookWidget extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         child: ColoredBox(
                             color: CupertinoColors.darkBackgroundGray
-                                .withOpacity(0.3),
+                                .withValues(alpha: 0.3),
                             child: AspectRatio(
                                 aspectRatio: MediaQuery.of(context).size.width /
                                     (MediaQuery.of(context).size.height / 1.8),
@@ -49,8 +49,10 @@ class BookWidget extends StatelessWidget {
                   decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          CupertinoColors.darkBackgroundGray.withOpacity(0.4),
-                          CupertinoColors.darkBackgroundGray.withOpacity(0.5)
+                          CupertinoColors.darkBackgroundGray
+                              .withValues(alpha: 0.4),
+                          CupertinoColors.darkBackgroundGray
+                              .withValues(alpha: 0.5)
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -60,7 +62,7 @@ class BookWidget extends StatelessWidget {
                       boxShadow: [
                         BoxShadow(
                             color: const Color(0xff4A80F0)
-                                .withOpacity(isDarkMode() ? 0.2 : 0.4),
+                                .withValues(alpha: isDarkMode() ? 0.2 : 0.4),
                             offset: isDarkMode()
                                 ? const Offset(0, 3)
                                 : const Offset(5, 5),

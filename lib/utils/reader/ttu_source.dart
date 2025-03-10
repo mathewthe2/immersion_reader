@@ -27,11 +27,11 @@ class TtuSource {
       onLoadStop: (controller, url) async {
         controller.evaluateJavascript(source: getHistoryJs);
       },
-      onLoadError: (controller, url, code, message) {
-        debugPrint(message);
+      onReceivedError: (controller, request, error) {
+        debugPrint(error.description);
       },
-      onLoadHttpError: (controller, url, statusCode, description) {
-        debugPrint('$statusCode:$description');
+      onReceivedHttpError: (controller, request, errorResponse) {
+        debugPrint('${errorResponse.statusCode}:${errorResponse.data}');
       },
       onConsoleMessage: (controller, message) {
         late Map<String, dynamic> messageJson;

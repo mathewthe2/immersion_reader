@@ -74,7 +74,7 @@ class HeatMapColumn extends StatelessWidget {
   final int numDays;
 
   HeatMapColumn({
-    Key? key,
+    super.key,
     required this.startDate,
     required this.endDate,
     required this.colorMode,
@@ -118,12 +118,15 @@ class HeatMapColumn extends StatelessWidget {
                     // Color the container with first value of colorsets
                     // and set opacity value to current day's datasets key
                     // devided by maxValue which is the maximum value of the month.
-                    ? colorsets?.values.first.withOpacity((datasets?[DateTime(
-                                startDate.year,
-                                startDate.month,
-                                startDate.day + i - (startDate.weekday % 7))] ??
-                            1) /
-                        (maxValue ?? 1))
+                    ? colorsets?.values.first.withValues(
+                        alpha: (datasets?[DateTime(
+                                    startDate.year,
+                                    startDate.month,
+                                    startDate.day +
+                                        i -
+                                        (startDate.weekday % 7))] ??
+                                1) /
+                            (maxValue ?? 1))
                     // Else if colorMode is ColorMode.Color.
                     //
                     // Get color value from colorsets which is filtered with DateTime value
@@ -144,8 +147,7 @@ class HeatMapColumn extends StatelessWidget {
                     width: size ?? 42,
                     height: size ?? 42),
               )
-            : [],
-        super(key: key);
+            : [];
 
   @override
   Widget build(BuildContext context) {
