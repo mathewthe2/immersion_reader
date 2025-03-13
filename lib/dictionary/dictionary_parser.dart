@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'package:immersion_reader/widgets/settings/dictionary_settings.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_archive/flutter_archive.dart';
@@ -10,16 +12,20 @@ import './dictionary_meta_entry.dart';
 import './pitch_data.dart';
 
 // https://github.com/lrorpilla/jidoujisho/blob/e445b09ea8fa5df2bfae8a0d405aa1ba5fc32767/yuuna/lib/src/dictionary/formats/yomichan_dictionary_format.dart
-Future<UserDictionary> parseDictionary(File zipFile) async {
+Future<UserDictionary> parseDictionary(
+    {required File zipFile,
+    StreamController<(DictionaryImportStage, double)>?
+        progressController}) async {
   Directory workingDirectory = await FolderUtils.getWorkingFolder();
   try {
     await ZipFile.extractToDirectory(
         zipFile: zipFile,
         destinationDir: workingDirectory,
         onExtracting: (zipEntry, progress) {
-          debugPrint('progress: ${progress.toStringAsFixed(1)}%');
+          progressController?.add((DictionaryImportStage.extracting, progress));
           return ZipFileOperation.includeItem;
         });
+    progressController?.add((DictionaryImportStage.parsing, -1));
     final List<FileSystemEntity> entities = workingDirectory.listSync();
     final Iterable<File> files = entities.whereType<File>();
 
