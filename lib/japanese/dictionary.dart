@@ -75,6 +75,7 @@ class Dictionary {
   Future<List<Vocabulary>> getVocabularyBatch(
       List<DictionaryEntry> dictionaryEntries) async {
     Map<String, Vocabulary> vocabularyMap = {};
+    Set<String> meaningsSet = {};
     for (DictionaryEntry dictionaryEntry in dictionaryEntries) {
       List<Map<String, Object?>> rows = await japaneseDictionary!.rawQuery(
           'SELECT glossary From VocabGloss WHERE vocabId=? LIMIT $termLimit', [
@@ -84,7 +85,15 @@ class Dictionary {
       dictionaryEntry.meanings =
           rows.map((obj) => obj['glossary'] as String).toList();
       Vocabulary vocabulary = Vocabulary(entries: [dictionaryEntry]);
-      // to do: refactor to remove extra data in vocabulary
+
+      var meaningsKey = dictionaryEntry.meanings.join(
+          ""); // check repeated meanings by combined glossary (naive impl)
+      if (meaningsSet.contains(meaningsKey)) {
+        continue; // skip repeated meanings
+      } else {
+        meaningsSet.add(meaningsKey);
+      }
+
       vocabulary.tags = dictionaryEntry.meaningTags;
       vocabulary.id = vocabulary.uniqueId;
       vocabulary.expression = dictionaryEntry.term;

@@ -118,4 +118,144 @@ Future main() async {
     expect(vocabularyListResult.first.reading, sampleReading);
     await db.close();
   });
+
+  // ["反芻","はんすう","n vs vt","",-201,["turning over in one's mind","thinking over (something)","pondering","musing","rumination (about a subject)"],1481160,""],
+  // ["反すう","はんすう","n vs vt","",-10200,["rumination","regurgitation","chewing the cud"],1481160,""],
+  //["反すう","はんすう","n vs vt","",-10201,["turning over in one's mind","thinking over (something)","pondering","musing","rumination (about a subject)"],1481160,""]
+  test('Repeated Glossary Test', () async {
+    var db = await openDatabase(inMemoryDatabasePath, version: 1,
+        onCreate: (db, version) async {
+      Batch batch = await SqlRepository.insertTablesForDatabase(
+          db, SettingsStorage.databaseName);
+      await batch.commit();
+    });
+    // Setup Dictionary
+    await db.insert('Dictionary', {'id': 1, 'title': 'JMDict', 'enabled': 1});
+    // Add Vocabulary
+    const Map<String, dynamic> vocab1 = {
+      'id': 1,
+      'dictionaryId': 1,
+      'expression': '反芻',
+      'reading': 'はんすう',
+      'sequence': 1481160,
+      'popularity': -200,
+      'meaningTags': 'n vs vt',
+      'termTags': '',
+    };
+
+    // Meanings
+    const meanings1 = ['rumination', 'regurgitation', 'chewing the cud'];
+
+    List<Map<String, dynamic>> vocabGlosses1 = meanings1
+        .map((meaning) => {
+              'vocabId': vocab1["id"],
+              'glossary': meaning,
+              'dictionaryId': 1,
+            })
+        .toList();
+    await db.insert('Vocab', vocab1);
+    for (Map<String, dynamic> gloss in vocabGlosses1) {
+      await db.insert('VocabGloss', gloss);
+    }
+
+    const Map<String, dynamic> vocab2 = {
+      'id': 2,
+      'dictionaryId': 1,
+      'expression': '反芻',
+      'reading': 'はんすう',
+      'sequence': 1481160,
+      'popularity': -201,
+      'meaningTags': 'n vs vt',
+      'termTags': '',
+    };
+
+    // Meanings
+    const meanings2 = [
+      'turning over in one\'s mind',
+      'thinking over (something)',
+      'pondering',
+      'musing',
+      'rumination (about a subject)'
+    ];
+
+    List<Map<String, dynamic>> vocabGlosses2 = meanings2
+        .map((meaning) => {
+              'vocabId': vocab2["id"],
+              'glossary': meaning,
+              'dictionaryId': 1,
+            })
+        .toList();
+    await db.insert('Vocab', vocab2);
+    for (Map<String, dynamic> gloss in vocabGlosses2) {
+      await db.insert('VocabGloss', gloss);
+    }
+
+    const Map<String, dynamic> vocab3 = {
+      'id': 3,
+      'dictionaryId': 1,
+      'expression': '反すう',
+      'reading': 'はんすう',
+      'sequence': 1481160,
+      'popularity': -10200,
+      'meaningTags': 'n vs vt',
+      'termTags': '',
+    };
+
+    // Meanings
+    const meanings3 = ['rumination', 'regurgitation', 'chewing the cud'];
+
+    List<Map<String, dynamic>> vocabGlosses3 = meanings3
+        .map((meaning) => {
+              'vocabId': vocab3["id"],
+              'glossary': meaning,
+              'dictionaryId': 1,
+            })
+        .toList();
+    await db.insert('Vocab', vocab3);
+    for (Map<String, dynamic> gloss in vocabGlosses3) {
+      await db.insert('VocabGloss', gloss);
+    }
+
+    const Map<String, dynamic> vocab4 = {
+      'id': 4,
+      'dictionaryId': 1,
+      'expression': '反すう',
+      'reading': 'はんすう',
+      'sequence': 1481160,
+      'popularity': -10201,
+      'meaningTags': 'n vs vt',
+      'termTags': '',
+    };
+
+    // Meanings
+    const meanings4 = [
+      'turning over in one\'s mind',
+      'thinking over (something)',
+      'pondering',
+      'musing',
+      'rumination (about a subject)'
+    ];
+
+    List<Map<String, dynamic>> vocabGlosses4 = meanings4
+        .map((meaning) => {
+              'vocabId': vocab4["id"],
+              'glossary': meaning,
+              'dictionaryId': 1,
+            })
+        .toList();
+    await db.insert('Vocab', vocab4);
+    for (Map<String, dynamic> gloss in vocabGlosses4) {
+      await db.insert('VocabGloss', gloss);
+    }
+
+    SettingsStorage settingsStorage = SettingsStorage();
+    settingsStorage.database = db;
+
+    var text = '反芻';
+    Translator translator = Translator.create(settingsStorage);
+    List<Vocabulary> vocabularyListResult = await translator.findTerm(text);
+    expect(vocabularyListResult.first.entries.length,
+        2); // 2 repeated entries are skipped
+    await db.close();
+  });
 }
