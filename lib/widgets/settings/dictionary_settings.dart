@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
@@ -7,6 +8,7 @@ import 'package:immersion_reader/data/settings/dictionary_setting.dart';
 import 'package:immersion_reader/dictionary/dictionary_parser.dart';
 import 'package:immersion_reader/dictionary/user_dictionary.dart';
 import 'package:immersion_reader/utils/system_dialog.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 class DictionarySettings extends StatefulWidget {
   const DictionarySettings({super.key});
@@ -15,15 +17,50 @@ class DictionarySettings extends StatefulWidget {
   State<DictionarySettings> createState() => _DictionarySettingsState();
 }
 
+enum DictionaryImportStage {
+  extracting,
+  parsing,
+  dictionaryCreation,
+  vocabInsertion,
+  frequencyInsertion,
+  pitchInsertion,
+  savingData,
+}
+
+String importStageToString(DictionaryImportStage progress) {
+  switch (progress) {
+    case DictionaryImportStage.extracting:
+      return "Extracting dictionary";
+    case DictionaryImportStage.parsing:
+      return "Parsing dictionary";
+    case DictionaryImportStage.dictionaryCreation:
+      return "Creating dictionary";
+    case DictionaryImportStage.vocabInsertion:
+      return "Inserting vocab data";
+    case DictionaryImportStage.frequencyInsertion:
+      return "Inserting frequency data";
+    case DictionaryImportStage.pitchInsertion:
+      return "Inserting pitch data";
+    case DictionaryImportStage.savingData:
+      return "Saving to database...";
+  }
+}
+
 class _DictionarySettingsState extends State<DictionarySettings> {
   List<bool> enabledDictionaries = [];
-  bool isProcessingDictionary = false;
   bool editMode = false;
+
+  StreamController<(DictionaryImportStage, double)> progressController =
+      StreamController<(DictionaryImportStage, double)>();
 
   void getEnabledDictionaries(List<DictionarySetting> dictSettings) {
     enabledDictionaries = dictSettings
         .map((DictionarySetting dictSetting) => dictSetting.enabled)
         .toList();
+  }
+
+  void resetProgressController() {
+    progressController = StreamController<(DictionaryImportStage, double)>();
   }
 
   void requestDictionaryZipFile() async {
@@ -32,14 +69,15 @@ class _DictionarySettingsState extends State<DictionarySettings> {
     );
 
     if (file != null) {
-      setState(() {
-        isProcessingDictionary = true;
-      });
       File zipFile = File(file.path);
-      UserDictionary userDictionary = await parseDictionary(zipFile);
-      await SettingsManager().settingsStorage!.addDictionary(userDictionary);
+      UserDictionary userDictionary = await parseDictionary(
+          zipFile: zipFile, progressController: progressController);
+
+      await SettingsManager().settingsStorage!.addDictionary(
+          userDictionary: userDictionary,
+          progressController: progressController);
+      resetProgressController();
       setState(() {
-        isProcessingDictionary = false;
         editMode = false;
       });
     } else {
@@ -48,23 +86,22 @@ class _DictionarySettingsState extends State<DictionarySettings> {
   }
 
   void removeDictionary(int dictionaryId) async {
-    setState(() {
-      isProcessingDictionary = true;
-    });
+    SmartDialog.showLoading(msg: "Removing dictionary");
     await SettingsManager().settingsStorage!.removeDictionary(dictionaryId);
     setState(() {
-      isProcessingDictionary = false;
+      editMode = false;
     });
+    SmartDialog.dismiss();
   }
 
   @override
   Widget build(BuildContext context) {
-      Color backgroundColor = CupertinoDynamicColor.resolve(
+    Color backgroundColor = CupertinoDynamicColor.resolve(
         const CupertinoDynamicColor.withBrightness(
             color: CupertinoColors.systemGroupedBackground,
             darkColor: CupertinoColors.black),
         context);
-        
+
     return CupertinoPageScaffold(
         backgroundColor: backgroundColor,
         navigationBar: CupertinoNavigationBar(
@@ -97,11 +134,31 @@ class _DictionarySettingsState extends State<DictionarySettings> {
               if (snapshot.hasData) {
                 getEnabledDictionaries(snapshot.data!);
                 return SafeArea(
-                  child: 
-                  SingleChildScrollView(
-                              child: Column(children:
-                            
-                  [CupertinoListSection(
+                    child: SingleChildScrollView(
+                        child: Column(children: [
+                  StreamBuilder<(DictionaryImportStage, double)>(
+                    stream: progressController.stream,
+                    builder: (context, streamSnapshot) {
+                      if (streamSnapshot.connectionState ==
+                          ConnectionState.active) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(height: 20),
+                            streamSnapshot.data!.$2 >=
+                                    0 // stages with no progress value have negative progress
+                                ? Text(
+                                    '${importStageToString(streamSnapshot.data!.$1)}: ${streamSnapshot.data!.$2.round()}%')
+                                : Text(importStageToString(
+                                    streamSnapshot.data!.$1))
+                          ],
+                        );
+                      } else {
+                        return Container(); // No progress to show initially
+                      }
+                    },
+                  ),
+                  CupertinoListSection(
                       header: const Text('Dictionary'),
                       children: [
                         ...snapshot.data!.asMap().entries.map((entry) {
@@ -135,11 +192,6 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                                         setState(() {});
                                       }));
                         }),
-                        if (isProcessingDictionary)
-                          const CupertinoActivityIndicator(
-                            animating: true,
-                            radius: 24,
-                          )
                       ]),
                 ])));
               } else {

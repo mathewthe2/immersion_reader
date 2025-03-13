@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:immersion_reader/data/search/search_history_item.dart';
 import 'package:immersion_reader/storage/abstract_storage.dart';
+import 'package:immersion_reader/widgets/settings/dictionary_settings.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 import 'package:immersion_reader/data/settings/settings_data.dart';
@@ -194,7 +196,11 @@ class SettingsStorage extends AbstractStorage {
     }
   }
 
-  Future<void> addDictionary(UserDictionary userDictionary) async {
+  Future<void> addDictionary(
+      {required UserDictionary userDictionary,
+      StreamController<(DictionaryImportStage, double)>?
+          progressController}) async {
+    progressController?.add((DictionaryImportStage.dictionaryCreation, -1));
     int dictionaryId = await database!
         .rawInsert('INSERT INTO Dictionary(title, enabled) VALUES(?, ?)', [
       userDictionary.dictionaryName,
@@ -202,7 +208,12 @@ class SettingsStorage extends AbstractStorage {
     ]);
     int lastRecordId = await getLastRecordId();
     Batch batch = database!.batch();
-    for (DictionaryEntry entry in userDictionary.dictionaryEntries) {
+    for (final (int index, DictionaryEntry entry)
+        in userDictionary.dictionaryEntries.indexed) {
+      progressController?.add((
+        DictionaryImportStage.vocabInsertion,
+        index / userDictionary.dictionaryEntries.length * 100
+      ));
       lastRecordId += 1;
       batch.rawInsert(
           'INSERT INTO Vocab(id, dictionaryId, expression, reading, meaningTags, termTags, popularity, sequence) VALUES(?, ?, ?, ?, ?, ?, ?, ?)',
@@ -222,8 +233,12 @@ class SettingsStorage extends AbstractStorage {
             [meaning, lastRecordId, dictionaryId]);
       }
     }
-    for (DictionaryMetaEntry metaEntry
-        in userDictionary.dictionaryMetaEntries) {
+    for (final (int index, DictionaryMetaEntry metaEntry)
+        in userDictionary.dictionaryMetaEntries.indexed) {
+      progressController?.add((
+        DictionaryImportStage.frequencyInsertion,
+        index / userDictionary.dictionaryMetaEntries.length * 100
+      ));
       if (metaEntry.frequency != null) {
         batch.rawInsert(
             'INSERT INTO VocabFreq(expression, reading, frequency, dictionaryId) VALUES(?, ?, ?, ?)',
@@ -235,7 +250,11 @@ class SettingsStorage extends AbstractStorage {
             ]);
       }
       if (metaEntry.pitches != null) {
-        for (PitchData pitch in metaEntry.pitches!) {
+        for (final (int index, PitchData pitch) in metaEntry.pitches!.indexed) {
+          progressController?.add((
+            DictionaryImportStage.pitchInsertion,
+            index / metaEntry.pitches!.length * 100
+          ));
           batch.rawInsert(
               'INSERT INTO VocabPitch(expression, reading, pitch, dictionaryId) VALUES(?, ?, ?, ?)',
               [
@@ -247,6 +266,7 @@ class SettingsStorage extends AbstractStorage {
         }
       }
     }
+    progressController?.add((DictionaryImportStage.savingData, -1));
     await batch.commit();
     if (dictionarySettingCache != null) {
       dictionarySettingCache!.add(DictionarySetting(
