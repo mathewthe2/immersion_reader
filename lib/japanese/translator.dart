@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:immersion_reader/dictionary/frequency_tag.dart';
 import 'package:immersion_reader/japanese/frequency.dart';
 import 'package:immersion_reader/japanese/search_term.dart';
@@ -18,7 +20,6 @@ class TranslatorDeinflection {
   int rules;
   List<String> reasons;
   List<DictionaryEntry> databaseEntries;
-
   TranslatorDeinflection(
       {required this.originalText,
       required this.transformedText,
@@ -46,6 +47,9 @@ class Translator {
     _singleton.settingsStorage = settingsStorage;
     return _singleton;
   }
+
+  static const int longestScanLength =
+      30; // assuming longest deinflected entry is < 30 characters
 
   Future<List<Vocabulary>> _findGlossaryTerms(String text,
       {DictionaryOptions? options}) async {
@@ -123,6 +127,7 @@ class Translator {
       DictionaryOptions? options}) async {
     options ??= DictionaryOptions();
     List<TranslatorDeinflection> deinflections = [];
+    text = text.substring(0, min(longestScanLength, text.length));
     for (int i = text.length; i > 0; i--) {
       String term = text.substring(0, i);
       List<Deinflection> dfs = deinflector.deinflect(term);
@@ -172,7 +177,8 @@ class Translator {
         // match corresponding deinflector with transformed text here
         // take the longest transformed text
         // further improvement: still edge cases to be fixed
-        if (deinflection.deinflectedText == entry.term &&
+        if ([entry.term, entry.reading]
+                .contains(deinflection.deinflectedText) &&
             (entry.transformedText == null ||
                 deinflection.transformedText.length >
                     entry.transformedText!.length)) {
