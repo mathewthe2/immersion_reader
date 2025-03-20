@@ -54,9 +54,6 @@ class _BrowserCookieCreatePageState extends State<BrowserCookieCreatePage> {
       isSecure: true,
     );
     widget.refreshCookieListScreen();
-    if (context.mounted) {
-      Navigator.pop(context);
-    }
   }
 
   Widget cookieEditField(

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/data/browser/browser_bookmark.dart';
 import 'package:immersion_reader/managers/browser/browser_manager.dart';
 
@@ -22,7 +23,7 @@ class _BookmarksSheetState extends State<BookmarksSheet> {
       case BrowserBookMarkType.link:
         widget.webViewController!
             .loadUrl(urlRequest: URLRequest(url: WebUri(bookmark.url)));
-        Navigator.pop(context);
+        SmartDialog.dismiss();
         break;
       case BrowserBookMarkType.folder:
         break;

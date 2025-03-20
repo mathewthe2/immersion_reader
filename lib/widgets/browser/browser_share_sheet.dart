@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter_archive/flutter_archive.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:immersion_reader/utils/system_dialog.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:immersion_reader/data/browser/browser_bookmark.dart';
@@ -62,18 +62,16 @@ class _BrowserShareSheetState extends State<BrowserShareSheet> {
       } catch (e) {
         debugPrint(e.toString());
       }
-      if (context.mounted) {
-        if (_htmlFiles.isEmpty) {
-          showInfoDialog(context, 'No HTML files founds in zipped file.');
+
+      if (_htmlFiles.isEmpty) {
+        SmartDialog.showNotify(
+            msg: 'No HTML files founds in zipped file.',
+            notifyType: NotifyType.failure);
+      } else {
+        if (_htmlFiles.length == 1) {
+          loadHTMLFile(_htmlFiles.first);
         } else {
-          if (_htmlFiles.length == 1) {
-            loadHTMLFile(_htmlFiles.first);
-          } else {
-            showCupertinoModalPopup(
-              context: context,
-              builder: _selectHTMLModalBuilder,
-            );
-          }
+          SmartDialog.show(builder: _selectHTMLModalBuilder);
         }
       }
     }
@@ -84,11 +82,11 @@ class _BrowserShareSheetState extends State<BrowserShareSheet> {
     await widget.webViewController?.loadUrl(
         urlRequest:
             URLRequest(url: WebUri.uri(Uri(scheme: 'file', path: path))));
-    if (context.mounted) Navigator.pop(context);
+    SmartDialog.dismiss();
   }
 
   Future<void> handleLoadPDF() async {
-    Navigator.pop(context);
+    SmartDialog.dismiss();
     await widget.webViewController
         ?.loadUrl(urlRequest: URLRequest(url: WebUri(pdfViewerUrl)));
   }
@@ -101,7 +99,7 @@ class _BrowserShareSheetState extends State<BrowserShareSheet> {
               child: Text(htmlPath),
               onPressed: () {
                 loadHTMLFile(htmlPath);
-                Navigator.pop(context);
+                SmartDialog.dismiss();
               },
             ))
       ],
@@ -122,7 +120,7 @@ class _BrowserShareSheetState extends State<BrowserShareSheet> {
             title: const Text("Add Bookmark"),
             onTap: () {
               handleAddBookmark();
-              Navigator.pop(context);
+              SmartDialog.dismiss();
             },
             trailing: Icon(CupertinoIcons.book, color: textColor),
           ),
