@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/extensions/string_extension.dart';
 import 'package:immersion_reader/utils/system_dialog.dart';
 
@@ -150,7 +151,7 @@ class _BrowserCookieEditPageState extends State<BrowserCookieEditPage> {
                     widget.cookieManager.deleteCookie(
                         url: widget.url, name: widget.cookie.name);
                     widget.refreshCookieListScreen();
-                    Navigator.pop(context);
+                    SmartDialog.dismiss();
                   });
                 },
                 padding: const EdgeInsets.all(0.0),

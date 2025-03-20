@@ -29,7 +29,6 @@ class TtuSource {
         var isMigrated = await SettingsManager().getIsMigratedFromIndexedDb();
         if (isMigrated) {
           books = await BookManager().getBooks();
-          print(books);
         } else {
           controller.evaluateJavascript(
               source:

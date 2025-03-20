@@ -13,16 +13,16 @@ Map<String, Map<String, String>> acknowledgements = {
     'flutter_inappwebview':
         'https://github.com/pichillilorenzo/flutter_inappwebview',
     'flutter_archive': 'https://github.com/kineapps/flutter_archive',
-    'flutter_file_picker':
-        'https://github.com/miguelpruivo/flutter_file_picker',
+    'lean_file_picker': 'https://github.com/perron2/lean-file-picker',
     'flutter_slidable': 'https://github.com/letsar/flutter_slidable',
+    'flutter_smart_dialog':
+        'https://github.com/fluttercandies/flutter_smart_dialog',
     'flutter_svg': 'https://github.com/dnfield/flutter_svg',
     'font_awesome_flutter':
         'https://github.com/fluttercommunity/font_awesome_flutter',
     'RubyText': 'https://github.com/YeungKC/RubyText',
     'KanaKit': 'https://github.com/jeroen-meijer/kana_kit',
     'local_assets_server': 'https://github.com/lesnitsky/local_assets_server',
-    'modal_bottom_sheet': 'https://github.com/jamesblasco/modal_bottom_sheet',
     'share_plus': 'https://github.com/fluttercommunity/community',
     'sqflite': 'https://github.com/tekartik/sqflite/tree/master/sqflite',
     'sqflite_migration': 'https://github.com/flutterings/sqflite_migration',

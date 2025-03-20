@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/widgets/browser/bookmarks_sheet.dart';
 import 'package:immersion_reader/widgets/browser/settings/browser_settings_sheet.dart';
 import 'package:immersion_reader/widgets/browser/browser_share_sheet.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 
 class BrowserBottomBar extends StatefulWidget {
@@ -71,51 +71,41 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                   () => widget.webViewController?.goForward()),
               toolbarIconButton(
                   CupertinoIcons.tray,
-                  () => showCupertinoModalBottomSheet(
-                      context: context,
-                      useRootNavigator: true,
-                      expand: false,
-                      builder: (context) => SafeArea(
-                          child: Container(
-                              color: backgroundColor,
-                              height: MediaQuery.of(context).size.height * .40,
-                              child: BrowserShareSheet(
-                                  webViewController:
-                                      widget.webViewController))))),
+                  () => SmartDialog.show(
+                      alignment: Alignment.bottomCenter,
+                      builder: (context) => Container(
+                          color: backgroundColor,
+                          height: MediaQuery.of(context).size.height * .40,
+                          child: BrowserShareSheet(
+                              webViewController: widget.webViewController)))),
               toolbarIconButton(
                   CupertinoIcons.book,
-                  () => showCupertinoModalBottomSheet(
-                      context: context,
-                      useRootNavigator: true,
-                      expand: false,
-                      builder: (context) => SafeArea(
-                          child: Container(
-                              color: backgroundColor,
-                              height: MediaQuery.of(context).size.height * .40,
-                              child: BookmarksSheet(
-                                  webViewController:
-                                      widget.webViewController))))),
+                  () => SmartDialog.show(
+                      alignment: Alignment.bottomCenter,
+                      builder: (context) => Container(
+                          color: backgroundColor,
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height * .40,
+                          child: BookmarksSheet(
+                              webViewController: widget.webViewController)))),
               toolbarIconButton(
                   CupertinoIcons.settings_solid,
-                  () => showCupertinoModalBottomSheet(
-                      context: context,
-                      useRootNavigator: true,
-                      expand: true,
-                      builder: (context) => Navigator(
-                          onGenerateRoute: (_) => SwipeablePageRoute(
-                              builder: (context2) => Builder(
-                                  builder: (context3) => CupertinoPageScaffold(
-                                      backgroundColor: backgroundColor,
-                                      child: GestureDetector(
-                                        child: BrowserSettingsSheet(
-                                            webViewController:
-                                                widget.webViewController,
-                                            notifier: widget.notifier),
-                                        onTap: () {
-                                          // context2 or context3 will return the Navigator inside the modal
-                                          Navigator.pop(context);
-                                        },
-                                      )))))))
+                  () => SmartDialog.show(
+                      alignment: Alignment.bottomCenter,
+                      builder: (context) => SizedBox(
+                          height: MediaQuery.of(context).size.height * .70,
+                          child: Navigator(
+                              onGenerateRoute: (_) => SwipeablePageRoute(
+                                  builder: (context2) => Builder(
+                                      builder: (context3) =>
+                                          CupertinoPageScaffold(
+                                              backgroundColor: backgroundColor,
+                                              child: GestureDetector(
+                                                child: BrowserSettingsSheet(
+                                                    webViewController: widget
+                                                        .webViewController,
+                                                    notifier: widget.notifier),
+                                              ))))))))
             ],
           )
         ]));

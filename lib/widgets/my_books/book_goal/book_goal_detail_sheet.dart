@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
 import 'package:immersion_reader/widgets/common/divider.dart';
 import 'package:immersion_reader/dto/profile/profile_daily_progress.dart';
@@ -42,7 +43,7 @@ class _BookGoalDetailSheetState extends State<BookGoalDetailSheet> {
           child: Padding(
               padding: const EdgeInsets.fromLTRB(0, 10, 10, 0),
               child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
+                  onTap: () => SmartDialog.dismiss(),
                   child: const Icon(
                       size: 22,
                       CupertinoIcons.xmark_circle_fill,
