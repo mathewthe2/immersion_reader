@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/profile/profile_content.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
+import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/utils/system_ui.dart';
 import 'package:immersion_reader/widgets/reader/highlight_controller.dart';
@@ -87,6 +88,7 @@ class _ReaderState extends State<Reader> {
                         ),
                       ),
                       onWebViewCreated: (controller) {
+                        ReaderJsManager.setupController(controller);
                         webViewController = controller;
                       },
                       onLoadStop: (controller, uri) async {

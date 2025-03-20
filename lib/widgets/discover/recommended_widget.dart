@@ -7,8 +7,7 @@ import 'package:immersion_reader/widgets/my_books/book_widget.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 
 class RecommendedWidget extends StatelessWidget {
-  const RecommendedWidget(
-      {super.key});
+  const RecommendedWidget({super.key});
 
   Widget headlineWidget(String title, IconData iconData, Color textColor) {
     return Padding(
@@ -47,7 +46,7 @@ class RecommendedWidget extends StatelessWidget {
                 ...readAlongCatalog.asMap().entries.map((entry) => BookWidget(
                     width: 130,
                     book: entry.value,
-                    onTap: (mediaIdentifier) {
+                    onTap: (contentUrl) {
                       Navigator.push(
                           context,
                           SwipeablePageRoute(
@@ -55,7 +54,7 @@ class RecommendedWidget extends StatelessWidget {
                               backGestureDetectionWidth: 25,
                               builder: (context) {
                                 return Browser(
-                                    initialUrl: mediaIdentifier,
+                                    initialUrl: contentUrl,
                                     hasUserControls: false);
                               }));
                     }))
@@ -70,7 +69,7 @@ class RecommendedWidget extends StatelessWidget {
                 ...audioBookCatalog.asMap().entries.map((entry) => BookWidget(
                     width: 130,
                     book: entry.value,
-                    onTap: (mediaIdentifier) {
+                    onTap: (contentUrl) {
                       Navigator.push(
                           context,
                           SwipeablePageRoute(
@@ -78,7 +77,7 @@ class RecommendedWidget extends StatelessWidget {
                               backGestureDetectionWidth: 25,
                               builder: (context) {
                                 return Browser(
-                                    initialUrl: mediaIdentifier,
+                                    initialUrl: contentUrl,
                                     hasUserControls: false);
                               }));
                     }))

@@ -17,5 +17,14 @@ const String settingsStorageSQLString = '''
 
 const List<String> settingsStorageMigrations = [
   'CREATE TABLE DictionaryHistory (id INTEGER PRIMARY KEY, date TEXT, query TEXT UNIQUE, vocabId INTEGER, kanjiId INTEGER, dictionaryId INTEGER, vocabJson TEXT, kanjiJson TEXT)', // add dictionary search history
-  'CREATE INDEX index_DictionaryHistory_date ON DictionaryHistory(date)' // add index for dictionary history for ordering
+  'CREATE INDEX index_DictionaryHistory_date ON DictionaryHistory(date)', // add index for dictionary history for ordering
+  'CREATE TABLE Books (id INTEGER PRIMARY KEY, title TEXT, lastReadTime TEXT, authorId TEXT, elementHtml TEXT, styleSheet TEXT, coverImagePrefix TEXT, coverImageData BLOB, hasThumb INTEGER)',
+  'CREATE TABLE BookSections (id INTEGER PRIMARY KEY, bookId INTEGER, reference TEXT, charactersWeight INTEGER, label TEXT, startCharacter INTEGER, characters INTEGER, parentChapter TEXT, FOREIGN KEY(bookId) REFERENCES Books(id))',
+  'CREATE INDEX index_BookSections_bookId ON BookSections(bookId),',
+  'CREATE TABLE BookBlobs (id INTEGER PRIMARY KEY, bookId INTEGER, key TEXT, prefix TEXT, data BLOB, FOREIGN KEY(bookId) REFERENCES Books(id))',
+  'CREATE INDEX index_BookBlobs_bookId ON BookBlobs(bookId)',
+  'CREATE TABLE BookBookmarks (id INTEGER PRIMARY KEY, bookId INTEGER UNIQUE, exploredCharCount INTEGER, progress REAL, FOREIGN KEY(bookId) REFERENCES Books(id))',
+  'CREATE INDEX index_BookBookmarks_bookId ON BookBookmarks(bookId)',
+  'CREATE INDEX index_books_title ON Books (title)', // sort books basd on title
+  'CREATE INDEX index_books_lastReadTime ON Books (lastReadTime)',
 ];

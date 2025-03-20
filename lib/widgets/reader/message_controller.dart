@@ -11,7 +11,6 @@ class MessageController {
   int? lastTimestamp;
   bool hasShownAddedDialog = false;
   bool hasInjectedPopupJs = false;
-  bool isReadingBook = false;
   VoidCallback? exitCallback;
   VoidCallback? readerAudioCallback;
   Function(String javascript)? evaluateJavascript;
@@ -76,30 +75,10 @@ class MessageController {
               {
                 int index = messageJson['index'];
                 String text = messageJson['text'];
-                // print(message.message);
                 PopupDictionary.create(
                         highlightController: HighlightController(
                             evaluateJavascript: evaluateJavascript))
                     .showVocabularyList(text, index);
-                break;
-              }
-            case 'load-book':
-              {
-                int bookId = messageJson['bookId'];
-                String title = messageJson['title'];
-                int? totalCharacters = messageJson['bookCharCount'];
-                ReaderSessionManager().start(
-                    key: bookId.toString(),
-                    title: title,
-                    contentLength: totalCharacters);
-                isReadingBook = true;
-                break;
-              }
-            case 'load-manager':
-              {
-                ReaderSessionManager().stop();
-                PopupDictionary.create().dismissPopupDictionary();
-                isReadingBook = false;
                 break;
               }
             case 'content-display-change':

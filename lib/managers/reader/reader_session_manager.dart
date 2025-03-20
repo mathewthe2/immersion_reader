@@ -5,17 +5,19 @@ class ReaderSessionManager {
   late String contentType;
   ProfileContent? currentProfileContent;
 
-  static final ReaderSessionManager _singleton = ReaderSessionManager._internal();
+  static final ReaderSessionManager _singleton =
+      ReaderSessionManager._internal();
   ReaderSessionManager._internal();
 
   factory ReaderSessionManager.createSession(String contentType) {
     _singleton.contentType = contentType;
     return _singleton;
   }
-  
+
   factory ReaderSessionManager() => _singleton;
 
-  void start({required String key, required String title, int? contentLength}) async {
+  void start(
+      {required String key, required String title, int? contentLength}) async {
     bool isSameContent = currentProfileContent != null &&
         currentProfileContent!.key == key &&
         currentProfileContent!.title == title;
@@ -23,8 +25,13 @@ class ReaderSessionManager {
       return;
     }
     currentProfileContent ??= ProfileContent(
-        key: key, title: title, type: contentType, contentLength: contentLength, lastOpened: DateTime.now());
-    int? contentId = await ProfileManager().startSession(currentProfileContent!);
+        key: key,
+        title: title,
+        type: contentType,
+        contentLength: contentLength,
+        lastOpened: DateTime.now());
+    int? contentId =
+        await ProfileManager().startSession(currentProfileContent!);
     if (contentId != null) {
       currentProfileContent!.id = contentId;
     }
@@ -36,6 +43,9 @@ class ReaderSessionManager {
   }
 
   void updateProgressOfCurrentContent(int currentPosition) {
-    ProfileManager().updateProfileContentPosition(currentProfileContent!, currentPosition);
+    if (currentProfileContent != null) {
+      ProfileManager().updateProfileContentPosition(
+          currentProfileContent!, currentPosition);
+    }
   }
 }

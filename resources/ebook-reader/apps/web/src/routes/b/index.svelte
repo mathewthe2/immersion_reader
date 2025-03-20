@@ -64,6 +64,8 @@
   } from '$lib/components/book-reader/book-toc/book-toc';
   import { clickOutside } from '$lib/functions/use-click-outside';
   import { onKeydownReader } from './on-keydown-reader';
+  import { onMount } from 'svelte';
+  import { Section } from '$lib/data/database/books-db/versions/v3/books-db-v3';
 
   let showHeader = true;
   let isBookmarkScreen = false;
@@ -86,7 +88,7 @@
   );
 
   const rawBookData$ = bookId$.pipe(
-    switchMap((id) => database.getData(id)),
+    switchMap((id) => database.getBookById(id)),
     share()
   );
 
@@ -100,9 +102,9 @@
   );
 
   const initBookmarkData$ = rawBookData$.pipe(
-    tap((rawBookData) => {
+    tap((rawBookData: any) => {
       if (!rawBookData) return;
-      bookmarkData = database.getBookmark(rawBookData.id);
+      bookmarkData = database.getBookmarkByBookId(rawBookData.id);
     }),
     reduceToEmptyString()
   );
@@ -119,18 +121,25 @@
   );
 
   const notifyImmersionReader$ = rawBookData$.pipe(
-    tap((rawBookData) => {
+    tap((rawBookData: any) => {
       if (!rawBookData) return;
-      console.log(
-        JSON.stringify({
-          bookId: rawBookData.id,
-          title: rawBookData.title,
-          bookCharCount: rawBookData.sections
-            ? rawBookData.sections.reduce((sum, section) => sum + (section.characters || 0), 0)
-            : null,
-          messageType: 'load-book'
-        })
-      );
+      if (window.flutter_inappwebview != null) {
+        const bookData = { ...rawBookData, blobs: null };
+        window.flutter_inappwebview?.callHandler('onLoadBook', bookData);
+      }
+      // console.log(
+      //   JSON.stringify({
+      //     bookId: rawBookData.id,
+      //     title: rawBookData.title,
+      //     bookCharCount: rawBookData.sections
+      //       ? rawBookData.sections.reduce(
+      //           (sum: number, section: Section) => sum + (section.characters || 0),
+      //           0
+      //         )
+      //       : null,
+      //     messageType: 'load-book'
+      //   })
+      // );
     }),
     reduceToEmptyString()
   );
@@ -219,7 +228,7 @@
     if (!bookId || !bookmarkManager) return;
 
     const data = bookmarkManager.formatBookmarkData(bookId);
-    await database.putBookmark(data);
+    await database.setBookmark(data);
     bookmarkData = Promise.resolve(data);
   }
 

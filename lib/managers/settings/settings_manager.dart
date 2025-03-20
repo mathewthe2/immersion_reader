@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:collection/collection.dart';
+import 'package:immersion_reader/data/settings/reader_setting.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -182,10 +183,23 @@ class SettingsManager {
     return data.appearanceSetting.readerBackgroundColor;
   }
 
+  // this is invoked when user changes reader background in ttu
   Future<void> setReaderBackgroundColor(String readerBackgroundColor) async {
     await settingsStorage?.changeConfigSettings(
         AppearanceSetting.readerThemeKey, readerBackgroundColor,
         onSuccessCallback: () => settingsStorage!.settingsCache!
             .appearanceSetting.readerThemeString = readerBackgroundColor);
+  }
+
+  Future<bool> getIsMigratedFromIndexedDb() async {
+    SettingsData data = await _getSettingsData();
+    return data.readerSetting.isMigratedFromIndexedDb;
+  }
+
+  Future<void> setIsMigratedFromIndexedDb(bool isMigrated) async {
+    await settingsStorage?.changeConfigSettings(
+        ReaderSetting.isMigratedFromIndexedDbKey, isMigrated ? "1" : "0",
+        onSuccessCallback: () => settingsStorage!
+            .settingsCache!.readerSetting.isMigratedFromIndexedDb = isMigrated);
   }
 }
