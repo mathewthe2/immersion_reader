@@ -13,7 +13,7 @@ class BookWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onTap: () => onTap(book.mediaIdentifier ?? ''),
+        onTap: () => onTap(book.mediaIdentifier),
         child: Container(
           padding: const EdgeInsets.all(20),
           child: Stack(

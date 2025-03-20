@@ -25,11 +25,9 @@
 
   // notify immersion reader that manager is loaded and stop current session
   onMount(() => {
-    console.log(
-      JSON.stringify({
-        messageType: 'load-manager'
-      })
-    );
+    if (window.flutter_inappwebview != null) {
+      window.flutter_inappwebview?.callHandler('onLoadManager');
+    }
   });
 
   const bookCards$: Observable<BookCardProps[]> = combineLatest([
@@ -156,7 +154,7 @@
   }
 
   async function removeBooks(bookIds: number[]) {
-    await database.deleteData(bookIds);
+    await database.deleteBooksByIds(bookIds);
     selectedBookIds = cloneMutateSet(selectedBookIds, (set) => {
       bookIds.forEach((x) => set.delete(x));
     });

@@ -3,27 +3,27 @@
 var bookmarkJson = JSON.stringify([]);
 var dataJson = JSON.stringify([]);
 var lastItemJson = JSON.stringify([]);
-var blobToBase64 = function(blob) {
-	return new Promise(resolve => {
-		let reader = new FileReader();
-		reader.onload = function() {
-			let dataUrl = reader.result;
-			resolve(dataUrl);
-		};
-		reader.readAsDataURL(blob);
-	});
+var blobToBase64 = function (blob) {
+  return new Promise(resolve => {
+    let reader = new FileReader();
+    reader.onload = function () {
+      let dataUrl = reader.result;
+      resolve(dataUrl);
+    };
+    reader.readAsDataURL(blob);
+  });
 }
 function getAllFromIDBStore(storeName) {
   return new Promise(
-    function(resolve, reject) {
+    function (resolve, reject) {
       var dbRequest = indexedDB.open("books");
-      dbRequest.onerror = function(event) {
+      dbRequest.onerror = function (event) {
         reject(Error("Error opening DB"));
       };
-      dbRequest.onupgradeneeded = function(event) {
+      dbRequest.onupgradeneeded = function (event) {
         reject(Error('Not found'));
       };
-      dbRequest.onsuccess = function(event) {
+      dbRequest.onsuccess = function (event) {
         var database = event.target.result;
         try {
           var transaction = database.transaction([storeName], 'readwrite');
@@ -34,13 +34,13 @@ function getAllFromIDBStore(storeName) {
             reject(Error('Error getting objects'));
           }
           var objectRequest = objectStore.getAll();
-          objectRequest.onerror = function(event) {
+          objectRequest.onerror = function (event) {
             reject(Error('Error getting objects'));
           };
-          objectRequest.onsuccess = function(event) {
+          objectRequest.onsuccess = function (event) {
             if (objectRequest.result) resolve(objectRequest.result);
             else reject(Error('Objects not found'));
-          }; 
+          };
         } catch (e) {
           reject(Error('Error getting objects'));
         }
@@ -54,9 +54,13 @@ async function getTtuData() {
     await Promise.all(items.map(async (item) => {
       try {
         item["coverImage"] = await blobToBase64(item["coverImage"]);
-      } catch (e) {}
+        const blobKeys = Object.keys(item["blobs"]);
+        await Promise.all(blobKeys.map(async (key) => {
+          item["blobs"][key] = await blobToBase64(item["blobs"][key]);
+        }));
+      } catch (e) { }
     }));
-    
+
     dataJson = JSON.stringify(items);
   } catch (e) {
     dataJson = JSON.stringify([]);
@@ -66,16 +70,16 @@ async function getTtuData() {
   } catch (e) {
     bookmarkJson = JSON.stringify([]);
   }
-  
+
   try {
     lastItemJson = JSON.stringify(await getAllFromIDBStore("lastItem"));
   } catch (e) {
     lastItemJson = JSON.stringify([]);
   }
-  console.log(JSON.stringify({messageType: "history", lastItem: lastItemJson, bookmark: bookmarkJson, data: dataJson}));
+  console.log(JSON.stringify({ messageType: "history", lastItem: lastItemJson, bookmark: bookmarkJson, data: dataJson }));
 }
 try {
   getTtuData();
 } catch (e) {
-  console.log(JSON.stringify({messageType: "history", lastItem: lastItemJson, bookmark: bookmarkJson, data: dataJson}));
+  console.log(JSON.stringify({ messageType: "history", lastItem: lastItemJson, bookmark: bookmarkJson, data: dataJson }));
 }

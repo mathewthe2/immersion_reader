@@ -19,5 +19,8 @@
     },
     "profile": {
         "reading_goal_seconds": "900"
+    },
+    "reader": {
+        "is_migrated_from_indexed_db": "0"
     }
 }

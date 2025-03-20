@@ -18,12 +18,13 @@ class ProfileContentStats {
     return value == null ? unknownValue : value.toString();
   }
 
-   String charactersRead() {
+  String charactersRead() {
     return _getValue(profileContent.currentPosition);
   }
 
   String charactersReadPerMinute() {
-    if (profileContent.currentPosition == null || totalSeconds < secondsReadThreshold) {
+    if (profileContent.currentPosition == null ||
+        totalSeconds < secondsReadThreshold) {
       return unknownValue;
     } else {
       return (profileContent.currentPosition! / totalSeconds * 60)
@@ -36,9 +37,13 @@ class ProfileContentStats {
   }
 
   double? getReadPercentage() {
-    if (profileContent.currentPosition == null || profileContent.contentLength == null) {
+    if (profileContent.currentPosition == null ||
+        profileContent.contentLength == null ||
+        profileContent.contentLength == 0) {
       return null;
     }
-    return profileContent.currentPosition! / profileContent.contentLength! * 100; 
+    return profileContent.currentPosition! /
+        profileContent.contentLength! *
+        100;
   }
 }

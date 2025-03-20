@@ -56,7 +56,7 @@ function addFileToDb(db: DatabaseService, document: Document) {
   return (file: File) => {
     const loadFn = file.name.endsWith('.epub') ? loadEpub : loadHtmlz;
     return from(defer(() => loadFn(file, document))).pipe(
-      mergeMap((storeData) => db.upsertData(storeData))
+      mergeMap((storeData) => db.addBook(storeData))
     );
   };
 }

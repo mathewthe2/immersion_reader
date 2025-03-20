@@ -1,3 +1,4 @@
+import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/storage/storage_provider.dart';
 import 'package:immersion_reader/managers/browser/browser_manager.dart';
 import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
@@ -11,6 +12,7 @@ import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 
 class ManagerService {
   static const managers = [
+    BookManager,
     BrowserManager,
     DictionaryManager,
     ProfileManager,
@@ -26,6 +28,10 @@ class ManagerService {
 
   static void _setupManager(Type manager, StorageProvider storageProvider) {
     switch (manager) {
+      case const (BookManager):
+        BookManager.create(
+            storageProvider.storage(SettingsStorage) as SettingsStorage);
+        break;
       case const (BrowserManager):
         BrowserManager.create(
             storageProvider.storage(BrowserStorage) as BrowserStorage,

@@ -53,6 +53,10 @@ async function getTtuData() {
     await Promise.all(items.map(async (item) => {
       try {
         item["coverImage"] = await blobToBase64(item["coverImage"]);
+        const blobKeys = Object.keys(item["blobs"]);
+        await Promise.all(blobKeys.map(async (key) => {
+          item["blobs"][key] = await blobToBase64(item["blobs"][key]);
+        }));
       } catch (e) {}
     }));
     
