@@ -36,29 +36,29 @@ class RecommendedWidget extends StatelessWidget {
             color: CupertinoColors.black, darkColor: CupertinoColors.white),
         context);
     return Column(children: [
-      headlineWidget("Read Along", FontAwesomeIcons.headphones, textColor),
-      SizedBox(
-          height: 200,
-          child: ListView(
-              physics: const BouncingScrollPhysics(),
-              scrollDirection: Axis.horizontal,
-              children: [
-                ...readAlongCatalog.asMap().entries.map((entry) => BookWidget(
-                    width: 130,
-                    book: entry.value,
-                    onTap: (contentUrl) {
-                      Navigator.push(
-                          context,
-                          SwipeablePageRoute(
-                              canOnlySwipeFromEdge: true,
-                              backGestureDetectionWidth: 25,
-                              builder: (context) {
-                                return Browser(
-                                    initialUrl: contentUrl,
-                                    hasUserControls: false);
-                              }));
-                    }))
-              ])),
+      // headlineWidget("Read Along", FontAwesomeIcons.headphones, textColor),
+      // SizedBox(
+      //     height: 200,
+      //     child: ListView(
+      //         physics: const BouncingScrollPhysics(),
+      //         scrollDirection: Axis.horizontal,
+      //         children: [
+      //           ...readAlongCatalog.asMap().entries.map((entry) => BookWidget(
+      //               width: 130,
+      //               book: entry.value,
+      //               onTap: (contentUrl) {
+      //                 Navigator.push(
+      //                     context,
+      //                     SwipeablePageRoute(
+      //                         canOnlySwipeFromEdge: true,
+      //                         backGestureDetectionWidth: 25,
+      //                         builder: (context) {
+      //                           return Browser(
+      //                               initialUrl: contentUrl,
+      //                               hasUserControls: false);
+      //                         }));
+      //               }))
+      //         ])),
       headlineWidget("Audio Books", FontAwesomeIcons.headphones, textColor),
       SizedBox(
           height: 200,

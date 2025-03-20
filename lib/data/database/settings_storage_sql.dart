@@ -20,7 +20,7 @@ const List<String> settingsStorageMigrations = [
   'CREATE INDEX index_DictionaryHistory_date ON DictionaryHistory(date)', // add index for dictionary history for ordering
   'CREATE TABLE Books (id INTEGER PRIMARY KEY, title TEXT, lastReadTime TEXT, authorId TEXT, elementHtml TEXT, styleSheet TEXT, coverImagePrefix TEXT, coverImageData BLOB, hasThumb INTEGER)',
   'CREATE TABLE BookSections (id INTEGER PRIMARY KEY, bookId INTEGER, reference TEXT, charactersWeight INTEGER, label TEXT, startCharacter INTEGER, characters INTEGER, parentChapter TEXT, FOREIGN KEY(bookId) REFERENCES Books(id))',
-  'CREATE INDEX index_BookSections_bookId ON BookSections(bookId),',
+  'CREATE INDEX index_BookSections_bookId ON BookSections(bookId)',
   'CREATE TABLE BookBlobs (id INTEGER PRIMARY KEY, bookId INTEGER, key TEXT, prefix TEXT, data BLOB, FOREIGN KEY(bookId) REFERENCES Books(id))',
   'CREATE INDEX index_BookBlobs_bookId ON BookBlobs(bookId)',
   'CREATE TABLE BookBookmarks (id INTEGER PRIMARY KEY, bookId INTEGER UNIQUE, exploredCharCount INTEGER, progress REAL, FOREIGN KEY(bookId) REFERENCES Books(id))',

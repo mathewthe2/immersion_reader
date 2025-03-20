@@ -87,17 +87,15 @@ class BookManager {
           }
         }
       }
-      int bookId = await database!.rawInsert("""
-        INSERT INTO Books(title, authorId, elementHtml, styleSheet, hasThumb, coverImageData, coverImagePrefix) VALUES(?, ?, ?, ?, ?, ?, ?)
-        """, [
-        book.title,
-        book.authorIdentifier,
-        book.elementHtml,
-        book.styleSheet,
-        book.hasThumbInt,
-        book.coverImageData,
-        book.coverImagePrefix
-      ]);
+      final int bookId = await database!.insert("Books", {
+        "title": book.title,
+        "authorId": book.authorIdentifier,
+        "elementHtml": book.elementHtml,
+        "styleSheet": book.styleSheet,
+        "hasThumb": book.hasThumbInt,
+        "coverImageData": book.coverImageData,
+        "coverImagePrefix": book.coverImagePrefix,
+      });
       Batch batch = database!.batch();
       book.id = bookId;
       batch = addBookRelatedDataBatch(batch, [book]);
@@ -113,34 +111,33 @@ class BookManager {
     for (final book in books) {
       if (book.sections != null) {
         for (BookSection section in book.sections!) {
-          batch.rawInsert(
-              "INSERT INTO BookSections(bookId, reference, charactersWeight, label, startCharacter, characters, parentChapter) VALUES(?, ?, ?, ?, ?, ?, ?)",
-              [
-                book.id,
-                section.reference,
-                section.charactersWeight,
-                section.label,
-                section.startCharacter,
-                section.characters,
-                section.parentChapter
-              ]);
+          batch.insert("BookSections", {
+            "bookId": book.id,
+            "reference": section.reference,
+            "charactersWeight": section.charactersWeight,
+            "label": section.label,
+            "startCharacter": section.startCharacter,
+            "characters": section.characters,
+            "parentChapter": section.parentChapter
+          });
         }
       }
       if (book.blobs != null) {
         for (BookBlob blob in book.blobs!) {
-          batch.rawInsert(
-              "INSERT INTO BookBlobs(bookId, key, prefix, data) VALUES(?, ?, ?, ?)",
-              [book.id, blob.key, blob.prefix, blob.data]);
+          batch.insert("BookBlobs", {
+            "bookId": book.id,
+            "key": blob.key,
+            "prefix": blob.prefix,
+            "data": blob.data
+          });
         }
       }
       if (book.bookmark != null) {
-        batch.rawInsert(
-            "INSERT INTO BookBookmarks(bookId, exploredCharCount, progress) VALUES(?, ?, ?)",
-            [
-              book.id,
-              book.bookmark!.exploredCharCount,
-              book.bookmark!.progress
-            ]);
+        batch.insert("BookBookmarks", {
+          "bookId": book.id,
+          "exploredCharCount": book.bookmark!.exploredCharCount,
+          "progress": book.bookmark!.progress
+        });
       }
     }
     return batch;
@@ -244,17 +241,15 @@ class BookManager {
           books.where((book) => !existingBookIds.contains(book.id)).toList();
       Batch batch = database!.batch();
       for (Book book in books) {
-        batch.rawInsert(
-            "INSERT INTO Books(id, title, elementHtml, stylesheet, coverImageData, coverImagePrefix, hasThumb) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-            [
-              book.id,
-              book.title,
-              book.elementHtml,
-              book.styleSheet,
-              book.coverImageData,
-              book.coverImagePrefix,
-              book.hasThumbInt
-            ]);
+        batch.insert("Books", {
+          "id": book.id,
+          "title": book.title,
+          "elementHtml": book.elementHtml,
+          "styleSheet": book.styleSheet,
+          "coverImageData": book.coverImageData,
+          "coverImagePrefix": book.coverImagePrefix,
+          "hasThumb": book.hasThumbInt
+        });
       }
       addBookRelatedDataBatch(batch, books);
       await batch.commit();
