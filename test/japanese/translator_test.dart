@@ -65,6 +65,84 @@ Future main() async {
     await db.close();
   });
 
+  test('Verb Inflection Test 2', () async {
+    var db = await openDatabase(inMemoryDatabasePath, version: 1,
+        onCreate: (db, version) async {
+      Batch batch = await SqlRepository.insertTablesForDatabase(
+          db, SettingsStorage.databaseName);
+      await batch.commit();
+    });
+    // Setup Dictionary
+    await db.insert('Dictionary', {'id': 1, 'title': 'JMDict', 'enabled': 1});
+    // Add Vocabulary
+    const sampleWord = 'とても';
+    const sampleWordId = 1;
+    const sampleReading = 'とても';
+    const sampleMeanings = ["very", "awfully", "exceedingly"];
+    const Map<String, dynamic> sampleVocab = {
+      'id': sampleWordId,
+      'dictionaryId': 1,
+      'expression': sampleWord,
+      'reading': sampleReading,
+      'sequence': 1008630,
+      'popularity': 999800,
+      'meaningTags': 'adv uk',
+      'termTags': '',
+    };
+    List<Map<String, dynamic>> sampleVocabGlosses = sampleMeanings
+        .map((meaning) => {
+              'vocabId': sampleWordId,
+              'glossary': meaning,
+              'dictionaryId': 1,
+            })
+        .toList();
+    await db.insert('Vocab', sampleVocab);
+    for (Map<String, dynamic> gloss in sampleVocabGlosses) {
+      await db.insert('VocabGloss', gloss);
+    }
+    const distractionWord = '取る';
+    const distractionId = 2;
+    const distractionReading = 'とる';
+    const distractionMeanings = [
+      "to take",
+      "to pick up",
+      "to grab",
+      "to catch",
+      "to hold"
+    ];
+    const Map<String, dynamic> distractionVocab = {
+      'id': distractionId,
+      'dictionaryId': 1,
+      'expression': distractionWord,
+      'reading': distractionReading,
+      'sequence': 1326980,
+      'popularity': 1999800,
+      'meaningTags': 'v5r vt',
+      'termTags': '',
+    };
+    List<Map<String, dynamic>> distractionVocabGlosses = distractionMeanings
+        .map((meaning) => {
+              'vocabId': sampleWordId,
+              'glossary': meaning,
+              'dictionaryId': 1,
+            })
+        .toList();
+    await db.insert('Vocab', distractionVocab);
+    for (Map<String, dynamic> gloss in distractionVocabGlosses) {
+      await db.insert('VocabGloss', gloss);
+    }
+    SettingsStorage settingsStorage = SettingsStorage();
+    settingsStorage.database = db;
+
+    var text = 'とても気になっていたはずなのに';
+    Translator translator = Translator.create(settingsStorage);
+    List<Vocabulary> vocabularyListResult = await translator.findTerm(text);
+    expect(vocabularyListResult.length, 1);
+    expect(vocabularyListResult.first.expression, sampleWord);
+    expect(vocabularyListResult.first.reading, sampleReading);
+    await db.close();
+  });
+
   test('Frequency Test', () async {
     var db = await openDatabase(inMemoryDatabasePath, version: 1,
         onCreate: (db, version) async {

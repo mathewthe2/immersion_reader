@@ -20,6 +20,7 @@ class Vocabulary {
   // for search
   String? source;
   List<String> rules = [];
+  int maxTransformedTextLength = 0;
   // pitch
   PitchAccentDisplayStyle? pitchAccentDisplayStyle;
   List<String> pitchValues = [];

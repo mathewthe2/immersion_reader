@@ -141,9 +141,6 @@ class Translator {
             databaseEntries: []));
       }
     }
-    // if (dfs.isEmpty) {
-    //   return [];
-    // }
 
     List<String> uniqueDeinflectionTerms = [];
     List<List<TranslatorDeinflection>> uniqueDeinflectionArrays = [];
@@ -165,6 +162,8 @@ class Translator {
     List<DictionaryEntry> entries = await dictionary.findTermsBulk(
         uniqueDeinflectionTerms,
         disabledDictionaryIds: options.disabledDictionaryIds);
+
+    List<DictionaryEntry> finalEntries = [];
     for (DictionaryEntry entry in entries) {
       int definitionRules = deinflector.rulesToRuleFlags(entry.meaningTags);
       for (TranslatorDeinflection deinflection
@@ -173,23 +172,23 @@ class Translator {
         if (deinflectionRules == 0 ||
             (definitionRules & deinflectionRules) != 0) {
           deinflection.databaseEntries.add(entry);
-        }
-        // match corresponding deinflector with transformed text here
-        // take the longest transformed text
-        // further improvement: still edge cases to be fixed
-        if ([entry.term, entry.reading]
-                .contains(deinflection.deinflectedText) &&
-            (entry.transformedText == null ||
-                deinflection.transformedText.length >
-                    entry.transformedText!.length)) {
-          entry.transformedText = deinflection.transformedText;
+          // match corresponding deinflector with transformed text here
+          // take the longest transformed text
+          // further improvement: still edge cases to be fixed
+          if ([entry.term, entry.reading]
+                  .contains(deinflection.deinflectedText) &&
+              (entry.transformedText == null ||
+                  deinflection.transformedText.length >
+                      entry.transformedText!.length)) {
+            entry.transformedText = deinflection.transformedText;
+          }
+          finalEntries.add(entry);
         }
       }
     }
 
     // int originalTextLength = 0;
     var ids = <int>{};
-    List<DictionaryEntry> finalEntries = entries;
     for (TranslatorDeinflection deinflection in deinflections) {
       if (deinflection.databaseEntries.isEmpty) {
         continue;
@@ -265,7 +264,8 @@ class Translator {
     // to do: update sorting based on yomichan:
     // https://github.com/FooSoft/yomichan/blob/f3024c50186344aa6a6b09500ea02540463ce5c9/ext/js/language/translator.js#L1364
     definitions.sort((a, b) => <Comparator<Vocabulary>>[
-          (o1, o2) => o1.expression!.length.compareTo(o2.expression!.length),
+          (o1, o2) => o1.maxTransformedTextLength
+              .compareTo(o2.maxTransformedTextLength),
           (o1, o2) => o1.getPopularity().compareTo(o2.getPopularity()),
           (o1, o2) => (o1.tags!.contains('P') ? 1 : 0)
               .compareTo((o2.tags!.contains('P') ? 1 : 0)),

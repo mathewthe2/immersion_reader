@@ -98,6 +98,8 @@ class Dictionary {
       vocabulary.id = vocabulary.uniqueId;
       vocabulary.expression = dictionaryEntry.term;
       vocabulary.reading = dictionaryEntry.reading;
+      vocabulary.maxTransformedTextLength =
+          dictionaryEntry.transformedText?.length ?? 0;
       String vocabularyKey = vocabulary.uniqueId;
       if (vocabularyMap.containsKey(vocabularyKey)) {
         vocabularyMap[vocabularyKey]!.entries = [

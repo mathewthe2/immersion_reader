@@ -78,15 +78,38 @@ class Deinflector {
   }
 
   int rulesToRuleFlags(List<String> rules) {
-    Map<String, int> ruleTypes = _ruleTypes;
     int value = 0;
     for (String rule in rules) {
-      if (_ruleTypes.containsKey(rule)) {
-        value |= ruleTypes[rule]!;
-      }
+      String baseRule = _extractBaseRule(rule);
+      value |= _ruleTypes[baseRule] ?? 0;
     }
     return value;
   }
+
+  // v5 -> v5
+  // v5r -> v5
+  // v1s -> v1
+  String _extractBaseRule(String rule) {
+    if (_ruleTypes.containsKey(rule)) {
+      return rule;
+    } else if (rule.length >= 2 &&
+        _ruleTypes.containsKey(rule.substring(0, 2))) {
+      // v1, v5, vs, vk, vz
+      return rule.substring(0, 2);
+    } else if (rule.length >= 3 &&
+        _ruleTypes.containsKey(rule.substring(0, 3))) {
+      // iru
+      return rule.substring(0, 3);
+    } else if (rule.length >= 5 &&
+        _ruleTypes.containsKey(rule.substring(0, 5))) {
+      // adj-i
+      return rule.substring(0, 5);
+    }
+    return rule;
+  }
+
+  // unmatched rules - not sure how to handle
+  // vt, vi
 
   final Map<String, int> _ruleTypes = {
     'v1': 1, // Verb ichidan
