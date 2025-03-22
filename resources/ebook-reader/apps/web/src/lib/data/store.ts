@@ -51,7 +51,7 @@ export const autoPositionOnResize$ = writableBooleanLocalStorageSubject()(
 
 export const avoidPageBreak$ = writableBooleanLocalStorageSubject()('avoidPageBreak', false);
 
-export const autoBookmark$ = writableBooleanLocalStorageSubject()('autoBookmark', false);
+export const autoBookmark$ = writableBooleanLocalStorageSubject()('autoBookmark', true); // default to autobookmark
 
 export const pageColumns$ = writableNumberLocalStorageSubject()('pageColumns', 0);
 

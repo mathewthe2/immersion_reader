@@ -233,7 +233,7 @@
   });
 
   if (autoBookmark) {
-    pageChange$.pipe(debounceTime(3000), takeUntil(destroy$)).subscribe((isUser) => {
+    pageChange$.pipe(debounceTime(500), takeUntil(destroy$)).subscribe((isUser) => {
       if (isUser) {
         dispatch('bookmark');
       }

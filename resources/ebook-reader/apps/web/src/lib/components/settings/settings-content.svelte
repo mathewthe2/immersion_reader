@@ -190,7 +190,7 @@
   </SettingsItemGroup>
   <SettingsItemGroup
     title="Auto Bookmark"
-    tooltip={'Set a bookmark after 3 seconds without scrolling/page change'}
+    tooltip={'Set a bookmark after 500ms without scrolling/page change'}
   >
     <ButtonToggleGroup
       optionKey="autoBookmark"
