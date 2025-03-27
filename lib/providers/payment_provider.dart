@@ -73,7 +73,8 @@ class PaymentProvider {
     if (purchaseItem == null) {
       IAPItem? item = await getProductByString(productName);
       if (item != null) {
-        FlutterInappPurchase.instance.requestPurchase(item.productId!);
+        FlutterInappPurchase.instance
+            .requestPurchase(item.productId!, obfuscatedAccountId: "");
       }
     } else {
       callback();
