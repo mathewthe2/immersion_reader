@@ -57,11 +57,12 @@ class LocalAssetsServerManager {
       onLoadStop: (controller, url) async {
         iWebViewLoaded = true;
       },
-      onConsoleMessage: (controller, message) {
-        // print(message.toString());
-        if (message.toString().contains("manager")) {
-          isManagerLoaded = true;
-        }
+      onWebViewCreated: (controller) {
+        controller.addJavaScriptHandler(
+            handlerName: 'onLoadManager',
+            callback: (_) {
+              isManagerLoaded = true;
+            });
       },
     );
 
