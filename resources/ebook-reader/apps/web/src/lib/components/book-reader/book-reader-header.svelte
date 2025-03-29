@@ -8,8 +8,7 @@
     faHeadphones,
     faCog,
     faList,
-    faSignOutAlt,
-    faSlidersH
+    faSignOutAlt
   } from '@fortawesome/free-solid-svg-icons';
   import {
     nTranslateXHeaderFa,
@@ -64,20 +63,13 @@
         <Fa icon={faExpand} />
       </div>
     {/if}
-       <div
-        role="button"
-        on:click={() => dispatch('immersionReaderAudioClick')}
-        class="flex h-full items-center text-xl xl:text-lg {pHeaderFa} {opacityHeaderIcon} cursor-pointer"
-      >
-        <Fa icon={faHeadphones} />
-      </div>
-    <!-- <a on:click={() => dispatch('immersionReaderAudioClick')} href={null}>
-      <span
-        class="flex h-full items-center text-xl xl:text-lg {pHeaderFa} {opacityHeaderIcon} cursor-pointer"
-      >
-        <Fa icon={faSlidersH} />
-      </span>
-    </a> -->
+    <div
+      role="button"
+      on:click={() => dispatch('immersionReaderAudioClick')}
+      class="flex h-full items-center text-xl xl:text-lg {pHeaderFa} {opacityHeaderIcon} cursor-pointer"
+    >
+      <Fa icon={faHeadphones} />
+    </div>
     <a on:click={() => dispatch('settingsClick')} href="/settings">
       <span
         class="flex h-full items-center text-xl xl:text-lg {pHeaderFa} {opacityHeaderIcon} cursor-pointer"

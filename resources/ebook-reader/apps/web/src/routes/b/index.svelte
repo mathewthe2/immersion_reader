@@ -65,7 +65,7 @@
   import { clickOutside } from '$lib/functions/use-click-outside';
   import { onKeydownReader } from './on-keydown-reader';
   import { onMount } from 'svelte';
-  import { Section } from '$lib/data/database/books-db/versions/v3/books-db-v3';
+  import type { Section } from '$lib/data/database/books-db/versions/v3/books-db-v3';
 
   let showHeader = true;
   let isBookmarkScreen = false;
@@ -94,9 +94,10 @@
 
   const leaveIfBookMissing$ = rawBookData$.pipe(
     tap((data) => {
-      if (!data) {
-        goto('/manage');
-      }
+      console.log('data', data);
+      // if (!data) {
+      //   goto('/manage');
+      // }
     }),
     reduceToEmptyString()
   );
@@ -244,7 +245,10 @@
   }
 
   function immersionReaderAudioClick() {
-    console.log('launch-immersion-reader-audio');
+    if (window.flutter_inappwebview != null) {
+      const bookId = getBookIdSync();
+      window.flutter_inappwebview?.callHandler('openAudioBookDialog', bookId);
+    }
   }
 
   function onFullscreenClick() {

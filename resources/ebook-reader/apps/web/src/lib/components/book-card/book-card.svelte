@@ -3,6 +3,7 @@
   import { onDestroy } from 'svelte';
   import Fa from 'svelte-fa';
 
+  export let id: string;
   export let imagePath: string | Blob;
   export let title: string;
   export let progress: number;
