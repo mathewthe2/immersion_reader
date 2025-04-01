@@ -51,7 +51,8 @@ String importStageToString(DictionaryImportStage progress) {
 
 class _DictionarySettingsState extends State<DictionarySettings> {
   List<bool> enabledDictionaries = [];
-  bool editMode = false;
+  bool isEditMode = false;
+  bool isAllowOperations = true;
   bool? hasUpdates;
   DictionaryUpdate? availableDictionaryUpdate;
   int? idOfDictionaryToUpdate;
@@ -80,12 +81,16 @@ class _DictionarySettingsState extends State<DictionarySettings> {
       UserDictionary userDictionary = await parseDictionary(
           zipFile: zipFile, progressController: progressController);
 
+      setState(() {
+        isAllowOperations = false;
+      });
       await SettingsManager().settingsStorage!.addDictionary(
           userDictionary: userDictionary,
           progressController: progressController);
       resetProgressController();
       setState(() {
-        editMode = false;
+        isEditMode = false;
+        isAllowOperations = true;
       });
     } else {
       // User canceled the picker
@@ -98,7 +103,7 @@ class _DictionarySettingsState extends State<DictionarySettings> {
     SmartDialog.showLoading(msg: message);
     await SettingsManager().settingsStorage!.removeDictionary(dictionaryId);
     setState(() {
-      editMode = false;
+      isEditMode = false;
     });
     SmartDialog.dismiss();
   }
@@ -137,6 +142,9 @@ class _DictionarySettingsState extends State<DictionarySettings> {
             zipFile: zipFile,
             progressController: progressController,
             dictionaryVersion: availableDictionaryUpdate!.version);
+        setState(() {
+          isAllowOperations = false;
+        });
         await SettingsManager().settingsStorage!.addDictionary(
             userDictionary: userDictionary,
             progressController: progressController);
@@ -146,6 +154,7 @@ class _DictionarySettingsState extends State<DictionarySettings> {
             message: 'Removing old dictionary');
         setState(() {
           hasUpdates = false;
+          isAllowOperations = true;
         });
       }
     }
@@ -163,7 +172,7 @@ class _DictionarySettingsState extends State<DictionarySettings> {
         backgroundColor: backgroundColor,
         navigationBar: CupertinoNavigationBar(
           middle: const Text('Dictionaries'),
-          leading: editMode
+          leading: isEditMode
               ? GestureDetector(
                   onTap: requestDictionaryZipFile,
                   child: const Icon(CupertinoIcons.plus))
@@ -176,11 +185,11 @@ class _DictionarySettingsState extends State<DictionarySettings> {
           trailing: CupertinoButton(
               onPressed: () {
                 setState(() {
-                  editMode = !editMode;
+                  isEditMode = !isEditMode;
                 });
               },
               padding: const EdgeInsets.all(0.0),
-              child: editMode
+              child: isEditMode
                   ? const Text('Done',
                       style: TextStyle(fontWeight: FontWeight.bold))
                   : const Text('Edit')),
@@ -215,23 +224,24 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                       }
                     },
                   ),
-                  switch (hasUpdates) {
-                    null => CupertinoButton(
-                        onPressed: checkUpdates,
-                        child: const Text('Check for updates'),
-                      ),
-                    true => Column(children: [
-                        AppText(
-                            'Version ${availableDictionaryUpdate!.version} for ${availableDictionaryUpdate!.dictionaryKey} is available.'),
-                        CupertinoButton(
-                          onPressed: updateDictionary,
-                          child: const Text("Update dictionary"),
+                  if (isAllowOperations && !isEditMode)
+                    switch (hasUpdates) {
+                      null => CupertinoButton(
+                          onPressed: checkUpdates,
+                          child: const Text('Check for updates'),
+                        ),
+                      true => Column(children: [
+                          AppText(
+                              'Version ${availableDictionaryUpdate!.version} for ${availableDictionaryUpdate!.dictionaryKey} is available.'),
+                          CupertinoButton(
+                            onPressed: updateDictionary,
+                            child: const Text("Update dictionary"),
+                          )
+                        ]),
+                      false => AppText(
+                          "You're on the latest version!",
                         )
-                      ]),
-                    false => AppText(
-                        "You're on the latest version!",
-                      )
-                  },
+                    },
                   CupertinoListSection(
                       header: const Text('Dictionary'),
                       children: [
@@ -240,7 +250,7 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                           DictionarySetting dictionarySetting = entry.value;
                           return CupertinoListTile(
                               title: Text(dictionarySetting.title),
-                              leading: !editMode
+                              leading: !isEditMode
                                   ? null
                                   : GestureDetector(
                                       onTap: () => {
@@ -256,7 +266,7 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                                           color:
                                               CupertinoColors.destructiveRed),
                                     ),
-                              trailing: editMode
+                              trailing: isEditMode
                                   ? const SizedBox()
                                   : CupertinoSwitch(
                                       value: enabledDictionaries[index],

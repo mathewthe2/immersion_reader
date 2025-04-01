@@ -44,6 +44,7 @@ Future<UserDictionary> parseDictionary(
     List<DictionaryMetaEntry> dictionaryMetaEntries =
         parseMetaTerms(metaFiles, dictionaryName);
     // List<DictionaryTag> dictionaryTags = parseTags(tagFiles, dictionaryName);
+    await FolderUtils.cleanUpWorkingFolder();
     return UserDictionary(
         dictionaryName: dictionaryName,
         dictionaryEntries: dictionaryEntries,

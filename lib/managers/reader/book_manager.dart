@@ -3,6 +3,7 @@ import 'package:immersion_reader/data/reader/book_blob.dart';
 import 'package:immersion_reader/data/reader/book_bookmark.dart';
 import 'package:immersion_reader/data/reader/book_section.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
+import 'package:immersion_reader/utils/folder_utils.dart';
 import 'package:sqflite/sqflite.dart';
 
 enum BookSortColumn { title, lastReadTime }
@@ -172,6 +173,8 @@ class BookManager {
       for (final bookId in bookIds) {
         _cachedBooks.remove(bookId);
         _cachedBooksBasicInfo.remove(bookId);
+        FolderUtils.cleanUpBookFolder(
+            bookId); // delete book-related media (srt, audio files)
       }
     }
   }
