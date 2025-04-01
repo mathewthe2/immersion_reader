@@ -7,10 +7,12 @@ class UserDictionary {
   List<DictionaryEntry> dictionaryEntries;
   List<DictionaryMetaEntry> dictionaryMetaEntries;
   List<DictionaryTag> dictionaryTags;
+  String dictionaryVersion;
 
   UserDictionary(
       {required this.dictionaryName,
       required this.dictionaryEntries,
       required this.dictionaryMetaEntries,
-      required this.dictionaryTags});
+      required this.dictionaryTags,
+      required this.dictionaryVersion});
 }

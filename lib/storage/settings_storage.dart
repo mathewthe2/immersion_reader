@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:immersion_reader/data/search/search_history_item.dart';
+import 'package:immersion_reader/data/settings/updates/settings_update.dart';
 import 'package:immersion_reader/storage/abstract_storage.dart';
 import 'package:immersion_reader/widgets/settings/dictionary_settings.dart';
 import 'package:path/path.dart' as p;
@@ -33,8 +34,10 @@ class SettingsStorage extends AbstractStorage {
   factory SettingsStorage() => _singleton;
 
   static const String databaseName = 'data.db';
+  static const updateTtlExpiryInHours = 2;
 
   List<DictionarySetting>? dictionarySettingCache;
+  Map<DateTime, SettingsUpdate?>? updatesTtlCache;
   SettingsData? settingsCache;
 
   Future<List<DictionarySetting>> getDictionarySettings() async {
@@ -51,6 +54,20 @@ class SettingsStorage extends AbstractStorage {
         rows.map((row) => DictionarySetting.fromMap(row)).toList();
     dictionarySettingCache = dictionarySettingList;
     return dictionarySettingList;
+  }
+
+  Future<SettingsUpdate?> getUpdates() async {
+    if (updatesTtlCache != null) {
+      var diff = updatesTtlCache!.keys.first.difference(DateTime.now());
+      if (diff.inHours > updateTtlExpiryInHours) {
+        updatesTtlCache = null;
+      } else {
+        return updatesTtlCache!.values.first;
+      }
+    }
+    var updates = await SettingsUpdate.getUpdates();
+    updatesTtlCache = {DateTime.now(): updates};
+    return updates;
   }
 
   Future<void> initCache() async {
@@ -203,11 +220,11 @@ class SettingsStorage extends AbstractStorage {
       StreamController<(DictionaryImportStage, double)>?
           progressController}) async {
     progressController?.add((DictionaryImportStage.dictionaryCreation, -1));
-    int dictionaryId = await database!
-        .rawInsert('INSERT INTO Dictionary(title, enabled) VALUES(?, ?)', [
-      userDictionary.dictionaryName,
-      1, // enabled
-    ]);
+    int dictionaryId = await database!.insert('Dictionary', {
+      "title": userDictionary.dictionaryName,
+      "version": userDictionary.dictionaryVersion,
+      "enabled": 1,
+    });
     int lastRecordId = await getLastRecordId();
     Batch batch = database!.batch();
     for (final (int index, DictionaryEntry entry)
@@ -275,7 +292,8 @@ class SettingsStorage extends AbstractStorage {
       dictionarySettingCache!.add(DictionarySetting(
           id: dictionaryId,
           title: userDictionary.dictionaryName,
-          enabled: true));
+          enabled: true,
+          version: userDictionary.dictionaryVersion));
     }
   }
 

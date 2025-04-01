@@ -14,9 +14,10 @@ import './pitch_data.dart';
 // https://github.com/lrorpilla/jidoujisho/blob/e445b09ea8fa5df2bfae8a0d405aa1ba5fc32767/yuuna/lib/src/dictionary/formats/yomichan_dictionary_format.dart
 Future<UserDictionary> parseDictionary(
     {required File zipFile,
-    StreamController<(DictionaryImportStage, double)>?
-        progressController}) async {
-  Directory workingDirectory = await FolderUtils.getWorkingFolder();
+    StreamController<(DictionaryImportStage, double)>? progressController,
+    String dictionaryVersion = '1.0.0'}) async {
+  Directory workingDirectory = await FolderUtils.getWorkingFolder(
+      cleanup: false); // our zip files may also be in working folder
   try {
     await ZipFile.extractToDirectory(
         zipFile: zipFile,
@@ -47,7 +48,8 @@ Future<UserDictionary> parseDictionary(
         dictionaryName: dictionaryName,
         dictionaryEntries: dictionaryEntries,
         dictionaryMetaEntries: dictionaryMetaEntries,
-        dictionaryTags: []);
+        dictionaryTags: [],
+        dictionaryVersion: dictionaryVersion);
   } catch (e) {
     debugPrint(e.toString());
   }

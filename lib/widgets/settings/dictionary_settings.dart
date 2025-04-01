@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/data/settings/updates/dictionary_update.dart';
+import 'package:immersion_reader/data/settings/updates/settings_update.dart';
 import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/data/settings/dictionary_setting.dart';
@@ -49,6 +51,9 @@ String importStageToString(DictionaryImportStage progress) {
 class _DictionarySettingsState extends State<DictionarySettings> {
   List<bool> enabledDictionaries = [];
   bool editMode = false;
+  bool? hasUpdates;
+  DictionaryUpdate? availableDictionaryUpdate;
+  int? idOfDictionaryToUpdate;
 
   StreamController<(DictionaryImportStage, double)> progressController =
       StreamController<(DictionaryImportStage, double)>();
@@ -86,13 +91,63 @@ class _DictionarySettingsState extends State<DictionarySettings> {
     }
   }
 
-  void removeDictionary(int dictionaryId) async {
-    SmartDialog.showLoading(msg: "Removing dictionary");
+  Future<void> removeDictionary(
+      {required int dictionaryId,
+      String message = 'Removing dictionary'}) async {
+    SmartDialog.showLoading(msg: message);
     await SettingsManager().settingsStorage!.removeDictionary(dictionaryId);
     setState(() {
       editMode = false;
     });
     SmartDialog.dismiss();
+  }
+
+  Future<void> checkUpdates() async {
+    // get current version
+    var currentSettings =
+        await SettingsManager().settingsStorage!.getDictionarySettings();
+    for (final setting in currentSettings) {
+      if (setting.title == SettingsUpdate.jmdictEnglishKey) {
+        // check updates
+        var updates = await SettingsManager().settingsStorage!.getUpdates();
+        if (updates != null) {
+          if (updates.dictionaryUpdate.extendedVersion >
+              setting.extendedVersion) {
+            setState(() {
+              hasUpdates = true;
+              availableDictionaryUpdate = updates.dictionaryUpdate;
+              idOfDictionaryToUpdate = setting.id;
+            });
+          } else {
+            setState(() {
+              hasUpdates = false;
+            });
+          }
+        }
+      }
+    }
+  }
+
+  Future<void> updateDictionary() async {
+    if (availableDictionaryUpdate != null && idOfDictionaryToUpdate != null) {
+      final zipFile = await availableDictionaryUpdate!.getUpdatedDictionary();
+      if (zipFile != null) {
+        UserDictionary userDictionary = await parseDictionary(
+            zipFile: zipFile,
+            progressController: progressController,
+            dictionaryVersion: availableDictionaryUpdate!.version);
+        await SettingsManager().settingsStorage!.addDictionary(
+            userDictionary: userDictionary,
+            progressController: progressController);
+        resetProgressController();
+        await removeDictionary(
+            dictionaryId: idOfDictionaryToUpdate!,
+            message: 'Removing old dictionary');
+        setState(() {
+          hasUpdates = false;
+        });
+      }
+    }
   }
 
   @override
@@ -159,6 +214,21 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                       }
                     },
                   ),
+                  switch (hasUpdates) {
+                    null => CupertinoButton(
+                        onPressed: checkUpdates,
+                        child: const Text('Check for updates'),
+                      ),
+                    true => Column(children: [
+                        Text(
+                            'Version ${availableDictionaryUpdate!.version} for ${availableDictionaryUpdate!.dictionaryKey} is available.'),
+                        CupertinoButton(
+                          onPressed: updateDictionary,
+                          child: const Text("Update dictionary"),
+                        )
+                      ]),
+                    false => const Text("You're on the latest version!")
+                  },
                   CupertinoListSection(
                       header: const Text('Dictionary'),
                       children: [
@@ -175,7 +245,8 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                                             "Do you want to delete ${dictionarySetting.title}?",
                                             onConfirmCallback: () =>
                                                 removeDictionary(
-                                                    dictionarySetting.id))
+                                                    dictionaryId:
+                                                        dictionarySetting.id))
                                       },
                                       child: const Icon(
                                           CupertinoIcons.minus_circle_fill,

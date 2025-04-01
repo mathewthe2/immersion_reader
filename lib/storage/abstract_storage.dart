@@ -52,27 +52,18 @@ abstract class AbstractStorage {
       // clone database if no existing database
       if (!File(path).existsSync()) {
         ByteData data = await rootBundle.load(databasePrototypePath!);
-
-        // extract source database from zipped file
-        Directory workingFolder = await FolderUtils.getWorkingFolder();
-        File tempFile = File('${workingFolder.path}/$databaseStorageName.zip');
-        if (!tempFile.existsSync()) {
-          tempFile.createSync(
-              recursive: true); // create intermediate folders if necessary
-        }
-
         List<int> bytes =
             data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-
+        final tempFile =
+            await FolderUtils.createTempFile('$databaseStorageName.zip');
         await tempFile.writeAsBytes(
           bytes,
           flush: true,
         );
-
         try {
           await ZipFile.extractToDirectory(
               zipFile: tempFile, destinationDir: Directory(databasesPath));
-          // await tempFile.delete();
+          await tempFile.delete();
         } catch (e) {
           debugPrint(e.toString());
         }
