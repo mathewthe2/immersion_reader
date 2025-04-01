@@ -1,0 +1,9 @@
+{
+    "schema_version": "1.0.0",
+    "Dictionary": {
+        "JMdict (English)": {
+            "version": "1.0.1",
+            "source": "https://github.com/yomidevs/jmdict-yomitan/releases/download/2025-04-01/JMdict_english_legacy.zip"
+        }
+    }
+}
