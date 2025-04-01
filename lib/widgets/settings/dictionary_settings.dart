@@ -11,6 +11,7 @@ import 'package:immersion_reader/dictionary/user_dictionary.dart';
 import 'package:immersion_reader/utils/system_dialog.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:immersion_reader/widgets/common/app_text.dart';
 
 class DictionarySettings extends StatefulWidget {
   const DictionarySettings({super.key});
@@ -203,9 +204,9 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                             SizedBox(height: 20),
                             streamSnapshot.data!.$2 >=
                                     0 // stages with no progress value have negative progress
-                                ? Text(
+                                ? AppText(
                                     '${importStageToString(streamSnapshot.data!.$1)}: ${streamSnapshot.data!.$2.round()}%')
-                                : Text(importStageToString(
+                                : AppText(importStageToString(
                                     streamSnapshot.data!.$1))
                           ],
                         );
@@ -220,14 +221,16 @@ class _DictionarySettingsState extends State<DictionarySettings> {
                         child: const Text('Check for updates'),
                       ),
                     true => Column(children: [
-                        Text(
+                        AppText(
                             'Version ${availableDictionaryUpdate!.version} for ${availableDictionaryUpdate!.dictionaryKey} is available.'),
                         CupertinoButton(
                           onPressed: updateDictionary,
                           child: const Text("Update dictionary"),
                         )
                       ]),
-                    false => const Text("You're on the latest version!")
+                    false => AppText(
+                        "You're on the latest version!",
+                      )
                   },
                   CupertinoListSection(
                       header: const Text('Dictionary'),
