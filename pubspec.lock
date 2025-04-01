@@ -161,6 +161,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.1"
+  file_picker:
+    dependency: "direct main"
+    description:
+      name: file_picker
+      sha256: "36a1652d99cb6bf8ccc8b9f43aded1fd60b234d23ce78af422c07f950a436ef7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.0.0"
   fixnum:
     dependency: transitive
     description:
@@ -278,6 +286,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.0"
+  flutter_plugin_android_lifecycle:
+    dependency: transitive
+    description:
+      name: flutter_plugin_android_lifecycle
+      sha256: "5a1e6fb2c0561958d7e4c33574674bda7b77caaca7a33b758876956f2902eea3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.27"
   flutter_slidable:
     dependency: "direct main"
     description:
@@ -368,15 +384,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
-  lean_file_picker:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: master
-      resolved-ref: "72135691f4b6360e0c61ac63d17868e2c68bbb4e"
-      url: "https://github.com/mathewthe2/lean-file-picker"
-    source: git
-    version: "0.0.2"
   lints:
     dependency: transitive
     description:

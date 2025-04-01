@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
-import 'package:lean_file_picker/lean_file_picker.dart';
 import 'package:immersion_reader/data/settings/dictionary_setting.dart';
 import 'package:immersion_reader/dictionary/dictionary_parser.dart';
 import 'package:immersion_reader/dictionary/user_dictionary.dart';
 import 'package:immersion_reader/utils/system_dialog.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:file_picker/file_picker.dart';
 
 class DictionarySettings extends StatefulWidget {
   const DictionarySettings({super.key});
@@ -24,7 +24,7 @@ enum DictionaryImportStage {
   vocabInsertion,
   frequencyInsertion,
   pitchInsertion,
-  savingData,
+  writingData,
 }
 
 String importStageToString(DictionaryImportStage progress) {
@@ -41,8 +41,8 @@ String importStageToString(DictionaryImportStage progress) {
       return "Inserting frequency data";
     case DictionaryImportStage.pitchInsertion:
       return "Inserting pitch data";
-    case DictionaryImportStage.savingData:
-      return "Saving to database...";
+    case DictionaryImportStage.writingData:
+      return "Writing to database...";
   }
 }
 
@@ -64,12 +64,13 @@ class _DictionarySettingsState extends State<DictionarySettings> {
   }
 
   void requestDictionaryZipFile() async {
-    final file = await pickFile(
+    final files = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
       allowedExtensions: ['zip'],
     );
 
-    if (file != null) {
-      File zipFile = File(file.path);
+    if (files != null && files.paths.isNotEmpty) {
+      File zipFile = File(files.paths.first!);
       UserDictionary userDictionary = await parseDictionary(
           zipFile: zipFile, progressController: progressController);
 

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/profile/profile_content_stats.dart';
 import 'package:immersion_reader/data/reader/book.dart';
+import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/utils/system_theme.dart';
 import 'package:immersion_reader/widgets/my_books/book_widget.dart';
 import 'package:immersion_reader/utils/sleek_circular_slider/appearance.dart';
@@ -74,8 +75,9 @@ class BookStatsRow extends StatelessWidget {
           height: 200,
           child:
               Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            FutureBuilder<Book>(
-              future: contentStats.profileContent.getBook(),
+            FutureBuilder<Book?>(
+              future: BookManager()
+                  .getBookById(int.parse(contentStats.profileContent.key)),
               builder: (context, snapshot) {
                 return BookWidget(
                     book: snapshot.hasData

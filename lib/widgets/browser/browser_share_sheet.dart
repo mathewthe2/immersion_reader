@@ -7,7 +7,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:immersion_reader/data/browser/browser_bookmark.dart';
 import 'package:immersion_reader/managers/browser/browser_manager.dart';
 import 'package:immersion_reader/utils/folder_utils.dart';
-import 'package:lean_file_picker/lean_file_picker.dart';
+import 'package:file_picker/file_picker.dart';
 
 class BrowserShareSheet extends StatefulWidget {
   final InAppWebViewController? webViewController;
@@ -38,12 +38,13 @@ class _BrowserShareSheetState extends State<BrowserShareSheet> {
   }
 
   Future<void> handleLoadFiles() async {
-    final file = await pickFile(
+    final files = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
       allowedExtensions: ['zip'],
     );
 
-    if (file != null) {
-      File zipFile = File(file.path);
+    if (files != null && files.paths.isNotEmpty) {
+      File zipFile = File(files.paths.first!);
       _workingDirectoryCache ??= await FolderUtils.getWorkingFolder();
       _htmlFiles = [];
       try {

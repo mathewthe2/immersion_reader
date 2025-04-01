@@ -43,10 +43,6 @@ dependencies:
   font_awesome_flutter: ^10.2.1
   http: ^1.1.0
   kana_kit: ^2.0.0
-  lean_file_picker:
-    git:
-      url: https://github.com/mathewthe2/lean-file-picker
-      ref: master # branch name
   local_assets_server: ^2.0.2+12
   path: ^1.8.2
   path_provider: ^2.0.11
@@ -67,6 +63,7 @@ dependencies:
   #     url: https://github.com/mathewthe2/ios-vision-flutter
   #     ref: main # branch name
   flutter_smart_dialog: ^4.9.6
+  file_picker: ^10.0.0
   # home_widget: ^0.7.0
   # onnxruntime: ^1.4.1
   # rust_lib_immersion_reader:
@@ -108,7 +105,7 @@ flutter:
     # - assets/models/model.onnx
     # - assets/models/vocab.txt
     - assets/settings/defaultConfig.json
-    - assets/japanese/data.db
+    - assets/settings/data.db.zip
     - assets/browser/darkreader.min.js
     - assets/ttu-ebook-reader/
     - assets/ttu-ebook-reader/_app/

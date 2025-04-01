@@ -25,7 +25,8 @@ class SettingsStorage extends AbstractStorage {
   Function get onOpenCallback => (() => initCache());
 
   @override
-  String get databasePrototypePath => p.join("assets", "japanese", "data.db");
+  String get databasePrototypePath =>
+      p.join("assets", "settings", "data.db.zip");
 
   static final SettingsStorage _singleton = SettingsStorage._internal();
   SettingsStorage._internal();
@@ -190,6 +191,7 @@ class SettingsStorage extends AbstractStorage {
         'DELETE FROM VocabPitch WHERE dictionaryId = ?', [dictionaryId]);
     batch.rawDelete('DELETE FROM Dictionary WHERE id = ?', [dictionaryId]);
     await batch.commit();
+    database!.rawQuery("VACUUM;");
     if (dictionarySettingCache != null) {
       dictionarySettingCache!.removeWhere(
           (dictionarySetting) => dictionarySetting.id == dictionaryId);
@@ -266,8 +268,9 @@ class SettingsStorage extends AbstractStorage {
         }
       }
     }
-    progressController?.add((DictionaryImportStage.savingData, -1));
+    progressController?.add((DictionaryImportStage.writingData, -1));
     await batch.commit();
+    database!.rawQuery("VACUUM;");
     if (dictionarySettingCache != null) {
       dictionarySettingCache!.add(DictionarySetting(
           id: dictionaryId,

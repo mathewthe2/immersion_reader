@@ -1,7 +1,9 @@
+import 'package:flutter_archive/flutter_archive.dart';
 import 'package:immersion_reader/storage/browser_storage.dart';
 import 'package:immersion_reader/storage/profile_storage.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
+import 'package:immersion_reader/utils/folder_utils.dart';
 import 'package:immersion_reader/utils/sqflite_migrations/sqflite_migrations.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:immersion_reader/data/database/sql_repository.dart';
@@ -47,11 +49,33 @@ abstract class AbstractStorage {
 
     if (databasePrototypePath != null) {
       await File(path).exists();
+      // clone database if no existing database
       if (!File(path).existsSync()) {
         ByteData data = await rootBundle.load(databasePrototypePath!);
+
+        // extract source database from zipped file
+        Directory workingFolder = await FolderUtils.getWorkingFolder();
+        File tempFile = File('${workingFolder.path}/$databaseStorageName.zip');
+        if (!tempFile.existsSync()) {
+          tempFile.createSync(
+              recursive: true); // create intermediate folders if necessary
+        }
+
         List<int> bytes =
             data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-        await File(path).writeAsBytes(bytes, flush: true);
+
+        await tempFile.writeAsBytes(
+          bytes,
+          flush: true,
+        );
+
+        try {
+          await ZipFile.extractToDirectory(
+              zipFile: tempFile, destinationDir: Directory(databasesPath));
+          // await tempFile.delete();
+        } catch (e) {
+          debugPrint(e.toString());
+        }
         if (onCreateCallback != null) {
           await onCreateCallback!();
         }
