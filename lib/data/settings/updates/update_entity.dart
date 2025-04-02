@@ -1,4 +1,4 @@
-import 'package:immersion_reader/utils/verions.dart';
+import 'package:immersion_reader/utils/versions.dart';
 
 class UpdateEntity {
   String version;
