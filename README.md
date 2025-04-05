@@ -43,6 +43,19 @@ flutter run
 - flutter build ipa
 - open [Apple Transport](https://apps.apple.com/us/app/transporter/id1450874784) on MacOS. Drag and drop the build/ios/ipa/*.ipa app bundle into the app.
 
+### Android
+
+Create file `android/key.properties`.
+
+```
+storePassword=<password>
+keyPassword=<password>
+keyAlias=upload
+storeFile=/Users/<your-user>/upload-keystore.jks
+```
+
+In Android Studio, select *Build* > *Flutter* > *Build Flutter Bundle*.
+
 ## Acknowledgements
 
 - [Kanjium](https://github.com/mifunetoshiro/kanjium)
