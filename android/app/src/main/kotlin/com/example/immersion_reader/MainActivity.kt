@@ -1,4 +1,4 @@
-package com.example.immersion_reader
+package com.immersionkit.immersion_reader
 
 import io.flutter.embedding.android.FlutterActivity
 
