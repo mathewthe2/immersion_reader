@@ -16,45 +16,64 @@ class Frequency {
     return _singleton;
   }
 
-  // static int frequencyLimit = 150;
+  static int frequencyLimit = 1000;
 
   Future<List<List<FrequencyTag>>> getFrequencyBatch(
       List<SearchTerm> searchTerms) async {
-    Batch batch = settingsStorage!.database!.batch();
     if (settingsStorage == null) {
       return [];
     }
-    List<List<FrequencyTag>> totalTags = [];
-    for (SearchTerm searchTerm in searchTerms) {
-      if (searchTerm.reading.isNotEmpty) {
-        batch.rawQuery("""
-            SELECT VocabFreq.*, Dictionary.title AS dictionaryName FROM VocabFreq
-            INNER JOIN Dictionary ON VocabFreq.dictionaryId = Dictionary.id
-            WHERE Dictionary.enabled = 1 AND
-            ((expression = ? AND (reading IS NULL OR reading = ''))
-            OR (expression = ? AND reading = ?))""",
-            [searchTerm.text, searchTerm.text, searchTerm.reading]);
+    final List<String> whereClauses = [];
+    final List<Object?> values = [];
+
+    for (SearchTerm term in searchTerms) {
+      if (term.reading.isNotEmpty) {
+        whereClauses.add("""
+        (
+          (expression = ? AND (reading IS NULL OR reading = ''))
+          OR (expression = ? AND reading = ?)
+        )
+      """);
+        values.addAll([term.text, term.text, term.reading]);
       } else {
-        batch.rawQuery("""
-            SELECT VocabFreq.*, Dictionary.title AS dictionaryName FROM VocabFreq
-            INNER JOIN Dictionary ON VocabFreq.dictionaryId = Dictionary.id 
-            WHERE Dictionary.enabled = 1 AND
-            expression = ?
-            """, [searchTerm.text]);
+        whereClauses.add("(expression = ?)");
+        values.add(term.text);
       }
     }
-    List<Object?> results = await batch.commit();
-    for (int i = 0; i < results.length; i++) {
-      List<Map<String, Object?>> rows =
-          results[i] as List<Map<String, Object?>>;
-      List<FrequencyTag> frequencyTags = [];
-      for (Map<String, Object?> row in rows) {
-        FrequencyTag frequencyTag = FrequencyTag.fromMap(row);
-        frequencyTags.add(frequencyTag);
+    values.add(frequencyLimit);
+    final rows = await settingsStorage!.database!.rawQuery("""
+    SELECT VocabFreq.*, Dictionary.title AS dictionaryName
+    FROM VocabFreq
+    INNER JOIN Dictionary ON VocabFreq.dictionaryId = Dictionary.id
+    WHERE Dictionary.enabled = 1 AND (${whereClauses.join(' OR ')})
+    LIMIT ?
+  """, values);
+    Map<String, List<FrequencyTag>> frequencyTagMap = {};
+    for (Map<String, Object?> row in rows) {
+      final expression = row['expression'] as String;
+      final reading = row['reading'] as String?;
+      FrequencyTag frequencyTag = FrequencyTag.fromMap(row);
+      if (reading != null && reading.isNotEmpty) {
+        frequencyTagMap
+            .putIfAbsent('$expression-$reading', () => [])
+            .add(frequencyTag);
+      } else {
+        frequencyTagMap.putIfAbsent(expression, () => []).add(frequencyTag);
       }
-      totalTags.add(frequencyTags);
     }
-    return totalTags;
+
+    List<List<FrequencyTag>> frequencyTags = [];
+
+    for (final term in searchTerms) {
+      if (frequencyTagMap.containsKey(term.text)) {
+        frequencyTags.add(frequencyTagMap[term.text]!);
+      } else if (frequencyTagMap.containsKey('${term.text}-${term.reading}')) {
+        frequencyTags.add(frequencyTagMap['${term.text}-${term.reading}']!);
+      } else {
+        frequencyTags.add([]);
+      }
+    }
+    return frequencyTags;
   }
 
   // Future<List<FrequencyTag>> getFrequency(String text,

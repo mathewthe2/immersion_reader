@@ -18,31 +18,31 @@ class Dictionary {
 
   Future<List<DictionaryEntry>> findTermsBulk(List<String> terms,
       {isHaveDisabledDictionaries = false}) async {
-    Batch batch = japaneseDictionary!.batch();
-    for (String term in terms) {
-      if (isHaveDisabledDictionaries) {
-        batch.rawQuery('''
-            SELECT Vocab.* FROM Vocab
-            INNER JOIN Dictionary ON Vocab.dictionaryId = Dictionary.id 
-            WHERE (expression = ? OR reading = ?) AND Dictionary.enabled = 1
-            LIMIT $termLimit
-            ''', [term, term]);
-      } else {
-        batch.rawQuery(
-            'SELECT * FROM Vocab WHERE expression = ? OR reading = ? LIMIT $termLimit',
-            [term, term]);
-      }
+    var termsMap = {};
+    for (final (int i, String term) in terms.indexed) {
+      termsMap[term] = i;
     }
-    List<Object?> results = await batch.commit();
+    final rows = await japaneseDictionary!.rawQuery("""
+      SELECT Vocab.*
+      FROM Vocab
+      ${isHaveDisabledDictionaries ? 'INNER JOIN Dictionary ON Vocab.dictionaryId = Dictionary.id' : ''}
+      WHERE (expression IN (${List.filled(terms.length, '?').join(', ')})
+        OR reading IN (${List.filled(terms.length, '?').join(', ')}))
+      ${isHaveDisabledDictionaries ? 'AND Dictionary.enabled = 1' : ''}
+      LIMIT ?
+      """, [...terms, ...terms, termLimit]);
+
     List<DictionaryEntry> dictionaryEntries = [];
-    for (int i = 0; i < results.length; i++) {
-      List<Map<String, Object?>> rows =
-          results[i] as List<Map<String, Object?>>;
-      for (Map<String, Object?> row in rows) {
-        DictionaryEntry entry = DictionaryEntry.fromMap(row);
-        entry.index = i;
-        dictionaryEntries.add(entry);
+    for (Map<String, Object?> row in rows) {
+      DictionaryEntry entry = DictionaryEntry.fromMap(row);
+      if (termsMap.containsKey(entry.term)) {
+        entry.index = termsMap[entry.term];
+      } else if (termsMap.containsKey(entry.reading)) {
+        entry.index = termsMap[entry.reading];
+      } else {
+        throw Exception('Unable to locate index for entry');
       }
+      dictionaryEntries.add(entry);
     }
     return dictionaryEntries;
   }
