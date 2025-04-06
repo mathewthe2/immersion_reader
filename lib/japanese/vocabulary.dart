@@ -21,6 +21,7 @@ class Vocabulary {
   String? source;
   List<String> rules = [];
   int maxTransformedTextLength = 0;
+  int sourceTermExactMatchCount = 0;
   // pitch
   PitchAccentDisplayStyle? pitchAccentDisplayStyle;
   List<String> pitchValues = [];

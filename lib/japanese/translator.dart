@@ -180,6 +180,9 @@ class Translator {
               (entry.transformedText == null ||
                   deinflection.transformedText.length >
                       entry.transformedText!.length)) {
+            if (entry.term == deinflection.transformedText) {
+              entry.sourceTermExactMatchCount += 1;
+            }
             entry.transformedText = deinflection.transformedText;
           }
           finalEntries.add(entry);
@@ -266,6 +269,8 @@ class Translator {
     definitions.sort((a, b) => <Comparator<Vocabulary>>[
           (o1, o2) => o1.maxTransformedTextLength
               .compareTo(o2.maxTransformedTextLength),
+          (o1, o2) => o1.sourceTermExactMatchCount
+              .compareTo(o2.sourceTermExactMatchCount),
           (o1, o2) => o1.getPopularity().compareTo(o2.getPopularity()),
           (o1, o2) => (o1.tags!.contains('P') ? 1 : 0)
               .compareTo((o2.tags!.contains('P') ? 1 : 0)),
@@ -279,6 +284,8 @@ class Translator {
   List<Vocabulary> _sortDefinitionsForUserSearch(List<Vocabulary> definitions) {
     // ranking based on popularity first then length
     definitions.sort((a, b) => <Comparator<Vocabulary>>[
+          (o1, o2) => o1.sourceTermExactMatchCount
+              .compareTo(o2.sourceTermExactMatchCount),
           (o1, o2) => o1.getPopularity().compareTo(o2.getPopularity()),
           (o1, o2) => (o1.tags!.contains('P') ? 1 : 0)
               .compareTo((o2.tags!.contains('P') ? 1 : 0)),

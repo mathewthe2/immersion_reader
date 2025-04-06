@@ -75,7 +75,7 @@ class Dictionary {
   Future<List<Vocabulary>> getVocabularyBatch(
       List<DictionaryEntry> dictionaryEntries) async {
     Map<String, Vocabulary> vocabularyMap = {};
-    Set<String> meaningsSet = {};
+    Set<String> readingMeaningsSet = {};
     for (DictionaryEntry dictionaryEntry in dictionaryEntries) {
       List<Map<String, Object?>> rows = await japaneseDictionary!.rawQuery(
           'SELECT glossary From VocabGloss WHERE vocabId=? LIMIT $termLimit', [
@@ -86,12 +86,13 @@ class Dictionary {
           rows.map((obj) => obj['glossary'] as String).toList();
       Vocabulary vocabulary = Vocabulary(entries: [dictionaryEntry]);
 
-      var meaningsKey = dictionaryEntry.meanings.join(
-          ""); // check repeated meanings by combined glossary (naive impl)
-      if (meaningsSet.contains(meaningsKey)) {
+      var readinMeaningsKey = dictionaryEntry.reading +
+          dictionaryEntry.meanings.join(
+              ""); // check repeated meanings by combined reading and glossary (naive impl)
+      if (readingMeaningsSet.contains(readinMeaningsKey)) {
         continue; // skip repeated meanings
       } else {
-        meaningsSet.add(meaningsKey);
+        readingMeaningsSet.add(readinMeaningsKey);
       }
 
       vocabulary.tags = dictionaryEntry.meaningTags;
@@ -100,7 +101,14 @@ class Dictionary {
       vocabulary.reading = dictionaryEntry.reading;
       vocabulary.maxTransformedTextLength =
           dictionaryEntry.transformedText?.length ?? 0;
+      vocabulary.sourceTermExactMatchCount =
+          dictionaryEntry.sourceTermExactMatchCount;
+
       String vocabularyKey = vocabulary.uniqueId;
+
+      // consider revamping vocab grouping here
+      // currently grouped based on having the same expression+reading
+
       if (vocabularyMap.containsKey(vocabularyKey)) {
         vocabularyMap[vocabularyKey]!.entries = [
           ...vocabularyMap[vocabularyKey]!.entries,

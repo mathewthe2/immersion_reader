@@ -150,4 +150,143 @@ class VocabBank {
     'that',
     'that thing'
   ]);
+  VocabularyEntry noun8 = VocabularyEntry.create(vocab: {
+    'expression': 'それ',
+    'reading': 'それ',
+    'sequence': 1006970,
+    'popularity': 999800,
+    'meaningTags': 'pn uk',
+    'termTags': '⭐ ichi',
+  }, meanings: [
+    "that",
+    "it"
+  ]);
+  VocabularyEntry verb3 = VocabularyEntry.create(vocab: {
+    'expression': '逸れる',
+    'reading': 'それる',
+    'sequence': 1576360,
+    'popularity': 999800,
+    'meaningTags': 'v1 vi uk',
+    'termTags': '⭐ ichi',
+  }, meanings: [
+    "to turn away",
+    "to bear off",
+    "to veer away",
+    "to swerve from",
+    "to miss (e.g. a target)"
+  ]);
+  VocabularyEntry adj1 = VocabularyEntry.create(vocab: {
+    'expression': 'その',
+    'reading': 'その',
+    'sequence': 1006830,
+    'popularity': 999800,
+    'meaningTags': 'adj-pn uk',
+    'termTags': '⭐ spec',
+  }, meanings: [
+    "that",
+    "the"
+  ]);
+  VocabularyEntry noun9 = VocabularyEntry.create(vocab: {
+    'expression': '園',
+    'reading': 'その',
+    'sequence': 1176240,
+    'popularity': 1999800,
+    'meaningTags': 'n',
+    'termTags': '⭐ ichi news5k',
+  }, meanings: [
+    "garden",
+    "orchard",
+    "park"
+  ]);
+  VocabularyEntry noun10 = VocabularyEntry.create(vocab: {
+    'expression': '私',
+    'reading': 'わたし',
+    'sequence': 1311110,
+    'popularity': 1999800,
+    'meaningTags': 'pn',
+    'termTags': '⭐ ichi news1k',
+  }, meanings: [
+    "I",
+    "me"
+  ]);
+  VocabularyEntry noun11 = VocabularyEntry.create(vocab: {
+    'expression': '私',
+    'reading': 'し',
+    'sequence': 2728300,
+    'popularity': -200,
+    'meaningTags': 'n',
+    'termTags': '',
+  }, meanings: [
+    "private affairs",
+    "personal matter"
+  ]);
+  VocabularyEntry noun12 = VocabularyEntry.create(vocab: {
+    'expression': '私',
+    'reading': 'あたし',
+    'sequence': 1311125,
+    'popularity': 999800,
+    'meaningTags': 'pn fem uk',
+    'termTags': '⭐ spec',
+  }, meanings: [
+    "I",
+    "me"
+  ]);
+  VocabularyEntry noun13 = VocabularyEntry.create(vocab: {
+    'expression': '私',
+    'reading': 'あたくし',
+    'sequence': 1311125,
+    'popularity': -10200,
+    'meaningTags': 'pn fem uk',
+    'termTags': '',
+  }, meanings: [
+    "I",
+    "me"
+  ]);
+  VocabularyEntry noun14 = VocabularyEntry.create(vocab: {
+    'expression': '私',
+    'reading': 'わい',
+    'sequence': 2217330,
+    'popularity': -200,
+    'meaningTags': 'pn dated ksb',
+    'termTags': '',
+  }, meanings: [
+    "I",
+    "me"
+  ]);
+  VocabularyEntry noun15 = VocabularyEntry.create(vocab: {
+    'expression': '私',
+    'reading': 'わちき',
+    'sequence': 2864027,
+    'popularity': -5010200,
+    'meaningTags': 'pn arch fem',
+    'termTags': '',
+  }, meanings: [
+    "I",
+    "me"
+  ]);
+  VocabularyEntry noun16 = VocabularyEntry.create(vocab: {
+    'expression': '隣り',
+    'reading': 'となり',
+    'sequence': 1555830,
+    'popularity': -5010200,
+    'meaningTags': 'adj-no n',
+    'termTags': '⚠️',
+  }, meanings: [
+    "next (to)",
+    "adjoining",
+    "adjacent"
+  ]);
+  VocabularyEntry verb4 = VocabularyEntry.create(vocab: {
+    'expression': '隣る',
+    'reading': 'となる',
+    'sequence': 2163190,
+    'popularity': -200,
+    'meaningTags': 'v5r vi arch',
+    'termTags': '⚠️',
+  }, meanings: [
+    "to neighbor (neighbour)",
+    "to be adjacent to",
+    "to be next to",
+    "to border"
+  ]);
 }

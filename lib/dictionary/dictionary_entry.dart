@@ -14,7 +14,8 @@ class DictionaryEntry {
       this.popularity,
       this.sequence,
       this.index,
-      this.transformedText});
+      this.transformedText,
+      this.sourceTermExactMatchCount = 0});
 
   factory DictionaryEntry.fromMap(Map<String, Object?> map) => DictionaryEntry(
       id: map['id'] as int?,
@@ -36,6 +37,8 @@ class DictionaryEntry {
 
   // for highlighting the original word
   String? transformedText;
+
+  int sourceTermExactMatchCount;
 
   /// The term represented by this dictionary entry.
   final String term;
