@@ -17,13 +17,21 @@ class Dictionary {
   }
 
   Future<List<DictionaryEntry>> findTermsBulk(List<String> terms,
-      {List<int> disabledDictionaryIds = const []}) async {
-    // List<DictionaryEntry> result = [];
+      {isHaveDisabledDictionaries = false}) async {
     Batch batch = japaneseDictionary!.batch();
     for (String term in terms) {
-      batch.rawQuery(
-          'SELECT * FROM Vocab WHERE expression = ? OR reading = ? LIMIT $termLimit',
-          [term, term]);
+      if (isHaveDisabledDictionaries) {
+        batch.rawQuery(
+            'SELECT * FROM Vocab WHERE expression = ? OR reading = ? LIMIT $termLimit',
+            [term, term]);
+      } else {
+        batch.rawQuery('''
+            SELECT Vocab.* FROM Vocab
+            INNER JOIN Dictionary ON Vocab.dictionaryId = Dictionary.id 
+            WHERE (expression = ? OR reading = ?) AND Dictionary.enabled = 1
+            LIMIT $termLimit
+            ''', [term, term]);
+      }
     }
     List<Object?> results = await batch.commit();
     List<DictionaryEntry> dictionaryEntries = [];
@@ -35,12 +43,6 @@ class Dictionary {
         entry.index = i;
         dictionaryEntries.add(entry);
       }
-    }
-
-    if (disabledDictionaryIds.isNotEmpty) {
-      dictionaryEntries = List.from(dictionaryEntries.where(
-          (DictionaryEntry entry) =>
-              !disabledDictionaryIds.contains(entry.dictionaryId)));
     }
     return dictionaryEntries;
   }

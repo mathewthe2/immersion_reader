@@ -49,7 +49,7 @@ class Translator {
   }
 
   static const int longestScanLength =
-      30; // assuming longest deinflected entry is < 30 characters
+      20; // assuming longest deinflected entry is < 20 characters
 
   Future<List<Vocabulary>> _findGlossaryTerms(String text,
       {DictionaryOptions? options}) async {
@@ -61,8 +61,7 @@ class Translator {
             glossaryTerms, options.pitchAccentDisplayStyle);
       }
       if (options.isGetFrequencyTags) {
-        glossaryTerms = await _batchAddFrequencyTags(glossaryTerms,
-            disabledDictionaryIds: options.disabledDictionaryIds);
+        glossaryTerms = await _batchAddFrequencyTags(glossaryTerms);
       }
       return glossaryTerms;
     } else {
@@ -161,7 +160,7 @@ class Translator {
 
     List<DictionaryEntry> entries = await dictionary.findTermsBulk(
         uniqueDeinflectionTerms,
-        disabledDictionaryIds: options.disabledDictionaryIds);
+        isHaveDisabledDictionaries: options.disabledDictionaryIds.isNotEmpty);
 
     List<DictionaryEntry> finalEntries = [];
     for (DictionaryEntry entry in entries) {
@@ -208,7 +207,6 @@ class Translator {
       }
     }
 
-    // print(finalEntries.length);
     List<Vocabulary> definitions =
         await dictionary.getVocabularyBatch(finalEntries);
 
@@ -218,8 +216,7 @@ class Translator {
           await _batchAddPitch(definitions, options.pitchAccentDisplayStyle);
     }
     if (options.isGetFrequencyTags) {
-      definitions = await _batchAddFrequencyTags(definitions,
-          disabledDictionaryIds: options.disabledDictionaryIds);
+      definitions = await _batchAddFrequencyTags(definitions);
     }
     if (options.sorted) {
       definitions = _sortDefinitionsForTermSearch(definitions);
@@ -239,8 +236,8 @@ class Translator {
     return definitions;
   }
 
-  Future<List<Vocabulary>> _batchAddFrequencyTags(List<Vocabulary> definitions,
-      {List<int> disabledDictionaryIds = const []}) async {
+  Future<List<Vocabulary>> _batchAddFrequencyTags(
+      List<Vocabulary> definitions) async {
     List<SearchTerm> searchTerms = definitions
         .map((definition) => SearchTerm(
             text: definition.expression ?? '',
@@ -249,16 +246,7 @@ class Translator {
     List<List<FrequencyTag>> frequencyTagsResult =
         await frequency.getFrequencyBatch(searchTerms);
     for (int i = 0; i < definitions.length; i++) {
-      List<FrequencyTag> frequencyTags = [];
-      for (FrequencyTag frequencyTag in frequencyTagsResult[i]) {
-        if (disabledDictionaryIds.isEmpty ||
-            !disabledDictionaryIds.contains(frequencyTag.dictionaryId)) {
-          frequencyTag.dictionaryName = await settingsStorage!
-              .getDictionaryNameFromId(frequencyTag.dictionaryId);
-          frequencyTags.add(frequencyTag);
-        }
-      }
-      definitions[i].frequencyTags = frequencyTags;
+      definitions[i].frequencyTags = frequencyTagsResult[i];
     }
     return definitions;
   }

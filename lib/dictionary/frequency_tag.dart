@@ -10,5 +10,6 @@ class FrequencyTag {
 
   factory FrequencyTag.fromMap(Map<String, Object?> map) => FrequencyTag(
       dictionaryId: map['dictionaryId'] as int,
+      dictionaryName: map['dictionaryName'] as String,
       frequency: map['frequency'] as String);
 }

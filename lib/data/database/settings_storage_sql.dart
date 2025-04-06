@@ -28,4 +28,6 @@ const List<String> settingsStorageMigrations = [
   'CREATE INDEX index_books_title ON Books (title)', // sort books basd on title
   'CREATE INDEX index_books_lastReadTime ON Books (lastReadTime)',
   "ALTER TABLE Dictionary ADD version TEXT DEFAULT '1.0.0'",
+  'CREATE INDEX index_Vocab_dictionaryId ON Vocab(dictionaryId)',
+  'CREATE INDEX index_VocabFreq_dictionaryId ON VocabFreq(dictionaryId)',
 ];

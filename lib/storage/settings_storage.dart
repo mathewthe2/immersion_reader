@@ -74,13 +74,6 @@ class SettingsStorage extends AbstractStorage {
     settingsCache = await getConfigSettings();
   }
 
-  Future<String> getDictionaryNameFromId(int dictionaryId) async {
-    List<DictionarySetting> dictionarySettings = await getDictionarySettings();
-    return dictionarySettings
-        .firstWhere((dictionarySetting) => dictionarySetting.id == dictionaryId)
-        .title;
-  }
-
   Future<SettingsData> getConfigSettings({bool forceRefetch = false}) async {
     if (settingsCache != null && !forceRefetch) {
       return settingsCache!;
