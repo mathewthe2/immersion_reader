@@ -21,16 +21,16 @@ class Dictionary {
     Batch batch = japaneseDictionary!.batch();
     for (String term in terms) {
       if (isHaveDisabledDictionaries) {
-        batch.rawQuery(
-            'SELECT * FROM Vocab WHERE expression = ? OR reading = ? LIMIT $termLimit',
-            [term, term]);
-      } else {
         batch.rawQuery('''
             SELECT Vocab.* FROM Vocab
             INNER JOIN Dictionary ON Vocab.dictionaryId = Dictionary.id 
             WHERE (expression = ? OR reading = ?) AND Dictionary.enabled = 1
             LIMIT $termLimit
             ''', [term, term]);
+      } else {
+        batch.rawQuery(
+            'SELECT * FROM Vocab WHERE expression = ? OR reading = ? LIMIT $termLimit',
+            [term, term]);
       }
     }
     List<Object?> results = await batch.commit();
@@ -78,14 +78,26 @@ class Dictionary {
       List<DictionaryEntry> dictionaryEntries) async {
     Map<String, Vocabulary> vocabularyMap = {};
     Set<String> readingMeaningsSet = {};
-    for (DictionaryEntry dictionaryEntry in dictionaryEntries) {
-      List<Map<String, Object?>> rows = await japaneseDictionary!.rawQuery(
-          'SELECT glossary From VocabGloss WHERE vocabId=? LIMIT $termLimit', [
-        dictionaryEntry.id,
-      ]);
+    String vocabIdsString = dictionaryEntries
+        .map((dictionaryEntry) => dictionaryEntry.id)
+        .join(",");
+    final rows = await japaneseDictionary!.query(
+      "VocabGloss",
+      columns: ["vocabId", "glossary"],
+      where: 'vocabId IN ($vocabIdsString)',
+      limit: termLimit,
+    );
 
-      dictionaryEntry.meanings =
-          rows.map((obj) => obj['glossary'] as String).toList();
+    final Map<int, List<String>> glossaryMap = {};
+    for (final row in rows) {
+      final id = row['vocabId'] as int;
+      final glossary = row['glossary'] as String;
+      glossaryMap.putIfAbsent(id, () => []).add(glossary);
+    }
+
+    for (DictionaryEntry dictionaryEntry in dictionaryEntries) {
+      dictionaryEntry.meanings = glossaryMap[dictionaryEntry.id] ?? [];
+
       Vocabulary vocabulary = Vocabulary(entries: [dictionaryEntry]);
 
       var readinMeaningsKey = dictionaryEntry.reading +
