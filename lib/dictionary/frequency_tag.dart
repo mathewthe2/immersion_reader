@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class FrequencyTag {
   FrequencyTag(
       {required this.dictionaryId,
@@ -12,4 +14,16 @@ class FrequencyTag {
       dictionaryId: map['dictionaryId'] as int,
       dictionaryName: map['dictionaryName'] as String,
       frequency: map['frequency'] as String);
+
+  factory FrequencyTag.fromString(String jsonString) =>
+      FrequencyTag.fromMap(jsonDecode(jsonString));
+
+  @override
+  String toString() {
+    return jsonEncode({
+      "dictionaryId": dictionaryId,
+      "dictionaryName": dictionaryName,
+      "frequency": frequency
+    });
+  }
 }

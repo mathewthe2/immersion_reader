@@ -47,7 +47,7 @@ class Frequency {
     WHERE Dictionary.enabled = 1 AND (${whereClauses.join(' OR ')})
     LIMIT ?
   """, values);
-    Map<String, List<FrequencyTag>> frequencyTagMap = {};
+    Map<String, Set<String>> frequencyTagMap = {};
     // Unlike pitches, frequency tags in database may have no readings
     for (Map<String, Object?> row in rows) {
       final expression = row['expression'] as String;
@@ -55,10 +55,12 @@ class Frequency {
       FrequencyTag frequencyTag = FrequencyTag.fromMap(row);
       if (reading != null && reading.isNotEmpty) {
         frequencyTagMap
-            .putIfAbsent('$expression-$reading', () => [])
-            .add(frequencyTag);
+            .putIfAbsent('$expression-$reading', () => {})
+            .add(frequencyTag.toString());
       } else {
-        frequencyTagMap.putIfAbsent(expression, () => []).add(frequencyTag);
+        frequencyTagMap
+            .putIfAbsent(expression, () => {})
+            .add(frequencyTag.toString());
       }
     }
 
@@ -66,9 +68,13 @@ class Frequency {
 
     for (final term in searchTerms) {
       if (frequencyTagMap.containsKey(term.text)) {
-        frequencyTags.add(frequencyTagMap[term.text]!);
+        frequencyTags.add(frequencyTagMap[term.text]!
+            .map((freq) => FrequencyTag.fromString(freq))
+            .toList());
       } else if (frequencyTagMap.containsKey('${term.text}-${term.reading}')) {
-        frequencyTags.add(frequencyTagMap['${term.text}-${term.reading}']!);
+        frequencyTags.add(frequencyTagMap['${term.text}-${term.reading}']!
+            .map((freq) => FrequencyTag.fromString(freq))
+            .toList());
       } else {
         frequencyTags.add([]);
       }
