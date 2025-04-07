@@ -19,8 +19,8 @@ class Frequency {
 
   Future<List<List<FrequencyTag>>> getFrequencyBatch(
       List<SearchTerm> searchTerms) async {
-    if (settingsStorage == null) {
-      return [];
+    if (settingsStorage == null || searchTerms.isEmpty) {
+      return List.filled(searchTerms.length, []);
     }
     final List<String> whereClauses = [];
     final List<Object?> values = [];

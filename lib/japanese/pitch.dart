@@ -18,8 +18,8 @@ class Pitch {
 
   Future<List<List<String>>> getPitchesBatch(
       List<Vocabulary> definitions) async {
-    if (settingsStorage == null) {
-      return [];
+    if (settingsStorage == null || definitions.isEmpty) {
+      return List.filled(definitions.length, []);
     }
     final List<String> whereClauses = [];
     final List<String> values = [];
