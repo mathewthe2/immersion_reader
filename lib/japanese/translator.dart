@@ -226,12 +226,11 @@ class Translator {
 
   Future<List<Vocabulary>> _batchAddPitch(List<Vocabulary> definitions,
       PitchAccentDisplayStyle pitchAccentDisplayStyle) async {
-    for (Vocabulary definition in definitions) {
+    final pitchesBatch = await pitch.makePitchesBatch(definitions,
+        pitchAccentDisplayStyle: pitchAccentDisplayStyle);
+    for (final (int i, Vocabulary definition) in definitions.indexed) {
       definition.pitchAccentDisplayStyle = pitchAccentDisplayStyle;
-      definition.pitchValues = await pitch.makePitch(
-          definition.expression ?? '',
-          reading: definition.reading ?? '',
-          pitchAccentDisplayStyle: pitchAccentDisplayStyle);
+      definition.pitchValues = pitchesBatch[i];
     }
     return definitions;
   }

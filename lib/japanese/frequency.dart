@@ -1,4 +1,3 @@
-// import 'package:flutter/foundation.dart';
 import 'package:immersion_reader/dictionary/frequency_tag.dart';
 import 'package:immersion_reader/japanese/search_term.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
@@ -49,6 +48,7 @@ class Frequency {
     LIMIT ?
   """, values);
     Map<String, List<FrequencyTag>> frequencyTagMap = {};
+    // Unlike pitches, frequency tags in database may have no readings
     for (Map<String, Object?> row in rows) {
       final expression = row['expression'] as String;
       final reading = row['reading'] as String?;
@@ -75,33 +75,4 @@ class Frequency {
     }
     return frequencyTags;
   }
-
-  // Future<List<FrequencyTag>> getFrequency(String text,
-  //     {String reading = ''}) async {
-  //   if (settingsStorage == null) {
-  //     return [];
-  //   }
-  //   List<Map<String, Object?>> rows = [];
-  //   try {
-  //     if (reading.isNotEmpty) {
-  //       rows = await settingsStorage!.database!.rawQuery("""
-  //           SELECT * FROM VocabFreq WHERE
-  //           (expression = ? AND (reading IS NULL OR reading = ''))
-  //           OR (expression = ? AND reading = ?)""", [text, text, reading]);
-  //     } else {
-  //       rows = await settingsStorage!.database!
-  //           .rawQuery('SELECT * FROM VocabFreq WHERE expression = ?', [
-  //         text,
-  //       ]);
-  //     }
-  //   } catch (e) {
-  //     debugPrint(e.toString());
-  //   }
-  //   if (rows.isNotEmpty) {
-  //     List<FrequencyTag> result =
-  //         rows.map((row) => FrequencyTag.fromMap(row)).toList();
-  //     return result;
-  //   }
-  //   return [];
-  // }
 }
