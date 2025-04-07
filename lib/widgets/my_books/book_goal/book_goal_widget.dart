@@ -17,6 +17,11 @@ class BookGoalWidget extends StatefulWidget {
 class _BookGoalWidgetState extends State<BookGoalWidget> {
   @override
   Widget build(BuildContext context) {
+    Color backgroundColor = CupertinoDynamicColor.resolve(
+        const CupertinoDynamicColor.withBrightness(
+            color: CupertinoColors.systemBackground,
+            darkColor: CupertinoColors.black),
+        context);
     return FutureBuilder<ProfileDailyProgress?>(
       future: ProfileManager().getDailyReadingProgress(),
       builder: (context, snapshot) {
@@ -28,7 +33,7 @@ class _BookGoalWidgetState extends State<BookGoalWidget> {
                     builder: (context) => Container(
                         width: MediaQuery.of(context).size.width,
                         height: MediaQuery.of(context).size.height * .70,
-                        color: CupertinoColors.white,
+                        color: backgroundColor,
                         child: BookGoalDetailSheet(
                             profileDailyProgress: snapshot.data!)));
               },
