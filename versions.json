@@ -2,7 +2,7 @@
   "schema_version": "1.0.0",
   "Dictionary": {
     "JMdict (English)": {
-      "version": "1.0.1",
+      "version": "1.0.2",
       "source": "https://github.com/mathewthe2/immersion_reader/releases/download/1.5.9/JMdict_english.zip"
     }
   }
