@@ -67,17 +67,20 @@ class Frequency {
     List<List<FrequencyTag>> frequencyTags = [];
 
     for (final term in searchTerms) {
+      List<FrequencyTag> frequencyTagsForTerm = [];
       if (frequencyTagMap.containsKey(term.text)) {
-        frequencyTags.add(frequencyTagMap[term.text]!
+        frequencyTagsForTerm = frequencyTagMap[term.text]!
             .map((freq) => FrequencyTag.fromString(freq))
-            .toList());
-      } else if (frequencyTagMap.containsKey('${term.text}-${term.reading}')) {
-        frequencyTags.add(frequencyTagMap['${term.text}-${term.reading}']!
-            .map((freq) => FrequencyTag.fromString(freq))
-            .toList());
-      } else {
-        frequencyTags.add([]);
+            .toList();
       }
+      if (frequencyTagMap.containsKey('${term.text}-${term.reading}')) {
+        frequencyTagsForTerm = [
+          ...frequencyTagsForTerm,
+          ...frequencyTagMap['${term.text}-${term.reading}']!
+              .map((freq) => FrequencyTag.fromString(freq))
+        ];
+      }
+      frequencyTags.add(frequencyTagsForTerm);
     }
     return frequencyTags;
   }

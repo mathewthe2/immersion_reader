@@ -54,6 +54,7 @@ Future<UserDictionary> parseDictionary(
   } catch (e) {
     debugPrint(e.toString());
   }
+  await FolderUtils.cleanUpWorkingFolder();
   throw Exception('Unable to produce dictionary');
 }
 
@@ -121,6 +122,36 @@ List<DictionaryEntry> parseTerms(List<File> files, String dictionaryName) {
   return entries;
 }
 
+// returns reading:frequency
+(String, String) _parseFrequency(dynamic rawFrequency) {
+  String reading = '';
+  String frequency = '';
+
+  switch (rawFrequency) {
+    case double d when d % 1 == 0:
+      frequency = '${d.toInt()}';
+      break;
+    case double d:
+      frequency = '$d';
+      break;
+    case int i:
+      frequency = '$i';
+      break;
+    case Map<String, dynamic> obj:
+      if (obj['frequency'] != null) {
+        (_, frequency) = _parseFrequency(obj['frequency']);
+      }
+      if (obj['reading'] != null) {
+        reading = obj['reading'];
+      }
+      break;
+    default:
+      frequency = rawFrequency.toString();
+  }
+
+  return (reading, frequency);
+}
+
 List<DictionaryMetaEntry> parseMetaTerms(
     List<File> files, String dictionaryName) {
   List<DictionaryMetaEntry> metaEntries = [];
@@ -153,29 +184,7 @@ List<DictionaryMetaEntry> parseMetaTerms(
           pitches.add(pitch);
         }
       } else if (type == 'freq') {
-        if (item[2] is double) {
-          double number = item[2] as double;
-          if (number % 1 == 0) {
-            frequency = '${number.toInt()}';
-          } else {
-            frequency = '$number';
-          }
-        } else if (item[2] is int) {
-          int number = item[2] as int;
-          frequency = '$number';
-        } else if (item[2] is Object) {
-          if (item[2]['frequency'] != null) {
-            int number = item[2]['frequency'] as int;
-            frequency = '$number';
-            // print(frequency);
-          }
-          if (item[2]['reading'] != null) {
-            reading = item[2]['reading'];
-            // print(reading);
-          }
-        } else {
-          frequency = item[2].toString();
-        }
+        (reading, frequency) = _parseFrequency(item[2]);
       } else {
         continue;
       }
