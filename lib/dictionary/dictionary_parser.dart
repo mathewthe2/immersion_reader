@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'package:immersion_reader/dictionary/dictionary_entry_id.dart';
+import 'package:immersion_reader/dictionary/dictionary_entry_meaning.dart';
 import 'package:immersion_reader/widgets/settings/dictionary_settings.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/foundation.dart';
@@ -84,42 +86,59 @@ Future<UserDictionary> parseDictionary(
 //   return tags;
 // }
 
-List<DictionaryEntry> parseTerms(List<File> files, String dictionaryName) {
-  List<DictionaryEntry> entries = [];
-  for (File file in files) {
-    List<dynamic> items = jsonDecode(file.readAsStringSync());
-
-    for (List<dynamic> item in items) {
-      String term = item[0] as String;
-      String reading = item[1] as String;
-
-      double popularity = (item[4] as num).toDouble();
-      List<String> meaningTags = (item[2] as String).split(' ');
-      List<String> termTags = (item[7] as String).split(' ');
-
-      List<String> meanings = [];
-      int? sequence = item[6] as int?;
-
-      if (item[5] is List) {
-        List<dynamic> meaningsList = List.from(item[5]);
-        meanings = meaningsList.map((e) => e.toString()).toList();
-      } else {
-        meanings.add(item[5].toString());
+DictionaryEntryMeaning _parseMeanings(dynamic rawMeaning) {
+  switch (rawMeaning) {
+    case List l:
+      {
+        List<String> meanings = [];
+        for (final meaningEntity in l) {
+          final parsedMeaning = _parseMeanings(meaningEntity);
+          if (parsedMeaning.redirectQuery != null) {
+            // ignore other meanings if redirectQuery exists
+            return DictionaryEntryMeaning(
+                meanings: [], redirectQuery: parsedMeaning.redirectQuery);
+          }
+          meanings = [...meanings, ...parsedMeaning.meanings];
+        }
+        return DictionaryEntryMeaning(meanings: meanings);
       }
-      entries.add(
-        DictionaryEntry(
-          term: term,
-          reading: reading,
-          meanings: meanings,
-          popularity: popularity,
-          meaningTags: meaningTags,
-          termTags: termTags,
-          sequence: sequence,
-        ),
-      );
-    }
+    case Map m:
+      {
+        if (m.containsKey("content") &&
+            m["content"].containsKey("content") &&
+            m["content"]["content"] is List &&
+            (m["content"]["content"] as List).length > 1 &&
+            (m["content"]["content"] as List).first == "⟶" &&
+            m["content"]["content"][1] is Map &&
+            (m["content"]["content"][1] as Map).containsKey("content")) {
+          final content = m["content"]["content"][1]["content"];
+          switch (content) {
+            case String s:
+              return DictionaryEntryMeaning(
+                  meanings: [],
+                  redirectQuery: DictionaryEntryId(expression: s));
+            case List l:
+              {
+                if (l.length > 3 && l.first is Map && l[2] is Map) {
+                  final expression = l.first["content"];
+                  final reading = l[2]["content"];
+                  return DictionaryEntryMeaning(
+                      meanings: [],
+                      redirectQuery: DictionaryEntryId(
+                          expression: expression, reading: reading));
+                }
+                return DictionaryEntryMeaning(meanings: []);
+              }
+            default:
+              return DictionaryEntryMeaning(meanings: []);
+          }
+        } else {
+          return DictionaryEntryMeaning(meanings: []);
+        }
+      }
+    default:
+      return DictionaryEntryMeaning(meanings: [rawMeaning.toString()]);
   }
-  return entries;
 }
 
 // returns reading:frequency
@@ -150,6 +169,38 @@ List<DictionaryEntry> parseTerms(List<File> files, String dictionaryName) {
   }
 
   return (reading, frequency);
+}
+
+List<DictionaryEntry> parseTerms(List<File> files, String dictionaryName) {
+  List<DictionaryEntry> entries = [];
+  for (File file in files) {
+    List<dynamic> items = jsonDecode(file.readAsStringSync());
+
+    for (List<dynamic> item in items) {
+      String term = item[0] as String;
+      String reading = item[1] as String;
+
+      double popularity = (item[4] as num).toDouble();
+      List<String> meaningTags = (item[2] as String).split(' ');
+      List<String> termTags = (item[7] as String).split(' ');
+
+      int? sequence = item[6] as int?;
+
+      DictionaryEntryMeaning meaning = _parseMeanings(item[5]);
+      entries.add(
+        DictionaryEntry(
+          term: term,
+          reading: reading,
+          meaning: meaning,
+          popularity: popularity,
+          meaningTags: meaningTags,
+          termTags: termTags,
+          sequence: sequence,
+        ),
+      );
+    }
+  }
+  return entries;
 }
 
 List<DictionaryMetaEntry> parseMetaTerms(

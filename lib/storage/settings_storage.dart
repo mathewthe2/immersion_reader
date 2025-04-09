@@ -220,6 +220,9 @@ class SettingsStorage extends AbstractStorage {
     });
     int lastRecordId = await getLastRecordId();
     Batch batch = database!.batch();
+
+    List<DictionaryEntry> entriesWithRedirectQueries = [];
+
     for (final (int index, DictionaryEntry entry)
         in userDictionary.dictionaryEntries.indexed) {
       progressController?.add((
@@ -227,22 +230,27 @@ class SettingsStorage extends AbstractStorage {
         index / userDictionary.dictionaryEntries.length * 100
       ));
       lastRecordId += 1;
-      batch.rawInsert(
-          'INSERT INTO Vocab(id, dictionaryId, expression, reading, meaningTags, termTags, popularity, sequence) VALUES(?, ?, ?, ?, ?, ?, ?, ?)',
-          [
-            lastRecordId,
-            dictionaryId,
-            entry.term,
-            entry.reading,
-            entry.meaningTags.join(' '),
-            entry.termTags.join(' '),
-            entry.popularity,
-            entry.sequence
-          ]);
+      batch.insert('Vocab', {
+        'id': lastRecordId,
+        'dictionaryId': dictionaryId,
+        'expression': entry.term,
+        'reading': entry.reading,
+        'meaningTags': entry.meaningTags.join(' '),
+        'termTags': entry.termTags.join(' '),
+        'popularity': entry.popularity,
+        'sequence': entry.sequence
+      });
+      if (entry.redirectQuery != null) {
+        entry.id = lastRecordId;
+        entriesWithRedirectQueries.add(entry);
+        continue;
+      }
       for (String meaning in entry.meanings) {
-        batch.rawInsert(
-            'INSERT INTO VocabGloss(glossary, vocabId, dictionaryId) VALUES(?, ?, ?)',
-            [meaning, lastRecordId, dictionaryId]);
+        batch.insert('VocabGloss', {
+          'glossary': meaning,
+          'vocabId': lastRecordId,
+          'dictionaryId': dictionaryId
+        });
       }
     }
     for (final (int index, DictionaryMetaEntry metaEntry)
@@ -280,6 +288,50 @@ class SettingsStorage extends AbstractStorage {
     }
     progressController?.add((DictionaryImportStage.writingData, -1));
     await batch.commit();
+    if (entriesWithRedirectQueries.isNotEmpty) {
+      batch = database!.batch(); // reset batch
+      for (final entry in entriesWithRedirectQueries) {
+        final redirectQuery = entry.redirectQuery!;
+        if (redirectQuery.reading != null &&
+            redirectQuery.reading!.isNotEmpty) {
+          batch.rawQuery(
+              """SELECT Vocab.expression, Vocab.reading, VocabGloss.glossary 
+          FROM VocabGloss
+          INNER JOIN Vocab ON VocabGloss.vocabId = Vocab.id
+          WHERE (expression = ? AND reading = ?)
+          AND VocabGloss.dictionaryId = ?""",
+              [
+                redirectQuery.expression,
+                redirectQuery.reading,
+                dictionaryId,
+              ]);
+        } else {
+          batch.rawQuery(
+              """SELECT Vocab.expression, Vocab.reading, VocabGloss.glossary 
+          FROM VocabGloss
+          INNER JOIN Vocab ON VocabGloss.vocabId = Vocab.id
+          WHERE expression = ? AND VocabGloss.dictionaryId = ?""",
+              [
+                redirectQuery.expression,
+                dictionaryId,
+              ]);
+        }
+      }
+      List<Object?> results = await batch.commit();
+      batch = database!.batch(); // reset batch for insert
+      for (int i = 0; i < results.length; i++) {
+        List<Map<String, Object?>> rows =
+            results[i] as List<Map<String, Object?>>;
+        for (Map<String, Object?> row in rows) {
+          batch.insert('VocabGloss', {
+            'glossary': row['glossary'],
+            'vocabId': entriesWithRedirectQueries[i].id,
+            'dictionaryId': dictionaryId
+          });
+        }
+      }
+      await batch.commit();
+    }
     database!.rawQuery("VACUUM;");
     if (dictionarySettingCache != null) {
       dictionarySettingCache!.add(DictionarySetting(

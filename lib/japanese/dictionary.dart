@@ -96,7 +96,7 @@ class Dictionary {
     }
 
     for (DictionaryEntry dictionaryEntry in dictionaryEntries) {
-      dictionaryEntry.meanings = glossaryMap[dictionaryEntry.id] ?? [];
+      dictionaryEntry.meaning.meanings = glossaryMap[dictionaryEntry.id] ?? [];
 
       Vocabulary vocabulary = Vocabulary(entries: [dictionaryEntry]);
 

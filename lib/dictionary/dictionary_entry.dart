@@ -1,10 +1,13 @@
 // https://github.com/lrorpilla/jidoujisho/blob/1ef19254b67fb766fa49fa12a82b009f31ec5419/chisa/lib/dictionary/dictionary_entry.dart
 
+import 'package:immersion_reader/dictionary/dictionary_entry_id.dart';
+import 'package:immersion_reader/dictionary/dictionary_entry_meaning.dart';
+
 class DictionaryEntry {
   /// Initialise a dictionary entry with given details of a certain term.
   DictionaryEntry(
       {required this.term,
-      required this.meanings,
+      required this.meaning,
       this.reading = '',
       this.id,
       this.dictionaryId,
@@ -20,8 +23,7 @@ class DictionaryEntry {
   factory DictionaryEntry.fromMap(Map<String, Object?> map) => DictionaryEntry(
       id: map['id'] as int?,
       dictionaryId: map['dictionaryId'] as int,
-      meanings:
-          map['meanings'] != null ? (map['glossary'] as String).split(';') : [],
+      meaning: DictionaryEntryMeaning(meanings: []),
       term: map['expression'] as String,
       reading: map['reading'] as String,
       popularity: map['popularity'] as double,
@@ -48,9 +50,7 @@ class DictionaryEntry {
   /// The pronunciation of the term represented by this dictionary entry.
   final String reading;
 
-  /// A list of definitions for a term. If there is only a single [String] item,
-  /// this should be a single item list.
-  List<String> meanings;
+  DictionaryEntryMeaning meaning;
 
   /// A bonus field for storing any additional kind of information. For example,
   /// if there are any grammar rules related to this term.
@@ -70,6 +70,11 @@ class DictionaryEntry {
   /// A value that can be used to group similar entries with the same value
   /// together.
   final int? sequence;
+
+  List<String> get meanings => meaning.meanings;
+
+  // redirect query for structured content that to get the meanings of another dictionary entry
+  DictionaryEntryId? get redirectQuery => meaning.redirectQuery;
 
   /// The length of term is used as an index.
   int get termLength => term.length;
