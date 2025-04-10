@@ -7,13 +7,11 @@ class FrequencyWidget extends StatelessWidget {
   const FrequencyWidget(
       {super.key, required this.parentContext, required this.vocabulary});
   static const double _widgetHeight = 34;
-  static const double _widgetWidthFactor = 0.8;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
         height: _widgetHeight,
-        width: MediaQuery.of(context).size.width * _widgetWidthFactor,
         child: ListView(
             physics: const BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
