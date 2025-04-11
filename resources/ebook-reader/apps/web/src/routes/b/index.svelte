@@ -307,6 +307,17 @@
   </div>
 {/if}
 
+<!-- update page when tapping left or right edges -->
+<div
+  class="fixed top-0 left-0 z-10 h-full w-5"
+  on:click={() => pageManager?.nextPage()}
+/>
+
+<div
+  class="fixed top-0 right-0 z-10 h-full w-5"
+  on:click={() => pageManager?.prevPage()}
+/>
+
 {#if $bookData$}
   <StyleSheetRenderer styleSheet={$bookData$.styleSheet} />
   <BookReader
