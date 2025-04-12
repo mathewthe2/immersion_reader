@@ -309,7 +309,7 @@
 
 <!-- update page when tapping left or right edges -->
 <div
-  class="fixed top-0 left-0 z-10 h-full w-5"
+  class="fixed top-0 left-0 z-10 h-full w-8"
   on:click={() => pageManager?.nextPage()}
 />
 
