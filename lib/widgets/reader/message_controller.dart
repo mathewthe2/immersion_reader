@@ -12,22 +12,18 @@ class MessageController {
   bool hasShownAddedDialog = false;
   bool hasInjectedPopupJs = false;
   VoidCallback? exitCallback;
-  VoidCallback? readerAudioCallback;
   Function(String javascript)? evaluateJavascript;
 
   ValueNotifier<bool> messageControllerNotifier = ValueNotifier(false);
 
-  MessageController._internal(
-      {this.exitCallback, this.readerAudioCallback, this.evaluateJavascript});
+  MessageController._internal({this.exitCallback, this.evaluateJavascript});
 
   factory MessageController(
           {VoidCallback? exitCallback,
           VoidCallback? readerAudioCallback,
           Function(String javascript)? evaluateJavascript}) =>
       MessageController._internal(
-          exitCallback: exitCallback,
-          readerAudioCallback: readerAudioCallback,
-          evaluateJavascript: evaluateJavascript);
+          exitCallback: exitCallback, evaluateJavascript: evaluateJavascript);
 
   void evaluate(String javascript) {
     if (evaluateJavascript != null) {
@@ -47,11 +43,6 @@ class MessageController {
       case 'launch-immersion-reader':
         if (exitCallback != null) {
           exitCallback!();
-        }
-        break;
-      case 'launch-immersion-reader-audio':
-        if (readerAudioCallback != null) {
-          readerAudioCallback!();
         }
         break;
       default:

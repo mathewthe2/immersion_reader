@@ -63,24 +63,36 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
     });
   }
 
+  void navigateToBook(
+      {required String mediaIdentifier,
+      bool isFullScreen = false,
+      bool isShowDeviceStatusBar = false}) {
+    Navigator.of(context, rootNavigator: isFullScreen)
+        .push(SwipeablePageRoute(
+            canOnlySwipeFromEdge: true,
+            builder: (context) {
+              return Reader(
+                initialUrl: mediaIdentifier,
+                reopenReader: reopenReader,
+                isShowDeviceStatusBar: isShowDeviceStatusBar,
+              );
+            }))
+        .then((_) => onExitReader());
+  }
+
+  void reopenReader(String bookMediaIdentifier) {
+    Navigator.pop(context);
+    navigateToBook(
+        mediaIdentifier: bookMediaIdentifier,
+        isFullScreen:
+            SettingsManager().cachedAppearanceSettings().enableReaderFullScreen,
+        isShowDeviceStatusBar:
+            SettingsManager().cachedAppearanceSettings().isShowDeviceStatusBar);
+  }
+
   @override
   Widget build(BuildContext context) {
     ReaderSessionManager.createSession(MyBooksWidget.contentType);
-    void navigateToBook(
-        {required String mediaIdentifier,
-        bool isFullScreen = false,
-        bool isShowDeviceStatusBar = false}) {
-      Navigator.of(context, rootNavigator: isFullScreen)
-          .push(SwipeablePageRoute(
-              canOnlySwipeFromEdge: true,
-              builder: (context) {
-                return Reader(
-                  initialUrl: mediaIdentifier,
-                  isShowDeviceStatusBar: isShowDeviceStatusBar,
-                );
-              }))
-          .then((_) => onExitReader());
-    }
 
     return Column(children: [
       Padding(
@@ -129,6 +141,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                     builder: (context) {
                       return Reader(
                           isAddBook: true,
+                          reopenReader: reopenReader,
                           isShowDeviceStatusBar: SettingsManager()
                               .cachedAppearanceSettings()
                               .isShowDeviceStatusBar,

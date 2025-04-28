@@ -1,4 +1,5 @@
 import 'package:immersion_reader/data/profile/profile_content.dart';
+import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
 
 class ReaderSessionManager {
@@ -15,6 +16,13 @@ class ReaderSessionManager {
   }
 
   factory ReaderSessionManager() => _singleton;
+
+  void startReadingBook(Book book) {
+    start(
+        key: book.id.toString(),
+        title: book.title,
+        contentLength: book.totalCharacters);
+  }
 
   void start(
       {required String key, required String title, int? contentLength}) async {

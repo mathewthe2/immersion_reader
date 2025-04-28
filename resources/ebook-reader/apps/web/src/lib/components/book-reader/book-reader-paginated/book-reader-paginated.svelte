@@ -13,7 +13,7 @@
     takeUntil,
     throttleTime
   } from 'rxjs';
-  import { createEventDispatcher, onDestroy } from 'svelte';
+  import { createEventDispatcher, onDestroy, onMount } from 'svelte';
   import Fa from 'svelte-fa';
   import { swipe } from 'svelte-gestures';
   import { faBookmark, faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -27,6 +27,8 @@
   import { SectionCharacterStatsCalculator } from './section-character-stats-calculator';
   import type { BookmarkManager, PageManager } from '../types';
   import { BookmarkManagerPaginated } from './bookmark-manager-paginated';
+  import { getExternalTargetElement } from '$lib/functions/utils';
+  import { SECTION_CHANGE } from '$lib/data/events';
 
   export let htmlContent: string;
 
@@ -78,6 +80,8 @@
 
   export let autoBookmark = false;
 
+  export let customReadingPointRange: Range | undefined;
+
   const dispatch = createEventDispatcher<{
     bookmark: void;
     contentChange: HTMLElement;
@@ -105,6 +109,12 @@
 
   let previousIntendedCount = 0;
 
+  let useExploredCharCount = false;
+
+  let wasResized = false;
+
+  let currentSectionId = '';
+
   const width$ = new Subject<number>();
 
   const height$ = new Subject<number>();
@@ -127,7 +137,10 @@
 
   const destroy$ = new Subject<void>();
 
-  $: bookmarkData.then(updateBookmarkScreen);
+  $: bookmarkData.then((data) => {
+    useExploredCharCount = false;
+    updateBookmarkScreen(data);
+  });
 
   $: if (width) width$.next(width);
 
@@ -149,6 +162,8 @@
       sectionIndex$.next(0);
     }
   }
+
+  $: updateAfterCustomReadingPointUpdate(customReadingPointRange);
 
   $: {
     if (contentEl && scrollEl && sections) {
@@ -180,6 +195,10 @@
 
   $: {
     if (calculator && !loadingState) {
+      const sectionIndex = sectionIndex$.getValue();
+      const section = sections[sectionIndex];
+
+      currentSectionId = section?.id.startsWith('ttu-') ? section.id : '';
       sectionRenderComplete$.next(sectionIndex$.getValue());
     }
   }
@@ -202,6 +221,47 @@
     document.body.classList.add(cssClassOverflowHidden);
   }
 
+  onMount(() => document.addEventListener('ttu-action', handleAction, false));
+
+  async function handleAction({ detail }: any) {
+    if (!detail.type || !calculator || !concretePageManager) {
+      return;
+    }
+
+    if (detail.type === 'cue') {
+      const targetSection = getTargetSection(detail.selector);
+
+      if (targetSection === -1) {
+        return;
+      }
+
+      const currentSection = sectionIndex$.getValue();
+
+      if (currentSection !== targetSection) {
+        const waitForSection = new Promise<void>((resolve) => {
+          sectionReady$.pipe(take(1)).subscribe(() => resolve());
+        });
+
+        sectionIndex$.next(targetSection);
+        concretePageManager.scrollTo(0, false);
+
+        await waitForSection;
+      }
+
+      const scrollPos = getTargetScrollPos(calculator, detail.selector);
+
+      if (scrollPos < 0) {
+        return;
+      }
+
+      concretePageManager.scrollTo(scrollPos, true);
+
+      if (currentSection !== targetSection) {
+        document.dispatchEvent(new CustomEvent(SECTION_CHANGE));
+      }
+    }
+  }
+
   onDestroy(() => {
     document.body.classList.remove(cssClassOverflowHidden);
     destroy$.next();
@@ -215,21 +275,41 @@
       takeUntil(destroy$)
     )
     .subscribe(() => {
-      if (!calculator || !concretePageManager) return;
-      const scrollPos = calculator.getScrollPosByCharCount(previousIntendedCount);
-      if (scrollPos < 0) return;
-      concretePageManager.scrollTo(scrollPos, false);
+      bookmarkData.then((data) => {
+        if (!calculator || !concretePageManager) return;
+
+        const useBookmark =
+          data?.exploredCharCount &&
+          isBookmarkScreen &&
+          (data.exploredCharCount === exploredCharCount ||
+            data.exploredCharCount === previousIntendedCount);
+
+        const scrollPos = calculator.getScrollPosByCharCount(
+          useBookmark && data.exploredCharCount === exploredCharCount
+            ? data.exploredCharCount
+            : previousIntendedCount
+        );
+
+        if (scrollPos < 0) return;
+
+        wasResized = !useBookmark;
+        concretePageManager.scrollTo(scrollPos, false);
+      });
     });
 
   pageChange$.pipe(takeUntil(destroy$)).subscribe((isUser) => {
     if (!calculator) return;
 
-    exploredCharCount = calculator.calcExploredCharCount();
+    exploredCharCount = calculator.calcExploredCharCount(customReadingPointRange);
     if (isUser) {
       previousIntendedCount = exploredCharCount;
     }
     notifyProgressToImmersionReader(exploredCharCount);
-    bookmarkData.then(updateBookmarkScreen);
+    bookmarkData.then((data) => {
+      useExploredCharCount = isUser || wasResized;
+      updateBookmarkScreen(data);
+      wasResized = false;
+    });
   });
 
   if (autoBookmark) {
@@ -238,6 +318,40 @@
         dispatch('bookmark');
       }
     });
+  }
+
+  function getTargetSection(selector: string) {
+    let targetSection = -1;
+
+    for (let index = 0, { length } = sections; index < length; index += 1) {
+      const element = getExternalTargetElement(sections[index], selector);
+
+      if (element) {
+        targetSection = index;
+        break;
+      }
+    }
+
+    return targetSection;
+  }
+
+  function getTargetScrollPos(
+    calculatorInstance: SectionCharacterStatsCalculator,
+    selector: string
+  ) {
+    const targetElement = getExternalTargetElement(document, selector);
+    const nodeRange = document.createRange();
+
+    if (!targetElement) {
+      return -1;
+    }
+
+    nodeRange.setStart(targetElement, 0);
+    nodeRange.setEnd(targetElement, targetElement.childNodes.length);
+
+    return calculatorInstance.getScrollPosByCharCount(
+      calculatorInstance.calcExploredCharCount(nodeRange)
+    );
   }
 
   currentSection$.pipe(distinctUntilChanged(), takeUntil(destroy$)).subscribe(() => {
@@ -270,6 +384,27 @@
         concretePageManager?.flipPage(multiplier as -1 | 1);
       }
     });
+
+  function updateAfterCustomReadingPointUpdate(updatedCustomReadingPosition: Range | undefined) {
+    if (!calculator) {
+      return;
+    }
+
+    exploredCharCount = calculator.calcExploredCharCount(updatedCustomReadingPosition);
+    previousIntendedCount = exploredCharCount;
+
+    updateSectionData(updatedCustomReadingPosition);
+  }
+
+  function updateSectionData(updatedCustomReadingRange: Range | undefined) {
+    if (!concretePageManager || !calculator) {
+      return;
+    }
+
+    concretePageManager.updateSectionDataByOffset(
+      calculator.getOffsetToRange(updatedCustomReadingRange, columnCount)
+    );
+  }
 
   function onHtmlLoad() {
     if (skipFirstHtmlLoad) {
@@ -308,19 +443,37 @@
 
   function onContentDisplayChange(_calculator: SectionCharacterStatsCalculator) {
     _calculator.updateParagraphPos();
-    exploredCharCount = _calculator.calcExploredCharCount();
+    exploredCharCount = _calculator.calcExploredCharCount(customReadingPointRange);
     sectionReady$.next(_calculator);
-    bookmarkData.then(updateBookmarkScreen);
 
     if (scrollWhenReady) {
       scrollWhenReady = false;
       bookmarkData.then((data) => {
         if (!data || !bookmarkManager) return;
+        exploredCharCount = data.exploredCharCount || 0;
         bookmarkManager.scrollToBookmark(data);
       });
+    } else if (!wasResized) {
+      bookmarkData.then(updateBookmarkScreen);
     }
     allowDisplay = true;
   }
+
+  // function onContentDisplayChange(_calculator: SectionCharacterStatsCalculator) {
+  //   _calculator.updateParagraphPos();
+  //   exploredCharCount = _calculator.calcExploredCharCount();
+  //   sectionReady$.next(_calculator);
+  //   bookmarkData.then(updateBookmarkScreen);
+
+  //   if (scrollWhenReady) {
+  //     scrollWhenReady = false;
+  //     bookmarkData.then((data) => {
+  //       if (!data || !bookmarkManager) return;
+  //       bookmarkManager.scrollToBookmark(data);
+  //     });
+  //   }
+  //   allowDisplay = true;
+  // }
 
   function updateBookmarkScreen(data: BooksDbBookmarkData | undefined) {
     const bookmarkCharCount = data?.exploredCharCount;
@@ -357,6 +510,8 @@
   }
 
   nextChapter$.pipe(takeUntil(destroy$)).subscribe((chapterId) => {
+    console.log('wtf', chapterId);
+    console.log('sections', sections[1]);
     const nextSectionIndex = sections.findIndex(
       (section) => section.id === chapterId || section.querySelector(`[id="${chapterId}"]`)
     );
@@ -409,7 +564,7 @@
   use:swipe={{ timeframe: 500, minSwipeDistance: 10, touchAction: 'pan-y' }}
   on:swipe={onSwipe}
 >
-  <div class="book-content-container" bind:this={contentEl}>
+  <div class="book-content-container" id={currentSectionId || null} bind:this={contentEl}>
     <HtmlRenderer html={displayedHtml} on:load={onHtmlLoad} />
   </div>
 </div>

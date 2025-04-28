@@ -17,11 +17,15 @@ class Book {
   String? coverImage;
   String? authorIdentifier;
   String? elementHtml;
+  String? elementHtmlBackup;
   String? styleSheet;
   List<BookSection>? sections;
   List<BookBlob>? blobs;
   bool? hasThumb;
   BookBookmark? bookmark;
+
+  // audio books
+  int? playBackPositionInMs;
 
   // for online books
   String? imageUrl;
@@ -35,6 +39,8 @@ class Book {
       this.coverImage,
       this.authorIdentifier,
       this.elementHtml,
+      this.elementHtmlBackup,
+      this.playBackPositionInMs,
       this.styleSheet,
       this.sections,
       this.blobs,
@@ -52,6 +58,8 @@ class Book {
           ? map['authorIdentifier'] as String
           : '',
       elementHtml: map['elementHtml'] as String,
+      elementHtmlBackup: map['elementHtmlBackup'] as String?,
+      playBackPositionInMs: map['playBackPositionInMs'] as int?,
       styleSheet: map['styleSheet'] as String,
       coverImage: getCoverImageFromMap(map),
       sections: map['sections'] != null
@@ -140,6 +148,11 @@ class Book {
       for (var blob in blobs!) blob.key: blob.base64Data ?? "",
     };
   }
+
+  String get originalHtmlContent =>
+      (elementHtmlBackup != null && elementHtmlBackup!.isNotEmpty)
+          ? elementHtmlBackup!
+          : elementHtml ?? "";
 
   ImageProvider<Object> getDisplayThumbnail() {
     if (imageUrl != null) {
