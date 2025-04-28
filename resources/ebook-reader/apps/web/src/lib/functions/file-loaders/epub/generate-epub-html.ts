@@ -5,7 +5,7 @@
  */
 
 import path from 'path-browserify';
-import type { EpubContent } from './types';
+import { isOPFType, type EpubContent } from './types';
 import type { Section } from '../../../data/database/books-db/versions/v3/books-db-v3';
 import buildDummyBookImage from '../utils/build-dummy-book-image';
 import clearAllBadImageRef from '../utils/clear-all-bad-image-ref';
@@ -20,22 +20,29 @@ export default function generateEpubHtml(
   contents: EpubContent,
   document: Document
 ) {
+  const fallbackData = new Map<string, string>();
+
   let tocData = { type: 3, content: '' };
   let navKey = '';
 
-  const itemIdToHtmlRef = contents.package.manifest.item.reduce<Record<string, string>>(
-    (acc, item) => {
-      if (item['@_media-type'] === 'application/xhtml+xml') {
-        acc[item['@_id']] = item['@_href'];
+  const itemIdToHtmlRef = (
+    isOPFType(contents)
+      ? contents['opf:package']['opf:manifest']['opf:item']
+      : contents.package.manifest.item
+  ).reduce<Record<string, string>>((acc, item) => {
+    if (item['@_fallback']) {
+      fallbackData.set(item['@_id'], item['@_fallback']);
+    }
 
-        if (item['@_properties'] === 'nav') {
-          navKey = item['@_href'];
-        }
+    if (item['@_media-type'] === 'application/xhtml+xml' || item['@_media-type'] === 'text/html') {
+      acc[item['@_id']] = item['@_href'];
+
+      if (item['@_properties'] === 'nav') {
+        navKey = item['@_href'];
       }
-      return acc;
-    },
-    {}
-  );
+    }
+    return acc;
+  }, {});
 
   const blobLocations = Object.entries(data).reduce<string[]>((acc, [key, value]) => {
     const isV2Toc = key.endsWith('.ncx') && !tocData.content;
@@ -54,9 +61,10 @@ export default function generateEpubHtml(
   }, []);
 
   const parser = new DOMParser();
-  const itemRefs = Array.isArray(contents.package.spine.itemref)
-    ? contents.package.spine.itemref
-    : [contents.package.spine.itemref];
+  const spineItemRef = isOPFType(contents)
+    ? contents['opf:package']['opf:spine']['opf:itemref']
+    : contents.package.spine.itemref;
+  const itemRefs = Array.isArray(spineItemRef) ? spineItemRef : [spineItemRef];
   const sectionData: Section[] = [];
   const result = document.createElement('div');
 
@@ -102,8 +110,13 @@ export default function generateEpubHtml(
     );
 
     if (firstChapterMatchIndex !== 0) {
+      const firstRef = itemRefs[0]['@_idref'];
+      const firstHTMLRef = itemIdToHtmlRef[firstRef];
+      const fallbackRef = fallbackData.get(firstRef);
+      const reference = firstHTMLRef || (fallbackRef ? itemIdToHtmlRef[fallbackRef] : firstHTMLRef);
+
       mainChapters.unshift({
-        reference: itemIdToHtmlRef[itemRefs[0]['@_idref']],
+        reference,
         charactersWeight: 1,
         label: 'Preface',
         startCharacter: 0
@@ -118,15 +131,46 @@ export default function generateEpubHtml(
   let currentCharCount = 0;
 
   itemRefs.forEach((item) => {
-    const itemIdRef = item['@_idref'];
-    const htmlHref = itemIdToHtmlRef[itemIdRef];
+    let itemIdRef = item['@_idref'];
+    let htmlHref = itemIdToHtmlRef[itemIdRef];
 
-    const regexResult = /.*<body(?:[^>]*id="(?<id>.+?)")*[^>]*>(?<body>(.|\s)+)<\/body>.*/.exec(
-      data[htmlHref] as string
-    )!;
+    if (!htmlHref && fallbackData.has(itemIdRef)) {
+      itemIdRef = fallbackData.get(itemIdRef) as string;
+      htmlHref = itemIdToHtmlRef[itemIdRef];
+    }
 
-    const bodyId = regexResult?.groups?.id || '';
-    let innerHtml = regexResult?.groups?.body || '';
+    let parsedContent = parser.parseFromString(data[htmlHref] as string, 'text/html');
+    let body = parsedContent.body;
+
+    if (!body?.childNodes?.length) {
+      parsedContent = parser.parseFromString(data[htmlHref] as string, 'text/xml');
+      body = parsedContent.querySelector('body')!;
+
+      if (!body?.childNodes?.length) {
+        throw new Error('Unable to find valid body content while parsing EPUB');
+      }
+    }
+
+    const htmlClass = parsedContent.querySelector('html')?.className || '';
+    const bodyId = body.id || '';
+    const bodyClass = body.className || '';
+
+    for (const elm of [...body.querySelectorAll('image,img')]) {
+      const attributes =
+        elm.tagName.toLowerCase() === 'image'
+          ? elm.getAttributeNames().filter((attr) => attr.endsWith('href'))
+          : ['src'];
+
+      for (const attr of attributes) {
+        const value = elm.getAttribute(attr);
+
+        if (value) {
+          elm.setAttribute(attr, path.join(path.dirname(htmlHref), value));
+        }
+      }
+    }
+
+    let innerHtml = body.innerHTML || '';
 
     blobLocations.forEach((blobLocation) => {
       innerHtml = innerHtml.replaceAll(
@@ -134,19 +178,25 @@ export default function generateEpubHtml(
         buildDummyBookImage(blobLocation)
       );
     });
-    const childDiv = document.createElement('div');
-    childDiv.innerHTML = innerHtml;
-    childDiv.id = `${prependValue}${itemIdRef}`;
 
+    const childBodyDiv = document.createElement('div');
+    childBodyDiv.className = `ttu-book-body-wrapper ${bodyClass}`;
     if (bodyId) {
-      const anchorHelper = document.createElement('span');
-      anchorHelper.id = bodyId;
-      childDiv.prepend(anchorHelper);
+      childBodyDiv.id = bodyId;
     }
+    childBodyDiv.innerHTML = innerHtml;
 
-    result.appendChild(childDiv);
+    const childHtmlDiv = document.createElement('div');
+    childHtmlDiv.className = `ttu-book-html-wrapper ${htmlClass}`;
+    childHtmlDiv.appendChild(childBodyDiv);
 
-    currentCharCount += countForElement(childDiv);
+    const childWrapperDiv = document.createElement('div');
+    childWrapperDiv.id = `${prependValue}${itemIdRef}`;
+    childWrapperDiv.appendChild(childHtmlDiv);
+
+    result.appendChild(childWrapperDiv);
+
+    currentCharCount += countForElement(childWrapperDiv);
 
     const mainChapterIndex = mainChapters.findIndex((chapter) =>
       chapter.reference.includes(htmlHref.split('/').pop() || '')
@@ -167,7 +217,7 @@ export default function generateEpubHtml(
         label: currentMainChapter.label,
         startCharacter: currentMainChapterIndex
           ? (sectionData[oldMainChapterIndex].startCharacter as number) +
-            (sectionData[oldMainChapterIndex].characters as number)
+          (sectionData[oldMainChapterIndex].characters as number)
           : 0,
         characters
       });
@@ -190,6 +240,7 @@ export default function generateEpubHtml(
 
   return {
     element: result,
+    characters: currentCharCount,
     sections: sectionData.filter((item: Section) => item.reference.startsWith(prependValue))
   };
 }

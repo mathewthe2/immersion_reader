@@ -8,7 +8,8 @@
     faHeadphones,
     faCog,
     faList,
-    faSignOutAlt
+    faSignOutAlt,
+    faTools
   } from '@fortawesome/free-solid-svg-icons';
   import {
     nTranslateXHeaderFa,
@@ -20,10 +21,12 @@
   export let hasChapterData: boolean;
   export let autoScrollMultiplier: number;
   export let showFullscreenButton: boolean;
+  export let isDevMode: boolean;
   export let isBookmarkScreen: boolean;
 
   const dispatch = createEventDispatcher<{
     tocClick: void;
+    toDevClick: void;
     bookmarkClick: void;
     fullscreenClick: void;
     bookManagerClick: void;
@@ -34,6 +37,15 @@
 
 <div class="flex h-12 justify-between bg-gray-700 px-4 text-white md:px-8 xl:h-10">
   <div class="flex transform-gpu {nTranslateXHeaderFa}">
+    {#if isDevMode}
+      <div
+        class="flex h-full items-center text-xl xl:text-lg {pHeaderFa} {opacityHeaderIcon} cursor-pointer"
+        on:click={() => dispatch('toDevClick')}
+        role="button"
+      >
+        <Fa icon={faTools} />
+      </div>
+    {/if}
     {#if hasChapterData}
       <div
         class="flex h-full items-center text-xl xl:text-lg {pHeaderFa} {opacityHeaderIcon} cursor-pointer"

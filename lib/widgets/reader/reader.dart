@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/profile/profile_content.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
@@ -12,12 +14,14 @@ import '../../utils/reader/reader_js.dart';
 
 class Reader extends StatefulWidget {
   final String? initialUrl;
+  final Function(String) reopenReader;
   final bool isAddBook;
   final bool isShowDeviceStatusBar;
 
   const Reader(
       {super.key,
       this.initialUrl,
+      required this.reopenReader,
       this.isAddBook = false,
       this.isShowDeviceStatusBar = false});
 
@@ -30,11 +34,11 @@ class _ReaderState extends State<Reader> {
   ProfileContent? currentProfileContent;
   late MessageController messageController;
   late HighlightController highlightController;
+  late Function(String) reopenReader;
 
   void createPopupDictionary() {
     messageController = MessageController(
         exitCallback: () => Navigator.of(context).pop(),
-        readerAudioCallback: () => (), // TODO: to implement in the future
         evaluateJavascript: (javascript) =>
             webViewController?.evaluateJavascript(source: javascript));
 
@@ -56,6 +60,7 @@ class _ReaderState extends State<Reader> {
     if (!widget.isShowDeviceStatusBar) {
       hideSystemUI();
     }
+    reopenReader = widget.reopenReader;
     createPopupDictionary();
   }
 
@@ -88,7 +93,9 @@ class _ReaderState extends State<Reader> {
                         ),
                       ),
                       onWebViewCreated: (controller) {
-                        ReaderJsManager.setupController(controller);
+                        ReaderJsManager.create(
+                            webController: controller,
+                            reopenReader: reopenReader);
                         webViewController = controller;
                       },
                       onLoadStop: (controller, uri) async {
@@ -116,11 +123,11 @@ class _ReaderState extends State<Reader> {
                               source: addFileJs);
                         }
                       },
-                      onConsoleMessage: (controller, message) {
-                        debugPrint(
-                            "reader stuff: ${message.message}"); // TODO: for debug
-                        messageController.execute(message);
-                      },
+                      // onConsoleMessage: (controller, message) {
+                      //   debugPrint(
+                      //       "reader stuff: ${message.message}"); // for debug
+                      //   messageController.execute(message);
+                      // },
                     )));
               } else {
                 return Container();

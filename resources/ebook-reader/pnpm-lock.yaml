@@ -98,6 +98,9 @@ importers:
       rxjs:
         specifier: 7.5.5
         version: 7.5.5
+      srt-parser-2:
+        specifier: ^1.2.3
+        version: 1.2.3
       svelte-fa:
         specifier: 2.4.0
         version: 2.4.0
@@ -2082,6 +2085,10 @@ packages:
 
   split2@3.2.2:
     resolution: {integrity: sha512-9NThjpgZnifTkJpzTZ7Eue85S49QwpNhZTq6GRJwObb6jnLFNGB7Qm73V5HewTROPyxD0C29xqmaI68bQtV+hg==}
+
+  srt-parser-2@1.2.3:
+    resolution: {integrity: sha512-dANP1AyJTI503H0/kXwRza+7QxDB3BqeFvEKTF4MI9lQcBe8JbRUQTKVIGzGABJCwBovEYavZ2Qsdm/s8XKz8A==}
+    hasBin: true
 
   string-argv@0.3.1:
     resolution: {integrity: sha512-a1uQGz7IyVy9YwhqjZIZu1c8JO8dNIe20xBmSS6qu9kv++k3JGzCVmprbNN5Kn+BgzD5E7YYwg1CcjuJMRNsvg==}
@@ -4435,6 +4442,8 @@ snapshots:
   split2@3.2.2:
     dependencies:
       readable-stream: 3.6.0
+
+  srt-parser-2@1.2.3: {}
 
   string-argv@0.3.1: {}
 

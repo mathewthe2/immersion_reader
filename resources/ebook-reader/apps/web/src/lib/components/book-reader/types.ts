@@ -21,4 +21,6 @@ export interface PageManager {
   nextPage: () => void;
 
   prevPage: () => void;
+
+  updateSectionDataByOffset: (offset: number) => void;
 }

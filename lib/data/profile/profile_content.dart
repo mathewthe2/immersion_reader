@@ -1,6 +1,3 @@
-import 'package:immersion_reader/data/reader/book.dart';
-import 'package:immersion_reader/managers/reader/book_image_manager.dart';
-
 class ProfileContent {
   int id;
   String key; // identifier used by ttu, otherwise same as id
@@ -30,10 +27,4 @@ class ProfileContent {
       currentPosition: map['currentPosition'] as int?,
       vocabularyMined: map['vocabularyMined'] as int,
       lastOpened: DateTime.parse(map['lastOpened'] as String));
-
-  Future<Book> getBook() async {
-    String? base64Image =
-        await BookImageManager().getImageBase64(key: key, title: title);
-    return Book(title: title, coverImage: base64Image, hasThumb: true);
-  }
 }

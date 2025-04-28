@@ -60,11 +60,18 @@ export class SectionCharacterStatsCalculator {
     this.calculator.updateParagraphPos(this.virtualScrollPos$.getValue());
   }
 
-  calcExploredCharCount() {
+  calcExploredCharCount(customReadingPointRange: Range | undefined) {
     if (dev && this.getPageGap() === 0) {
       // Scroll position must be beyond text size for character count increment
       throw new Error('Formula assumes non-zero page gap');
     }
+
+    if (customReadingPointRange && this.calculator) {
+      return (
+        this.getSectionStartCount() + this.calculator.getCharCountToPoint(customReadingPointRange)
+      );
+    }
+
     const offset = this.verticalMode ? 0 : -this.screenSize;
     return this.getCharCountByScrollPos(this.virtualScrollPos$.getValue() + offset);
   }
@@ -112,11 +119,45 @@ export class SectionCharacterStatsCalculator {
     return scrollPos === virtualPos;
   }
 
+  getOffsetToRange(customReadingPointRange: Range | undefined, columns: number) {
+    if (!customReadingPointRange) {
+      return 0;
+    }
+
+    const rect = customReadingPointRange.getBoundingClientRect();
+
+    if (this.verticalMode) {
+      return 1 - rect.left / this.screenSizeMirrored;
+    }
+
+    const progressPerColumn = Math.floor(100 / columns);
+    const toSlice = Math.floor(this.screenSize / columns);
+    const progressInColumn = (progressPerColumn * rect.bottom) / this.screenSizeMirrored;
+
+    let totalProgress = progressInColumn;
+    let columnNumber = 0;
+
+    for (let index = 0; index < this.screenSize; index += toSlice) {
+      if (rect.right >= index) {
+        totalProgress = columnNumber * progressPerColumn + progressInColumn;
+        columnNumber += 1;
+      } else {
+        break;
+      }
+    }
+
+    return totalProgress / 100;
+  }
+
   private getSectionStartCount() {
     return this.sectionAccCharCounts[this.sectionIndex - 1] || 0;
   }
 
   private get screenSize() {
     return (this.verticalMode ? this.getHeight() : this.getWidth()) + this.getPageGap();
+  }
+
+  private get screenSizeMirrored() {
+    return (this.verticalMode ? this.getWidth() : this.getHeight()) + this.getPageGap();
   }
 }

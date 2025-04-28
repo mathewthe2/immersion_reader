@@ -62,11 +62,14 @@
     sectionProgress$,
     tocIsOpen$
   } from '$lib/components/book-reader/book-toc/book-toc';
+  import { toDevIsOpen$ } from '$lib/components/book-reader/dev-tools/dev-tools';
   import { clickOutside } from '$lib/functions/use-click-outside';
   import { onKeydownReader } from './on-keydown-reader';
   import { onMount } from 'svelte';
   import type { Section } from '$lib/data/database/books-db/versions/v3/books-db-v3';
+  import DevTools from '$lib/components/book-reader/dev-tools/dev-tools.svelte';
 
+  export let showDevMenu: boolean = true;
   let showHeader = true;
   let isBookmarkScreen = false;
   let showFooter = true;
@@ -290,6 +293,7 @@
     use:clickOutside={() => (showHeader = false)}
   >
     <BookReaderHeader
+      isDevMode={false}
       hasChapterData={!!$sectionData$?.length}
       showFullscreenButton={fullscreenManager.fullscreenEnabled}
       autoScrollMultiplier={$multiplier$}
@@ -297,6 +301,10 @@
       on:tocClick={() => {
         showHeader = false;
         tocIsOpen$.next(true);
+      }}
+      on:toDevClick={() => {
+        showHeader = false;
+        toDevIsOpen$.next(true);
       }}
       on:fullscreenClick={onFullscreenClick}
       on:bookmarkClick={bookmarkPage}
@@ -308,15 +316,9 @@
 {/if}
 
 <!-- update page when tapping left or right edges -->
-<div
-  class="fixed top-0 left-0 z-10 h-full w-8"
-  on:click={() => pageManager?.nextPage()}
-/>
+<div class="fixed top-0 left-0 z-10 h-full w-8" on:click={() => pageManager?.nextPage()} />
 
-<div
-  class="fixed top-0 right-0 z-10 h-full w-5"
-  on:click={() => pageManager?.prevPage()}
-/>
+<div class="fixed top-0 right-0 z-10 h-full w-5" on:click={() => pageManager?.prevPage()} />
 
 {#if $bookData$}
   <StyleSheetRenderer styleSheet={$bookData$.styleSheet} />
@@ -358,6 +360,18 @@
   {$setWritingMode$ ?? ''}
 {:else}
   {$leaveIfBookMissing$ ?? ''}
+{/if}
+
+{#if $toDevIsOpen$}
+  <div
+    class="writing-horizontal-tb fixed top-0 left-0 z-[60] flex h-full w-full max-w-xl flex-col justify-between"
+    style:color={$themeOption$?.fontColor}
+    style:background-color={$backgroundColor$}
+    in:fly|local={{ x: -100, duration: 100, easing: quintInOut }}
+  >
+    <DevTools htmlContent={$bookData$.htmlContent} />
+    <!-- <BookToc sectionData={$sectionData$} {exploredCharCount} /> -->
+  </div>
 {/if}
 
 {#if $tocIsOpen$}

@@ -14,6 +14,7 @@ export interface EpubManifestItem {
   '@_id': string;
   '@_media-type': string;
   '@_properties'?: string;
+  '@_fallback'?: string;
 }
 
 export interface EpubSpineItemRef {
@@ -24,10 +25,10 @@ export interface EpubContent {
   package: {
     metadata: {
       'dc:title':
-        | string
-        | {
-            '#text': string;
-          };
+      | string
+      | {
+        '#text': string;
+      };
       meta?: EpubMetadataMeta | EpubMetadataMeta[];
     };
     manifest: {
@@ -37,4 +38,27 @@ export interface EpubContent {
       itemref: EpubSpineItemRef[];
     };
   };
+}
+
+export interface EpubOPFContent {
+  'opf:package': {
+    'opf:metadata': {
+      'dc:title':
+      | string
+      | {
+        '#text': string;
+      };
+      'opf:meta'?: EpubMetadataMeta | EpubMetadataMeta[];
+    };
+    'opf:manifest': {
+      'opf:item': EpubManifestItem[];
+    };
+    'opf:spine': {
+      'opf:itemref': EpubSpineItemRef[];
+    };
+  };
+}
+
+export function isOPFType(contents: EpubContent | EpubOPFContent): contents is EpubOPFContent {
+  return (contents as EpubOPFContent)['opf:package'] !== undefined;
 }

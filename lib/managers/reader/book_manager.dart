@@ -75,6 +75,22 @@ class BookManager {
     return [];
   }
 
+  Future<void> updateBookContentHtml(
+      {required int bookId,
+      required String elementHtml,
+      required String elementHtmlBackup}) async {
+    await database?.update("Books",
+        {"elementHtml": elementHtml, "elementHtmlBackup": elementHtmlBackup},
+        where: "id = ?", whereArgs: [bookId]);
+  }
+
+  Future<void> setBookPlayBackPositionInMs(
+      {required int bookId, required int playBackPositionInMs}) async {
+    await database?.update(
+        "Books", {"playBackPositionInMs": playBackPositionInMs},
+        where: "id = ?", whereArgs: [bookId]);
+  }
+
   Future<int> setBook(Book book) async {
     if (database != null) {
       bool isBookExists = await isBookWithTitleExists(book.title);

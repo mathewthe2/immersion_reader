@@ -64,6 +64,11 @@ dependencies:
   #     ref: main # branch name
   flutter_smart_dialog: ^4.9.6
   file_picker: ^10.0.0
+  audioplayers: ^6.4.0
+  flutter_media_metadata:
+    git:
+      url: https://github.com/ms-biztech/flutter_media_metadata
+      ref: master
   # home_widget: ^0.7.0
   # onnxruntime: ^1.4.1
   # rust_lib_immersion_reader:

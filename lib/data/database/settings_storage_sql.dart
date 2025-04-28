@@ -30,4 +30,6 @@ const List<String> settingsStorageMigrations = [
   "ALTER TABLE Dictionary ADD version TEXT DEFAULT '1.0.0'",
   'CREATE INDEX index_Vocab_dictionaryId ON Vocab(dictionaryId)',
   'CREATE INDEX index_VocabFreq_dictionaryId ON VocabFreq(dictionaryId)',
+  'ALTER TABLE Books ADD elementHtmlBackup TEXT',
+  'ALTER TABLE Books ADD playBackPositionInMs INTEGER'
 ];
