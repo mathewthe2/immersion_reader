@@ -221,7 +221,12 @@
     document.body.classList.add(cssClassOverflowHidden);
   }
 
-  onMount(() => document.addEventListener('ttu-action', handleAction, false));
+  onMount(() => {
+    document.addEventListener('ttu-action', handleAction, false)
+    if (window.flutter_inappwebview != null) {
+        window.flutter_inappwebview?.callHandler('readerMounted');
+      }
+  });
 
   async function handleAction({ detail }: any) {
     if (!detail.type || !calculator || !concretePageManager) {

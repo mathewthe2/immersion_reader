@@ -3,6 +3,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/data/browser/browser_bookmark.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/managers/browser/browser_manager.dart';
 
 class BookmarksSheet extends StatefulWidget {
@@ -75,7 +76,7 @@ class _BookmarksSheetState extends State<BookmarksSheet> {
                     ]),
                     child: CupertinoListTile(
                         title: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.8,
+                            width: context.screenWidth * 0.8,
                             child: Text(bookmark.name,
                                 overflow: TextOverflow.ellipsis)),
                         leading: Container(

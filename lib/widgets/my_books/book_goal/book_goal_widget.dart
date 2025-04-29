@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
 import 'package:immersion_reader/widgets/my_books/book_goal/book_goal_detail_sheet.dart';
 import 'package:immersion_reader/widgets/my_books/book_goal/book_goal_progress_widget.dart';
@@ -31,8 +32,8 @@ class _BookGoalWidgetState extends State<BookGoalWidget> {
                 SmartDialog.show(
                     alignment: Alignment.bottomCenter,
                     builder: (context) => Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height * .70,
+                        width: context.screenWidth,
+                        height: context.screenHeight * .70,
                         color: backgroundColor,
                         child: BookGoalDetailSheet(
                             profileDailyProgress: snapshot.data!)));

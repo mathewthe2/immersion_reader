@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/book.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/pages/reader/reader_stats_page.dart';
@@ -155,7 +156,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
             if (snapshot.hasData) {
               if (snapshot.data!.isEmpty) {
                 return SizedBox(
-                    height: MediaQuery.of(context).size.width / 2.15,
+                    height: context.screenWidth / 2.15,
                     child: Column(children: [
                       const SizedBox(height: 80),
                       Text('No Books Added',
@@ -165,7 +166,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                     ]));
               }
               return SizedBox(
-                  height: MediaQuery.of(context).size.width / 2.15,
+                  height: context.screenWidth / 2.15,
                   child: ListView(
                       physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
@@ -186,7 +187,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                       ]));
             } else {
               return SizedBox(
-                height: MediaQuery.of(context).size.width / 2.15,
+                height: context.screenWidth / 2.15,
               );
             }
           }),

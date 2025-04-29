@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/widgets/browser/bookmarks_sheet.dart';
 import 'package:immersion_reader/widgets/browser/settings/browser_settings_sheet.dart';
 import 'package:immersion_reader/widgets/browser/browser_share_sheet.dart';
@@ -75,7 +76,7 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                       alignment: Alignment.bottomCenter,
                       builder: (context) => Container(
                           color: backgroundColor,
-                          height: MediaQuery.of(context).size.height * .40,
+                          height: context.screenHeight * .40,
                           child: BrowserShareSheet(
                               webViewController: widget.webViewController)))),
               toolbarIconButton(
@@ -84,8 +85,8 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                       alignment: Alignment.bottomCenter,
                       builder: (context) => Container(
                           color: backgroundColor,
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height * .40,
+                          width: context.screenWidth,
+                          height: context.screenHeight * .40,
                           child: BookmarksSheet(
                               webViewController: widget.webViewController)))),
               toolbarIconButton(
@@ -93,7 +94,7 @@ class _BrowserBottomBarState extends State<BrowserBottomBar> {
                   () => SmartDialog.show(
                       alignment: Alignment.bottomCenter,
                       builder: (context) => SizedBox(
-                          height: MediaQuery.of(context).size.height * .70,
+                          height: context.screenHeight * .70,
                           child: Navigator(
                               onGenerateRoute: (_) => SwipeablePageRoute(
                                   builder: (context2) => Builder(

@@ -4,14 +4,16 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
-import 'package:immersion_reader/data/reader/audio_book_files.dart';
-import 'package:immersion_reader/data/reader/audio_player_state.dart';
+import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
+import 'package:immersion_reader/data/reader/audio_book/audio_player_state.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/subtitle.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/extensions/duration_extension.dart';
 import 'package:immersion_reader/managers/reader/audio_player_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/utils/folder_utils.dart';
+import 'package:immersion_reader/widgets/common/text/app_text.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class AudioBookPlayer extends StatefulWidget {
@@ -76,8 +78,8 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(playerState.currentPosition.toHumanString()),
-          Text(playerState.timeRemaining.toHumanString()),
+          AppText(playerState.currentPosition.toHumanString()),
+          AppText(playerState.timeRemaining.toHumanString()),
         ],
       );
     } else {
@@ -132,21 +134,23 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
   @override
   Widget build(BuildContext context) {
     if (audioBook == null || audioBook!.audioFiles.isEmpty) {
-      return Center(child: Text("No audio file selected"));
+      return Center(child: AppText("No audio file selected"));
     }
-    return Column(children: [
-      SizedBox(height: 20),
-      Text("Beta: This feature is still work in progress"),
-      SizedBox(height: 20),
+    return Expanded(
+        child: CupertinoScrollbar(
+            child: SingleChildScrollView(
+                child: Column(children: [
+      SizedBox(height: context.spacer()),
+      AppText("Beta: This feature is still work in progress"),
+      SizedBox(height: context.spacer()),
       SizedBox(
-          width: MediaQuery.of(context).size.width * 0.8,
-          height: 200,
+          height: context.epic(),
           child: Image.memory(audioFileMetadata?.albumArt != null
               ? audioFileMetadata!.albumArt!
               : kTransparentImage)),
-      SizedBox(height: 10),
-      Text(audioFileMetadata?.trackName ?? ""),
-      SizedBox(height: 30),
+      SizedBox(height: context.spacer()),
+      AppText(audioFileMetadata?.trackName ?? ""),
+      SizedBox(height: context.spacer()),
       SliderTheme(
           data: SliderThemeData(
               thumbColor: CupertinoColors.activeOrange,
@@ -163,7 +167,7 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
                 }
               })),
       Padding(
-        padding: EdgeInsets.only(left: 24, right: 24),
+        padding: context.horizontalPadding(),
         child: StreamBuilder<AudioPlayerState>(
             stream: AudioPlayerManager().onPositionChanged,
             builder: (context, streamSnapshot) {
@@ -215,7 +219,7 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
       Row(
         children: [
           Padding(
-              padding: EdgeInsets.only(left: 20),
+              padding: context.horizontalPadding(),
               child: GestureDetector(
                   onTap: () => _showDialog(CupertinoPicker(
                         magnification: 1.22,
@@ -238,12 +242,12 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
                       )),
                   child: Column(
                     children: [
-                      Text("Speed: ${playBackRates[_selectedSpeed]}",
+                      AppText("Speed: ${playBackRates[_selectedSpeed]}",
                           style: TextStyle(fontSize: 12))
                     ],
                   )))
         ],
       ),
-    ]);
+    ]))));
   }
 }

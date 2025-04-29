@@ -1,3 +1,4 @@
+import 'package:immersion_reader/data/reader/audio_book/audio_book_match_result.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/book_blob.dart';
 import 'package:immersion_reader/data/reader/book_bookmark.dart';
@@ -75,13 +76,21 @@ class BookManager {
     return [];
   }
 
-  Future<void> updateBookContentHtml(
-      {required int bookId,
-      required String elementHtml,
-      required String elementHtmlBackup}) async {
-    await database?.update("Books",
-        {"elementHtml": elementHtml, "elementHtmlBackup": elementHtmlBackup},
-        where: "id = ?", whereArgs: [bookId]);
+  Future<void> resetElementHtmlFromBackup(int bookId) async {
+    await database?.rawUpdate(
+        "UPDATE Books SET elementHtml = elementHtmlBackup WHERE id = ?",
+        [bookId]);
+  }
+
+  Future<void> updateBookContentHtml(AudioBookMatchResult matchResult) async {
+    await database?.update(
+        "Books",
+        {
+          "elementHtml": matchResult.elementHtml,
+          "elementHtmlBackup": matchResult.htmlBackup
+        },
+        where: "id = ?",
+        whereArgs: [matchResult.bookId]);
   }
 
   Future<void> setBookPlayBackPositionInMs(

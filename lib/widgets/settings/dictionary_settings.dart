@@ -11,7 +11,7 @@ import 'package:immersion_reader/dictionary/user_dictionary.dart';
 import 'package:immersion_reader/utils/system_dialog.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:immersion_reader/widgets/common/app_text.dart';
+import 'package:immersion_reader/widgets/common/text/app_text.dart';
 
 class DictionarySettings extends StatefulWidget {
   const DictionarySettings({super.key});

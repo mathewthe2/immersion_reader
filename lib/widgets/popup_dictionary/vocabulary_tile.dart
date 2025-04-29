@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/widgets/vocabulary/pitch_widget.dart';
 import 'package:ruby_text/ruby_text.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
@@ -58,7 +59,7 @@ class _VocabularyTileState extends State<VocabularyTile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
-                        width: MediaQuery.of(context).size.width *
+                        width: context.screenWidth *
                             0.8, // make space for adding vocabulary and padding
                         child: RichText(
                             maxLines: 2,

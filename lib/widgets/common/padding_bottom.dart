@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 
 class PaddingBottom extends StatelessWidget {
   final Widget? child;
@@ -9,7 +10,7 @@ class PaddingBottom extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
         padding:
-            EdgeInsets.only(bottom: MediaQuery.of(context).size.height * bottomPaddingFactor),
+            EdgeInsets.only(bottom: context.screenHeight * bottomPaddingFactor),
         child: child);
   }
 }

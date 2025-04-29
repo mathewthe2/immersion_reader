@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/utils/language_utils.dart';
 import 'package:immersion_reader/utils/system_theme.dart';
@@ -74,8 +75,7 @@ class SearchVocabularyTile extends StatelessWidget {
                 size: 20,
               )),
           title: SizedBox(
-              width:
-                  MediaQuery.of(context).size.width * 0.9, // space for padding
+              width: context.screenWidth * 0.9, // space for padding
               child: RichText(
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -110,7 +110,7 @@ class SearchVocabularyTile extends StatelessWidget {
           padding: const EdgeInsetsDirectional.only(
               start: 20.0, end: 14.0, bottom: 5.0),
           child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.7,
+              width: context.screenWidth * 0.7,
               child: Align(
                   alignment: Alignment.centerLeft,
                   child: VocabularyDefinition(

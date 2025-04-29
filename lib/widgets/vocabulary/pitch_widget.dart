@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -34,7 +35,7 @@ class PitchWidget extends StatelessWidget {
                   (vocabulary.reading!.isEmpty
                       ? _widgetHeightOffset
                       : _widgetHeightOffsetWithFurigana),
-              width: MediaQuery.of(context).size.width * _widgetWidthFactor,
+              width: context.screenWidth * _widgetWidthFactor,
               child: ListView(
                   physics: const BouncingScrollPhysics(),
                   scrollDirection: Axis.horizontal,

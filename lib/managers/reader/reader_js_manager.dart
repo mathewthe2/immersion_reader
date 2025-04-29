@@ -11,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ReaderJsManager {
   late InAppWebViewController webController;
-  late Function(String) reopenReader;
   StreamController<int> matchProgressController =
       StreamController<int>.broadcast();
 
@@ -22,7 +21,6 @@ class ReaderJsManager {
       {required InAppWebViewController webController,
       required Function(String) reopenReader}) {
     _singleton.webController = webController;
-    _singleton.reopenReader = reopenReader;
     _singleton.setupController();
     return _singleton;
   }
@@ -89,6 +87,11 @@ class ReaderJsManager {
           BookManager().setLastReadTime(book);
         });
     webController.addJavaScriptHandler(
+        handlerName: 'readerMounted',
+        callback: (_) async {
+          print("reader mounted");
+        });
+    webController.addJavaScriptHandler(
         handlerName: 'onLoadManager',
         callback: (_) {
           ReaderSessionManager().stop();
@@ -106,7 +109,6 @@ class ReaderJsManager {
                 book: book,
                 matchProgressController: matchProgressController,
                 sharedPreferences: sharedPreferences,
-                reopenReader: reopenReader,
                 onDismiss: () => ReaderSessionManager().startReadingBook(book));
           }
         });
@@ -117,6 +119,10 @@ class ReaderJsManager {
             matchProgressController.add(args.first);
           }
         });
+  }
+
+  Future<void> reloadReader() async {
+    await webController.reload();
   }
 
   Future<dynamic> evaluateJavascript({required String source}) =>

@@ -123,11 +123,11 @@ class _ReaderState extends State<Reader> {
                               source: addFileJs);
                         }
                       },
-                      // onConsoleMessage: (controller, message) {
-                      //   debugPrint(
-                      //       "reader stuff: ${message.message}"); // for debug
-                      //   messageController.execute(message);
-                      // },
+                      onConsoleMessage: (controller, message) {
+                        debugPrint(
+                            "reader stuff: ${message.message}"); // for debug
+                        messageController.execute(message);
+                      },
                     )));
               } else {
                 return Container();

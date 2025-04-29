@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/book.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/utils/system_theme.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -32,8 +33,8 @@ class BookWidget extends StatelessWidget {
                             color: CupertinoColors.darkBackgroundGray
                                 .withValues(alpha: 0.3),
                             child: AspectRatio(
-                                aspectRatio: MediaQuery.of(context).size.width /
-                                    (MediaQuery.of(context).size.height / 1.8),
+                                aspectRatio: context.screenWidth /
+                                    (context.screenHeight / 1.8),
                                 child: FadeInImage(
                                   imageErrorBuilder: (_, __, ___) =>
                                       const SizedBox.shrink(),

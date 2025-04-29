@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 
 class ActionDialog {
   static const String doneLabel = 'Done';
@@ -11,7 +12,7 @@ class ActionDialog {
     showCupertinoModalPopup(
         context: context,
         builder: (BuildContext context) => Container(
-            height: MediaQuery.of(context).size.height * .40,
+            height: context.screenHeight * .40,
             color: CupertinoColors.systemBackground.resolveFrom(context),
             child: Column(children: [
               Container(

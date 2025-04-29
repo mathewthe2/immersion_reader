@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class DiscoverBox extends StatelessWidget {
@@ -15,8 +16,8 @@ class DiscoverBox extends StatelessWidget {
               ClipRRect(
                   borderRadius: BorderRadius.circular(18),
                   child: AspectRatio(
-                      aspectRatio: MediaQuery.of(context).size.width /
-                          (MediaQuery.of(context).size.height / 1.8),
+                      aspectRatio:
+                          context.screenWidth / (context.screenHeight / 1.8),
                       child: FadeInImage.memoryNetwork(
                         imageErrorBuilder: (_, __, ___) =>
                             const SizedBox.shrink(),

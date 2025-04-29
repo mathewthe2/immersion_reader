@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/managers/navigation/navigation_manager.dart';
 import 'package:immersion_reader/managers/vocabulary_list/vocabulary_list_manager.dart';
 import 'package:immersion_reader/widgets/common/padding_bottom.dart';
@@ -93,9 +94,7 @@ class _VocabularyListPageState extends State<VocabularyListPage> {
                                   child: CupertinoListTile.notched(
                                     title: Text(vocabulary.expression ?? ""),
                                     subtitle: SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.7,
+                                        width: context.screenWidth * 0.7,
                                         child: Text(
                                           vocabulary.getFirstGlossary(),
                                           overflow: TextOverflow.ellipsis,

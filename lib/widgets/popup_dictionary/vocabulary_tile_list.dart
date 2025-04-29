@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
@@ -178,8 +179,7 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-              width: min(
-                  segmentedControlMaxWidth, MediaQuery.of(context).size.width),
+              width: min(segmentedControlMaxWidth, context.screenWidth),
               child: CupertinoSlidingSegmentedControl<int>(
                   thumbColor: widget.popupDictionaryThemeData.getColor(
                       DictionaryColor
@@ -227,7 +227,7 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
               },
               child: Container(
                   constraints: BoxConstraints(
-                      minHeight: MediaQuery.of(context).size.height * .40 -
+                      minHeight: context.screenHeight * .40 -
                           33.0), // approximate content height
                   child: vocabularyList.isEmpty
                       ? Container()
