@@ -1,4 +1,9 @@
 PODS:
+  - audio_service (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - audio_session (0.0.1):
+    - Flutter
   - audioplayers_darwin (0.0.1):
     - Flutter
   - DKImagePickerController/Core (4.3.9):
@@ -75,6 +80,8 @@ PODS:
   - ZIPFoundation (0.9.19)
 
 DEPENDENCIES:
+  - audio_service (from `.symlinks/plugins/audio_service/darwin`)
+  - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
@@ -100,6 +107,10 @@ SPEC REPOS:
     - ZIPFoundation
 
 EXTERNAL SOURCES:
+  audio_service:
+    :path: ".symlinks/plugins/audio_service/darwin"
+  audio_session:
+    :path: ".symlinks/plugins/audio_session/ios"
   audioplayers_darwin:
     :path: ".symlinks/plugins/audioplayers_darwin/ios"
   file_picker:
@@ -130,25 +141,27 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/wakelock_plus/ios"
 
 SPEC CHECKSUMS:
-  audioplayers_darwin: ccf9c770ee768abb07e26d90af093f7bab1c12ab
+  audio_service: cab6c1a0eaf01b5a35b567e11fa67d3cc1956910
+  audio_session: 19e9480dbdd4e5f6c4543826b2e8b0e4ab6145fe
+  audioplayers_darwin: 877d9a4d06331c5c374595e46e16453ac7eafa40
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
-  file_picker: a0560bc09d61de87f12d246fc47d2119e6ef37be
+  file_picker: b159e0c068aef54932bb15dc9fd1571818edaf49
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_archive: ad8edfd7f7d1bb12058d05424ba93e27d9930efe
-  flutter_inapp_purchase: 722da12971a50f306f37e62fc1aaf576b1cbecf6
-  flutter_inappwebview_ios: b89ba3482b96fb25e00c967aae065701b66e9b99
-  flutter_media_metadata: ad56576cf9c9842a1b23ca68195aeb816918de9b
+  flutter_archive: cb3e0219e555897ba4b36f166baa1eca394890b9
+  flutter_inapp_purchase: 5c6a1ac3f11b11d0c8c0321c0c41c1f05805e4c8
+  flutter_inappwebview_ios: 6f63631e2c62a7c350263b13fa5427aedefe81d4
+  flutter_media_metadata: 9db7298c789a54da26e0d2f6f808fa39bfd9bcd7
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
-  package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
-  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
+  package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
+  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   SDWebImage: 73c6079366fea25fa4bb9640d5fb58f0893facd8
-  share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
-  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
-  sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
+  share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
+  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
+  sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
-  url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
-  wakelock_plus: e29112ab3ef0b318e58cfa5c32326458be66b556
+  url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
+  wakelock_plus: 76957ab028e12bfa4e66813c99e46637f367fc7e
   ZIPFoundation: b8c29ea7ae353b309bc810586181fd073cb3312c
 
 PODFILE CHECKSUM: d58ae261d81ceece97de8f569f15bd46ea8eab0c

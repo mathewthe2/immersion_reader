@@ -4,6 +4,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/managers/navigation/navigation_manager.dart';
 import 'package:immersion_reader/managers/manager_service.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
+import 'package:immersion_reader/managers/reader/audio_book/audio_player_handler.dart';
 import 'package:immersion_reader/pages/discover.dart';
 import 'package:immersion_reader/pages/reader/reader_page.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
@@ -72,6 +73,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       PaymentProvider.create(sharedPreferences!),
       StorageProvider.create(),
       PopupDictionary.warmUp(), // warm up popup dictionary
+      AudioPlayerHandler.setup(),
     ]);
     paymentProvider = asyncData[0];
     storageProvider = asyncData[1];

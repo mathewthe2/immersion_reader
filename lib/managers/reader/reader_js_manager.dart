@@ -5,6 +5,7 @@ import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/book_bookmark.dart';
 import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
+import 'package:immersion_reader/utils/reader/highlight_js.dart';
 import 'package:immersion_reader/widgets/audiobook/audio_book_dialog.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -105,11 +106,15 @@ class ReaderJsManager {
           final Book? book = await BookManager().getBookById(bookId);
           if (book != null) {
             final sharedPreferences = await SharedPreferences.getInstance();
+            defocusReader();
             AudioBookDialog.showDialog(
                 book: book,
                 matchProgressController: matchProgressController,
                 sharedPreferences: sharedPreferences,
-                onDismiss: () => ReaderSessionManager().startReadingBook(book));
+                onDismiss: () {
+                  focusReader();
+                  ReaderSessionManager().startReadingBook(book);
+                });
           }
         });
     webController.addJavaScriptHandler(
@@ -123,6 +128,16 @@ class ReaderJsManager {
 
   Future<void> reloadReader() async {
     await webController.reload();
+  }
+
+  Future<void> defocusReader() async {
+    await webController.evaluateJavascript(
+        source: updateIsEnableSwipeInReader(false));
+  }
+
+  Future<void> focusReader() async {
+    await webController.evaluateJavascript(
+        source: updateIsEnableSwipeInReader(true));
   }
 
   Future<dynamic> evaluateJavascript({required String source}) =>

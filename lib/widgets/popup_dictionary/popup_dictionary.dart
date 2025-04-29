@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
-import 'package:immersion_reader/widgets/common/down_only_scroll_view.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary_tool_bar.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_tile_list.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -37,7 +36,10 @@ class PopupDictionary {
     ]);
   }
 
-  Future<void> showVocabularyList(String text, int index) async {
+  Future<void> showVocabularyList(
+      {required String text,
+      required int index,
+      required VoidCallback onDismiss}) async {
     if (index < 0 || index >= text.length) {
       await dismissPopupDictionary();
       return;
@@ -65,7 +67,10 @@ class PopupDictionary {
         usePenetrate: allowLookupWhilePopupActive,
         permanent: allowLookupWhilePopupActive,
         keepSingle: true,
-        onDismiss: () => highlightController?.removeHighlight(),
+        onDismiss: () {
+          highlightController?.removeHighlight();
+          onDismiss();
+        },
         maskColor: CupertinoColors.transparent, // hide mask
         animationTime: Duration(milliseconds: enableSlideAnimation ? 200 : 0),
         nonAnimationTypes: [SmartNonAnimationType.continueKeepSingle],

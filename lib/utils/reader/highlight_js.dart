@@ -37,3 +37,13 @@ String _cueToElement(String id) => """
 			}),
 		);
 """;
+
+String updateIsEnableSwipeInReader(bool isEnableSwipe) => """
+	document.dispatchEvent(
+			new CustomEvent('ttu-action', {
+				detail: {
+					type: '${isEnableSwipe ? 'enableSwipe' : 'disableSwipe'}',
+				},
+			}),
+		);
+""";

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
@@ -66,10 +67,14 @@ class MessageController {
               {
                 int index = messageJson['index'];
                 String text = messageJson['text'];
+                ReaderJsManager().defocusReader();
                 PopupDictionary.create(
                         highlightController: HighlightController(
                             evaluateJavascript: evaluateJavascript))
-                    .showVocabularyList(text, index);
+                    .showVocabularyList(
+                        text: text,
+                        index: index,
+                        onDismiss: ReaderJsManager().focusReader);
                 break;
               }
             case 'content-display-change':

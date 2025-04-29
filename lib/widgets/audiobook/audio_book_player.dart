@@ -10,7 +10,7 @@ import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/subtitle.dart';
 import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/extensions/duration_extension.dart';
-import 'package:immersion_reader/managers/reader/audio_player_manager.dart';
+import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/utils/folder_utils.dart';
 import 'package:immersion_reader/widgets/common/text/app_text.dart';
@@ -90,14 +90,14 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
   Widget _buildPlayButton(PlayerState? playerState) {
     if (playerState != null && playerState == PlayerState.playing) {
       return CupertinoButton(
-          onPressed: AudioPlayerManager().audioPlayer.pause,
+          onPressed: AudioPlayerManager().audioService.pause,
           child: Icon(
             size: 36,
             CupertinoIcons.pause_solid,
           ));
     } else {
       return CupertinoButton(
-          onPressed: AudioPlayerManager().audioPlayer.resume,
+          onPressed: AudioPlayerManager().audioService.play,
           child: Icon(
             size: 36,
             CupertinoIcons.play_arrow_solid,
@@ -136,10 +136,9 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
     if (audioBook == null || audioBook!.audioFiles.isEmpty) {
       return Center(child: AppText("No audio file selected"));
     }
-    return Expanded(
-        child: CupertinoScrollbar(
-            child: SingleChildScrollView(
-                child: Column(children: [
+    return CupertinoScrollbar(
+        child: SingleChildScrollView(
+            child: Column(children: [
       SizedBox(height: context.spacer()),
       AppText("Beta: This feature is still work in progress"),
       SizedBox(height: context.spacer()),
@@ -233,7 +232,7 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
                             _selectedSpeed = selectedItem;
                           });
                           AudioPlayerManager()
-                              .audioPlayer
+                              .audioService
                               .setPlaybackRate(playBackRates[selectedItem]);
                         },
                         children: playBackRates
@@ -248,6 +247,6 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
                   )))
         ],
       ),
-    ]))));
+    ])));
   }
 }

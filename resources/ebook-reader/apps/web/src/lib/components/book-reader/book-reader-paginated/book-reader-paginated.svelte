@@ -115,6 +115,8 @@
 
   let currentSectionId = '';
 
+  let isEnableSwipe = true;
+
   const width$ = new Subject<number>();
 
   const height$ = new Subject<number>();
@@ -264,6 +266,14 @@
       if (currentSection !== targetSection) {
         document.dispatchEvent(new CustomEvent(SECTION_CHANGE));
       }
+    }
+
+    if (detail.type === "enableSwipe") {
+      isEnableSwipe = true;
+    }
+
+    if (detail.type === "disableSwipe") {
+      isEnableSwipe = false;
     }
   }
 
@@ -488,7 +498,7 @@
   }
 
   function onSwipe(ev: CustomEvent<{ direction: 'top' | 'right' | 'left' | 'bottom' }>) {
-    if (!concretePageManager || $tocIsOpen$) return;
+    if (!concretePageManager || $tocIsOpen$ || !isEnableSwipe) return;
     if (ev.detail.direction !== 'left' && ev.detail.direction !== 'right') return;
     const swipeLeft = ev.detail.direction === 'left';
     const nextPage = verticalMode ? !swipeLeft : swipeLeft;

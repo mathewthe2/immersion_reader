@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
@@ -158,5 +159,23 @@ class FolderUtils {
       }
     }
     return null;
+  }
+
+  Future<Uri> createImageUriFromBytes(Uint8List albumArtBytes) async {
+    final workingFolder = await getWorkingFolder();
+
+    // Create a unique file name for the image
+    final tempImagePath = '${workingFolder.path}/temp.jpg';
+
+    // Write the bytes to a file
+    final imageFile = File(tempImagePath);
+    imageFile.createSync(recursive: true);
+
+    await imageFile.writeAsBytes(albumArtBytes);
+
+    // Create a Uri from the file path
+    final imageUri = Uri.file(imageFile.path);
+
+    return imageUri;
   }
 }

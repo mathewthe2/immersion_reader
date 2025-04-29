@@ -2,24 +2,25 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_player_state.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/subtitle.dart';
+import 'package:immersion_reader/managers/reader/audio_book/audio_player_handler.dart';
+import 'package:immersion_reader/managers/reader/audio_book/audio_service_handler.dart';
 import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
+import 'package:immersion_reader/utils/folder_utils.dart';
 import 'package:immersion_reader/utils/reader/highlight_js.dart';
 
 class AudioPlayerManager {
-  final AudioPlayer audioPlayer = AudioPlayer();
   final StreamController<AudioPlayerState> _positionController =
       StreamController<AudioPlayerState>.broadcast();
   AudioPlayerState? currentState;
   StreamSubscription<PlayerState>? playerStateSubscription;
-  PlayerState? _internalPlayerState;
   Metadata? audioFileMetadata;
-  Duration? maxDuration;
 
   // update book's playback position
   Timer? updateBookPlayBackTimer;
@@ -35,23 +36,34 @@ class AudioPlayerManager {
       1000; // save playBackPosition to db every second
 
   static final AudioPlayerManager _singleton = AudioPlayerManager._internal();
-  factory AudioPlayerManager() {
-    if (_singleton.playerStateSubscription == null) {
-      _singleton._listenInternalPlayerState();
-    }
-    return _singleton;
-  }
+
+  factory AudioPlayerManager() => _singleton;
   AudioPlayerManager._internal();
 
   Stream<AudioPlayerState> get onPositionChanged => _positionController.stream;
+
+  AudioServiceHandler get audioService =>
+      AudioPlayerHandler().audioServiceHandler;
 
   Future<Metadata> setSourceFromDevice(
       {required File audioFile, required Book book}) async {
     if (audioFileMetadata != null) {
       return audioFileMetadata!;
     }
-    await audioPlayer.setReleaseMode(ReleaseMode.stop);
-    audioPlayer.setSource(DeviceFileSource(audioFile.path));
+    audioFileMetadata = await MetadataRetriever.fromFile(audioFile);
+    // final imageFile = File.fromRawPath(audioFileMetadata!.albumArt!);
+    final imageUri = await FolderUtils()
+        .createImageUriFromBytes(audioFileMetadata!.albumArt!);
+
+    audioService.setSource(DeviceFileSource(audioFile.path),
+        customMediaItem: MediaItem(
+            id: audioFileMetadata!.trackName ?? "",
+            title: audioFileMetadata!.trackName ?? "",
+            artist: audioFileMetadata!.authorName ?? "",
+            displayDescription: "description here",
+            displaySubtitle: "Subtitle here",
+            displayTitle: "title here",
+            artUri: imageUri));
 
     if (playBackPositionInMs == null && book.playBackPositionInMs != null) {
       playBackPositionInMs = book.playBackPositionInMs!;
@@ -62,8 +74,6 @@ class AudioPlayerManager {
       initTimer(book.id!);
     }
     _listenPlayerPosition();
-    _getDuration();
-    audioFileMetadata = await MetadataRetriever.fromFile(audioFile);
     return audioFileMetadata!;
   }
 
@@ -84,23 +94,11 @@ class AudioPlayerManager {
   Future<void> dispose() async {
     await playerStateSubscription?.cancel();
     updateBookPlayBackTimer?.cancel();
-    await audioPlayer.dispose();
+    // await audioPlayer.dispose();
   }
 
   void setSubtitles(List<Subtitle> subtitles) {
     currentSubtitles = subtitles;
-  }
-
-  void resume() {
-    audioPlayer.resume();
-  }
-
-  void _getDuration() {
-    late StreamSubscription durationSubscription;
-    durationSubscription = audioPlayer.onDurationChanged.listen((Duration p) {
-      maxDuration = p;
-      durationSubscription.cancel();
-    });
   }
 
   int _binarySearchSubtitle(List<Subtitle> subtitles, Duration p) {
@@ -122,21 +120,21 @@ class AudioPlayerManager {
   }
 
   void _listenPlayerPosition() {
-    audioPlayer.onPositionChanged.listen((Duration p) async {
+    audioService.onPositionChanged.listen((Duration p) async {
       playBackPositionInMs = p.inMilliseconds;
 
-      final timeRemaining = maxDuration != null
+      final timeRemaining = audioService.maxDuration != null
           ? Duration(
-              seconds: maxDuration!.inSeconds -
+              seconds: audioService.maxDuration!.inSeconds -
                   p.inSeconds) // use seconds as millisecond diff will cause precision issue in UI
           : p;
 
       currentState = AudioPlayerState(
           currentPosition: p,
           timeRemaining: timeRemaining,
-          playerState: _internalPlayerState == null
+          playerState: audioService.playerState == null
               ? PlayerState.stopped
-              : _internalPlayerState!);
+              : audioService.playerState!);
 
       _positionController.add(currentState!);
 
@@ -182,13 +180,15 @@ class AudioPlayerManager {
   }
 
   Future<void> _seek(Duration duration) async {
-    await Future.wait([audioPlayer.seek(duration), resetSubtitles()]);
+    // await Future.wait([audioPlayer.seek(duration), resetSubtitles()]);
+    await Future.wait([audioService.seek(duration), resetSubtitles()]);
   }
 
   Future<void> seekByPercentage(double percentage) async {
-    if (maxDuration != null) {
+    if (audioService.maxDuration != null) {
       await _seek(Duration(
-          milliseconds: ((maxDuration!.inMilliseconds * percentage).round())));
+          milliseconds: ((audioService.maxDuration!.inMilliseconds * percentage)
+              .round())));
     }
   }
 
@@ -201,7 +201,7 @@ class AudioPlayerManager {
       return;
     }
     await _seek(Duration(
-        milliseconds: min(maxDuration?.inMilliseconds ?? 0,
+        milliseconds: min(audioService.maxDuration?.inMilliseconds ?? 0,
             playBackPositionInMs! + seconds * 1000)));
   }
 
@@ -211,20 +211,5 @@ class AudioPlayerManager {
     }
     await _seek(
         Duration(milliseconds: max(0, playBackPositionInMs! - seconds * 1000)));
-  }
-
-  void _listenInternalPlayerState() {
-    playerStateSubscription =
-        audioPlayer.onPlayerStateChanged.listen((PlayerState newPlayerState) {
-      _internalPlayerState = newPlayerState;
-    });
-  }
-
-  bool isPlaying() {
-    if (_internalPlayerState == null) {
-      return false;
-    } else {
-      return _internalPlayerState == PlayerState.playing;
-    }
   }
 }

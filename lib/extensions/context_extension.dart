@@ -4,6 +4,7 @@ extension ContextExtension on BuildContext {
   double get screenWidth => MediaQuery.of(this).size.width;
   double get screenHeight => MediaQuery.of(this).size.height;
   double spacer() => screenHeight * 0.02;
+  // double doubleSpacer() => screenHeight * 0.04;
   double epic() => screenHeight * 0.2;
   EdgeInsets horizontalPadding() => EdgeInsets.only(left: 24, right: 24);
 }

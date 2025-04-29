@@ -7,6 +7,7 @@ import 'package:immersion_reader/data/reader/audio_book/audio_book_match_result.
 import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/subtitle.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/extensions/file_extension.dart';
 import 'package:immersion_reader/extensions/list_extension.dart';
 import 'package:immersion_reader/extensions/string_extension.dart';
@@ -224,7 +225,7 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: 20),
+        SizedBox(height: context.spacer()),
         AppText("Audio Book Matching (Beta)", style: TextStyle(fontSize: 20)),
         if ((audioBook == null && !isFetchingAudioBook) ||
             (audioBook != null && audioBook!.audioFiles.isEmpty))
@@ -253,9 +254,10 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
             label: 'Align beginning of text', onPressed: onAlignTextBeginning),
         if (alignBeginningVisible && textNodes.isNotEmpty)
           SizedBox(
-              height: 200,
-              child: SingleChildScrollView(
-                  child: Column(
+              height: context.epic(),
+              child: CupertinoScrollbar(
+                  child: SingleChildScrollView(
+                      child: Column(
                 children: [
                   ...textNodes.truncateTo(maxTextNodesToSelect).mapIndexed((
                         index,
@@ -273,7 +275,7 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
                               backgroundColor:
                                   getColorForTextNodeSelection(index)))
                 ],
-              ))),
+              )))),
         if (!alignBeginningVisible &&
             textNodes.isNotEmpty &&
             selectedTextNodeIndex > 0)
