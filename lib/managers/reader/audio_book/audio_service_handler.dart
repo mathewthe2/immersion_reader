@@ -3,15 +3,13 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-// Defines the audioplayer and how it extends audio_service
+// Defines the audioplayer and how it extends audio_service, for interfacing with the device's system player
 class AudioServiceHandler extends BaseAudioHandler
     with QueueHandler, SeekHandler {
   final _player = AudioPlayer();
   PlayerState? playerState;
   Duration? currentPosition;
-  MediaItem? currentMediaItem;
 
-  StreamSubscription<PlayerState>? playerStateSubscription;
   Duration? maxDuration;
 
   Future<void> setup() async {
@@ -20,18 +18,11 @@ class AudioServiceHandler extends BaseAudioHandler
 
   Future<void> setSource(Source source, {MediaItem? customMediaItem}) async {
     await _player.setSource(source);
-    currentMediaItem = customMediaItem;
-
-    late StreamSubscription durationSubscription;
-    durationSubscription = onDurationChanged.listen((Duration p) {
-      maxDuration = p;
-      if (currentMediaItem != null) {
-        currentMediaItem = currentMediaItem!.copyWith(duration: maxDuration);
-        mediaItem.add(currentMediaItem);
-        queue.add([currentMediaItem!]);
-      }
-      durationSubscription.cancel(); // we only need to fetch duration once
-    });
+    if (customMediaItem?.duration != null) {
+      maxDuration = customMediaItem!.duration!;
+    }
+    mediaItem.add(customMediaItem);
+    queue.add([customMediaItem!]);
 
     onPlayerStateChanged.listen((PlayerState newPlayerState) {
       playerState = newPlayerState;

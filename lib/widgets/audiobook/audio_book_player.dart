@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
+import 'package:immersion_reader/data/reader/audio_book/audio_book_operation.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_player_state.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/subtitle.dart';
@@ -45,32 +46,80 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
   void initState() {
     super.initState();
     book = widget.book;
-    initAudioBook();
+    if (book.id != null) {
+      initAudioBook(book.id!);
+    }
+
+    listenToBookOperations();
   }
 
-  Future<void> initAudioBook() async {
-    if (book.id != null) {
-      final audioBookFromStorage = await FolderUtils.getAudioBook(book.id!);
+  Future<void> initAudioBook(int bookId) async {
+    final audioBookFromStorage = await loadAudioBook(bookId);
+    await Future.wait([
+      initAudio(audioBookFromStorage),
+      initSubtitles(audioBookFromStorage),
+    ]);
+  }
+
+  Future<AudioBookFiles> loadAudioBook(int bookId) async {
+    final audioBookFromStorage = await FolderUtils.getAudioBook(bookId);
+    if (mounted) {
       setState(() {
         audioBook = audioBookFromStorage;
       });
-      if (audioBookFromStorage.audioFiles.isEmpty) {
-        return;
-      }
+    }
+    return audioBookFromStorage;
+  }
+
+  Future<void> initAudio(AudioBookFiles audiobookFiles) async {
+    if (audiobookFiles.audioFiles.isNotEmpty) {
       Metadata metadata = await AudioPlayerManager().setSourceFromDevice(
-          audioFile: audioBookFromStorage.audioFiles.first, book: book);
+          audioFile: audiobookFiles.audioFiles.first, book: book);
+      if (mounted) {
+        setState(() {
+          audioFileMetadata = metadata;
+        });
+      }
+    }
+  }
 
-      setState(() {
-        audioFileMetadata = metadata;
-      });
-
+  Future<void> initSubtitles(AudioBookFiles audiobookFiles) async {
+    if (audiobookFiles.subtitleFiles.isNotEmpty) {
       subtitles = await Subtitle.readSubtitlesFromFile(
-          file: audioBookFromStorage
+          file: audiobookFiles
               .subtitleFiles.first, // assume only one subtitle file for now
           webController: ReaderJsManager().webController);
 
       AudioPlayerManager().setSubtitles(subtitles);
     }
+  }
+
+  void listenToBookOperations() {
+    AudioPlayerManager()
+        .onBookOperation
+        .listen((AudioBookOperation operation) async {
+      switch (operation) {
+        case AudioBookOperation.addAudioFile:
+          if (book.id != null) {
+            final audioBookFiles = await loadAudioBook(book.id!);
+            await initAudio(audioBookFiles);
+          }
+          break;
+        case AudioBookOperation.addSubtitleFile:
+          if (book.id != null) {
+            final audioBookFiles = await loadAudioBook(book.id!);
+            await initSubtitles(audioBookFiles);
+          }
+          break;
+        case AudioBookOperation.removeAudioFile:
+          audioBook = null;
+          break;
+        case AudioBookOperation.removeSubtitleFile:
+          subtitles = [];
+          AudioPlayerManager().setSubtitles([]);
+          break;
+      }
+    });
   }
 
   Widget _buildTimeDisplay(AudioPlayerState? playerState) {
@@ -106,11 +155,11 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
   }
 
   Widget _buildProgress(AudioPlayerState? playerState) {
-    if (playerState == null) {
+    if (playerState == null || playerState.playbackPercentage == null) {
       return Slider(value: 0, onChanged: (_) {});
     }
     return Slider(
-        value: playerState.playbackPercentage,
+        value: playerState.playbackPercentage!,
         onChanged: (value) => AudioPlayerManager().seekByPercentage(value));
   }
 

@@ -381,6 +381,7 @@ function onMatchSubtitles({ subtitles = [], elementHtml = '', startHintNodeConte
     let maxProgress = subtitles.length;
     let lineMatchRate = 'n/a';
     let bookSubtitleDiffRate = 'n/a';
+    let matchedSubtitlesResult = 0;
     let subtitleDiffDetails = [];
     // let lastError = '';
 
@@ -749,6 +750,8 @@ function onMatchSubtitles({ subtitles = [], elementHtml = '', startHintNodeConte
         lineMatchRate = `${matchedSubtitles} / ${subtitles.length
             } (${calculatePercentage(matchedSubtitles, subtitles.length, false)}%)`;
 
+        matchedSubtitlesResult = matchedSubtitles;
+
         bookSubtitleDiffRate = `${subtitleDiffDetails.length} / ${matchedSubtitles} (${calculatePercentage(
             subtitleDiffDetails.length,
             matchedSubtitles,
@@ -766,6 +769,7 @@ function onMatchSubtitles({ subtitles = [], elementHtml = '', startHintNodeConte
             "elementHtml": bookHTML.innerHTML,
             "bookSubtitleDiffRate": bookSubtitleDiffRate,
             "lineMatchRate": lineMatchRate,
+            "matchedSubtitles": matchedSubtitlesResult,
             "lastBookModified": Date.now(),
         }
     } catch (error) {

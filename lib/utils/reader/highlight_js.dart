@@ -1,10 +1,29 @@
 const String classPrefix = "ttu-whispersync-line-highlight";
 
-String addNodeHighlight(String id) => """
+String _nodeHighlightColor = """
+function _getNodeHighlightColor() {
+	let theme = localStorage.getItem("theme");
+	if (theme == null) {
+		theme = 'light-theme';
+	}
+	switch (theme) {
+		case 'light-theme': return "#ffe694";
+		case 'ecru-theme': return "#A7CAB1";
+		case 'water-theme': return "#7fd1ae";
+		case 'gray-theme': return "#3c8b80";
+		case 'dark-theme': return "#395a4f";
+		case 'black-theme': return "#254d4c";
+		default: return "#ffe694";
+	}
+}
+""";
+
+String addNodeHighlight({required String id}) => """
+$_nodeHighlightColor
 var spans = document.querySelectorAll('span.$classPrefix-$id');
 
 spans.forEach(span => {
-  span.style.backgroundColor = 'yellow';
+  span.style.backgroundColor = _getNodeHighlightColor();
 });
 ${_cueToElement(id)}
 """;

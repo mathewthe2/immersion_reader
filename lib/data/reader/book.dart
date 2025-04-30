@@ -26,6 +26,7 @@ class Book {
 
   // audio books
   int? playBackPositionInMs;
+  int? matchedSubtitles;
 
   // for online books
   String? imageUrl;
@@ -41,6 +42,7 @@ class Book {
       this.elementHtml,
       this.elementHtmlBackup,
       this.playBackPositionInMs,
+      this.matchedSubtitles,
       this.styleSheet,
       this.sections,
       this.blobs,
@@ -60,6 +62,7 @@ class Book {
       elementHtml: map['elementHtml'] as String,
       elementHtmlBackup: map['elementHtmlBackup'] as String?,
       playBackPositionInMs: map['playBackPositionInMs'] as int?,
+      matchedSubtitles: map['matchedSubtitles'] as int?,
       styleSheet: map['styleSheet'] as String,
       coverImage: getCoverImageFromMap(map),
       sections: map['sections'] != null

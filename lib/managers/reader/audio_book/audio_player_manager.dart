@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
+import 'package:immersion_reader/data/reader/audio_book/audio_book_operation.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_player_state.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/subtitle.dart';
@@ -15,11 +16,14 @@ import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/utils/folder_utils.dart';
 import 'package:immersion_reader/utils/reader/highlight_js.dart';
 
+// Flutter UI should only interface with this manager for audio
 class AudioPlayerManager {
   final StreamController<AudioPlayerState> _positionController =
       StreamController<AudioPlayerState>.broadcast();
+  final StreamController<AudioBookOperation> _audioBookOperationController =
+      StreamController<
+          AudioBookOperation>.broadcast(); // broadcast book operations
   AudioPlayerState? currentState;
-  StreamSubscription<PlayerState>? playerStateSubscription;
   Metadata? audioFileMetadata;
 
   // update book's playback position
@@ -42,6 +46,9 @@ class AudioPlayerManager {
 
   Stream<AudioPlayerState> get onPositionChanged => _positionController.stream;
 
+  Stream<AudioBookOperation> get onBookOperation =>
+      _audioBookOperationController.stream;
+
   AudioServiceHandler get audioService =>
       AudioPlayerHandler().audioServiceHandler;
 
@@ -60,9 +67,9 @@ class AudioPlayerManager {
             id: audioFileMetadata!.trackName ?? "",
             title: audioFileMetadata!.trackName ?? "",
             artist: audioFileMetadata!.authorName ?? "",
-            displayDescription: "description here",
-            displaySubtitle: "Subtitle here",
-            displayTitle: "title here",
+            duration: audioFileMetadata!.trackDuration != null
+                ? Duration(milliseconds: audioFileMetadata!.trackDuration!)
+                : null,
             artUri: imageUri));
 
     if (playBackPositionInMs == null && book.playBackPositionInMs != null) {
@@ -90,11 +97,8 @@ class AudioPlayerManager {
     });
   }
 
-  // free up resources as audioplayer is resource-intensive
   Future<void> dispose() async {
-    await playerStateSubscription?.cancel();
     updateBookPlayBackTimer?.cancel();
-    // await audioPlayer.dispose();
   }
 
   void setSubtitles(List<Subtitle> subtitles) {
@@ -121,23 +125,8 @@ class AudioPlayerManager {
 
   void _listenPlayerPosition() {
     audioService.onPositionChanged.listen((Duration p) async {
+      updatePlayerState(p);
       playBackPositionInMs = p.inMilliseconds;
-
-      final timeRemaining = audioService.maxDuration != null
-          ? Duration(
-              seconds: audioService.maxDuration!.inSeconds -
-                  p.inSeconds) // use seconds as millisecond diff will cause precision issue in UI
-          : p;
-
-      currentState = AudioPlayerState(
-          currentPosition: p,
-          timeRemaining: timeRemaining,
-          playerState: audioService.playerState == null
-              ? PlayerState.stopped
-              : audioService.playerState!);
-
-      _positionController.add(currentState!);
-
       if (currentSubtitles.isNotEmpty) {
         if (isRequireSearchSubtitle) {
           if (p >= currentSubtitles.first.startDuration &&
@@ -151,7 +140,7 @@ class AudioPlayerManager {
                 ReaderJsManager()
                     .evaluateJavascript(source: removeAllHighlights()),
                 ReaderJsManager().evaluateJavascript(
-                    source: addNodeHighlight(subtitleToHighlight.id))
+                    source: addNodeHighlight(id: subtitleToHighlight.id))
               ]);
             }
           }
@@ -166,12 +155,28 @@ class AudioPlayerManager {
             final nextActiveSubtitle =
                 currentSubtitles[currentSubtitleIndex + 1];
             ReaderJsManager().evaluateJavascript(
-                source: addNodeHighlight(nextActiveSubtitle.id));
+                source: addNodeHighlight(id: nextActiveSubtitle.id));
             currentSubtitleIndex += 1;
           }
         }
       }
     });
+  }
+
+  void updatePlayerState(Duration p) {
+    final timeRemaining = audioService.maxDuration != null
+        ? Duration(
+            seconds: audioService.maxDuration!.inSeconds -
+                p.inSeconds) // use seconds as millisecond diff will cause precision issue in UI
+        : Duration.zero;
+    currentState = AudioPlayerState(
+        currentPosition: p,
+        timeRemaining: timeRemaining,
+        playerState: audioService.playerState == null
+            ? PlayerState.stopped
+            : audioService.playerState!);
+
+    _positionController.add(currentState!);
   }
 
   Future<void> resetSubtitles() async {
@@ -180,8 +185,8 @@ class AudioPlayerManager {
   }
 
   Future<void> _seek(Duration duration) async {
-    // await Future.wait([audioPlayer.seek(duration), resetSubtitles()]);
     await Future.wait([audioService.seek(duration), resetSubtitles()]);
+    updatePlayerState(duration);
   }
 
   Future<void> seekByPercentage(double percentage) async {
@@ -212,4 +217,7 @@ class AudioPlayerManager {
     await _seek(
         Duration(milliseconds: max(0, playBackPositionInMs! - seconds * 1000)));
   }
+
+  void broadcastOperation(AudioBookOperation operation) =>
+      _audioBookOperationController.add(operation);
 }

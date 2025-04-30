@@ -87,10 +87,22 @@ class BookManager {
         "Books",
         {
           "elementHtml": matchResult.elementHtml,
-          "elementHtmlBackup": matchResult.htmlBackup
+          "elementHtmlBackup": matchResult.htmlBackup,
+          "matchedSubtitles": matchResult.matchedSubtitles,
         },
         where: "id = ?",
         whereArgs: [matchResult.bookId]);
+  }
+
+  Future<void> updateBookMatchedSubtitles(
+      {required int matchedSubtitles, required int bookId}) async {
+    await database?.update(
+        "Books",
+        {
+          "matchedSubtitles": matchedSubtitles,
+        },
+        where: "id = ?",
+        whereArgs: [bookId]);
   }
 
   Future<void> setBookPlayBackPositionInMs(

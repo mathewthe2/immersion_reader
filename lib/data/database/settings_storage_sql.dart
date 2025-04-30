@@ -31,5 +31,6 @@ const List<String> settingsStorageMigrations = [
   'CREATE INDEX index_Vocab_dictionaryId ON Vocab(dictionaryId)',
   'CREATE INDEX index_VocabFreq_dictionaryId ON VocabFreq(dictionaryId)',
   'ALTER TABLE Books ADD elementHtmlBackup TEXT',
-  'ALTER TABLE Books ADD playBackPositionInMs INTEGER'
+  'ALTER TABLE Books ADD playBackPositionInMs INTEGER', // audio book
+  'ALTER TABLE Books ADD matchedSubtitles INTEGER', // audio book
 ];
