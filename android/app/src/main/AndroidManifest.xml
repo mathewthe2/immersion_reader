@@ -1,11 +1,15 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-   <application
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <!-- ALSO ADD THIS PERMISSION IF TARGETING SDK 34 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
+    <application
         android:label="immersion_reader"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
         <activity
-            android:name="com.immersionreader.audioservice.AudioService"
+            android:name="com.immersionreader.audioservice.AudioServiceActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
@@ -30,18 +34,19 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <uses-permission android:name="android.permission.WAKE_LOCK"/>
-        <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-        <service android:name="com.ryanheise.audioservice.AudioService">
-        <intent-filter>
-            <action android:name="android.media.browse.MediaBrowserService" />
-        </intent-filter>
+        <service android:name="com.immersionreader.audioservice.AudioService"
+            android:foregroundServiceType="mediaPlayback"
+            android:exported="true" tools:ignore="Instantiatable">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
         </service>
 
-        <receiver android:name="com.immersionreader.audioservice.MediaButtonReceiver" >
-        <intent-filter>
-            <action android:name="android.intent.action.MEDIA_BUTTON" />
-        </intent-filter>
-        </receiver>
+        <receiver android:name="com.immersionreader.audioservice.MediaButtonReceiver"
+            android:exported="true" tools:ignore="Instantiatable">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver> 
     </application>
 </manifest>
