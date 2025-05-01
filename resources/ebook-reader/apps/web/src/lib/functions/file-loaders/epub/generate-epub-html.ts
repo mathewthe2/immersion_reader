@@ -181,7 +181,7 @@ export default function generateEpubHtml(
     });
 
     const childBodyDiv = document.createElement('div');
-    childBodyDiv.className = `ttu-book-body-wrapper`;
+    childBodyDiv.className = `ttu-book-body-wrapper ${bodyClass}`;
     if (bodyId) {
       childBodyDiv.id = bodyId;
     }
@@ -197,7 +197,14 @@ export default function generateEpubHtml(
 
     result.appendChild(childWrapperDiv);
 
-    currentCharCount += countForElement(childWrapperDiv);
+    const elementCharCount = countForElement(childWrapperDiv);
+
+    currentCharCount += elementCharCount;
+
+    if (!elementCharCount) {
+      childHtmlDiv.classList.add('ttu-no-text');
+      childBodyDiv.classList.add('ttu-no-text');
+    }
 
     const mainChapterIndex = mainChapters.findIndex((chapter) =>
       chapter.reference.includes(htmlHref.split('/').pop() || '')
