@@ -127,7 +127,7 @@ class ReaderJsManager {
   }
 
   Future<void> reloadReader() async {
-    await webController.reload();
+    await webController.evaluateJavascript(source: dispatchReloadEvent);
   }
 
   Future<void> defocusReader() async {

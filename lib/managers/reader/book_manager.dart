@@ -1,3 +1,4 @@
+import 'package:immersion_reader/data/reader/audio_book/audio_book_match_result.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/book_bookmark.dart';
 import 'package:immersion_reader/data/reader/book_section.dart';
@@ -97,14 +98,30 @@ class BookManager {
   }
 
   Future<void> updateBookMatchedSubtitles(
-      {required int matchedSubtitles, required int bookId}) async {
+      AudioBookMatchResult matchResult) async {
     await database?.update(
         "Books",
         {
-          "matchedSubtitles": matchedSubtitles,
+          "matchedSubtitles": matchResult.matchedSubtitles,
         },
         where: "id = ?",
-        whereArgs: [bookId]);
+        whereArgs: [matchResult.bookId]);
+    // update cache
+    if (_cachedBooks.containsKey(matchResult.bookId)) {
+      _cachedBooks[matchResult.bookId]!.elementHtml = matchResult.elementHtml;
+      _cachedBooks[matchResult.bookId]!.elementHtmlBackup =
+          matchResult.htmlBackup;
+      _cachedBooks[matchResult.bookId]!.matchedSubtitles =
+          matchResult.matchedSubtitles;
+    }
+    if (_cachedBooksBasicInfo.containsKey(matchResult.bookId)) {
+      _cachedBooksBasicInfo[matchResult.bookId]!.elementHtml =
+          matchResult.elementHtml;
+      _cachedBooksBasicInfo[matchResult.bookId]!.elementHtmlBackup =
+          matchResult.htmlBackup;
+      _cachedBooksBasicInfo[matchResult.bookId]!.matchedSubtitles =
+          matchResult.matchedSubtitles;
+    }
   }
 
   Future<void> setBookPlayBackPositionInMs(
@@ -112,6 +129,14 @@ class BookManager {
     await database?.update(
         "Books", {"playBackPositionInMs": playBackPositionInMs},
         where: "id = ?", whereArgs: [bookId]);
+    // update cache
+    if (_cachedBooks.containsKey(bookId)) {
+      _cachedBooks[bookId]!.playBackPositionInMs = playBackPositionInMs;
+    }
+    if (_cachedBooksBasicInfo.containsKey(bookId)) {
+      _cachedBooksBasicInfo[bookId]!.playBackPositionInMs =
+          playBackPositionInMs;
+    }
   }
 
   Future<int> setBook(Book book) async {
@@ -287,5 +312,10 @@ class BookManager {
       return true; // successfully loaded
     }
     return false;
+  }
+
+  void clearCacheForBook(int bookId) {
+    _cachedBooks.remove(bookId);
+    _cachedBooksBasicInfo.remove(bookId);
   }
 }

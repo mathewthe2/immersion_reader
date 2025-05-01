@@ -7,9 +7,13 @@
     share,
     shareReplay,
     startWith,
+    Subject,
     switchMap,
     tap,
-    timer
+    timer,
+
+    withLatestFrom
+
   } from 'rxjs';
   import { quintInOut } from 'svelte/easing';
   import { fly } from 'svelte/transition';
@@ -80,6 +84,23 @@
   let pageManager: PageManager | undefined;
   let bookmarkData: Promise<BooksDbBookmarkData | undefined> = Promise.resolve(undefined);
 
+
+  const reloadTrigger$ = new Subject<void>();
+
+  onMount(() => {
+    document.addEventListener('ttu-action', handleAction, false)
+  });
+
+  async function handleAction({ detail }: any) {
+    if (!detail.type) {
+      return;
+    }
+
+    if (detail.type === 'reload') {
+      reloadTrigger$.next();
+    }
+  }
+
   const autoHideHeader$ = timer(2500).pipe(
     tap(() => (showHeader = false)),
     reduceToEmptyString()
@@ -90,10 +111,13 @@
     shareReplay({ refCount: true, bufferSize: 1 })
   );
 
-  const rawBookData$ = bookId$.pipe(
-    switchMap((id) => database.getBookById(id)),
-    share()
-  );
+  const rawBookData$ = reloadTrigger$.pipe(
+  // Start with an initial trigger so it loads on mount
+  startWith(undefined),
+  withLatestFrom(bookId$),
+  switchMap(([_, id]) => database.getBookById(id)),
+  shareReplay({ refCount: true, bufferSize: 1 })
+);
 
   const leaveIfBookMissing$ = rawBookData$.pipe(
     tap((data) => {

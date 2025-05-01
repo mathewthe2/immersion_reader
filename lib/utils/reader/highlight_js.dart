@@ -66,3 +66,13 @@ String updateIsEnableSwipeInReader(bool isEnableSwipe) => """
 			}),
 		);
 """;
+
+String dispatchReloadEvent = """
+	document.dispatchEvent(
+			new CustomEvent('ttu-action', {
+				detail: {
+					type: 'reload',
+				},
+			}),
+		);
+""";

@@ -183,9 +183,7 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
     if (matchResult != null) {
       await Future.wait([
         BookFiles.updateBookContentHtml(matchResult!),
-        BookManager().updateBookMatchedSubtitles(
-            matchedSubtitles: matchResult!.matchedSubtitles,
-            bookId: matchResult!.bookId)
+        BookManager().updateBookMatchedSubtitles(matchResult!)
       ]);
       await ReaderJsManager().reloadReader();
       setState(() {
@@ -198,21 +196,26 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
   Future<void> resetMatches() async {
     if (book.id != null) {
       await BookFiles.restoreBookContentHtmlFromBackup(book.id!);
-      await ReaderJsManager().reloadReader();
-      await getAudioBook();
       await resetSubtitles();
+      BookManager().clearCacheForBook(book.id!);
+      await ReaderJsManager().reloadReader();
     }
   }
 
   Future<void> resetSubtitles() async {
-    previouslyMatchedSubtitles = 0;
+    setState(() {
+      previouslyMatchedSubtitles = 0;
+    });
     if (book.matchedSubtitles != null) {
       book.matchedSubtitles = 0;
     }
     if (book.id != null) {
-      await BookManager()
-          .updateBookMatchedSubtitles(bookId: book.id!, matchedSubtitles: 0);
+      await BookManager().updateBookMatchedSubtitles(AudioBookMatchResult(
+          bookId: book.id!,
+          elementHtml: book.elementHtml ?? "",
+          htmlBackup: book.elementHtmlBackup ?? ""));
     }
+    AudioPlayerManager().resetSubtitles();
   }
 
   Color getColorForTextNodeSelection(int index) {

@@ -23,13 +23,14 @@ class BookFiles {
   static Future<void> updateBookContentHtml(AudioBookMatchResult result) async {
     Directory dir = await _getBookMediaDirectory(result.bookId.toString());
     List<Future> futures = [];
-    final elementHtmlFile = File('$dir/$elementHtmlFileName');
+    final elementHtmlFile = File('${dir.path}/$elementHtmlFileName');
     if (elementHtmlFile.existsSync()) {
       elementHtmlFile.deleteSync();
     }
     futures.add(dir.addTextFile(
         data: result.elementHtml, filename: elementHtmlFileName));
-    final elementHtmlBackupFile = File('$dir/$elementHtmlBackupFileName');
+    final elementHtmlBackupFile =
+        File('${dir.path}/$elementHtmlBackupFileName');
     if (elementHtmlBackupFile.existsSync()) {
       elementHtmlBackupFile.deleteSync();
     }
@@ -40,9 +41,10 @@ class BookFiles {
 
   static Future<void> restoreBookContentHtmlFromBackup(int bookId) async {
     Directory dir = await _getBookMediaDirectory(bookId.toString());
-    final elementHtmlBackupFile = File('$dir/$elementHtmlBackupFileName');
+    final elementHtmlBackupFile =
+        File('${dir.path}/$elementHtmlBackupFileName');
     if (elementHtmlBackupFile.existsSync()) {
-      final elementHtmlFile = File('$dir/$elementHtmlFileName');
+      final elementHtmlFile = File('${dir.path}/$elementHtmlFileName');
       if (elementHtmlFile.existsSync()) {
         elementHtmlFile.deleteSync();
       }
@@ -129,5 +131,16 @@ class BookFiles {
     await Future.wait(futures);
     book.blobs = bookBlobs;
     return book;
+  }
+
+  static Future<void> removeBookContent(
+      {required int bookId, required Set<String> fileNames}) async {
+    Directory dir = await _getBookMediaDirectory(bookId.toString());
+    for (final fileName in fileNames) {
+      final elementHtmlFile = File('$dir/$fileName');
+      if (elementHtmlFile.existsSync()) {
+        elementHtmlFile.deleteSync();
+      }
+    }
   }
 }
