@@ -23,4 +23,11 @@ class BookBlob {
       base64Data != null ? base64Decode(base64Data!.split(',').last) : null;
 
   String? get prefix => base64Data?.split(',').first;
+
+  String get fileName {
+    return base64.encode(utf8.encode(key));
+  }
+
+  static String keyFromFileName(String fileName) =>
+      utf8.decode(base64.decode(fileName));
 }

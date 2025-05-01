@@ -525,8 +525,6 @@
   }
 
   nextChapter$.pipe(takeUntil(destroy$)).subscribe((chapterId) => {
-    console.log('wtf', chapterId);
-    console.log('sections', sections[1]);
     const nextSectionIndex = sections.findIndex(
       (section) => section.id === chapterId || section.querySelector(`[id="${chapterId}"]`)
     );

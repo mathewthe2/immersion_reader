@@ -13,6 +13,7 @@ import 'package:transparent_image/transparent_image.dart';
 class Book {
   String title;
   int? id;
+  int? version;
   DateTime? lastReadTime;
   String? coverImage;
   String? authorIdentifier;
@@ -48,22 +49,24 @@ class Book {
       this.blobs,
       this.bookmark,
       this.imageUrl,
-      this.contentUrl});
+      this.contentUrl,
+      this.version});
 
   factory Book.fromMap(Map<String, Object?> map) => Book(
       title: map['title'] as String,
       id: map['id'] as int?,
+      version: map['version'] as int?,
       lastReadTime: map['lastReadTime'] != null
           ? DateTime.parse(map['lastReadTime'] as String)
           : null,
       authorIdentifier: map['authorIdentifier'] != null
           ? map['authorIdentifier'] as String
           : '',
-      elementHtml: map['elementHtml'] as String,
+      elementHtml: map['elementHtml'] as String?,
       elementHtmlBackup: map['elementHtmlBackup'] as String?,
       playBackPositionInMs: map['playBackPositionInMs'] as int?,
       matchedSubtitles: map['matchedSubtitles'] as int?,
-      styleSheet: map['styleSheet'] as String,
+      styleSheet: map['styleSheet'] as String?,
       coverImage: getCoverImageFromMap(map),
       sections: map['sections'] != null
           ? (map['sections'] as List<dynamic>)
@@ -77,12 +80,27 @@ class Book {
           : [],
       hasThumb: getHasThumbFromMap(map));
 
+  static const int latestVersion = 2;
+
   static String getCoverImageFromMap(Map<String, Object?> map) {
     if (map.containsKey("coverImage") && map["coverImage"] is String) {
       return map["coverImage"] as String;
     } else if (map.containsKey("coverImagePrefix") &&
         (map["coverImagePrefix"] is String) &&
         map.containsKey("coverImageData")) {
+      return '${map['coverImagePrefix'] as String}, ${map['coverImageData']})}';
+    }
+    return "";
+  }
+
+  // deprecated - only for migration purposes
+  static String getCoverImageFromDatabaseResult(Map<String, Object?> map) {
+    if (map.containsKey("coverImage") && map["coverImage"] is String) {
+      return map["coverImage"] as String;
+    } else if (map.containsKey("coverImagePrefix") &&
+        (map["coverImagePrefix"] is String) &&
+        map.containsKey("coverImageData") &&
+        map['coverImageData'] is List) {
       return '${map['coverImagePrefix'] as String},${base64Encode(map['coverImageData'] as List<int>)}';
     }
     return "";

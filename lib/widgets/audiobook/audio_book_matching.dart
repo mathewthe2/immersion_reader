@@ -14,6 +14,7 @@ import 'package:immersion_reader/extensions/string_extension.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager.dart';
 import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
+import 'package:immersion_reader/utils/book/book_files.dart';
 import 'package:immersion_reader/utils/folder_utils.dart';
 import 'package:immersion_reader/utils/reader/match_js.dart';
 import 'package:immersion_reader/widgets/common/buttons/app_button.dart';
@@ -180,7 +181,12 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
 
   Future<void> applyMatches() async {
     if (matchResult != null) {
-      await BookManager().updateBookContentHtml(matchResult!);
+      await Future.wait([
+        BookFiles.updateBookContentHtml(matchResult!),
+        BookManager().updateBookMatchedSubtitles(
+            matchedSubtitles: matchResult!.matchedSubtitles,
+            bookId: matchResult!.bookId)
+      ]);
       await ReaderJsManager().reloadReader();
       setState(() {
         previouslyMatchedSubtitles = matchResult!.matchedSubtitles;
@@ -191,7 +197,7 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
 
   Future<void> resetMatches() async {
     if (book.id != null) {
-      await BookManager().resetElementHtmlFromBackup(book.id!);
+      await BookFiles.restoreBookContentHtmlFromBackup(book.id!);
       await ReaderJsManager().reloadReader();
       await getAudioBook();
       await resetSubtitles();

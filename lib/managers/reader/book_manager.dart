@@ -1,9 +1,9 @@
-import 'package:immersion_reader/data/reader/audio_book/audio_book_match_result.dart';
 import 'package:immersion_reader/data/reader/book.dart';
-import 'package:immersion_reader/data/reader/book_blob.dart';
 import 'package:immersion_reader/data/reader/book_bookmark.dart';
 import 'package:immersion_reader/data/reader/book_section.dart';
+import 'package:immersion_reader/migrations/book/book_migrations.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
+import 'package:immersion_reader/utils/book/book_files.dart';
 import 'package:immersion_reader/utils/folder_utils.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -28,32 +28,45 @@ class BookManager {
 
   Database? get database => settingsStorage?.database;
 
+  static const List<String> bookColumnsToQuery = [
+    'id',
+    'version',
+    'title',
+    'lastReadTime',
+    'authorId',
+    'coverImagePrefix',
+    'hasThumb',
+    'playBackPositionInMs',
+    'matchedSubtitles'
+  ];
+
   Future<Book?> getBookById(int bookId) async {
     if (_cachedBooks.containsKey(bookId)) {
       return _cachedBooks[bookId];
     }
-    final rows =
-        await database!.rawQuery('SELECT * FROM Books WHERE id = ?', [bookId]);
+    final rows = await database!.query("Books",
+        columns: bookColumnsToQuery, where: "id = ?", whereArgs: [bookId]);
     if (rows.isNotEmpty) {
       Book book = Book.fromMap(rows.first);
       var sectionRows = await database!
           .rawQuery('SELECT * FROM BookSections WHERE bookId = ?', [book.id]);
       book.sections =
           sectionRows.map((row) => BookSection.fromMap(row)).toList();
-      var blobRows = await database!
-          .rawQuery('SELECT * FROM BookBlobs WHERE bookId = ?', [book.id]);
-      book.blobs = blobRows.map((row) => BookBlob.fromMap(row)).toList();
       var bookmarkRows = await database!
           .rawQuery('SELECT * FROM BookBookmarks WHERE bookId = ?', [book.id]);
       if (bookmarkRows.isNotEmpty) {
         book.bookmark = BookBookmark.fromMap(bookmarkRows.first);
       }
+      book = await BookMigrations.migrate(book);
+      book = await BookFiles.getBookContent(book);
+
       _cachedBooks[bookId] = book;
       return book;
     }
     return null;
   }
 
+  // get all books and their basic info
   Future<List<Book>> getBooks({BookSortColumn? sort}) async {
     if (_cachedBooksBasicInfo.isNotEmpty) {
       return _cachedBooksBasicInfo.values.toList();
@@ -64,34 +77,23 @@ class BookManager {
         BookSortColumn.lastReadTime => 'lastReadTime DESC',
         _ => 'id ASC'
       };
-      final rows = await database!.query('Books', orderBy: sortValue);
+      final rows = await database!
+          .query('Books', columns: bookColumnsToQuery, orderBy: sortValue);
       if (rows.isNotEmpty) {
         List<Book> books = rows.map((row) => Book.fromMap(row)).toList();
+        List<Future> futures = [];
         for (final book in books) {
-          _cachedBooksBasicInfo[book.id!] = book;
+          futures.add(BookMigrations.migrate(book).then((result) async {
+            _cachedBooksBasicInfo[book.id!] = await BookFiles.getBookContent(
+                book,
+                requiredFileNames: {BookFiles.coverImageFileName});
+          }));
         }
-        return books;
+        await Future.wait(futures);
+        return _cachedBooksBasicInfo.values.toList();
       }
     }
     return [];
-  }
-
-  Future<void> resetElementHtmlFromBackup(int bookId) async {
-    await database?.rawUpdate(
-        "UPDATE Books SET elementHtml = elementHtmlBackup WHERE id = ?",
-        [bookId]);
-  }
-
-  Future<void> updateBookContentHtml(AudioBookMatchResult matchResult) async {
-    await database?.update(
-        "Books",
-        {
-          "elementHtml": matchResult.elementHtml,
-          "elementHtmlBackup": matchResult.htmlBackup,
-          "matchedSubtitles": matchResult.matchedSubtitles,
-        },
-        where: "id = ?",
-        whereArgs: [matchResult.bookId]);
   }
 
   Future<void> updateBookMatchedSubtitles(
@@ -125,19 +127,18 @@ class BookManager {
           }
         }
       }
+      book.version = BookMigrations.latestVersion;
       final int bookId = await database!.insert("Books", {
         "title": book.title,
+        "version": book.version,
         "authorId": book.authorIdentifier,
-        "elementHtml": book.elementHtml,
-        "styleSheet": book.styleSheet,
         "hasThumb": book.hasThumbInt,
-        "coverImageData": book.coverImageData,
         "coverImagePrefix": book.coverImagePrefix,
       });
       Batch batch = database!.batch();
       book.id = bookId;
       batch = addBookRelatedDataBatch(batch, [book]);
-      await batch.commit();
+      await Future.wait([BookFiles.saveBookContent(book), batch.commit()]);
       _cachedBooks[bookId] = book;
       _cachedBooksBasicInfo[bookId] = book;
       return bookId;
@@ -157,16 +158,6 @@ class BookManager {
             "startCharacter": section.startCharacter,
             "characters": section.characters,
             "parentChapter": section.parentChapter
-          });
-        }
-      }
-      if (book.blobs != null) {
-        for (BookBlob blob in book.blobs!) {
-          batch.insert("BookBlobs", {
-            "bookId": book.id,
-            "key": blob.key,
-            "prefix": blob.prefix,
-            "data": blob.data
           });
         }
       }
@@ -272,7 +263,7 @@ class BookManager {
     return -1;
   }
 
-  // load books with id for migration
+  // load books with id for migration from indexeddb
   Future<bool> bulkLoadBooksWithId(List<Book> books) async {
     if (database != null) {
       List<Book> existingBooks = await getBooks();

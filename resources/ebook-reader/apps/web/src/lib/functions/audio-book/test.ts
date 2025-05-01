@@ -530,7 +530,7 @@ async function onSaveMatch({ htmlBackup, bookHTML }: { htmlBackup: string, bookH
             lastBookModified: Date.now(),
         };
 
-        // TODO: send the data back to flutter app
+        // send the data back to flutter app
 
         console.log(newData);
 

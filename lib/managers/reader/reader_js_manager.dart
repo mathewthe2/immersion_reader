@@ -90,7 +90,7 @@ class ReaderJsManager {
     webController.addJavaScriptHandler(
         handlerName: 'readerMounted',
         callback: (_) async {
-          print("reader mounted");
+          // print("reader mounted");
         });
     webController.addJavaScriptHandler(
         handlerName: 'onLoadManager',

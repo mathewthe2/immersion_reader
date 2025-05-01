@@ -18,7 +18,8 @@ export const prependValue = 'ttu-';
 export default function generateEpubHtml(
   data: Record<string, string | Blob>,
   contents: EpubContent,
-  document: Document
+  document: Document,
+  contentsDirectory: string
 ) {
   const fallbackData = new Map<string, string>();
 
@@ -174,13 +175,13 @@ export default function generateEpubHtml(
 
     blobLocations.forEach((blobLocation) => {
       innerHtml = innerHtml.replaceAll(
-        relative(htmlHref, blobLocation),
+        relative(contentsDirectory, blobLocation),
         buildDummyBookImage(blobLocation)
       );
     });
 
     const childBodyDiv = document.createElement('div');
-    childBodyDiv.className = `ttu-book-body-wrapper ${bodyClass}`;
+    childBodyDiv.className = `ttu-book-body-wrapper`;
     if (bodyId) {
       childBodyDiv.id = bodyId;
     }
@@ -217,7 +218,7 @@ export default function generateEpubHtml(
         label: currentMainChapter.label,
         startCharacter: currentMainChapterIndex
           ? (sectionData[oldMainChapterIndex].startCharacter as number) +
-          (sectionData[oldMainChapterIndex].characters as number)
+            (sectionData[oldMainChapterIndex].characters as number)
           : 0,
         characters
       });
