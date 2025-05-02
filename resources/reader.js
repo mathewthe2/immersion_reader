@@ -262,7 +262,7 @@ function highlightLast(initialOffset, textLength) {
 				const counterSum = textCounter + textContent.length;
 
 				if (counterSum > (lastSelectedIndex + initialOffset) && remainingOffset > 0) {
-					if (value.nodeName === "RUBY") {
+					if (value.nodeName === "RUBY" || value.nodeName === "SPAN") {
 						const textNodes = [...value.childNodes].filter((node) => node.nodeName !== "RT" && node.nodeName !== "RP")
 						let childTextCounter = textContent.length;
 
