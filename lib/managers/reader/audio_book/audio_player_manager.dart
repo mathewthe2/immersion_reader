@@ -13,10 +13,8 @@ import 'package:immersion_reader/managers/reader/audio_book/audio_player_handler
 import 'package:immersion_reader/managers/reader/audio_book/audio_service_handler.dart';
 import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
-import 'package:immersion_reader/managers/settings/shared_preferences/share_preferences_manager.dart';
 import 'package:immersion_reader/utils/folder_utils.dart';
 import 'package:immersion_reader/utils/reader/highlight_js.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // Flutter UI should only interface with this manager for audio
 class AudioPlayerManager {
