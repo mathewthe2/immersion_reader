@@ -5,10 +5,12 @@ import 'dart:math';
 import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
-import 'package:immersion_reader/data/reader/audio_book/audio_book_operation.dart';
+import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_player_state.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/subtitle.dart';
+import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation.dart';
+import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation_type.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_handler.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_service_handler.dart';
 import 'package:immersion_reader/managers/reader/book_manager.dart';
@@ -35,6 +37,10 @@ class AudioPlayerManager {
   int? playBackPositionInMs;
   int currentSubtitleIndex = 0;
   bool isRequireSearchSubtitle = true;
+
+  final Map<int, AudioBookOperation> _cachedBookOperationData = {};
+  final Map<int, AudioBookFiles> _cachedAudioBooks =
+      {}; // subtitle and audio files for books
 
   static const int updateBookIntervalInMs =
       1000; // save playBackPosition to db every second
@@ -119,10 +125,6 @@ class AudioPlayerManager {
     updateBookPlayBackTimer?.cancel();
   }
 
-  void setSubtitles(List<Subtitle> subtitles) {
-    currentSubtitles = subtitles;
-  }
-
   int _binarySearchSubtitle(List<Subtitle> subtitles, Duration p) {
     int low = 0;
     int high = subtitles.length - 1;
@@ -203,13 +205,94 @@ class AudioPlayerManager {
     _positionController.add(currentState!);
   }
 
-  Future<void> resetSubtitles() async {
+  Future<AudioBookFiles> getAudioBook(int bookId) async {
+    if (!_cachedAudioBooks.containsKey(bookId)) {
+      _cachedAudioBooks[bookId] = await FolderUtils.getAudioBook(bookId);
+    }
+    return _cachedAudioBooks[bookId]!;
+  }
+
+  Future<void> loadSubtitlesFromFiles(
+      {required AudioBookFiles audioBookFiles,
+      required int bookId,
+      isRefetch = false}) async {
+    List<Subtitle> subtitles = [];
+    if (!isRefetch &&
+        _cachedBookOperationData.containsKey(bookId) &&
+        _cachedBookOperationData[bookId]!.subtitles != null) {
+      subtitles = _cachedBookOperationData[bookId]!.subtitles!;
+      currentSubtitles = subtitles;
+    } else if (audioBookFiles.subtitleFiles.isNotEmpty) {
+      subtitles = await Subtitle.readSubtitlesFromFile(
+          file: audioBookFiles
+              .subtitleFiles.first, // assume only one subtitle file for now
+          webController: ReaderJsManager().webController);
+      currentSubtitles = subtitles;
+      if (!_cachedBookOperationData.containsKey(bookId)) {
+        _cachedBookOperationData[bookId] = AudioBookOperation(
+            type: AudioBookOperationType
+                .addSubtitleFile); // type does not matter for cache
+      }
+      _cachedBookOperationData[bookId]!.subtitles = subtitles;
+    }
+    _cachedAudioBooks[bookId] = audioBookFiles;
+    broadcastOperation(AudioBookOperation.addSubtitleFile(subtitles));
+  }
+
+  Future<void> removeSubtitlesFromFiles() async {
+    await resetActiveSubtitle();
+    _cachedBookOperationData.clear();
+    _cachedAudioBooks.clear();
+    broadcastOperation(AudioBookOperation.removeSubtitleFile);
+  }
+
+  Future<void> loadAudioFromFiles(
+      {required AudioBookFiles audioBookFiles,
+      required Book book,
+      isRefetch = false}) async {
+    if (book.id == null) return;
+
+    // use cache
+    if (!isRefetch &&
+        _cachedBookOperationData.containsKey(book.id) &&
+        _cachedBookOperationData[book.id]!.metadata != null &&
+        _cachedBookOperationData[book.id]!.audioBookFiles != null) {
+      broadcastOperation(AudioBookOperation.addAudioFile(
+          metadata: _cachedBookOperationData[book.id]!.metadata!,
+          audioBookFiles: _cachedBookOperationData[book.id]!.audioBookFiles!));
+    } else {
+      if (audioBookFiles.audioFiles.isNotEmpty) {
+        Metadata metadata = await setSourceFromDevice(
+            audioFile: audioBookFiles.audioFiles.first, book: book);
+
+        if (!_cachedBookOperationData.containsKey(book.id)) {
+          _cachedBookOperationData[book.id!] = AudioBookOperation(
+              type: AudioBookOperationType
+                  .addAudioFile); // type does not matter for cache
+        }
+        _cachedBookOperationData[book.id]!.metadata = metadata;
+        _cachedBookOperationData[book.id]!.audioBookFiles = audioBookFiles;
+        _cachedAudioBooks[book.id!] = audioBookFiles;
+
+        broadcastOperation(AudioBookOperation.addAudioFile(
+            metadata: metadata, audioBookFiles: audioBookFiles));
+      }
+    }
+  }
+
+  Future<void> removeAudioFromFiles() async {
+    _cachedBookOperationData.clear();
+    _cachedAudioBooks.clear();
+    broadcastOperation(AudioBookOperation.removeAudioFile);
+  }
+
+  Future<void> resetActiveSubtitle() async {
     isRequireSearchSubtitle = true;
     await ReaderJsManager().evaluateJavascript(source: removeAllHighlights());
   }
 
   Future<void> _seek(Duration duration) async {
-    await Future.wait([audioService.seek(duration), resetSubtitles()]);
+    await Future.wait([audioService.seek(duration), resetActiveSubtitle()]);
     updatePlayerState(duration);
   }
 

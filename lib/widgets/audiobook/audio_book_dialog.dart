@@ -4,8 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/extensions/context_extension.dart';
+import 'package:immersion_reader/utils/system_theme.dart';
 import 'package:immersion_reader/widgets/audiobook/audio_book_matching.dart';
 import 'package:immersion_reader/widgets/audiobook/audio_book_player.dart';
+import 'package:immersion_reader/widgets/audiobook/audio_book_subtitles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AudioBookDialog {
@@ -20,6 +22,7 @@ class AudioBookDialog {
     SmartDialog.show(
         tag: audioBookDialogTag,
         alignment: Alignment.bottomCenter,
+        animationTime: getDialogAnimationTime(),
         maskColor: CupertinoColors.transparent,
         builder: (context) {
           return Dismissible(
@@ -45,20 +48,31 @@ class AudioBookDialog {
                         BottomNavigationBarItem(
                             icon: Icon(CupertinoIcons.headphones),
                             label: 'Player'),
+                        BottomNavigationBarItem(
+                            icon: Icon(CupertinoIcons.doc_text_search),
+                            label: 'Subtitles'),
                       ],
                     ),
                     tabBuilder: (BuildContext context, int index) {
                       return CupertinoTabView(
                         builder: (BuildContext context) {
-                          if (index == 0) {
-                            return AudioBookMatching(
-                                matchProgressController:
-                                    matchProgressController,
-                                book: book);
+                          switch (index) {
+                            case 0:
+                              return AudioBookMatching(
+                                  matchProgressController:
+                                      matchProgressController,
+                                  book: book);
+                            case 1:
+                              return AudioBookPlayer(
+                                book: book,
+                              );
+                            case 2:
+                              return AudioBookSubtitles(book: book);
+                            default:
+                              return AudioBookPlayer(
+                                book: book,
+                              );
                           }
-                          return AudioBookPlayer(
-                            book: book,
-                          );
                         },
                       );
                     },

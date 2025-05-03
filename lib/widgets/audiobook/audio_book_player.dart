@@ -5,15 +5,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
-import 'package:immersion_reader/data/reader/audio_book/audio_book_operation.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_player_state.dart';
 import 'package:immersion_reader/data/reader/book.dart';
-import 'package:immersion_reader/data/reader/subtitle.dart';
 import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/extensions/duration_extension.dart';
+import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation.dart';
+import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation_type.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager.dart';
-import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
-import 'package:immersion_reader/utils/folder_utils.dart';
 import 'package:immersion_reader/widgets/common/text/app_text.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -27,11 +25,11 @@ class AudioBookPlayer extends StatefulWidget {
 
 class _AudioBookPlayerState extends State<AudioBookPlayer> {
   late Book book;
-  List<Subtitle> subtitles = [];
-  AudioBookFiles? audioBook;
+  AudioBookFiles? audioBookFiles;
   Metadata? audioFileMetadata = AudioPlayerManager().audioFileMetadata;
   int currentSubtitleIndex = 0;
   double sliderValue = 0;
+  bool isFetchingAudioBook = true;
   bool isPlaying = false;
 
   int _selectedSpeed = 2;
@@ -48,52 +46,32 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
     super.initState();
     book = widget.book;
     if (book.id != null) {
-      initAudioBook(book.id!);
+      initAudioBook(book);
     }
 
     listenToBookIsPlaying();
     listenToBookOperations();
   }
 
-  Future<void> initAudioBook(int bookId) async {
-    final audioBookFromStorage = await loadAudioBook(bookId);
-    await Future.wait([
-      initAudio(audioBookFromStorage),
-      initSubtitles(audioBookFromStorage),
-    ]);
-  }
-
-  Future<AudioBookFiles> loadAudioBook(int bookId) async {
-    final audioBookFromStorage = await FolderUtils.getAudioBook(bookId);
+  Future<void> initAudioBook(Book book) async {
+    if (book.id == null) return;
+    // final audioBookFromStorage = await loadAudioBook(book.id!);
+    final audioBookFromStorage =
+        await AudioPlayerManager().getAudioBook(book.id!);
     if (mounted) {
       setState(() {
-        audioBook = audioBookFromStorage;
+        audioBookFiles = audioBookFromStorage;
       });
     }
-    return audioBookFromStorage;
-  }
-
-  Future<void> initAudio(AudioBookFiles audiobookFiles) async {
-    if (audiobookFiles.audioFiles.isNotEmpty) {
-      Metadata metadata = await AudioPlayerManager().setSourceFromDevice(
-          audioFile: audiobookFiles.audioFiles.first, book: book);
-      if (mounted) {
-        setState(() {
-          audioFileMetadata = metadata;
-        });
-      }
-    }
-  }
-
-  Future<void> initSubtitles(AudioBookFiles audiobookFiles) async {
-    if (audiobookFiles.subtitleFiles.isNotEmpty) {
-      subtitles = await Subtitle.readSubtitlesFromFile(
-          file: audiobookFiles
-              .subtitleFiles.first, // assume only one subtitle file for now
-          webController: ReaderJsManager().webController);
-
-      AudioPlayerManager().setSubtitles(subtitles);
-    }
+    await Future.wait([
+      AudioPlayerManager().loadSubtitlesFromFiles(
+          audioBookFiles: audioBookFromStorage, bookId: book.id!),
+      AudioPlayerManager()
+          .loadAudioFromFiles(audioBookFiles: audioBookFromStorage, book: book),
+    ]);
+    setState(() {
+      isFetchingAudioBook = false;
+    });
   }
 
   void listenToBookIsPlaying() {
@@ -112,25 +90,26 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
     AudioPlayerManager()
         .onBookOperation
         .listen((AudioBookOperation operation) async {
-      switch (operation) {
-        case AudioBookOperation.addAudioFile:
-          if (book.id != null) {
-            final audioBookFiles = await loadAudioBook(book.id!);
-            await initAudio(audioBookFiles);
+      switch (operation.type) {
+        case AudioBookOperationType.addAudioFile:
+          if (mounted && operation.metadata != null) {
+            setState(() {
+              audioBookFiles = operation.audioBookFiles;
+              audioFileMetadata = operation.metadata;
+            });
           }
           break;
-        case AudioBookOperation.addSubtitleFile:
-          if (book.id != null) {
-            final audioBookFiles = await loadAudioBook(book.id!);
-            await initSubtitles(audioBookFiles);
+        case AudioBookOperationType.addSubtitleFile:
+          break;
+        case AudioBookOperationType.removeAudioFile:
+          if (mounted) {
+            setState(() {
+              audioBookFiles = null;
+              audioFileMetadata = null;
+            });
           }
           break;
-        case AudioBookOperation.removeAudioFile:
-          audioBook = null;
-          break;
-        case AudioBookOperation.removeSubtitleFile:
-          subtitles = [];
-          AudioPlayerManager().setSubtitles([]);
+        case AudioBookOperationType.removeSubtitleFile:
           break;
       }
     });
@@ -206,7 +185,10 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    if (audioBook == null || audioBook!.audioFiles.isEmpty) {
+    if (isFetchingAudioBook) {
+      return Container();
+    }
+    if (audioBookFiles == null || audioBookFiles!.audioFiles.isEmpty) {
       return Center(child: AppText("No audio file selected"));
     }
     return CupertinoScrollbar(
@@ -250,7 +232,7 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
               }
             }),
       ),
-      if (audioBook != null && audioBook!.audioFiles.isNotEmpty)
+      if (audioBookFiles != null && audioBookFiles!.audioFiles.isNotEmpty)
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

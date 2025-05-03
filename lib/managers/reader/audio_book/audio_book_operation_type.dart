@@ -1,4 +1,4 @@
-enum AudioBookOperation {
+enum AudioBookOperationType {
   addAudioFile,
   addSubtitleFile,
   removeAudioFile,

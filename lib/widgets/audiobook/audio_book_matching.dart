@@ -4,7 +4,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_match_result.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
-import 'package:immersion_reader/data/reader/audio_book/audio_book_operation.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/subtitle.dart';
 import 'package:immersion_reader/extensions/context_extension.dart';
@@ -66,17 +65,23 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
     if (book.id == null) return;
     String? newFilePath = await FolderUtils.addSubtitleFile(book.id!);
     if (newFilePath != null) {
-      await getAudioBook();
+      AudioBookFiles? audioBook = await getAudioBook();
+      if (audioBook != null) {
+        await AudioPlayerManager().loadSubtitlesFromFiles(
+            audioBookFiles: audioBook, bookId: book.id!);
+      }
     }
-    AudioPlayerManager().broadcastOperation(AudioBookOperation.addSubtitleFile);
   }
 
   Future<void> onAddAudioFile() async {
     if (book.id == null) return;
     String? newFilePath = await FolderUtils.addAudioFile(book.id!);
     if (newFilePath != null) {
-      await getAudioBook();
-      AudioPlayerManager().broadcastOperation(AudioBookOperation.addAudioFile);
+      AudioBookFiles? audioBook = await getAudioBook();
+      if (audioBook != null) {
+        await AudioPlayerManager()
+            .loadAudioFromFiles(audioBookFiles: audioBook, book: book);
+      }
     }
   }
 
@@ -89,13 +94,17 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
   }
 
   // get existing audio files if exist
-  Future<void> getAudioBook() async {
-    if (book.id == null) return;
+  Future<AudioBookFiles?> getAudioBook() async {
+    if (book.id == null) return null;
+    setState(() {
+      isFetchingAudioBook = true;
+    });
     final newAudioBook = await FolderUtils.getAudioBook(book.id!);
     setState(() {
       audioBook = newAudioBook;
       isFetchingAudioBook = false;
     });
+    return newAudioBook;
   }
 
   Future<void> onAlignTextBeginning() async {
@@ -125,8 +134,7 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
             subtitleFiles: [], audioFiles: audioBook!.audioFiles);
       });
     }
-    AudioPlayerManager()
-        .broadcastOperation(AudioBookOperation.removeSubtitleFile);
+    AudioPlayerManager().removeSubtitlesFromFiles();
   }
 
   Future<void> removeAudioFiles() async {
@@ -140,7 +148,7 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
             subtitleFiles: audioBook!.subtitleFiles, audioFiles: []);
       });
     }
-    AudioPlayerManager().broadcastOperation(AudioBookOperation.removeAudioFile);
+    AudioPlayerManager().removeAudioFromFiles();
   }
 
   Future<void> onStartMatching() async {
@@ -199,6 +207,9 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
       await resetSubtitles();
       BookManager().clearCacheForBook(book.id!);
       await ReaderJsManager().reloadReader();
+      if (audioBook == null) {
+        await getAudioBook();
+      }
     }
   }
 
@@ -215,7 +226,7 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
           elementHtml: book.elementHtml ?? "",
           htmlBackup: book.elementHtmlBackup ?? ""));
     }
-    AudioPlayerManager().resetSubtitles();
+    AudioPlayerManager().resetActiveSubtitle();
   }
 
   Color getColorForTextNodeSelection(int index) {
