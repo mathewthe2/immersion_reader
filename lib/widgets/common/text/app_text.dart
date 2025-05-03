@@ -4,12 +4,11 @@ import 'package:flutter/cupertino.dart';
 class AppText extends StatelessWidget {
   final String data;
   final TextStyle? style;
+  final TextAlign? textAlign;
+  final bool? isHighlight;
 
-  const AppText(
-    this.data, {
-    super.key,
-    this.style,
-  });
+  const AppText(this.data,
+      {super.key, this.style, this.textAlign, this.isHighlight});
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +18,20 @@ class AppText extends StatelessWidget {
             darkColor: CupertinoColors.systemGroupedBackground),
         context);
 
-    return Text(data, style: TextStyle(color: textColor).merge(style));
+    Color backgroundColor = CupertinoDynamicColor.resolve(
+        const CupertinoDynamicColor.withBrightness(
+          color: Color(0xffffe694),
+          darkColor: Color(0xff395a4f),
+        ),
+        context);
+
+    return Text(data,
+        textAlign: textAlign,
+        style: TextStyle(
+                color: textColor,
+                backgroundColor: (isHighlight != null && isHighlight!)
+                    ? backgroundColor
+                    : null)
+            .merge(style));
   }
 }

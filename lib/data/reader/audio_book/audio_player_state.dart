@@ -4,11 +4,13 @@ class AudioPlayerState {
   Duration currentPosition;
   Duration timeRemaining;
   PlayerState playerState;
+  int currentSubtitleIndex;
 
   AudioPlayerState(
       {required this.currentPosition,
       required this.timeRemaining,
-      required this.playerState});
+      required this.playerState,
+      required this.currentSubtitleIndex});
 
   double? get playbackPercentage {
     final totalTime =

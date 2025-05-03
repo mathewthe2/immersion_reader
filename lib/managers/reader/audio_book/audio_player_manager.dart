@@ -37,6 +37,7 @@ class AudioPlayerManager {
   int? playBackPositionInMs;
   int currentSubtitleIndex = 0;
   bool isRequireSearchSubtitle = true;
+  Duration? playerEndDuration;
 
   final Map<int, AudioBookOperation> _cachedBookOperationData = {};
   final Map<int, AudioBookFiles> _cachedAudioBooks =
@@ -183,6 +184,11 @@ class AudioPlayerManager {
 
   void _listenPlayerPosition() {
     audioService.onPositionChanged.listen((Duration p) async {
+      if (playerEndDuration != null && p >= playerEndDuration!) {
+        await audioService.pause();
+        playerEndDuration = null;
+        return;
+      }
       updatePlayerState(p);
       playBackPositionInMs = p.inMilliseconds;
       await _insertSubtitleHighlight(p: p);
@@ -198,6 +204,7 @@ class AudioPlayerManager {
     currentState = AudioPlayerState(
         currentPosition: p,
         timeRemaining: timeRemaining,
+        currentSubtitleIndex: currentSubtitleIndex,
         playerState: audioService.playerState == null
             ? PlayerState.stopped
             : audioService.playerState!);
@@ -236,7 +243,8 @@ class AudioPlayerManager {
       _cachedBookOperationData[bookId]!.subtitles = subtitles;
     }
     _cachedAudioBooks[bookId] = audioBookFiles;
-    broadcastOperation(AudioBookOperation.addSubtitleFile(subtitles));
+    broadcastOperation(AudioBookOperation.addSubtitleFile(
+        subtitles: subtitles, currentSubtitleIndex: currentSubtitleIndex));
   }
 
   Future<void> removeSubtitlesFromFiles() async {
@@ -296,11 +304,27 @@ class AudioPlayerManager {
     updatePlayerState(duration);
   }
 
+  Future<void> _seekWithEnd(
+      {required Duration startDuration, required Duration endDuration}) async {
+    await Future.wait(
+        [audioService.seek(startDuration), resetActiveSubtitle()]);
+    updatePlayerState(startDuration);
+    playerEndDuration = endDuration;
+  }
+
   Future<void> seekByPercentage(double percentage) async {
     if (audioService.maxDuration != null) {
       await _seek(Duration(
           milliseconds: ((audioService.maxDuration!.inMilliseconds * percentage)
               .round())));
+    }
+  }
+
+  Future<void> playSubtitleByIndex(int subtitleIndex) async {
+    if (subtitleIndex < currentSubtitles.length) {
+      _seekWithEnd(
+          startDuration: currentSubtitles[subtitleIndex].startDuration,
+          endDuration: currentSubtitles[subtitleIndex].endDuration);
     }
   }
 
