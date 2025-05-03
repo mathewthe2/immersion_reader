@@ -13,7 +13,7 @@
     takeUntil,
     throttleTime
   } from 'rxjs';
-  import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+  import { afterUpdate, createEventDispatcher, onDestroy, onMount } from 'svelte';
   import Fa from 'svelte-fa';
   import { swipe } from 'svelte-gestures';
   import { faBookmark, faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -21,7 +21,10 @@
   import { nextChapter$, tocIsOpen$ } from '$lib/components/book-reader/book-toc/book-toc';
   import HtmlRenderer from '$lib/components/html-renderer.svelte';
   import { FuriganaStyle } from '$lib/data/furigana-style';
-  import type { BooksDbBookmarkData } from '$lib/data/database/books-db/versions/books-db';
+  import type {
+    BooksDbBookData,
+    BooksDbBookmarkData
+  } from '$lib/data/database/books-db/versions/books-db';
   import { iffBrowser } from '$lib/functions/rxjs/iff-browser';
   import { PageManagerPaginated } from './page-manager-paginated';
   import { SectionCharacterStatsCalculator } from './section-character-stats-calculator';
@@ -29,6 +32,8 @@
   import { BookmarkManagerPaginated } from './bookmark-manager-paginated';
   import { getExternalTargetElement } from '$lib/functions/utils';
   import { SECTION_CHANGE } from '$lib/data/events';
+
+  export let rawBookData: BooksDbBookData;
 
   export let htmlContent: string;
 
@@ -116,6 +121,8 @@
   let currentSectionId = '';
 
   let isEnableSwipe = true;
+
+  let isSentNotificationToImmersionReader = false;
 
   const width$ = new Subject<number>();
 
@@ -224,10 +231,7 @@
   }
 
   onMount(() => {
-    document.addEventListener('ttu-action', handleAction, false)
-    if (window.flutter_inappwebview != null) {
-        window.flutter_inappwebview?.callHandler('readerMounted');
-      }
+    document.addEventListener('ttu-action', handleAction, false);
   });
 
   async function handleAction({ detail }: any) {
@@ -268,11 +272,11 @@
       }
     }
 
-    if (detail.type === "enableSwipe") {
+    if (detail.type === 'enableSwipe') {
       isEnableSwipe = true;
     }
 
-    if (detail.type === "disableSwipe") {
+    if (detail.type === 'disableSwipe') {
       isEnableSwipe = false;
     }
   }
@@ -313,13 +317,16 @@
     });
 
   pageChange$.pipe(takeUntil(destroy$)).subscribe((isUser) => {
+    if (!isSentNotificationToImmersionReader) {
+      requestAnimationFrame(() => sendReaderReadyToImmersionReader());
+    }
     if (!calculator) return;
 
     exploredCharCount = calculator.calcExploredCharCount(customReadingPointRange);
     if (isUser) {
       previousIntendedCount = exploredCharCount;
     }
-    notifyProgressToImmersionReader(exploredCharCount);
+    sendProgressToImmersionReader(exploredCharCount);
     bookmarkData.then((data) => {
       useExploredCharCount = isUser || wasResized;
       updateBookmarkScreen(data);
@@ -447,13 +454,18 @@
     dispatch('contentChange', scrollEl);
   }
 
-  function notifyProgressToImmersionReader(exploredCharCount: number) {
-    console.log(
-      JSON.stringify({
-        exploredCharCount: exploredCharCount,
-        messageType: 'content-display-change'
-      })
-    );
+  function sendProgressToImmersionReader(exploredCharCount: number) {
+    if (window.flutter_inappwebview != null) {
+      window.flutter_inappwebview?.callHandler('onContentDisplayChange', exploredCharCount);
+    }
+  }
+
+  function sendReaderReadyToImmersionReader() {
+    if (window.flutter_inappwebview != null) {
+      const bookData = { ...rawBookData, blobs: null };
+      window.flutter_inappwebview?.callHandler('onReaderReady', bookData);
+      isSentNotificationToImmersionReader = true;
+    }
   }
 
   function onContentDisplayChange(_calculator: SectionCharacterStatsCalculator) {

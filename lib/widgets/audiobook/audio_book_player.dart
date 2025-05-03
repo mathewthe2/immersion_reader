@@ -32,6 +32,7 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
   Metadata? audioFileMetadata = AudioPlayerManager().audioFileMetadata;
   int currentSubtitleIndex = 0;
   double sliderValue = 0;
+  bool isPlaying = false;
 
   int _selectedSpeed = 2;
 
@@ -50,6 +51,7 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
       initAudioBook(book.id!);
     }
 
+    listenToBookIsPlaying();
     listenToBookOperations();
   }
 
@@ -94,6 +96,18 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
     }
   }
 
+  void listenToBookIsPlaying() {
+    AudioPlayerManager()
+        .onPositionChanged
+        .listen((AudioPlayerState playerState) {
+      if (mounted) {
+        setState(() {
+          isPlaying = (playerState.playerState == PlayerState.playing);
+        });
+      }
+    });
+  }
+
   void listenToBookOperations() {
     AudioPlayerManager()
         .onBookOperation
@@ -136,17 +150,27 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
     }
   }
 
-  Widget _buildPlayButton(PlayerState? playerState) {
-    if (playerState != null && playerState == PlayerState.playing) {
+  Widget _buildPlayButton() {
+    if (isPlaying) {
       return CupertinoButton(
-          onPressed: AudioPlayerManager().audioService.pause,
+          onPressed: () {
+            setState(() {
+              isPlaying = false;
+            });
+            AudioPlayerManager().audioService.pause();
+          },
           child: Icon(
             size: 36,
             CupertinoIcons.pause_solid,
           ));
     } else {
       return CupertinoButton(
-          onPressed: AudioPlayerManager().audioService.play,
+          onPressed: () {
+            setState(() {
+              isPlaying = true;
+            });
+            AudioPlayerManager().audioService.play();
+          },
           child: Icon(
             size: 36,
             CupertinoIcons.play_arrow_solid,
@@ -240,16 +264,7 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
                 child: Icon(
                   CupertinoIcons.refresh_bold,
                 )),
-            StreamBuilder<AudioPlayerState>(
-                stream: AudioPlayerManager().onPositionChanged,
-                builder: (context, streamSnapshot) {
-                  if (streamSnapshot.connectionState ==
-                      ConnectionState.active) {
-                    return _buildPlayButton(streamSnapshot.data!.playerState);
-                  }
-                  return _buildPlayButton(
-                      AudioPlayerManager().currentState?.playerState);
-                }),
+            _buildPlayButton(),
             CupertinoButton(
                 onPressed: () =>
                     AudioPlayerManager().fastForward(fastForwardSeconds),

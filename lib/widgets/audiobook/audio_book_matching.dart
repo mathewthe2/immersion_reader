@@ -355,7 +355,8 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
                   AppText("Line match rate: ${matchResult!.lineMatchRate}"),
                   AppText(
                       "Book diff rate ${matchResult!.bookSubtitleDiffRate}"),
-                  AppButton(label: 'Apply matches', onPressed: applyMatches),
+                  if (matchResult!.matchedSubtitles > 0)
+                    AppButton(label: 'Apply matches', onPressed: applyMatches),
                 ],
               )
           ],

@@ -93,10 +93,10 @@
   ];
 
   const optionsForViewMode: ToggleOption<ViewMode>[] = [
-    {
-      id: ViewMode.Continuous,
-      text: 'Continuous'
-    },
+    // {
+    //   id: ViewMode.Continuous,
+    //   text: 'Continuous'
+    // },
     {
       id: ViewMode.Paginated,
       text: 'Paginated'

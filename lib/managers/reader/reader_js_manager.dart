@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/book_bookmark.dart';
+import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager.dart';
 import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
 import 'package:immersion_reader/utils/reader/highlight_js.dart';
@@ -88,9 +89,20 @@ class ReaderJsManager {
           BookManager().setLastReadTime(book);
         });
     webController.addJavaScriptHandler(
-        handlerName: 'readerMounted',
-        callback: (_) async {
-          // print("reader mounted");
+        handlerName: "onContentDisplayChange",
+        callback: (args) {
+          int? readCharacters = args.first;
+          if (readCharacters != null) {
+            ReaderSessionManager()
+                .updateProgressOfCurrentContent(readCharacters);
+          }
+        });
+    webController.addJavaScriptHandler(
+        handlerName: 'onReaderReady',
+        callback: (args) async {
+          final bookData = args.first;
+          final Book book = Book.fromMap(bookData);
+          AudioPlayerManager().loadAudioBookIfExists(book);
         });
     webController.addJavaScriptHandler(
         handlerName: 'onLoadManager',

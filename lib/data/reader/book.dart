@@ -130,6 +130,7 @@ class Book {
       'authorIdentifier': authorIdentifier,
       'elementHtml': elementHtml,
       'styleSheet': styleSheet,
+      'playBackPositionInMs': playBackPositionInMs,
       'sections': sections?.map((section) => section.toMap()).toList(),
       'blobMap': blobMap,
       'coverImage': coverImage,

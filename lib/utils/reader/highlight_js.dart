@@ -18,14 +18,14 @@ function _getNodeHighlightColor() {
 }
 """;
 
-String addNodeHighlight({required String id}) => """
+String addNodeHighlight({required String id, bool isCueToElement = true}) => """
 $_nodeHighlightColor
 var spans = document.querySelectorAll('span.$classPrefix-$id');
 
 spans.forEach(span => {
   span.style.backgroundColor = _getNodeHighlightColor();
 });
-${_cueToElement(id)}
+${isCueToElement ? _cueToElement(id) : ""}
 """;
 
 String removeNodeHighlight(String id) => """

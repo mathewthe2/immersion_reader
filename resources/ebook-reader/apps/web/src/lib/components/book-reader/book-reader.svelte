@@ -15,7 +15,10 @@
   } from 'rxjs';
   import BookReaderContinuous from '$lib/components/book-reader/book-reader-continuous/book-reader-continuous.svelte';
   import { pxReader } from '$lib/components/book-reader/css-classes';
-  import type { BooksDbBookmarkData } from '$lib/data/database/books-db/versions/books-db';
+  import type {
+    BooksDbBookData,
+    BooksDbBookmarkData
+  } from '$lib/data/database/books-db/versions/books-db';
   import type { FuriganaStyle } from '$lib/data/furigana-style';
   import { ViewMode } from '$lib/data/view-mode';
   import { iffBrowser } from '$lib/functions/rxjs/iff-browser';
@@ -25,6 +28,8 @@
   import { reactiveElements } from './reactive-elements';
   import type { AutoScroller, BookmarkManager, PageManager } from './types';
   import BookReaderPaginated from './book-reader-paginated/book-reader-paginated.svelte';
+
+  export let rawBookData: BooksDbBookData;
 
   export let htmlContent: string;
 
@@ -190,6 +195,7 @@
     />
   {:else}
     <BookReaderPaginated
+      {rawBookData}
       {htmlContent}
       width={$contentViewportWidth$ ?? 0}
       height={$contentViewportHeight$ ?? 0}

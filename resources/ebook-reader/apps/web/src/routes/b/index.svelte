@@ -11,9 +11,7 @@
     switchMap,
     tap,
     timer,
-
     withLatestFrom
-
   } from 'rxjs';
   import { quintInOut } from 'svelte/easing';
   import { fly } from 'svelte/transition';
@@ -84,11 +82,10 @@
   let pageManager: PageManager | undefined;
   let bookmarkData: Promise<BooksDbBookmarkData | undefined> = Promise.resolve(undefined);
 
-
   const reloadTrigger$ = new Subject<void>();
 
   onMount(() => {
-    document.addEventListener('ttu-action', handleAction, false)
+    document.addEventListener('ttu-action', handleAction, false);
   });
 
   async function handleAction({ detail }: any) {
@@ -112,12 +109,12 @@
   );
 
   const rawBookData$ = reloadTrigger$.pipe(
-  // Start with an initial trigger so it loads on mount
-  startWith(undefined),
-  withLatestFrom(bookId$),
-  switchMap(([_, id]) => database.getBookById(id)),
-  shareReplay({ refCount: true, bufferSize: 1 })
-);
+    // Start with an initial trigger so it loads on mount
+    startWith(undefined),
+    withLatestFrom(bookId$),
+    switchMap(([_, id]) => database.getBookById(id)),
+    shareReplay({ refCount: true, bufferSize: 1 })
+  );
 
   const leaveIfBookMissing$ = rawBookData$.pipe(
     tap((data) => {
@@ -155,19 +152,6 @@
         const bookData = { ...rawBookData, blobs: null };
         window.flutter_inappwebview?.callHandler('onLoadBook', bookData);
       }
-      // console.log(
-      //   JSON.stringify({
-      //     bookId: rawBookData.id,
-      //     title: rawBookData.title,
-      //     bookCharCount: rawBookData.sections
-      //       ? rawBookData.sections.reduce(
-      //           (sum: number, section: Section) => sum + (section.characters || 0),
-      //           0
-      //         )
-      //       : null,
-      //     messageType: 'load-book'
-      //   })
-      // );
     }),
     reduceToEmptyString()
   );
@@ -340,21 +324,28 @@
 {/if}
 
 <!-- update page when tapping left or right edges -->
-<div class="fixed top-12 left-0 z-10 h-full w-8" on:click={() => {
-  if (!showHeader) {
-    pageManager?.nextPage();
-  }
-}} />
+<div
+  class="fixed top-12 left-0 z-10 h-full w-8"
+  on:click={() => {
+    if (!showHeader) {
+      pageManager?.nextPage();
+    }
+  }}
+/>
 
-<div class="fixed top-12 right-0 z-10 h-full w-5" on:click={() => {
-  if (!showHeader) {
-  pageManager?.prevPage();
-  }
-}} />
+<div
+  class="fixed top-12 right-0 z-10 h-full w-5"
+  on:click={() => {
+    if (!showHeader) {
+      pageManager?.prevPage();
+    }
+  }}
+/>
 
 {#if $bookData$}
   <StyleSheetRenderer styleSheet={$bookData$.styleSheet} />
   <BookReader
+    rawBookData={$rawBookData$}
     htmlContent={$bookData$.htmlContent}
     width={$containerViewportWidth$ ?? 0}
     height={$containerViewportHeight$ ?? 0}

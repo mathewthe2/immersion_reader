@@ -13,8 +13,10 @@ import 'package:immersion_reader/managers/reader/audio_book/audio_player_handler
 import 'package:immersion_reader/managers/reader/audio_book/audio_service_handler.dart';
 import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
+import 'package:immersion_reader/managers/settings/shared_preferences/share_preferences_manager.dart';
 import 'package:immersion_reader/utils/folder_utils.dart';
 import 'package:immersion_reader/utils/reader/highlight_js.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Flutter UI should only interface with this manager for audio
 class AudioPlayerManager {
@@ -51,6 +53,24 @@ class AudioPlayerManager {
 
   AudioServiceHandler get audioService =>
       AudioPlayerHandler().audioServiceHandler;
+
+  Future<void> loadAudioBookIfExists(Book book) async {
+    if (book.id != null &&
+        book.playBackPositionInMs != null &&
+        book.playBackPositionInMs! > 0) {
+      final audioBookFiles = await FolderUtils.getAudioBook(book.id!);
+
+      if (audioBookFiles.subtitleFiles.isNotEmpty) {
+        currentSubtitles = await Subtitle.readSubtitlesFromFile(
+            file: audioBookFiles.subtitleFiles.first,
+            webController: ReaderJsManager().webController);
+        isRequireSearchSubtitle = true;
+        await _insertSubtitleHighlight(
+            p: Duration(milliseconds: book.playBackPositionInMs!),
+            isCueToElement: false);
+      }
+    }
+  }
 
   Future<Metadata> setSourceFromDevice(
       {required File audioFile, required Book book}) async {
@@ -123,43 +143,49 @@ class AudioPlayerManager {
     return -1;
   }
 
+  Future<void> _insertSubtitleHighlight(
+      {required Duration p, isCueToElement = true}) async {
+    if (currentSubtitles.isNotEmpty) {
+      if (isRequireSearchSubtitle) {
+        if (p >= currentSubtitles.first.startDuration &&
+            p <= currentSubtitles.last.endDuration) {
+          currentSubtitleIndex = _binarySearchSubtitle(currentSubtitles, p);
+          if (currentSubtitleIndex != -1) {
+            isRequireSearchSubtitle = false;
+            final subtitleToHighlight = currentSubtitles[currentSubtitleIndex];
+            await Future.wait([
+              ReaderJsManager()
+                  .evaluateJavascript(source: removeAllHighlights()),
+              ReaderJsManager().evaluateJavascript(
+                  source: addNodeHighlight(
+                      id: subtitleToHighlight.id,
+                      isCueToElement: isCueToElement))
+            ]);
+          }
+        }
+      } else {
+        final activeSubtitle = currentSubtitles[currentSubtitleIndex];
+        if (p >= activeSubtitle.endDuration) {
+          ReaderJsManager().evaluateJavascript(
+              source: removeNodeHighlight(activeSubtitle.id));
+        }
+        if (currentSubtitleIndex + 1 < currentSubtitles.length &&
+            p >= currentSubtitles[currentSubtitleIndex + 1].startDuration) {
+          final nextActiveSubtitle = currentSubtitles[currentSubtitleIndex + 1];
+          ReaderJsManager().evaluateJavascript(
+              source: addNodeHighlight(
+                  id: nextActiveSubtitle.id, isCueToElement: isCueToElement));
+          currentSubtitleIndex += 1;
+        }
+      }
+    }
+  }
+
   void _listenPlayerPosition() {
     audioService.onPositionChanged.listen((Duration p) async {
       updatePlayerState(p);
       playBackPositionInMs = p.inMilliseconds;
-      if (currentSubtitles.isNotEmpty) {
-        if (isRequireSearchSubtitle) {
-          if (p >= currentSubtitles.first.startDuration &&
-              p <= currentSubtitles.last.endDuration) {
-            currentSubtitleIndex = _binarySearchSubtitle(currentSubtitles, p);
-            if (currentSubtitleIndex != -1) {
-              isRequireSearchSubtitle = false;
-              final subtitleToHighlight =
-                  currentSubtitles[currentSubtitleIndex];
-              await Future.wait([
-                ReaderJsManager()
-                    .evaluateJavascript(source: removeAllHighlights()),
-                ReaderJsManager().evaluateJavascript(
-                    source: addNodeHighlight(id: subtitleToHighlight.id))
-              ]);
-            }
-          }
-        } else {
-          final activeSubtitle = currentSubtitles[currentSubtitleIndex];
-          if (p >= activeSubtitle.endDuration) {
-            ReaderJsManager().evaluateJavascript(
-                source: removeNodeHighlight(activeSubtitle.id));
-          }
-          if (currentSubtitleIndex + 1 < currentSubtitles.length &&
-              p >= currentSubtitles[currentSubtitleIndex + 1].startDuration) {
-            final nextActiveSubtitle =
-                currentSubtitles[currentSubtitleIndex + 1];
-            ReaderJsManager().evaluateJavascript(
-                source: addNodeHighlight(id: nextActiveSubtitle.id));
-            currentSubtitleIndex += 1;
-          }
-        }
-      }
+      await _insertSubtitleHighlight(p: p);
     });
   }
 
