@@ -169,7 +169,9 @@ class _AudioBookSubtitlesState extends State<AudioBookSubtitles> {
         SizedBox(height: context.spacer()),
         SizedBox(
           height: context.hero(),
-          child: list(subtitles: subtitles),
+          child: Padding(
+              padding: context.horizontalPadding(),
+              child: list(subtitles: subtitles)),
         )
       ],
     );
