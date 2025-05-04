@@ -52,42 +52,31 @@ class _VocabularyTileState extends State<VocabularyTile> {
         padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
         child: Align(
             alignment: Alignment.centerLeft,
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                        width: context.screenWidth *
-                            0.8, // make space for adding vocabulary and padding
-                        child: RichText(
-                            maxLines: 2,
-                            textHeightBehavior: const TextHeightBehavior(
-                                applyHeightToLastDescent: false),
-                            text: TextSpan(
-                                style: const TextStyle(
-                                    height: 1.8,
-                                    fontSize: 20), // spacing for second line
-                                children: [
-                                  WidgetSpan(
-                                      child: vocabularyExpression(
-                                          widget.vocabulary)),
-                                  const WidgetSpan(
-                                      child: SizedBox(
-                                    width: 20,
-                                  )),
-                                  WidgetSpan(
-                                      child: hasPitch(widget.vocabulary)
-                                          ? PitchWidget(
-                                              vocabulary: widget.vocabulary,
-                                              themeData: widget
-                                                  .popupDictionaryThemeData)
-                                          : const SizedBox())
-                                ])))
-                  ],
-                ),
-              ]),
-            ])));
+            child: SizedBox(
+                width: context.screenWidth *
+                    0.8, // make space for adding vocabulary and padding
+                child: RichText(
+                    maxLines: 2,
+                    textHeightBehavior: const TextHeightBehavior(
+                        applyHeightToLastDescent: false),
+                    text: TextSpan(
+                        style: const TextStyle(
+                            height: 1.8,
+                            fontSize: 20), // spacing for second line
+                        children: [
+                          WidgetSpan(
+                              child: vocabularyExpression(widget.vocabulary)),
+                          const WidgetSpan(
+                              child: SizedBox(
+                            width: 20,
+                          )),
+                          WidgetSpan(
+                              child: hasPitch(widget.vocabulary)
+                                  ? PitchWidget(
+                                      vocabulary: widget.vocabulary,
+                                      themeData:
+                                          widget.popupDictionaryThemeData)
+                                  : const SizedBox())
+                        ])))));
   }
 }
