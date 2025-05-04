@@ -37,6 +37,8 @@ flutter run
 
 ## Distribution
 
+### iOS
+
 - bump version in pubspec.yaml
 - update bundle identifier with unique name (per app)
 - (open Xcode )
@@ -54,7 +56,8 @@ keyAlias=upload
 storeFile=/Users/<your-user>/upload-keystore.jks
 ```
 
-In Android Studio, select *Build* > *Flutter* > *Build Flutter Bundle*.
+- `flutter build appbundle` for playstore
+- `flutter build apk` for github releases
 
 ## Acknowledgements
 
@@ -62,3 +65,4 @@ In Android Studio, select *Build* > *Flutter* > *Build Flutter Bundle*.
 - JMDict
 - [Jidoujisho](https://github.com/lrorpilla/jidoujisho)
 - [Yomichan](https://github.com/FooSoft/yomichan)
+- [TTU Reader](https://github.com/ttu-ttu/ebook-reader)
