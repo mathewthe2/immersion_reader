@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  FLUTTER_VERSION: '2.5.3'
+  FLUTTER_VERSION: '3.27.1'
 
 jobs:
   test:
