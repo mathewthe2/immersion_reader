@@ -5,10 +5,15 @@ class AppText extends StatelessWidget {
   final String data;
   final TextStyle? style;
   final TextAlign? textAlign;
-  final bool? isHighlight;
+  final bool? isDimmed;
+  final List<int>? highlightCharacterIndexes;
 
   const AppText(this.data,
-      {super.key, this.style, this.textAlign, this.isHighlight});
+      {super.key,
+      this.style,
+      this.textAlign,
+      this.isDimmed,
+      this.highlightCharacterIndexes});
 
   @override
   Widget build(BuildContext context) {
@@ -18,20 +23,18 @@ class AppText extends StatelessWidget {
             darkColor: CupertinoColors.systemGroupedBackground),
         context);
 
-    Color backgroundColor = CupertinoDynamicColor.resolve(
+    Color dimmedTextColor = CupertinoDynamicColor.resolve(
         const CupertinoDynamicColor.withBrightness(
-          color: Color(0xffffe694),
-          darkColor: Color(0xff395a4f),
-        ),
+            color: CupertinoColors.systemGrey,
+            darkColor: CupertinoColors.systemGrey2),
         context);
 
     return Text(data,
         textAlign: textAlign,
         style: TextStyle(
-                color: textColor,
-                backgroundColor: (isHighlight != null && isHighlight!)
-                    ? backgroundColor
-                    : null)
+                color: (isDimmed != null && isDimmed!)
+                    ? dimmedTextColor
+                    : textColor)
             .merge(style));
   }
 }

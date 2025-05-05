@@ -10,7 +10,7 @@ import 'package:immersion_reader/pages/reader/reader_page.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/storage/storage_provider.dart';
-import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
+import 'package:immersion_reader/widgets/popup_dictionary/dialog/popup_dictionary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/settings/settings_page.dart';
 import 'pages/search_page.dart';

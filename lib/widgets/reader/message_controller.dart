@@ -4,8 +4,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
-import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
-import 'package:immersion_reader/widgets/reader/highlight_controller.dart';
+import 'package:immersion_reader/widgets/popup_dictionary/dialog/popup_dictionary.dart';
 
 class MessageController {
   static int timeStampDiff = 20; // recently opened
@@ -68,13 +67,10 @@ class MessageController {
                 int index = messageJson['index'];
                 String text = messageJson['text'];
                 ReaderJsManager().defocusReader();
-                PopupDictionary.create(
-                        highlightController: HighlightController(
-                            evaluateJavascript: evaluateJavascript))
-                    .showVocabularyList(
-                        text: text,
-                        index: index,
-                        onDismiss: ReaderJsManager().focusReader);
+                PopupDictionary().showVocabularyList(
+                    text: text,
+                    characterIndex: index,
+                    onDismiss: ReaderJsManager().focusReader);
                 break;
               }
             case 'content-display-change':

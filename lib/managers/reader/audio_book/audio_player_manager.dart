@@ -37,6 +37,7 @@ class AudioPlayerManager {
   int? playBackPositionInMs;
   int currentSubtitleIndex = 0;
   bool isRequireSearchSubtitle = true;
+  bool isAutoPlay = true;
   Duration? playerEndDuration;
 
   final Map<int, AudioBookOperation> _cachedBookOperationData = {};
@@ -299,6 +300,15 @@ class AudioPlayerManager {
     await ReaderJsManager().evaluateJavascript(source: removeAllHighlights());
   }
 
+  Future<void> autoPlay() async {
+    isAutoPlay = true;
+    await audioService.play();
+  }
+
+  Future<void> pause() async {
+    await audioService.pause();
+  }
+
   Future<void> _seek(Duration duration) async {
     await Future.wait([audioService.seek(duration), resetActiveSubtitle()]);
     updatePlayerState(duration);
@@ -306,10 +316,11 @@ class AudioPlayerManager {
 
   Future<void> _seekWithEnd(
       {required Duration startDuration, required Duration endDuration}) async {
+    isAutoPlay = false;
+    playerEndDuration = endDuration;
     await Future.wait(
         [audioService.seek(startDuration), resetActiveSubtitle()]);
     updatePlayerState(startDuration);
-    playerEndDuration = endDuration;
   }
 
   Future<void> seekByPercentage(double percentage) async {

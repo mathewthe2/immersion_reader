@@ -2,13 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:immersion_reader/data/browser/browser_dark_reader_control.dart';
 import 'package:immersion_reader/managers/browser/browser_manager.dart';
+import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
 import 'package:immersion_reader/utils/browser/browser_content_blockers.dart';
 import 'package:immersion_reader/utils/browser/browser_js.dart';
 import 'package:immersion_reader/widgets/browser/browser_bottom_bar.dart';
 import 'package:immersion_reader/widgets/browser/browser_top_bar.dart';
-import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
+import 'package:immersion_reader/widgets/popup_dictionary/dialog/popup_dictionary.dart';
 import 'package:immersion_reader/widgets/reader/message_controller.dart';
 
 class Browser extends StatefulWidget {
@@ -116,9 +117,8 @@ class _BrowserState extends State<Browser> {
                             url: WebUri(initialUrl),
                           ),
                           onWebViewCreated: (controller) {
-                            setState(() {
-                              webViewController = controller;
-                            });
+                            ReaderJsManager.create(webController: controller);
+                            webViewController = controller;
                           },
                           onLoadStop: (controller, uri) async {
                             await Future.wait([

@@ -5,7 +5,7 @@ import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/utils/language_utils.dart';
 import 'package:immersion_reader/utils/system_theme.dart';
-import 'package:immersion_reader/widgets/popup_dictionary/vocabulary_definition.dart';
+import 'package:immersion_reader/widgets/popup_dictionary/dictionary/vocabulary_definition.dart';
 import 'package:immersion_reader/widgets/vocabulary/frequency_widget.dart';
 import 'package:immersion_reader/widgets/vocabulary/pitch_widget.dart';
 import 'package:ruby_text/ruby_text.dart';

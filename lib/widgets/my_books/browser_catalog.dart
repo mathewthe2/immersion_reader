@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/pages/browser.dart';
 import 'package:immersion_reader/providers/payment_provider.dart';
-import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
+import 'package:immersion_reader/widgets/popup_dictionary/dialog/popup_dictionary.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -15,7 +15,7 @@ class BrowserCatalog extends StatefulWidget {
 
 class _BrowserCatalogState extends State<BrowserCatalog> {
   void onExitReader() {
-    PopupDictionary.create().dismissPopupDictionary();
+    PopupDictionary().dismissPopupDictionary();
   }
 
   Widget headlineWidget(

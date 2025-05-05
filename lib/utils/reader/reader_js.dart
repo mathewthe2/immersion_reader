@@ -1,20 +1,62 @@
-const String readerJs = """
+const String readerJs = r"""
 /*jshint esversion: 6 */
+
+function findSubtitleData(node) {
+  var subtitleData = {
+    "subtitleId": "",
+    "text": "",
+    "textIndex": 0,
+    "target": null,
+  };
+  if (node == null || node.parentElement == null) return subtitleData;
+  var target;
+  if (node.nodeName === "SPAN" && node.className.startsWith("ttu-whispersync-line-highlight-")) {
+    target = node;
+  } else if (node.parentElement.nodeName === "SPAN") {
+    target = node.parentElement;
+  } else {
+    // get closest whispersync child
+    target = node.parentElement.querySelector(
+      'span[class^="ttu-whispersync-line-highlight-"]'
+    );
+  }
+  if (target != null) {
+    subtitleData.target = target;
+    const match = [...target.classList].find((className) =>
+      className.startsWith("ttu-whispersync-line-highlight-")
+    );
+    if (match) {
+      const subtitleId = match.match(
+        /ttu-whispersync-line-highlight-(\d+)/
+      )?.[1];
+      subtitleData.text = [...target.parentElement.querySelectorAll('span[class="ttu-whispersync-line-highlight-' + subtitleId + '"]')]
+        .filter(node=>!node?.parentElement.closest(["rp", "rt"]))
+        .map(node=>node.textContent).join("");
+      subtitleData.text = subtitleData.text?.trimStart();
+      subtitleData.subtitleId = subtitleId;
+    }
+  }
+  return subtitleData;
+}
+
 var lastParagraph;
 var highlightedNodeList = [];
 var lastSelectedIndex;
 function tapToSelect(e) {
 	if (getSelectionText()) {
 		// dismiss popup dictionary by returning negative index
-		console.log(JSON.stringify({
-			"index": -1,
-			"text": "",
-			"messageType": "lookup",
-			"timestamp": Date.now(),
-			"x": e.clientX,
-			"y": e.clientY,
-			"isCreator": "no",
-		}));
+    if (window.flutter_inappwebview != null) {
+      window.flutter_inappwebview.callHandler('lookup', 
+        {
+          "index": -1,
+          "text": "",
+          "subtitleId": "",
+          "timestamp": Date.now(),
+          "x": e.clientX,
+          "y": e.clientY,
+          "isCreator": "no",
+        });
+    }
 	} else {
 		var result = document.caretRangeFromPoint(e.clientX, e.clientY);
 		var selectedElement = result.startContainer;
@@ -22,6 +64,11 @@ function tapToSelect(e) {
 		var offsetNode = result.startContainer;
 		var offset = result.startOffset;
 		var adjustIndex = false;
+    var subtitleData = {
+      "subtitleId": "",
+      "text": "",
+      "textIndex": 0,
+    }
 		if (!!offsetNode && offsetNode.nodeType == Node.TEXT_NODE && offset) {
 			const range = new Range();
 			range.setStart(offsetNode, offset - 1);
@@ -56,6 +103,7 @@ function tapToSelect(e) {
 					} else {
 						index = index + result.startOffset;
 						selectedFound = true;
+            subtitleData = findSubtitleData(value);
 					}
 				}
 			} else {
@@ -69,6 +117,7 @@ function tapToSelect(e) {
 							} else {
 								index = index + result.startOffset;
 								selectedFound = true;
+                subtitleData = findSubtitleData(node);
 							}
 						}
 					} else if ((node.firstChild?.nodeName === "#text" || node.firstChild?.nodeName === "SPAN") && node.nodeName !== "RT" && node.nodeName !== "RP") {
@@ -84,6 +133,7 @@ function tapToSelect(e) {
 											if (selectedElement === grandChild) {
 												index = index + result.startOffset;
 												selectedFound = true;
+                        subtitleData = subtitleData(grandChild);
 												break;
 											} else {
 												index += _getNodeTextContent(grandChild).length;
@@ -93,6 +143,7 @@ function tapToSelect(e) {
 										if (selectedElement === value) {
 											index += result.startOffset;
 											selectedFound = true;
+                      subtitleData = subtitleData(value);
 											break;
 										} else {
 											index += _getNodeTextContent(value).length;
@@ -105,22 +156,56 @@ function tapToSelect(e) {
 				}
 			}
 		}
-		var text = noFuriganaText.join("");
+		var rawText = noFuriganaText.join("");
 		var offset = index;
 		if (adjustIndex) {
 			index = index - 1;
 		}
 
-		console.log(JSON.stringify({
-			"index": index,
-			"text": text,
-			"messageType": "lookup",
-			"timestamp": Date.now(),
-			"x": e.clientX,
-			"y": e.clientY,
-		}));
-		console.log(text[index]);
-		lastSelectedIndex = index;
+    var rawIndex = index; // before trim
+
+    var text = rawText.trimStart();
+    if (rawText.length > text.length) {
+      index -= (rawText.length - text.length);
+    }
+
+    if (subtitleData.text.length > 0) {
+      var textOffset = text.indexOf(subtitleData.text);
+      subtitleData.textIndex = index - textOffset;
+
+       console.log("subtitleData.textIndex?", subtitleData.textIndex)
+        console.log("subtitleData.text.length?", subtitleData.text.length)
+
+      // unknown index issue only in mobile browsers
+      // get next sibling or child of next sibiling when index is greater than textContent 
+      if (subtitleData.textIndex >= subtitleData.text.length) {
+        console.log("issue found");
+        console.log("sibling", subtitleData.target.nextElementSibling.textContent);
+        var nextSibling = subtitleData.target.nextElementSibling;
+        if (nextSibling?.nodeName !== "SPAN") {
+          nextSibling = nextSibling.firstChild;
+        }
+        if (nextSibling != null) {
+          subtitleData = findSubtitleData(nextSibling);
+        }
+        textOffset = text.indexOf(subtitleData.text);
+        subtitleData.textIndex = index - textOffset;
+      }
+    }
+
+    if (window.flutter_inappwebview != null) {
+      window.flutter_inappwebview.callHandler('lookup', 
+        {
+          "index": index,
+          "text": text,
+          "subtitleData": subtitleData,
+          "timestamp": Date.now(),
+          "x": e.clientX,
+          "y": e.clientY,
+      });
+    }
+		// console.log(text[index]);
+		lastSelectedIndex = rawIndex;
 	}
 }
 

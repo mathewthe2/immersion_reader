@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:immersion_reader/widgets/common/text/multi_style_text.dart';
 
 class MultiColorText extends StatelessWidget {
   final List<(String, Color)> textColorList;
@@ -7,11 +8,8 @@ class MultiColorText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RichText(
-        text: TextSpan(
-            children: List<InlineSpan>.from(textColorList.map((textColor) =>
-                TextSpan(
-                    text: textColor.$1,
-                    style: TextStyle(color: textColor.$2))))));
+    return MultiStyleText(textColorList
+        .map((textColor) => (textColor.$1, TextStyle(color: textColor.$2)))
+        .toList());
   }
 }

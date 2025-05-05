@@ -12,6 +12,7 @@ import 'package:immersion_reader/extensions/duration_extension.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation_type.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager.dart';
+import 'package:immersion_reader/widgets/audiobook/controls/playback_speed_picker.dart';
 import 'package:immersion_reader/widgets/common/text/app_text.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -31,12 +32,6 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
   double sliderValue = 0;
   bool isFetchingAudioBook = true;
   bool isPlaying = false;
-
-  int _selectedSpeed = 2;
-
-  static const List<double> playBackRates = [0.5, 0.7, 1.0, 1.2, 1.5, 1.7, 2.0];
-
-  static const double _kItemExtent = 32.0;
 
   static const int fastForwardSeconds = 10;
   static const int rewindSeconds = 10;
@@ -136,7 +131,7 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
             setState(() {
               isPlaying = false;
             });
-            AudioPlayerManager().audioService.pause();
+            AudioPlayerManager().pause();
           },
           child: Icon(
             size: 36,
@@ -148,7 +143,7 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
             setState(() {
               isPlaying = true;
             });
-            AudioPlayerManager().audioService.play();
+            AudioPlayerManager().autoPlay();
           },
           child: Icon(
             size: 36,
@@ -261,38 +256,10 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
                 )),
           ],
         ),
-      Row(
-        children: [
-          Padding(
-              padding: context.horizontalPadding(),
-              child: GestureDetector(
-                  onTap: () => _showDialog(CupertinoPicker(
-                        magnification: 1.22,
-                        squeeze: 1.2,
-                        useMagnifier: true,
-                        itemExtent: _kItemExtent,
-                        scrollController: FixedExtentScrollController(
-                            initialItem: _selectedSpeed),
-                        onSelectedItemChanged: (int selectedItem) {
-                          setState(() {
-                            _selectedSpeed = selectedItem;
-                          });
-                          AudioPlayerManager()
-                              .audioService
-                              .setPlaybackRate(playBackRates[selectedItem]);
-                        },
-                        children: playBackRates
-                            .map((rate) => Text(rate.toString()))
-                            .toList(),
-                      )),
-                  child: Column(
-                    children: [
-                      AppText("Speed: ${playBackRates[_selectedSpeed]}",
-                          style: TextStyle(fontSize: 12))
-                    ],
-                  )))
-        ],
-      ),
+      Row(children: [
+        Padding(
+            padding: context.horizontalPadding(), child: PlaybackSpeedPicker())
+      ]),
     ])));
   }
 }

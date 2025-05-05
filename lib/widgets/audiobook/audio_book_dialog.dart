@@ -31,7 +31,7 @@ class AudioBookDialog {
               resizeDuration: Duration(milliseconds: 100),
               onDismissed: (_) => SmartDialog.dismiss(tag: audioBookDialogTag),
               child: Container(
-                  height: context.screenHeight * 0.7,
+                  height: context.popupFull(),
                   width: context.screenWidth,
                   color: CupertinoColors.white,
                   child: HeroControllerScope.none(

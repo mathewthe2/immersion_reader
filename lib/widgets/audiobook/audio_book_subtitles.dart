@@ -1,6 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
+import 'package:immersion_reader/data/reader/audio_book/audio_lookup_subtitle.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_player_state.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/subtitle.dart';
@@ -8,12 +10,17 @@ import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation_type.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager.dart';
+import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
+import 'package:immersion_reader/widgets/audiobook/controls/playback_speed_picker.dart';
 import 'package:immersion_reader/widgets/common/text/app_text.dart';
+import 'package:immersion_reader/widgets/common/text/multi_style_text.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class AudioBookSubtitles extends StatefulWidget {
   final Book book;
-  const AudioBookSubtitles({super.key, required this.book});
+  final String? lookupSubtitleId;
+  const AudioBookSubtitles(
+      {super.key, required this.book, this.lookupSubtitleId});
 
   @override
   State<AudioBookSubtitles> createState() => _AudioBookSubtitlesState();
@@ -26,8 +33,18 @@ class _AudioBookSubtitlesState extends State<AudioBookSubtitles> {
   bool isFetchingSubtitles = true;
   bool isScrolling = false;
   bool isPlaying = false;
+
+  AudioLookupSubtitle? lookupSubtitle;
+
+  int? initialSubtitleIndex;
+  bool isScrollToInitialSubtitle = false;
   int? currentSubtitleIndex;
-  int? lastClickedSubtitleIndex;
+
+  late Color textColor;
+  late Color dimmedTextColor;
+  late Color highlightBackgroundColor;
+
+  static const double subtitleFontSize = 20;
 
   // scroll list
   final ItemScrollController itemScrollController = ItemScrollController();
@@ -35,8 +52,52 @@ class _AudioBookSubtitlesState extends State<AudioBookSubtitles> {
       ScrollOffsetController();
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
-  final ScrollOffsetListener scrollOffsetListener =
-      ScrollOffsetListener.create();
+
+  int? getRelativeSubtitleIndex(String rawSubtitleIndex) {
+    // future optimization: use binary search if id is in strictly increasing order
+    int index =
+        subtitles.indexWhere((subtitle) => subtitle.id == rawSubtitleIndex);
+    return index != -1 ? index : null;
+  }
+
+  Widget subtitleText({required Subtitle subtitle, required int index}) {
+    if (initialSubtitleIndex == index &&
+        lookupSubtitle != null &&
+        lookupSubtitle!.highlightedText.isNotEmpty) {
+      lookupSubtitle!.textIndex + lookupSubtitle!.textLength!;
+      String prefix = lookupSubtitle!.textIndex > 0
+          ? subtitle.text.substring(0, lookupSubtitle!.textIndex)
+          : "";
+      String suffix = lookupSubtitle!.textIndex + lookupSubtitle!.textLength! <
+              (subtitle.text.length - 1)
+          ? subtitle.text.substring(
+              lookupSubtitle!.textIndex + lookupSubtitle!.textLength!,
+              subtitle.text.length)
+          : "";
+
+      return MultiStyleText([
+        (prefix, TextStyle(color: textColor, fontSize: subtitleFontSize)),
+        (
+          lookupSubtitle!.highlightedText,
+          TextStyle(
+              color: textColor,
+              backgroundColor: highlightBackgroundColor,
+              fontSize: subtitleFontSize),
+        ),
+        (suffix, TextStyle(color: textColor, fontSize: subtitleFontSize)),
+      ]);
+    }
+    final isDimmed = (initialSubtitleIndex != index) &&
+        (!isPlaying || currentSubtitleIndex != index);
+    return MultiStyleText([
+      (
+        subtitle.text,
+        TextStyle(
+            color: isDimmed ? dimmedTextColor : textColor,
+            fontSize: subtitleFontSize)
+      )
+    ]);
+  }
 
   Widget item({required Subtitle subtitle, required int index}) {
     return SizedBox(
@@ -44,28 +105,28 @@ class _AudioBookSubtitlesState extends State<AudioBookSubtitles> {
             padding: EdgeInsets.only(top: 10, bottom: 10),
             child: GestureDetector(
                 onTap: () async {
-                  lastClickedSubtitleIndex = index;
-                  scrollToSubtitle(index);
+                  isScrollToInitialSubtitle = false;
+                  if (index != initialSubtitleIndex) {
+                    initialSubtitleIndex = null; // reset initial subtitle
+                  }
                   await AudioPlayerManager().playSubtitleByIndex(index);
-                  await AudioPlayerManager().audioService.play();
+                  if (AudioPlayerManager().currentState?.playerState !=
+                      PlayerState.playing) {
+                    await AudioPlayerManager().audioService.play();
+                  }
                 },
                 child: Align(
                     alignment: Alignment.centerLeft,
-                    child: AppText(
-                      subtitle.text,
-                      textAlign: TextAlign.left,
-                      isHighlight: isPlaying && currentSubtitleIndex == index,
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
-                    )))));
+                    child: subtitleText(subtitle: subtitle, index: index)))));
   }
 
   Widget list({required List<Subtitle> subtitles}) =>
       ScrollablePositionedList.builder(
           itemCount: subtitles.length,
           itemBuilder: (context, index) =>
-              item(subtitle: subtitles[index], index: index),
+              index >= 0 && index < subtitles.length
+                  ? item(subtitle: subtitles[index], index: index)
+                  : Container(),
           itemScrollController: itemScrollController,
           itemPositionsListener: itemPositionsListener,
           scrollOffsetController: scrollOffsetController,
@@ -76,6 +137,13 @@ class _AudioBookSubtitlesState extends State<AudioBookSubtitles> {
   void initState() {
     super.initState();
     book = widget.book;
+    if (widget.lookupSubtitleId != null) {
+      if (ReaderJsManager().lastLookupSubtitleData?.subtitleId ==
+          widget.lookupSubtitleId) {
+        lookupSubtitle = ReaderJsManager().lastLookupSubtitleData;
+      }
+      isScrollToInitialSubtitle = true;
+    }
     initSubtitles(book);
     listenToBookIsPlaying();
     listenToBookOperations();
@@ -124,12 +192,16 @@ class _AudioBookSubtitlesState extends State<AudioBookSubtitles> {
     AudioPlayerManager()
         .onPositionChanged
         .listen((AudioPlayerState playerState) {
-      if (mounted) {
-        setState(() {
-          currentSubtitleIndex = playerState.currentSubtitleIndex;
-          isPlaying = playerState.playerState == PlayerState.playing;
-        });
-        scrollToSubtitle(playerState.currentSubtitleIndex);
+      if (mounted && !isScrollToInitialSubtitle) {
+        if (playerState.currentSubtitleIndex >= 0) {
+          setState(() {
+            currentSubtitleIndex = playerState.currentSubtitleIndex;
+            isPlaying = playerState.playerState == PlayerState.playing;
+          });
+          if (AudioPlayerManager().isAutoPlay) {
+            scrollToSubtitle(playerState.currentSubtitleIndex);
+          }
+        }
       }
     });
   }
@@ -146,6 +218,15 @@ class _AudioBookSubtitlesState extends State<AudioBookSubtitles> {
               currentSubtitleIndex = operation.currentSubtitleIndex;
               isFetchingSubtitles = false;
             });
+            if (isScrollToInitialSubtitle && widget.lookupSubtitleId != null) {
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                initialSubtitleIndex =
+                    getRelativeSubtitleIndex(widget.lookupSubtitleId!);
+                if (initialSubtitleIndex != null) {
+                  itemScrollController.jumpTo(index: initialSubtitleIndex!);
+                }
+              });
+            }
           }
           break;
         default:
@@ -156,24 +237,43 @@ class _AudioBookSubtitlesState extends State<AudioBookSubtitles> {
 
   @override
   Widget build(BuildContext context) {
+    textColor = CupertinoDynamicColor.resolve(
+        const CupertinoDynamicColor.withBrightness(
+            color: CupertinoColors.black,
+            darkColor: CupertinoColors.systemGroupedBackground),
+        context);
+
+    dimmedTextColor = CupertinoDynamicColor.resolve(
+        const CupertinoDynamicColor.withBrightness(
+            color: CupertinoColors.systemGrey,
+            darkColor: CupertinoColors.systemGrey2),
+        context);
+
+    highlightBackgroundColor = CupertinoDynamicColor.resolve(
+        const CupertinoDynamicColor.withBrightness(
+            color: Color(0xffffe694), darkColor: Color(0xff254d4c)),
+        context);
+
     if (isFetchingSubtitles) {
       return Container();
     }
-    if (!isFetchingSubtitles && subtitles.isEmpty) {
+    if (subtitles.isEmpty) {
       return Center(child: AppText("No subtitles"));
     }
-    return Column(
-      children: [
-        SizedBox(height: context.spacer()),
-        AppText("Beta: This feature is still work in progress"),
-        SizedBox(height: context.spacer()),
-        SizedBox(
-          height: context.hero(),
-          child: Padding(
-              padding: context.horizontalPadding(),
-              child: list(subtitles: subtitles)),
-        )
-      ],
-    );
+    return Padding(
+        padding: context.verticalPadding(),
+        child: Column(
+          children: [
+            Padding(
+                padding: context.horizontalPadding(),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [PlaybackSpeedPicker()])),
+            Expanded(
+                child: Padding(
+                    padding: context.verticalPadding(),
+                    child: list(subtitles: subtitles))),
+          ],
+        ));
   }
 }

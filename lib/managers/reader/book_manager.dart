@@ -16,6 +16,7 @@ class BookManager {
   final Map<int, Book> _cachedBooksBasicInfo = {}; // only basic info of books
   final Map<int, BookBookmark> _cachedBookmarks =
       {}; // using bookid, not bookmarkid
+  int? currentBookId;
 
   static final BookManager _singleton = BookManager._internal();
   BookManager._internal();
@@ -232,12 +233,21 @@ class BookManager {
     }
   }
 
-  Future<void> setLastReadTime(Book book) async {
-    if (database != null && book.lastReadTime != null) {
-      await database!.rawUpdate(
-          'UPDATE Books SET lastReadTime = ? WHERE id = ?',
-          [book.lastReadTime!.toIso8601String(), book.id]);
+  Future<Book?> getCurrentBook() async {
+    if (currentBookId != null) {
+      return await getBookById(currentBookId!);
     }
+    return null;
+  }
+
+  void setCurrentBookId(int bookId) async {
+    currentBookId = bookId;
+  }
+
+  Future<void> setLastReadTime(
+      {required int bookId, required DateTime lastReadTime}) async {
+    await database?.rawUpdate('UPDATE Books SET lastReadTime = ? WHERE id = ?',
+        [lastReadTime.toIso8601String(), bookId]);
   }
 
   Future<List<BookBookmark>> getBookmarks() async {

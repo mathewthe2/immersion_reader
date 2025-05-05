@@ -37,7 +37,11 @@ dependencies:
   csv: ^6.0.0
   cupertino_icons: ^1.0.2
   flutter_archive: ^6.0.3
-  flutter_inappwebview: ^6.1.5
+  flutter_inappwebview:
+    git:
+      url: https://github.com/pichillilorenzo/flutter_inappwebview
+      path: flutter_inappwebview
+      ref: v6.2.0-beta.3
   flutter_slidable: ^3.1.2
   flutter_svg: ^1.0.3
   font_awesome_flutter: ^10.2.1
@@ -71,6 +75,7 @@ dependencies:
       ref: master
   audio_service: ^0.18.18
   scrollable_positioned_list: ^0.3.8
+  # animated_bottom_navigation_bar: ^1.4.0
   # home_widget: ^0.7.0
   # onnxruntime: ^1.4.1
   # rust_lib_immersion_reader:

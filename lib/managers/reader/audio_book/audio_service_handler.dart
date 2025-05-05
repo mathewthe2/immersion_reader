@@ -55,6 +55,10 @@ class AudioServiceHandler extends BaseAudioHandler
     });
   }
 
+  double getPlaybackRate() {
+    return _player.playbackRate;
+  }
+
   Future<void> setPlaybackRate(double playbackRate) async {
     await _player.setPlaybackRate(playbackRate);
   }

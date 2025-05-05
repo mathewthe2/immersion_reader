@@ -7,7 +7,7 @@ import 'package:immersion_reader/pages/reader/reader_stats_page.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/utils/system_ui.dart';
 import 'package:immersion_reader/widgets/my_books/book_goal/book_goal_widget.dart';
-import 'package:immersion_reader/widgets/popup_dictionary/popup_dictionary.dart';
+import 'package:immersion_reader/widgets/popup_dictionary/dialog/popup_dictionary.dart';
 import 'package:immersion_reader/widgets/reader/reader.dart';
 import 'package:immersion_reader/utils/reader/ttu_source.dart';
 import 'package:immersion_reader/widgets/my_books/book_widget.dart';
@@ -57,7 +57,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
 
   void onExitReader() {
     ReaderSessionManager().stop();
-    PopupDictionary.create().dismissPopupDictionary();
+    PopupDictionary().dismissPopupDictionary();
     showSystemUI();
     setState(() {
       // refresh state
@@ -74,21 +74,10 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
             builder: (context) {
               return Reader(
                 initialUrl: mediaIdentifier,
-                reopenReader: reopenReader,
                 isShowDeviceStatusBar: isShowDeviceStatusBar,
               );
             }))
         .then((_) => onExitReader());
-  }
-
-  void reopenReader(String bookMediaIdentifier) {
-    Navigator.pop(context);
-    navigateToBook(
-        mediaIdentifier: bookMediaIdentifier,
-        isFullScreen:
-            SettingsManager().cachedAppearanceSettings().enableReaderFullScreen,
-        isShowDeviceStatusBar:
-            SettingsManager().cachedAppearanceSettings().isShowDeviceStatusBar);
   }
 
   @override
@@ -142,7 +131,6 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
                     builder: (context) {
                       return Reader(
                           isAddBook: true,
-                          reopenReader: reopenReader,
                           isShowDeviceStatusBar: SettingsManager()
                               .cachedAppearanceSettings()
                               .isShowDeviceStatusBar,

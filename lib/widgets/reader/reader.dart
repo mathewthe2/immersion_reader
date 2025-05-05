@@ -4,7 +4,6 @@ import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/utils/system_ui.dart';
-import 'package:immersion_reader/widgets/reader/highlight_controller.dart';
 import 'package:immersion_reader/widgets/reader/message_controller.dart';
 import 'package:local_assets_server/local_assets_server.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -12,14 +11,12 @@ import '../../utils/reader/reader_js.dart';
 
 class Reader extends StatefulWidget {
   final String? initialUrl;
-  final Function(String) reopenReader;
   final bool isAddBook;
   final bool isShowDeviceStatusBar;
 
   const Reader(
       {super.key,
       this.initialUrl,
-      required this.reopenReader,
       this.isAddBook = false,
       this.isShowDeviceStatusBar = false});
 
@@ -31,16 +28,10 @@ class _ReaderState extends State<Reader> {
   InAppWebViewController? webViewController;
   ProfileContent? currentProfileContent;
   late MessageController messageController;
-  late HighlightController highlightController;
-  late Function(String) reopenReader;
 
   void createPopupDictionary() {
     messageController = MessageController(
         exitCallback: () => Navigator.of(context).pop(),
-        evaluateJavascript: (javascript) =>
-            webViewController?.evaluateJavascript(source: javascript));
-
-    highlightController = HighlightController(
         evaluateJavascript: (javascript) =>
             webViewController?.evaluateJavascript(source: javascript));
   }
@@ -58,7 +49,6 @@ class _ReaderState extends State<Reader> {
     if (!widget.isShowDeviceStatusBar) {
       hideSystemUI();
     }
-    reopenReader = widget.reopenReader;
     createPopupDictionary();
   }
 
@@ -91,12 +81,11 @@ class _ReaderState extends State<Reader> {
                         ),
                       ),
                       onWebViewCreated: (controller) {
-                        ReaderJsManager.create(
-                            webController: controller,
-                            reopenReader: reopenReader);
+                        ReaderJsManager.create(webController: controller);
                         webViewController = controller;
                       },
                       onLoadStop: (controller, uri) async {
+                        await controller.requestFocus();
                         if (!messageController.hasInjectedPopupJs) {
                           await controller.evaluateJavascript(source: readerJs);
                         }
