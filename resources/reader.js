@@ -60,7 +60,6 @@ function tapToSelect(e) {
         timestamp: Date.now(),
         x: e.clientX,
         y: e.clientY,
-        isCreator: "no",
       });
     }
   } else {
@@ -187,17 +186,9 @@ function tapToSelect(e) {
       var textOffset = text.indexOf(subtitleData.text);
       subtitleData.textIndex = index - textOffset;
 
-      console.log("subtitleData.textIndex?", subtitleData.textIndex);
-      console.log("subtitleData.text.length?", subtitleData.text.length);
-
       // unknown index issue only in mobile browsers
       // get next sibling or child of next sibiling when index is greater than textContent
       if (subtitleData.textIndex >= subtitleData.text.length) {
-        console.log("issue found");
-        console.log(
-          "sibling",
-          subtitleData.target.nextElementSibling.textContent
-        );
         var nextSibling = subtitleData.target.nextElementSibling;
         if (nextSibling?.nodeName !== "SPAN") {
           nextSibling = nextSibling.firstChild;
@@ -267,7 +258,10 @@ function removeHighlight() {
       // If the highlighted node is a <ruby> annotation (like <rt>)
       if (highlightedNode.nodeName === "RT") {
         parentNode.removeChild(highlightedNode); // Simply remove the <rt> tag (annotation)
-      } else if (highlightedNode.nodeType === Node.TEXT_NODE) {
+      } else if (
+        highlightedNode.nodeType === Node.TEXT_NODE ||
+        highlightedNode.nodeType === Node.ELEMENT_NODE
+      ) {
         // If it's a text node, combine with adjacent text nodes
         var combinedText = "";
         var previousSibling = highlightedNode.previousSibling;
@@ -593,4 +587,3 @@ document.head.insertAdjacentHTML(
   </style>
   `
 );
-console.log("injected-popup-js");

@@ -10,7 +10,6 @@ import 'package:immersion_reader/utils/browser/browser_js.dart';
 import 'package:immersion_reader/widgets/browser/browser_bottom_bar.dart';
 import 'package:immersion_reader/widgets/browser/browser_top_bar.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/dialog/popup_dictionary.dart';
-import 'package:immersion_reader/widgets/reader/message_controller.dart';
 
 class Browser extends StatefulWidget {
   final bool hasUserControls;
@@ -27,7 +26,6 @@ class _BrowserState extends State<Browser> {
   InAppWebViewController? webViewController;
   VocabularyListStorage? vocabularyListStorage;
   late PopupDictionary popupDictionary;
-  late MessageController messageController;
   late String initialUrl;
   List<ContentBlocker> contentBlockers = [];
   bool scriptsLoaded = false;
@@ -39,7 +37,6 @@ class _BrowserState extends State<Browser> {
   }
 
   Future<void> getDictionaryAndBookmarks() async {
-    messageController = MessageController();
     BrowserManager().getBookmarks();
   }
 
@@ -132,9 +129,6 @@ class _BrowserState extends State<Browser> {
                           onTitleChanged: (controller, title) async {
                             await controller.evaluateJavascript(
                                 source: browserJs);
-                          },
-                          onConsoleMessage: (controller, message) {
-                            messageController.execute(message);
                           },
                         ),
                         hasNoUserControls

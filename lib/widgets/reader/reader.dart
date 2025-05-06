@@ -4,7 +4,6 @@ import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/utils/system_ui.dart';
-import 'package:immersion_reader/widgets/reader/message_controller.dart';
 import 'package:local_assets_server/local_assets_server.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import '../../utils/reader/reader_js.dart';
@@ -27,19 +26,17 @@ class Reader extends StatefulWidget {
 class _ReaderState extends State<Reader> {
   InAppWebViewController? webViewController;
   ProfileContent? currentProfileContent;
-  late MessageController messageController;
 
   void createPopupDictionary() {
-    messageController = MessageController(
-        exitCallback: () => Navigator.of(context).pop(),
-        evaluateJavascript: (javascript) =>
-            webViewController?.evaluateJavascript(source: javascript));
+    ReaderJsManager().setExitCallback(() => Navigator.of(context).pop());
   }
 
   static const String addFileJs = """
       try {
         document.getElementsByClassName('xl:mr-1')[0].click();
-        console.log("injected-open-file")
+        if (window.flutter_inappwebview != null) {
+          window.flutter_inappwebview.callHandler('injectedOpenFile');
+        }
       } catch {}
       """;
 
@@ -63,7 +60,7 @@ class _ReaderState extends State<Reader> {
       ));
     }
     return ValueListenableBuilder(
-        valueListenable: messageController.messageControllerNotifier,
+        valueListenable: ReaderJsManager().readerSettingsUpdateNotifier,
         builder: (context, val, child) => FutureBuilder<Color>(
             future: SettingsManager().getReaderBackgroundColor(),
             builder: (context, snapshot) {
@@ -85,12 +82,8 @@ class _ReaderState extends State<Reader> {
                         webViewController = controller;
                       },
                       onLoadStop: (controller, uri) async {
-                        await controller.requestFocus();
-                        if (!messageController.hasInjectedPopupJs) {
-                          await controller.evaluateJavascript(source: readerJs);
-                        }
                         if (widget.isAddBook &&
-                            !messageController.hasShownAddedDialog) {
+                            !ReaderJsManager().hasShownAddedDialog) {
                           await controller.evaluateJavascript(
                               source: addFileJs);
                         }
@@ -105,7 +98,7 @@ class _ReaderState extends State<Reader> {
                       onTitleChanged: (controller, title) async {
                         await controller.evaluateJavascript(source: readerJs);
                         if (widget.isAddBook &&
-                            !messageController.hasShownAddedDialog) {
+                            !ReaderJsManager().hasShownAddedDialog) {
                           await controller.evaluateJavascript(
                               source: addFileJs);
                         }
@@ -113,7 +106,6 @@ class _ReaderState extends State<Reader> {
                       onConsoleMessage: (controller, message) {
                         debugPrint(
                             "reader stuff: ${message.message}"); // for debug
-                        messageController.execute(message);
                       },
                     )));
               } else {

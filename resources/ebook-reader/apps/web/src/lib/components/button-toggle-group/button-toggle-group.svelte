@@ -17,13 +17,12 @@
   }
 
   function notifyImmersionReaderOfSettingsUpdate(option: ToggleOption<any>) {
-    console.log(
-      JSON.stringify({
+    if (window.flutter_inappwebview != null) {
+      window.flutter_inappwebview.callHandler("settingsChange", {
         optionKey: optionKey,
         optionValue: option.id,
-        messageType: 'settings-change'
-      })
-    );
+      });
+    }
   }
 </script>
 

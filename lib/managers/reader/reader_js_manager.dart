@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_lookup_subtitle.dart';
 import 'package:immersion_reader/data/reader/book.dart';
@@ -7,6 +8,7 @@ import 'package:immersion_reader/data/reader/book_bookmark.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager.dart';
 import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
+import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/utils/reader/highlight_js.dart';
 import 'package:immersion_reader/widgets/audiobook/audio_book_dialog.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/dialog/popup_dictionary.dart';
@@ -30,21 +32,28 @@ class ReaderJsManager {
   factory ReaderJsManager() =>
       _singleton; // should only be called once it is created with a controller
 
+  ValueNotifier<bool> readerSettingsUpdateNotifier = ValueNotifier(false);
   AudioLookupSubtitle? lastLookupSubtitleData;
+  VoidCallback? exitCallback;
+  bool hasShownAddedDialog = false;
 
   void setupController() {
     webController.addJavaScriptHandler(
         handlerName: 'lookup',
         callback: (args) {
-          final arg = args.first;
+          final Map<String, dynamic> arg = args.first;
           int index = arg['index'];
           String text = arg['text'];
-          lastLookupSubtitleData =
-              AudioLookupSubtitle.fromMap(arg['subtitleData']);
+          if (arg.containsKey('subtitleData')) {
+            lastLookupSubtitleData =
+                AudioLookupSubtitle.fromMap(arg['subtitleData']);
+          } else {
+            lastLookupSubtitleData = null;
+          }
           ReaderJsManager().defocusReader();
           PopupDictionary().showVocabularyList(
               text: text,
-              subtitleId: lastLookupSubtitleData!.subtitleId,
+              subtitleId: lastLookupSubtitleData?.subtitleId,
               characterIndex: index,
               onDismiss: ReaderJsManager().focusReader);
         });
@@ -128,6 +137,30 @@ class ReaderJsManager {
           AudioPlayerManager().loadAudioBookIfExists(book);
         });
     webController.addJavaScriptHandler(
+        handlerName: 'launchImmersionReader',
+        callback: (args) async {
+          if (exitCallback != null) {
+            exitCallback!();
+          }
+        });
+    webController.addJavaScriptHandler(
+        handlerName: 'settingsChange',
+        callback: (args) {
+          final data = args.first;
+          String optionKey = data['optionKey'];
+          String optionValue = data['optionValue'];
+          if (optionKey == 'selectedTheme') {
+            SettingsManager().setReaderBackgroundColor(optionValue);
+            readerSettingsUpdateNotifier.value =
+                !readerSettingsUpdateNotifier.value; // toggle update
+          }
+        });
+    webController.addJavaScriptHandler(
+        handlerName: 'injectedOpenFile',
+        callback: (_) {
+          hasShownAddedDialog = true;
+        });
+    webController.addJavaScriptHandler(
         handlerName: 'onLoadManager',
         callback: (_) {
           ReaderSessionManager().stop();
@@ -159,6 +192,14 @@ class ReaderJsManager {
             matchProgressController.add(args.first);
           }
         });
+  }
+
+  void setExitCallback(VoidCallback callback) {
+    exitCallback = callback;
+  }
+
+  void allowShowAddFileDialog() {
+    hasShownAddedDialog = false;
   }
 
   Future<void> reloadReader() async {

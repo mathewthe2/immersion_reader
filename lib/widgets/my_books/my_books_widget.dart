@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/extensions/context_extension.dart';
+import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/pages/reader/reader_stats_page.dart';
@@ -58,6 +59,7 @@ class _MyBooksWidgetState extends State<MyBooksWidget> {
   void onExitReader() {
     ReaderSessionManager().stop();
     PopupDictionary().dismissPopupDictionary();
+    ReaderJsManager().allowShowAddFileDialog();
     showSystemUI();
     setState(() {
       // refresh state

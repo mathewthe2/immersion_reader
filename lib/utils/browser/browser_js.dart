@@ -2,15 +2,16 @@ const String browserJs = """
 /*jshint esversion: 6 */
 function tapToSelect(e) {
 	if (getSelectionText()) {
-	  console.log(JSON.stringify({
-				  "index": -1,
-				  "text": getSelectionText(),
-				  "messageType": "lookup",
+    if (window.flutter_inappwebview != null) {
+      window.flutter_inappwebview.callHandler('lookup', 
+        {
+          "index": -1,
+          "text": getSelectionText(),
           "timestamp": Date.now(),
-		  "x": e.clientX,
-		  "y": e.clientY,
-		  "isCreator": "no",
-			  }));
+          "x": e.clientX,
+          "y": e.clientY,
+        });
+    }
 	} else {
 	  var result = document.caretRangeFromPoint(e.clientX, e.clientY);
 	  var selectedElement = result.startContainer;
@@ -95,7 +96,19 @@ function tapToSelect(e) {
 		  "x": e.clientX,
 		  "y": e.clientY,
 			  }));
-	  console.log(text[index]);
+
+    if (window.flutter_inappwebview != null) {
+      window.flutter_inappwebview.callHandler('lookup', 
+        {
+          "index": index,
+          "text": text,
+          "timestamp": Date.now(),
+          "x": e.clientX,
+          "y": e.clientY,
+        });
+    }
+
+	  // console.log(text[index]);
 	}
   }
   function getSelectionText() {

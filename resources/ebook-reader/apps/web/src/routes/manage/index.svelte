@@ -178,7 +178,9 @@
   }
 
   function onExitReaderClick() {
-    console.log('launch-immersion-reader');
+    if (window.flutter_inappwebview != null) {
+      window.flutter_inappwebview.callHandler('launchImmersionReader');
+    }
   }
 </script>
 

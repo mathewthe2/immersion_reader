@@ -102,7 +102,9 @@ class PopupDictionary {
                                   icon: Icon(CupertinoIcons.folder_open),
                                   label: 'Dictionary'),
                               BottomNavigationBarItem(
-                                  icon: Icon(CupertinoIcons.doc_text_search),
+                                  icon: Icon(
+                                    CupertinoIcons.doc_text_search,
+                                  ),
                                   label: 'Subtitles'),
                             ],
                           ),

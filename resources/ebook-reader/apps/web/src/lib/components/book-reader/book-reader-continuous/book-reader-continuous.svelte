@@ -236,12 +236,9 @@
     });
 
   function notifyProgressToImmersionReader(exploredCharCount: number) {
-    console.log(
-      JSON.stringify({
-        exploredCharCount: exploredCharCount,
-        messageType: 'content-display-change'
-      })
-    );
+    if (window.flutter_inappwebview != null) {
+      window.flutter_inappwebview?.callHandler('onContentDisplayChange', exploredCharCount);
+    }
   }
 
   function onContentDisplayChange(_calculator: CharacterStatsCalculator) {
