@@ -12,6 +12,7 @@ import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/widgets/audiobook/controls/playback_speed_picker.dart';
+import 'package:immersion_reader/widgets/common/safe_state.dart';
 import 'package:immersion_reader/widgets/common/text/app_text.dart';
 import 'package:immersion_reader/widgets/common/text/multi_style_text.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -26,7 +27,7 @@ class AudioBookSubtitles extends StatefulWidget {
   State<AudioBookSubtitles> createState() => _AudioBookSubtitlesState();
 }
 
-class _AudioBookSubtitlesState extends State<AudioBookSubtitles> {
+class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
   late Book book;
   AudioBookFiles? audioBookFiles;
   List<Subtitle> subtitles = [];
@@ -153,11 +154,9 @@ class _AudioBookSubtitlesState extends State<AudioBookSubtitles> {
     if (book.id == null) return;
     final audioBookFromStorage =
         await AudioPlayerManager().getAudioBook(book.id!);
-    if (mounted) {
-      setState(() {
-        audioBookFiles = audioBookFromStorage;
-      });
-    }
+    setState(() {
+      audioBookFiles = audioBookFromStorage;
+    });
     await Future.wait([
       AudioPlayerManager().loadSubtitlesFromFiles(
           audioBookFiles: audioBookFromStorage, bookId: book.id!),
@@ -167,8 +166,7 @@ class _AudioBookSubtitlesState extends State<AudioBookSubtitles> {
   }
 
   void scrollToSubtitle(int subtitleIndex) {
-    if (mounted &&
-        itemScrollController.isAttached &&
+    if (itemScrollController.isAttached &&
         !isScrolling &&
         subtitleIndex < subtitles.length) {
       setState(() {
@@ -179,11 +177,9 @@ class _AudioBookSubtitlesState extends State<AudioBookSubtitles> {
           duration: Duration(milliseconds: 1500),
           curve: Curves.easeInOutCubic);
       Future.delayed(const Duration(milliseconds: 1500), () {
-        if (mounted) {
-          setState(() {
-            isScrolling = false;
-          });
-        }
+        setState(() {
+          isScrolling = false;
+        });
       });
     }
   }
@@ -192,15 +188,13 @@ class _AudioBookSubtitlesState extends State<AudioBookSubtitles> {
     AudioPlayerManager()
         .onPositionChanged
         .listen((AudioPlayerState playerState) {
-      if (mounted && !isScrollToInitialSubtitle) {
-        if (playerState.currentSubtitleIndex >= 0) {
-          setState(() {
-            currentSubtitleIndex = playerState.currentSubtitleIndex;
-            isPlaying = playerState.playerState == PlayerState.playing;
-          });
-          if (AudioPlayerManager().isAutoPlay) {
-            scrollToSubtitle(playerState.currentSubtitleIndex);
-          }
+      if (!isScrollToInitialSubtitle && playerState.currentSubtitleIndex >= 0) {
+        setState(() {
+          currentSubtitleIndex = playerState.currentSubtitleIndex;
+          isPlaying = playerState.playerState == PlayerState.playing;
+        });
+        if (AudioPlayerManager().isAutoPlay) {
+          scrollToSubtitle(playerState.currentSubtitleIndex);
         }
       }
     });
@@ -212,22 +206,27 @@ class _AudioBookSubtitlesState extends State<AudioBookSubtitles> {
         .listen((AudioBookOperation operation) async {
       switch (operation.type) {
         case AudioBookOperationType.addSubtitleFile:
-          if (mounted) {
-            setState(() {
-              subtitles = operation.subtitles ?? [];
-              currentSubtitleIndex = operation.currentSubtitleIndex;
-              isFetchingSubtitles = false;
+          setState(() {
+            subtitles = operation.subtitles ?? [];
+            currentSubtitleIndex = operation.currentSubtitleIndex;
+            isFetchingSubtitles = false;
+          });
+          if (isScrollToInitialSubtitle && widget.lookupSubtitleId != null) {
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              initialSubtitleIndex =
+                  getRelativeSubtitleIndex(widget.lookupSubtitleId!);
+              if (initialSubtitleIndex != null) {
+                itemScrollController.jumpTo(index: initialSubtitleIndex!);
+              }
             });
-            if (isScrollToInitialSubtitle && widget.lookupSubtitleId != null) {
-              SchedulerBinding.instance.addPostFrameCallback((_) {
-                initialSubtitleIndex =
-                    getRelativeSubtitleIndex(widget.lookupSubtitleId!);
-                if (initialSubtitleIndex != null) {
-                  itemScrollController.jumpTo(index: initialSubtitleIndex!);
-                }
-              });
-            }
           }
+          break;
+        case AudioBookOperationType.removeSubtitleFile:
+          setState(() {
+            subtitles = [];
+            currentSubtitleIndex = null;
+            isFetchingSubtitles = false;
+          });
           break;
         default:
           break;

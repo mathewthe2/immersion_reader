@@ -89,7 +89,7 @@ class FolderUtils {
     String filePath = '$folderPath/$fileName';
     File f = File(filePath);
     f.createSync(recursive: true); // create intermediate folders if necessary
-    file.copy(filePath); // copy file to new file path
+    await file.copy(filePath); // copy file to new file path
     return filePath;
   }
 

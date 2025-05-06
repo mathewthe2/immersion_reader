@@ -7,6 +7,7 @@ import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/managers/profile/profile_manager.dart';
 import 'package:immersion_reader/managers/vocabulary_list/vocabulary_list_manager.dart';
 import 'package:immersion_reader/widgets/common/padding_bottom.dart';
+import 'package:immersion_reader/widgets/common/safe_state.dart';
 import 'package:immersion_reader/widgets/vocabulary/frequency_widget.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/dictionary/vocabulary_definition.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/dictionary/vocabulary_tile.dart';
@@ -32,7 +33,7 @@ class VocabularyTileList extends StatefulWidget {
   State<VocabularyTileList> createState() => _VocabularyTileListState();
 }
 
-class _VocabularyTileListState extends State<VocabularyTileList> {
+class _VocabularyTileListState extends SafeState<VocabularyTileList> {
   static int selectableCharacters = 5;
   static double segmentedControlMaxWidth = 700; // prevent oversizing on iPads
   List<String> existingVocabularyIds = [];
@@ -60,9 +61,7 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
     existingVocabularyIds = await VocabularyListManager()
         .vocabularyListStorage!
         .getExistsVocabularyList(vocabularyList);
-    if (mounted) {
-      setState(() {});
-    }
+    setState(() {});
   }
 
   Future<void> addOrRemoveFromVocabularyList(Vocabulary vocabulary) async {
@@ -144,11 +143,9 @@ class _VocabularyTileListState extends State<VocabularyTileList> {
     for (Vocabulary vocab in vocabs) {
       vocab.sentence = LanguageUtils.findSentence(widget.text, index);
     }
-    if (mounted) {
-      setState(() {
-        vocabularyList = vocabs;
-      });
-    }
+    setState(() {
+      vocabularyList = vocabs;
+    });
     _checkExistsVocabulary(vocabs);
   }
 

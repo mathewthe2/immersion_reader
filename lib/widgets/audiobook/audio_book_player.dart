@@ -13,6 +13,7 @@ import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation
 import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation_type.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager.dart';
 import 'package:immersion_reader/widgets/audiobook/controls/playback_speed_picker.dart';
+import 'package:immersion_reader/widgets/common/safe_state.dart';
 import 'package:immersion_reader/widgets/common/text/app_text.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -24,7 +25,7 @@ class AudioBookPlayer extends StatefulWidget {
   State<AudioBookPlayer> createState() => _AudioBookPlayerState();
 }
 
-class _AudioBookPlayerState extends State<AudioBookPlayer> {
+class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
   late Book book;
   AudioBookFiles? audioBookFiles;
   Metadata? audioFileMetadata = AudioPlayerManager().audioFileMetadata;
@@ -53,11 +54,9 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
     // final audioBookFromStorage = await loadAudioBook(book.id!);
     final audioBookFromStorage =
         await AudioPlayerManager().getAudioBook(book.id!);
-    if (mounted) {
-      setState(() {
-        audioBookFiles = audioBookFromStorage;
-      });
-    }
+    setState(() {
+      audioBookFiles = audioBookFromStorage;
+    });
     await Future.wait([
       AudioPlayerManager().loadSubtitlesFromFiles(
           audioBookFiles: audioBookFromStorage, bookId: book.id!),
@@ -73,11 +72,9 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
     AudioPlayerManager()
         .onPositionChanged
         .listen((AudioPlayerState playerState) {
-      if (mounted) {
-        setState(() {
-          isPlaying = (playerState.playerState == PlayerState.playing);
-        });
-      }
+      setState(() {
+        isPlaying = (playerState.playerState == PlayerState.playing);
+      });
     });
   }
 
@@ -87,7 +84,7 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
         .listen((AudioBookOperation operation) async {
       switch (operation.type) {
         case AudioBookOperationType.addAudioFile:
-          if (mounted && operation.metadata != null) {
+          if (operation.metadata != null) {
             setState(() {
               audioBookFiles = operation.audioBookFiles;
               audioFileMetadata = operation.metadata;
@@ -97,12 +94,10 @@ class _AudioBookPlayerState extends State<AudioBookPlayer> {
         case AudioBookOperationType.addSubtitleFile:
           break;
         case AudioBookOperationType.removeAudioFile:
-          if (mounted) {
-            setState(() {
-              audioBookFiles = null;
-              audioFileMetadata = null;
-            });
-          }
+          setState(() {
+            audioBookFiles = null;
+            audioFileMetadata = null;
+          });
           break;
         case AudioBookOperationType.removeSubtitleFile:
           break;
