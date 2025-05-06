@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_match_result.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
 import 'package:immersion_reader/data/reader/book.dart';
@@ -189,11 +190,14 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
 
   Future<void> applyMatches() async {
     if (matchResult != null) {
+      SmartDialog.showLoading(
+          msg: "Applying matches..."); // why does this take so long?
       await Future.wait([
         BookFiles.updateBookContentHtml(matchResult!),
         BookManager().updateBookMatchedSubtitles(matchResult!)
       ]);
       await ReaderJsManager().reloadReader();
+      SmartDialog.dismiss();
       setState(() {
         previouslyMatchedSubtitles = matchResult!.matchedSubtitles;
       });
