@@ -132,7 +132,7 @@ function tapToSelect(e) {
 											if (selectedElement === grandChild) {
 												index = index + result.startOffset;
 												selectedFound = true;
-                        subtitleData = subtitleData(grandChild);
+                        subtitleData = findSubtitleData(grandChild);
 												break;
 											} else {
 												index += _getNodeTextContent(grandChild).length;
@@ -142,7 +142,7 @@ function tapToSelect(e) {
 										if (selectedElement === value) {
 											index += result.startOffset;
 											selectedFound = true;
-                      subtitleData = subtitleData(value);
+                      subtitleData = findSubtitleData(value);
 											break;
 										} else {
 											index += _getNodeTextContent(value).length;

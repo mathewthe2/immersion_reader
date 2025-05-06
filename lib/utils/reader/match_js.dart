@@ -1,4 +1,4 @@
-import 'package:immersion_reader/data/reader/subtitle.dart';
+import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitle.dart';
 
 const _getAllTextNodes = """
 function getAllTextNodes() {

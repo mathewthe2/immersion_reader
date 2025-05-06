@@ -5,8 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_match_result.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
+import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitles_data.dart';
 import 'package:immersion_reader/data/reader/book.dart';
-import 'package:immersion_reader/data/reader/subtitle.dart';
+import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitle.dart';
 import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/extensions/file_extension.dart';
 import 'package:immersion_reader/extensions/list_extension.dart';
@@ -162,9 +163,10 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
       alignBeginningVisible = false;
     });
 
-    List<Subtitle> subtitles = await Subtitle.readSubtitlesFromFile(
+    final subtitlesData = await SubtitlesData.readSubtitlesFromFile(
         file: audioBook!.subtitleFiles.first,
         webController: ReaderJsManager().webController);
+    List<Subtitle> subtitles = subtitlesData.subtitles;
 
     final result = await ReaderJsManager().callAsyncJavaScript(
         functionBody: startMatch(

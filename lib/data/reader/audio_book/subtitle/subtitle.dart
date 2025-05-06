@@ -1,9 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
-
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:immersion_reader/utils/reader/srt_parser_js.dart';
 
 List<double> getTimeParts(double s) {
   // Calculate hours, minutes, seconds, and milliseconds
@@ -31,7 +27,7 @@ double between(double minimum, double maximum, double value) {
 }
 
 class Subtitle {
-  String id;
+  String id; // index in file
   double originalStartSeconds;
   double? adjustedStartSeconds;
   double startSeconds;
@@ -42,7 +38,7 @@ class Subtitle {
   String endTime;
   String originalText;
   String text;
-  int subIndex;
+  int subIndex; // strictly increasing index assigned by immersion reader
 
   Subtitle(
       {required this.id,
@@ -111,21 +107,5 @@ class Subtitle {
 
   static String subtitleListToString(List<Subtitle> subtitles) {
     return '[${subtitles.map((subtitle) => subtitle.toString()).toList().join(", ")}]';
-  }
-
-  static Future<List<Subtitle>> readSubtitlesFromFile(
-      {required File file,
-      required InAppWebViewController webController}) async {
-    final content = await file.readAsString();
-    final result =
-        await webController.evaluateJavascript(source: parseSubtitle(content));
-    List<Subtitle> subtitles = [];
-    if (result != null) {
-      for (int i = 0; i < result.length; i++) {
-        subtitles
-            .add(Subtitle.fromMap(Map<String, dynamic>.from(result[i]), i));
-      }
-    }
-    return subtitles;
   }
 }

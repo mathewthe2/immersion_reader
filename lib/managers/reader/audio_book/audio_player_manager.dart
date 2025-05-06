@@ -7,8 +7,9 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_player_state.dart';
+import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitles_data.dart';
 import 'package:immersion_reader/data/reader/book.dart';
-import 'package:immersion_reader/data/reader/subtitle.dart';
+import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitle.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation_type.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_handler.dart';
@@ -33,7 +34,7 @@ class AudioPlayerManager {
   int? lastPlayBackPositionInMs;
 
   // subtitles
-  List<Subtitle> currentSubtitles = [];
+  SubtitlesData currentSubtitlesData = SubtitlesData.empty;
   int? playBackPositionInMs;
   int currentSubtitleIndex = 0;
   bool isRequireSearchSubtitle = true;
@@ -43,6 +44,8 @@ class AudioPlayerManager {
   final Map<int, AudioBookOperation> _cachedBookOperationData = {};
   final Map<int, AudioBookFiles> _cachedAudioBooks =
       {}; // subtitle and audio files for books
+
+  List<Subtitle> get currentSubtitles => currentSubtitlesData.subtitles;
 
   static const int updateBookIntervalInMs =
       1000; // save playBackPosition to db every second
@@ -67,9 +70,11 @@ class AudioPlayerManager {
       final audioBookFiles = await FolderUtils.getAudioBook(book.id!);
 
       if (audioBookFiles.subtitleFiles.isNotEmpty) {
-        currentSubtitles = await Subtitle.readSubtitlesFromFile(
+        final subtitlesData = await SubtitlesData.readSubtitlesFromFile(
             file: audioBookFiles.subtitleFiles.first,
             webController: ReaderJsManager().webController);
+
+        currentSubtitlesData = subtitlesData;
         isRequireSearchSubtitle = true;
         await _insertSubtitleHighlight(
             p: Duration(milliseconds: book.playBackPositionInMs!),
@@ -147,7 +152,7 @@ class AudioPlayerManager {
 
   Future<void> _insertSubtitleHighlight(
       {required Duration p, isCueToElement = true}) async {
-    if (currentSubtitles.isNotEmpty) {
+    if (currentSubtitlesData.subtitles.isNotEmpty) {
       if (isRequireSearchSubtitle) {
         if (p >= currentSubtitles.first.startDuration &&
             p <= currentSubtitles.last.endDuration) {
@@ -224,28 +229,26 @@ class AudioPlayerManager {
       {required AudioBookFiles audioBookFiles,
       required int bookId,
       isRefetch = false}) async {
-    List<Subtitle> subtitles = [];
-    if (!isRefetch &&
-        _cachedBookOperationData.containsKey(bookId) &&
-        _cachedBookOperationData[bookId]!.subtitles != null) {
-      subtitles = _cachedBookOperationData[bookId]!.subtitles!;
-      currentSubtitles = subtitles;
+    SubtitlesData subtitlesData = SubtitlesData.empty;
+    if (!isRefetch && _cachedBookOperationData.containsKey(bookId)) {
+      subtitlesData = _cachedBookOperationData[bookId]!.subtitlesData;
+      currentSubtitlesData = subtitlesData;
     } else if (audioBookFiles.subtitleFiles.isNotEmpty) {
-      subtitles = await Subtitle.readSubtitlesFromFile(
+      subtitlesData = await SubtitlesData.readSubtitlesFromFile(
           file: audioBookFiles
               .subtitleFiles.first, // assume only one subtitle file for now
           webController: ReaderJsManager().webController);
-      currentSubtitles = subtitles;
+      currentSubtitlesData = subtitlesData;
       if (!_cachedBookOperationData.containsKey(bookId)) {
-        _cachedBookOperationData[bookId] = AudioBookOperation(
-            type: AudioBookOperationType
-                .addSubtitleFile); // type does not matter for cache
+        _cachedBookOperationData[bookId] = AudioBookOperation
+            .addDummySubtitleFile(); // data will be added later
       }
-      _cachedBookOperationData[bookId]!.subtitles = subtitles;
+      _cachedBookOperationData[bookId]!.subtitlesData = subtitlesData;
     }
     _cachedAudioBooks[bookId] = audioBookFiles;
     broadcastOperation(AudioBookOperation.addSubtitleFile(
-        subtitles: subtitles, currentSubtitleIndex: currentSubtitleIndex));
+        subtitlesData: subtitlesData,
+        currentSubtitleIndex: currentSubtitleIndex));
   }
 
   Future<void> removeSubtitlesFromFiles() async {
@@ -275,9 +278,8 @@ class AudioPlayerManager {
             audioFile: audioBookFiles.audioFiles.first, book: book);
 
         if (!_cachedBookOperationData.containsKey(book.id)) {
-          _cachedBookOperationData[book.id!] = AudioBookOperation(
-              type: AudioBookOperationType
-                  .addAudioFile); // type does not matter for cache
+          _cachedBookOperationData[book.id!] = AudioBookOperation
+              .addDummyAudioFile(); // data will be added later
         }
         _cachedBookOperationData[book.id]!.metadata = metadata;
         _cachedBookOperationData[book.id]!.audioBookFiles = audioBookFiles;

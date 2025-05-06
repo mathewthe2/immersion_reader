@@ -61,6 +61,15 @@ function tapToSelect(e) {
         x: e.clientX,
         y: e.clientY,
       });
+    } else {
+      console.log({
+        index: -1,
+        text: "",
+        subtitleId: "",
+        timestamp: Date.now(),
+        x: e.clientX,
+        y: e.clientY,
+      });
     }
   } else {
     var result = document.caretRangeFromPoint(e.clientX, e.clientY);
@@ -146,7 +155,7 @@ function tapToSelect(e) {
                       if (selectedElement === grandChild) {
                         index = index + result.startOffset;
                         selectedFound = true;
-                        subtitleData = subtitleData(grandChild);
+                        subtitleData = getSubtitleData(grandChild);
                         break;
                       } else {
                         index += _getNodeTextContent(grandChild).length;
@@ -156,7 +165,7 @@ function tapToSelect(e) {
                     if (selectedElement === value) {
                       index += result.startOffset;
                       selectedFound = true;
-                      subtitleData = subtitleData(value);
+                      subtitleData = getSubtitleData(value);
                       break;
                     } else {
                       index += _getNodeTextContent(value).length;
@@ -210,8 +219,17 @@ function tapToSelect(e) {
         x: e.clientX,
         y: e.clientY,
       });
+    } else {
+      console.log({
+        index: index,
+        text: text,
+        subtitleData: subtitleData,
+        timestamp: Date.now(),
+        x: e.clientX,
+        y: e.clientY,
+      });
+      console.log(text[index]);
     }
-    // console.log(text[index]);
     lastSelectedIndex = rawIndex;
   }
 }

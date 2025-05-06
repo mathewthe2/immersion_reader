@@ -4,8 +4,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_lookup_subtitle.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_player_state.dart';
+import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitles_data.dart';
 import 'package:immersion_reader/data/reader/book.dart';
-import 'package:immersion_reader/data/reader/subtitle.dart';
+import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitle.dart';
 import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation_type.dart';
@@ -30,7 +31,9 @@ class AudioBookSubtitles extends StatefulWidget {
 class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
   late Book book;
   AudioBookFiles? audioBookFiles;
-  List<Subtitle> subtitles = [];
+  // List<Subtitle> subtitles = [];
+  SubtitlesData subtitlesData =
+      SubtitlesData(subtitles: [], indexToSubIndexMap: {});
   bool isFetchingSubtitles = true;
   bool isScrolling = false;
   bool isPlaying = false;
@@ -54,11 +57,8 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
 
-  int? getRelativeSubtitleIndex(String rawSubtitleIndex) {
-    // future optimization: use binary search if id is in strictly increasing order
-    int index =
-        subtitles.indexWhere((subtitle) => subtitle.id == rawSubtitleIndex);
-    return index != -1 ? index : null;
+  int getRelativeSubtitleIndex(String rawSubtitleIndex) {
+    return subtitlesData.getSubIndexByIndex(rawSubtitleIndex);
   }
 
   Widget subtitleText({required Subtitle subtitle, required int index}) {
@@ -168,7 +168,7 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
   void scrollToSubtitle(int subtitleIndex) {
     if (itemScrollController.isAttached &&
         !isScrolling &&
-        subtitleIndex < subtitles.length) {
+        subtitleIndex < subtitlesData.subtitles.length) {
       setState(() {
         isScrolling = true;
       });
@@ -207,23 +207,25 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
       switch (operation.type) {
         case AudioBookOperationType.addSubtitleFile:
           setState(() {
-            subtitles = operation.subtitles ?? [];
+            subtitlesData = operation.subtitlesData;
             currentSubtitleIndex = operation.currentSubtitleIndex;
             isFetchingSubtitles = false;
           });
           if (isScrollToInitialSubtitle && widget.lookupSubtitleId != null) {
             SchedulerBinding.instance.addPostFrameCallback((_) {
-              initialSubtitleIndex =
+              final subtitleIndex =
                   getRelativeSubtitleIndex(widget.lookupSubtitleId!);
-              if (initialSubtitleIndex != null) {
-                itemScrollController.jumpTo(index: initialSubtitleIndex!);
+              // TODO: use timer and wait for attach
+              if (itemScrollController.isAttached) {
+                itemScrollController.jumpTo(index: subtitleIndex);
               }
+              initialSubtitleIndex = subtitleIndex;
             });
           }
           break;
         case AudioBookOperationType.removeSubtitleFile:
           setState(() {
-            subtitles = [];
+            subtitlesData.reset();
             currentSubtitleIndex = null;
             isFetchingSubtitles = false;
           });
@@ -256,7 +258,7 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
     if (isFetchingSubtitles) {
       return Container();
     }
-    if (subtitles.isEmpty) {
+    if (subtitlesData.subtitles.isEmpty) {
       return Center(child: AppText("No subtitles"));
     }
     return Padding(
@@ -271,7 +273,7 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
             Expanded(
                 child: Padding(
                     padding: context.verticalPadding(),
-                    child: list(subtitles: subtitles))),
+                    child: list(subtitles: subtitlesData.subtitles))),
           ],
         ));
   }

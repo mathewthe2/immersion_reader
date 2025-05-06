@@ -32,7 +32,7 @@ class ReaderSessionManager {
     if (isSameContent) {
       return;
     }
-    currentProfileContent ??= ProfileContent(
+    currentProfileContent = ProfileContent(
         key: key,
         title: title,
         type: contentType,
@@ -41,7 +41,7 @@ class ReaderSessionManager {
     int? contentId =
         await ProfileManager().startSession(currentProfileContent!);
     if (contentId != null) {
-      currentProfileContent!.id = contentId;
+      currentProfileContent?.id = contentId;
     }
   }
 
