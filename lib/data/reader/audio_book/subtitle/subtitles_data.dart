@@ -13,7 +13,7 @@ class SubtitlesData {
   static final SubtitlesData empty =
       SubtitlesData(subtitles: [], indexToSubIndexMap: {});
 
-  factory SubtitlesData.fromMapList(dynamic mapList) {
+  factory SubtitlesData.fromMapList(List<dynamic> mapList) {
     List<Subtitle> subtitles = [];
     Map<String, int> indexMap = {};
     for (int i = 0; i < mapList.length; i++) {

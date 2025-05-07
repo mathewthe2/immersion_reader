@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:immersion_reader/extensions/object_extension.dart';
+
 List<double> getTimeParts(double s) {
   // Calculate hours, minutes, seconds, and milliseconds
   double hours = (s / 3600).floorToDouble();
@@ -60,20 +62,22 @@ class Subtitle {
   static double duration = 0;
 
   factory Subtitle.fromMap(Map<String, Object?> map, int index) {
+    // var a = map['startSeconds'];
+    // print(a);
     double startSeconds =
-        max(0, (map['startSeconds'] as double) + subtitlesGlobalStartPadding);
+        max(0, (map['startSeconds'].toDouble) + subtitlesGlobalStartPadding);
     double endSeconds = duration > 0
         ? between(0, duration,
-            (map['endSeconds'] as double) + subtitlesGlobalEndPadding)
-        : max(0, (map['endSeconds'] as double) + subtitlesGlobalEndPadding);
+            (map['endSeconds'].toDouble) + subtitlesGlobalEndPadding)
+        : max(0, (map['endSeconds'].toDouble) + subtitlesGlobalEndPadding);
     String text = (map['text'] as String).trim();
 
     return Subtitle(
         id: map["id"] as String,
-        originalStartSeconds: map['startSeconds'] as double,
+        originalStartSeconds: map['startSeconds'].toDouble,
         startSeconds: startSeconds,
         startTime: toTimeStamp(startSeconds),
-        originalEndSeconds: map['endSeconds'] as double,
+        originalEndSeconds: map['endSeconds'].toDouble,
         endSeconds: endSeconds,
         endTime: toTimeStamp(endSeconds),
         originalText: map['text'] as String,
