@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
@@ -45,6 +46,8 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
   int? initialSubtitleIndex;
   bool isScrollToInitialSubtitle = false;
   int? currentSubtitleIndex;
+
+  bool isScrollAnimation = Platform.isIOS;
 
   late Color textColor;
   late Color dimmedTextColor;
@@ -162,8 +165,10 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
     await Future.wait([
       AudioPlayerManager().loadSubtitlesFromFiles(
           audioBookFiles: audioBookFromStorage, bookId: book.id!),
-      AudioPlayerManager()
-          .loadAudioFromFiles(audioBookFiles: audioBookFromStorage, book: book),
+      AudioPlayerManager().loadAudioFromFiles(
+          audioBookFiles: audioBookFromStorage,
+          bookId: book.id,
+          playBackPositionInMs: book.playBackPositionInMs),
     ]);
   }
 
@@ -171,18 +176,24 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
     if (itemScrollController.isAttached &&
         !isScrolling &&
         subtitleIndex < subtitlesData.subtitles.length) {
-      setState(() {
-        isScrolling = true;
-      });
-      itemScrollController.scrollTo(
-          index: subtitleIndex,
-          duration: Duration(milliseconds: 1500),
-          curve: Curves.easeInOutCubic);
-      Future.delayed(const Duration(milliseconds: 1500), () {
+      if (isScrollAnimation) {
+        // scroll to subtitle on ios
         setState(() {
-          isScrolling = false;
+          isScrolling = true;
         });
-      });
+        itemScrollController.scrollTo(
+            index: subtitleIndex,
+            duration: Duration(milliseconds: 1500),
+            curve: Curves.easeInOutCubic);
+        Future.delayed(const Duration(milliseconds: 1500), () {
+          setState(() {
+            isScrolling = false;
+          });
+        });
+      } else {
+        // on android, skip scroll animation
+        itemScrollController.jumpTo(index: subtitleIndex);
+      }
     }
   }
 

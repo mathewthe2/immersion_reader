@@ -59,8 +59,10 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
     await Future.wait([
       AudioPlayerManager().loadSubtitlesFromFiles(
           audioBookFiles: audioBookFromStorage, bookId: book.id!),
-      AudioPlayerManager()
-          .loadAudioFromFiles(audioBookFiles: audioBookFromStorage, book: book),
+      AudioPlayerManager().loadAudioFromFiles(
+          audioBookFiles: audioBookFromStorage,
+          bookId: book.id,
+          playBackPositionInMs: book.playBackPositionInMs),
     ]);
     setState(() {
       isFetchingAudioBook = false;

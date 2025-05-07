@@ -50,6 +50,12 @@ class _ReaderState extends State<Reader> {
   }
 
   @override
+  void dispose() {
+    ReaderJsManager().onExitReader();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     LocalAssetsServer? localAssetsServer = LocalAssetsServerManager().server;
     if (localAssetsServer == null) {

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/widgets/settings/popup_dictionary_theme_settings.dart';
@@ -112,16 +114,19 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
                         });
                       },
                       value: _allowLookupWhilePopupActive)),
-              CupertinoListTile(
-                  title: const Text('Enable Slide Animation'),
-                  trailing: CupertinoSwitch(
-                      onChanged: (bool? value) {
-                        SettingsManager().toggleEnableSlideAnimation(value!);
-                        setState(() {
-                          _enableSlideAnimation = value;
-                        });
-                      },
-                      value: _enableSlideAnimation)),
+              Platform.isIOS
+                  ? CupertinoListTile(
+                      title: const Text('Enable Slide Animation'),
+                      trailing: CupertinoSwitch(
+                          onChanged: (bool? value) {
+                            SettingsManager()
+                                .toggleEnableSlideAnimation(value!);
+                            setState(() {
+                              _enableSlideAnimation = value;
+                            });
+                          },
+                          value: _enableSlideAnimation))
+                  : Container(),
               CupertinoListTile(
                   title: const Text('Enable Highlights (Beta)'),
                   trailing: CupertinoSwitch(

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/extensions/context_extension.dart';
@@ -9,17 +11,10 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/subtitles/popup_dictionary_subtitles.dart';
 
 class PopupDictionary {
-  // HighlightController? highlightController;
-
   static final PopupDictionary _singleton = PopupDictionary._internal();
   PopupDictionary._internal();
 
   factory PopupDictionary() => _singleton;
-
-  // factory PopupDictionary.create({HighlightController? highlightController}) {
-  //   _singleton.highlightController = highlightController;
-  //   return _singleton;
-  // }
 
   Future<void> dismissPopupDictionary() async {
     await SmartDialog.dismiss(force: true);
@@ -56,7 +51,8 @@ class PopupDictionary {
     PopupDictionaryThemeData popupDictionaryThemeData =
         PopupDictionaryThemeData(
             popupDictionaryTheme: popupDictionarySettings[0]);
-    bool enableSlideAnimation = popupDictionarySettings[1];
+    bool enableSlideAnimation =
+        Platform.isIOS ? popupDictionarySettings[1] : false;
     bool enableLookupHighlight = popupDictionarySettings[2];
     bool allowLookupWhilePopupActive = popupDictionarySettings[3];
 

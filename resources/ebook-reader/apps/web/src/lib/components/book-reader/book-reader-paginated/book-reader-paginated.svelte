@@ -462,8 +462,10 @@
 
   function sendReaderReadyToImmersionReader() {
     if (window.flutter_inappwebview != null) {
-      const bookData = { ...rawBookData, blobs: null };
-      window.flutter_inappwebview?.callHandler('onReaderReady', bookData);
+      window.flutter_inappwebview?.callHandler('onReaderReady', {
+        "bookId": rawBookData.id,
+        "playBackPositionInMs": rawBookData.playBackPositionInMs,
+      });
       isSentNotificationToImmersionReader = true;
     }
   }

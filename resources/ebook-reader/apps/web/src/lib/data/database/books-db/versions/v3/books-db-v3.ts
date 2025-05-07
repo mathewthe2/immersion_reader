@@ -15,6 +15,7 @@ interface BooksDbV3BookData {
   coverImage?: string | Blob;
   hasThumb: boolean;
   sections?: Section[];
+  playBackPositionInMs?: number;
 }
 
 interface BooksDbV3BookmarkData {

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_match_result.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
 import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitles_data.dart';
@@ -21,6 +20,7 @@ import 'package:immersion_reader/utils/folder_utils.dart';
 import 'package:immersion_reader/utils/reader/match_js.dart';
 import 'package:immersion_reader/widgets/common/buttons/app_button.dart';
 import 'package:immersion_reader/widgets/common/buttons/app_secondary_button.dart';
+import 'package:immersion_reader/widgets/common/safe_state.dart';
 import 'package:immersion_reader/widgets/common/text/app_text.dart';
 import 'package:immersion_reader/widgets/common/buttons/app_icon_button.dart';
 import 'package:immersion_reader/widgets/common/text/multi_color_text.dart';
@@ -38,7 +38,7 @@ class AudioBookMatching extends StatefulWidget {
   State<AudioBookMatching> createState() => _AudioBookMatchingState();
 }
 
-class _AudioBookMatchingState extends State<AudioBookMatching> {
+class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
   late Book book;
   List<String> textNodes = [];
   bool alignBeginningVisible = false;
@@ -82,8 +82,10 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
     if (newFilePath != null) {
       AudioBookFiles? audioBook = await getAudioBook();
       if (audioBook != null) {
-        await AudioPlayerManager()
-            .loadAudioFromFiles(audioBookFiles: audioBook, book: book);
+        await AudioPlayerManager().loadAudioFromFiles(
+            audioBookFiles: audioBook,
+            bookId: book.id,
+            playBackPositionInMs: book.playBackPositionInMs);
       }
     }
   }

@@ -6,14 +6,21 @@ import 'package:audioplayers/audioplayers.dart';
 // Defines the audioplayer and how it extends audio_service, for interfacing with the device's system player
 class AudioServiceHandler extends BaseAudioHandler
     with QueueHandler, SeekHandler {
-  final _player = AudioPlayer();
+  AudioPlayer _player = AudioPlayer();
   PlayerState? playerState;
   Duration? currentPosition;
 
   Duration? maxDuration;
 
   Future<void> setup() async {
+    if (playerState == PlayerState.disposed) {
+      _player = AudioPlayer();
+    }
     await _player.setReleaseMode(ReleaseMode.stop);
+  }
+
+  void dispose() {
+    _player.dispose();
   }
 
   Future<void> setSource(Source source, {MediaItem? customMediaItem}) async {
@@ -92,6 +99,4 @@ class AudioServiceHandler extends BaseAudioHandler
 
   @override
   Future<void> skipToPrevious() => seek(Duration.zero);
-
-  // Future<void> skipToQueueItem(int i) => _player.seek(Duration.zero);
 }

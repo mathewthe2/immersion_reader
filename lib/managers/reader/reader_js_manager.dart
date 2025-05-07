@@ -5,6 +5,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_lookup_subtitle.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/book_bookmark.dart';
+import 'package:immersion_reader/managers/reader/audio_book/audio_player_handler.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager.dart';
 import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
@@ -26,6 +27,7 @@ class ReaderJsManager {
       {required InAppWebViewController webController}) {
     _singleton.webController = webController;
     _singleton.setupController();
+    _singleton.isReaderActive = true;
     return _singleton;
   }
 
@@ -36,6 +38,7 @@ class ReaderJsManager {
   AudioLookupSubtitle? lastLookupSubtitleData;
   VoidCallback? exitCallback;
   bool hasShownAddedDialog = false;
+  late bool isReaderActive;
 
   void setupController() {
     webController.addJavaScriptHandler(
@@ -132,9 +135,11 @@ class ReaderJsManager {
     webController.addJavaScriptHandler(
         handlerName: 'onReaderReady', // called when a book is opened and ready
         callback: (args) async {
-          final bookData = args.first;
-          final Book book = Book.fromMap(bookData);
-          AudioPlayerManager().loadAudioBookIfExists(book);
+          final bookId = args.first["bookId"];
+          final playBackPositionInMs = args.first["playBackPositionInMs"];
+          await AudioPlayerHandler.setup();
+          AudioPlayerManager().loadAudioBookIfExists(
+              bookId: bookId, playBackPositionInMs: playBackPositionInMs);
         });
     webController.addJavaScriptHandler(
         handlerName: 'launchImmersionReader',
@@ -230,9 +235,22 @@ class ReaderJsManager {
     await webController.evaluateJavascript(source: "removeHighlight()");
   }
 
-  Future<dynamic> evaluateJavascript({required String source}) =>
-      webController.evaluateJavascript(source: source);
+  void onExitReader() {
+    isReaderActive = false;
+    webController.dispose();
+    AudioPlayerManager().disposeIfNotRunning();
+  }
 
-  Future<dynamic> callAsyncJavaScript({required String functionBody}) =>
-      webController.callAsyncJavaScript(functionBody: functionBody);
+  Future<dynamic> evaluateJavascript({required String source}) async {
+    if (isReaderActive) {
+      return await webController.evaluateJavascript(source: source);
+    }
+  }
+
+  Future<dynamic> callAsyncJavaScript({required String functionBody}) async {
+    if (isReaderActive) {
+      return await webController.callAsyncJavaScript(
+          functionBody: functionBody);
+    }
+  }
 }
