@@ -25,11 +25,8 @@ class SubtitlesData {
     return SubtitlesData(indexToSubIndexMap: indexMap, subtitles: subtitles);
   }
 
-  // TODO: return null when not found
-  int getSubIndexByIndex(String index) {
-    return indexToSubIndexMap.containsKey(index)
-        ? indexToSubIndexMap[index]!
-        : 0;
+  int? getSubIndexByIndex(String index) {
+    return indexToSubIndexMap[index];
   }
 
   void reset() {

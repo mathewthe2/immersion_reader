@@ -16,6 +16,7 @@ import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager
 import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/utils/book/book_files.dart';
+import 'package:immersion_reader/utils/common/loading_dialog.dart';
 import 'package:immersion_reader/utils/folder_utils.dart';
 import 'package:immersion_reader/utils/reader/match_js.dart';
 import 'package:immersion_reader/widgets/common/buttons/app_button.dart';
@@ -192,14 +193,14 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
 
   Future<void> applyMatches() async {
     if (matchResult != null) {
-      SmartDialog.showLoading(
+      LoadingDialog().showLoadingDialog(
           msg: "Applying matches..."); // why does this take so long?
       await Future.wait([
         BookFiles.updateBookContentHtml(matchResult!),
         BookManager().updateBookMatchedSubtitles(matchResult!)
       ]);
       await ReaderJsManager().reloadReader();
-      SmartDialog.dismiss();
+      LoadingDialog().dismissLoadingDialog();
       setState(() {
         previouslyMatchedSubtitles = matchResult!.matchedSubtitles;
       });

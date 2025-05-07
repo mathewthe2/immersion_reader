@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
@@ -57,7 +59,7 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
 
-  int getRelativeSubtitleIndex(String rawSubtitleIndex) {
+  int? getRelativeSubtitleIndex(String rawSubtitleIndex) {
     return subtitlesData.getSubIndexByIndex(rawSubtitleIndex);
   }
 
@@ -216,10 +218,16 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
               SchedulerBinding.instance.addPostFrameCallback((_) {
                 final subtitleIndex =
                     getRelativeSubtitleIndex(widget.lookupSubtitleId!);
-                // TODO: use timer and wait for attach
-                if (itemScrollController.isAttached) {
-                  itemScrollController.jumpTo(index: subtitleIndex);
+                if (subtitleIndex != null) {
+                  late Timer jumpToSubtitleTimer;
+                  jumpToSubtitleTimer = Timer(Duration(milliseconds: 100), () {
+                    if (itemScrollController.isAttached) {
+                      itemScrollController.jumpTo(index: subtitleIndex);
+                      jumpToSubtitleTimer.cancel();
+                    }
+                  });
                 }
+
                 initialSubtitleIndex = subtitleIndex;
               });
             }

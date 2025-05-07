@@ -51,7 +51,6 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
 
   Future<void> initAudioBook(Book book) async {
     if (book.id == null) return;
-    // final audioBookFromStorage = await loadAudioBook(book.id!);
     final audioBookFromStorage =
         await AudioPlayerManager().getAudioBook(book.id!);
     setState(() {

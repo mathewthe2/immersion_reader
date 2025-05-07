@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_player_state.dart';
 import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitles_data.dart';
@@ -14,6 +15,7 @@ import 'package:immersion_reader/managers/reader/audio_book/audio_player_handler
 import 'package:immersion_reader/managers/reader/audio_book/audio_service_handler.dart';
 import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
+import 'package:immersion_reader/utils/common/loading_dialog.dart';
 import 'package:immersion_reader/utils/folder_utils.dart';
 import 'package:immersion_reader/utils/reader/highlight_js.dart';
 
@@ -64,6 +66,7 @@ class AudioPlayerManager {
   AudioServiceHandler get audioService =>
       AudioPlayerHandler().audioServiceHandler;
 
+  // invoked when book is loaded
   Future<void> loadAudioBookIfExists(Book book) async {
     // remove existing audio book files
     broadcastOperation(AudioBookOperation.removeAudioFile);
@@ -71,17 +74,24 @@ class AudioPlayerManager {
     if (book.id != null &&
         book.playBackPositionInMs != null &&
         book.playBackPositionInMs! > 0) {
-      final audioBookFiles = await FolderUtils.getAudioBook(book.id!);
+      LoadingDialog().showLoadingDialog(msg: "Loading audiobok...");
 
+      // fetch audiobook data
+      final audioBookFiles = await FolderUtils.getAudioBook(book.id!);
       await Future.wait([
         loadSubtitlesFromFiles(
             audioBookFiles: audioBookFiles, bookId: book.id!),
         loadAudioFromFiles(audioBookFiles: audioBookFiles, book: book),
       ]);
 
-      updatePlayerState(Duration(milliseconds: book.playBackPositionInMs!));
+      // set up manager with new data
       currentBookId = book.id;
+      updatePlayerState(Duration(milliseconds: book.playBackPositionInMs!));
       initTimer();
+      isRequireSearchSubtitle = true;
+      await _insertSubtitleHighlight(
+          p: Duration(milliseconds: book.playBackPositionInMs!));
+      LoadingDialog().dismissLoadingDialog();
     }
   }
 
@@ -216,7 +226,7 @@ class AudioPlayerManager {
         playerPositionSubscription.cancel();
         return;
       }
-      if (playerEndDuration != null && p >= playerEndDuration!) {
+      if (playerEndDuration != null && p >= playerEndDuration! && !isAutoPlay) {
         await audioService.pause();
         playerEndDuration = null;
         return;

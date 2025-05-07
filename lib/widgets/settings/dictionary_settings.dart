@@ -8,8 +8,8 @@ import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/data/settings/dictionary_setting.dart';
 import 'package:immersion_reader/dictionary/dictionary_parser.dart';
 import 'package:immersion_reader/dictionary/user_dictionary.dart';
+import 'package:immersion_reader/utils/common/loading_dialog.dart';
 import 'package:immersion_reader/utils/system_dialog.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:immersion_reader/widgets/common/text/app_text.dart';
 
@@ -100,12 +100,12 @@ class _DictionarySettingsState extends State<DictionarySettings> {
   Future<void> removeDictionary(
       {required int dictionaryId,
       String message = 'Removing dictionary'}) async {
-    SmartDialog.showLoading(msg: message);
+    LoadingDialog().showLoadingDialog(msg: message);
     await SettingsManager().settingsStorage!.removeDictionary(dictionaryId);
     setState(() {
       isEditMode = false;
     });
-    SmartDialog.dismiss();
+    LoadingDialog().dismissLoadingDialog();
   }
 
   Future<void> checkUpdates() async {
