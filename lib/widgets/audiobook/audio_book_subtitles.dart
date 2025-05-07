@@ -206,21 +206,23 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
         .listen((AudioBookOperation operation) async {
       switch (operation.type) {
         case AudioBookOperationType.addSubtitleFile:
-          setState(() {
-            subtitlesData = operation.subtitlesData;
-            currentSubtitleIndex = operation.currentSubtitleIndex;
-            isFetchingSubtitles = false;
-          });
-          if (isScrollToInitialSubtitle && widget.lookupSubtitleId != null) {
-            SchedulerBinding.instance.addPostFrameCallback((_) {
-              final subtitleIndex =
-                  getRelativeSubtitleIndex(widget.lookupSubtitleId!);
-              // TODO: use timer and wait for attach
-              if (itemScrollController.isAttached) {
-                itemScrollController.jumpTo(index: subtitleIndex);
-              }
-              initialSubtitleIndex = subtitleIndex;
+          if (operation.subtitlesData != null) {
+            setState(() {
+              subtitlesData = operation.subtitlesData!;
+              currentSubtitleIndex = operation.currentSubtitleIndex;
+              isFetchingSubtitles = false;
             });
+            if (isScrollToInitialSubtitle && widget.lookupSubtitleId != null) {
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                final subtitleIndex =
+                    getRelativeSubtitleIndex(widget.lookupSubtitleId!);
+                // TODO: use timer and wait for attach
+                if (itemScrollController.isAttached) {
+                  itemScrollController.jumpTo(index: subtitleIndex);
+                }
+                initialSubtitleIndex = subtitleIndex;
+              });
+            }
           }
           break;
         case AudioBookOperationType.removeSubtitleFile:

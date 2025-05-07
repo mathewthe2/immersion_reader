@@ -209,9 +209,11 @@ class _AudioBookMatchingState extends State<AudioBookMatching> {
 
   Future<void> resetMatches() async {
     if (book.id != null) {
-      await BookFiles.restoreBookContentHtmlFromBackup(book.id!);
-      await resetSubtitles();
-      BookManager().clearCacheForBook(book.id!);
+      await Future.wait([
+        BookFiles.restoreBookContentHtmlFromBackup(book.id!),
+        resetSubtitles()
+      ]);
+      await BookManager().refreshCacheForBook(book.id!);
       await ReaderJsManager().reloadReader();
       if (audioBook == null) {
         await getAudioBook();

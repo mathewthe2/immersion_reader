@@ -28,7 +28,7 @@ class AudioBookPlayer extends StatefulWidget {
 class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
   late Book book;
   AudioBookFiles? audioBookFiles;
-  Metadata? audioFileMetadata = AudioPlayerManager().audioFileMetadata;
+  Metadata? audioFileMetadata;
   int currentSubtitleIndex = 0;
   double sliderValue = 0;
   bool isFetchingAudioBook = true;
@@ -148,29 +148,14 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
   }
 
   Widget _buildProgress(AudioPlayerState? playerState) {
-    if (playerState == null || playerState.playbackPercentage == null) {
+    if (playerState == null ||
+        playerState.playbackPercentage == null ||
+        playerState.playbackPercentage! > 1) {
       return Slider(value: 0, onChanged: (_) {});
     }
     return Slider(
         value: playerState.playbackPercentage!,
         onChanged: (value) => AudioPlayerManager().seekByPercentage(value));
-  }
-
-  void _showDialog(Widget child) {
-    showCupertinoModalPopup<void>(
-      context: context,
-      builder: (BuildContext context) => Container(
-        height: 216,
-        padding: const EdgeInsets.only(top: 6.0),
-        // The Bottom margin is provided to align the popup above the system navigation bar.
-        margin:
-            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-        // Provide a background color for the popup.
-        color: CupertinoColors.systemBackground.resolveFrom(context),
-        // Use a SafeArea widget to avoid system overlaps.
-        child: SafeArea(top: false, child: child),
-      ),
-    );
   }
 
   @override

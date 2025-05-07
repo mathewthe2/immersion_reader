@@ -324,8 +324,9 @@ class BookManager {
     return false;
   }
 
-  void clearCacheForBook(int bookId) {
+  // does not refresh basic info
+  Future<void> refreshCacheForBook(int bookId) async {
     _cachedBooks.remove(bookId);
-    _cachedBooksBasicInfo.remove(bookId);
+    await getBookById(bookId);
   }
 }

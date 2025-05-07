@@ -130,7 +130,7 @@ class ReaderJsManager {
           }
         });
     webController.addJavaScriptHandler(
-        handlerName: 'onReaderReady',
+        handlerName: 'onReaderReady', // called when a book is opened and ready
         callback: (args) async {
           final bookData = args.first;
           final Book book = Book.fromMap(bookData);

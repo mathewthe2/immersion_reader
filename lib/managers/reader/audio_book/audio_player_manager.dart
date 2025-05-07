@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
@@ -11,7 +10,6 @@ import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitles_data.
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitle.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation.dart';
-import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation_type.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_handler.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_service_handler.dart';
 import 'package:immersion_reader/managers/reader/book_manager.dart';
@@ -27,9 +25,9 @@ class AudioPlayerManager {
       StreamController<
           AudioBookOperation>.broadcast(); // broadcast book operations
   AudioPlayerState? currentState;
-  Metadata? audioFileMetadata;
 
   // update book's playback position
+  int? currentBookId;
   Timer? updateBookPlayBackTimer;
   int? lastPlayBackPositionInMs;
 
@@ -46,6 +44,9 @@ class AudioPlayerManager {
       {}; // subtitle and audio files for books
 
   List<Subtitle> get currentSubtitles => currentSubtitlesData.subtitles;
+
+  Metadata? getAudioMetadata(int? bookId) =>
+      _cachedBookOperationData[bookId]?.metadata;
 
   static const int updateBookIntervalInMs =
       1000; // save playBackPosition to db every second
@@ -64,65 +65,84 @@ class AudioPlayerManager {
       AudioPlayerHandler().audioServiceHandler;
 
   Future<void> loadAudioBookIfExists(Book book) async {
+    // remove existing audio book files
+    broadcastOperation(AudioBookOperation.removeAudioFile);
+    broadcastOperation(AudioBookOperation.removeSubtitleFile);
     if (book.id != null &&
         book.playBackPositionInMs != null &&
         book.playBackPositionInMs! > 0) {
       final audioBookFiles = await FolderUtils.getAudioBook(book.id!);
 
-      if (audioBookFiles.subtitleFiles.isNotEmpty) {
-        final subtitlesData = await SubtitlesData.readSubtitlesFromFile(
-            file: audioBookFiles.subtitleFiles.first,
-            webController: ReaderJsManager().webController);
+      await Future.wait([
+        loadSubtitlesFromFiles(
+            audioBookFiles: audioBookFiles, bookId: book.id!),
+        loadAudioFromFiles(audioBookFiles: audioBookFiles, book: book),
+      ]);
 
-        currentSubtitlesData = subtitlesData;
-        isRequireSearchSubtitle = true;
-        await _insertSubtitleHighlight(
-            p: Duration(milliseconds: book.playBackPositionInMs!),
-            isCueToElement: false);
-      }
+      updatePlayerState(Duration(milliseconds: book.playBackPositionInMs!));
+      currentBookId = book.id;
+      initTimer();
     }
+  }
+
+  AudioBookOperation _cachedOperationData(int bookId) {
+    if (!_cachedBookOperationData.containsKey(bookId)) {
+      _cachedBookOperationData[bookId] = AudioBookOperation.addDummyAudioFile();
+    }
+    return _cachedBookOperationData[bookId]!;
   }
 
   Future<Metadata> setSourceFromDevice(
-      {required File audioFile, required Book book}) async {
-    if (audioFileMetadata != null) {
-      return audioFileMetadata!;
+      {required AudioBookFiles audioBookFiles,
+      required int bookId,
+      int? newPlaybackPosition}) async {
+    if (_cachedBookOperationData[bookId]?.metadata == null) {
+      final metadata =
+          await MetadataRetriever.fromFile(audioBookFiles.audioFile);
+      _cachedOperationData(bookId).metadata = metadata;
+      _cachedOperationData(bookId).audioBookFiles = audioBookFiles;
     }
-    audioFileMetadata = await MetadataRetriever.fromFile(audioFile);
-    // final imageFile = File.fromRawPath(audioFileMetadata!.albumArt!);
-    final imageUri = await FolderUtils()
-        .createImageUriFromBytes(audioFileMetadata!.albumArt!);
+    final cachedMetadata = _cachedBookOperationData[bookId]!.metadata!;
+    if (currentBookId == bookId) {
+      return cachedMetadata;
+    }
+    currentBookId = bookId;
 
-    audioService.setSource(DeviceFileSource(audioFile.path),
+    final imageUri =
+        await FolderUtils().createImageUriFromBytes(cachedMetadata.albumArt!);
+
+    audioService.setSource(DeviceFileSource(audioBookFiles.audioFile.path),
         customMediaItem: MediaItem(
-            id: audioFileMetadata!.trackName ?? "",
-            title: audioFileMetadata!.trackName ?? "",
-            artist: audioFileMetadata!.authorName ?? "",
-            duration: audioFileMetadata!.trackDuration != null
-                ? Duration(milliseconds: audioFileMetadata!.trackDuration!)
+            id: cachedMetadata.trackName ?? "",
+            title: cachedMetadata.trackName ?? "",
+            artist: cachedMetadata.authorName ?? "",
+            duration: cachedMetadata.trackDuration != null
+                ? Duration(milliseconds: cachedMetadata.trackDuration!)
                 : null,
             artUri: imageUri));
 
-    if (playBackPositionInMs == null && book.playBackPositionInMs != null) {
-      playBackPositionInMs = book.playBackPositionInMs!;
-      lastPlayBackPositionInMs = book.playBackPositionInMs!;
-      await _seek(Duration(milliseconds: book.playBackPositionInMs!));
+    if (newPlaybackPosition != null) {
+      playBackPositionInMs = newPlaybackPosition;
+      lastPlayBackPositionInMs = newPlaybackPosition;
+      await _seek(Duration(milliseconds: newPlaybackPosition));
     }
-    if (book.id != null) {
-      initTimer(book.id!);
-    }
-    _listenPlayerPosition();
-    return audioFileMetadata!;
+
+    return cachedMetadata;
   }
 
-  void initTimer(int bookId) {
+  void initTimer() {
+    if (updateBookPlayBackTimer != null) {
+      updateBookPlayBackTimer!.cancel(); // cancel existing timer
+    }
     updateBookPlayBackTimer = Timer.periodic(
         const Duration(milliseconds: updateBookIntervalInMs), (_) {
-      if (playBackPositionInMs != null &&
+      if (currentBookId != null &&
+          playBackPositionInMs != null &&
           (lastPlayBackPositionInMs == null ||
               playBackPositionInMs != lastPlayBackPositionInMs)) {
         BookManager().setBookPlayBackPositionInMs(
-            bookId: bookId, playBackPositionInMs: playBackPositionInMs!);
+            bookId: currentBookId!,
+            playBackPositionInMs: playBackPositionInMs!);
         lastPlayBackPositionInMs = playBackPositionInMs;
       }
     });
@@ -188,8 +208,14 @@ class AudioPlayerManager {
     }
   }
 
-  void _listenPlayerPosition() {
-    audioService.onPositionChanged.listen((Duration p) async {
+  void _listenPlayerPosition(int bookId) {
+    late StreamSubscription playerPositionSubscription;
+    playerPositionSubscription =
+        audioService.onPositionChanged.listen((Duration p) async {
+      if (bookId != currentBookId) {
+        playerPositionSubscription.cancel();
+        return;
+      }
       if (playerEndDuration != null && p >= playerEndDuration!) {
         await audioService.pause();
         playerEndDuration = null;
@@ -230,8 +256,10 @@ class AudioPlayerManager {
       required int bookId,
       isRefetch = false}) async {
     SubtitlesData subtitlesData = SubtitlesData.empty;
-    if (!isRefetch && _cachedBookOperationData.containsKey(bookId)) {
-      subtitlesData = _cachedBookOperationData[bookId]!.subtitlesData;
+    if (!isRefetch &&
+        _cachedBookOperationData.containsKey(bookId) &&
+        _cachedBookOperationData[bookId]!.subtitlesData != null) {
+      subtitlesData = _cachedBookOperationData[bookId]!.subtitlesData!;
       currentSubtitlesData = subtitlesData;
     } else if (audioBookFiles.subtitleFiles.isNotEmpty) {
       subtitlesData = await SubtitlesData.readSubtitlesFromFile(
@@ -239,11 +267,7 @@ class AudioPlayerManager {
               .subtitleFiles.first, // assume only one subtitle file for now
           webController: ReaderJsManager().webController);
       currentSubtitlesData = subtitlesData;
-      if (!_cachedBookOperationData.containsKey(bookId)) {
-        _cachedBookOperationData[bookId] = AudioBookOperation
-            .addDummySubtitleFile(); // data will be added later
-      }
-      _cachedBookOperationData[bookId]!.subtitlesData = subtitlesData;
+      _cachedOperationData(bookId).subtitlesData = subtitlesData;
     }
     _cachedAudioBooks[bookId] = audioBookFiles;
     broadcastOperation(AudioBookOperation.addSubtitleFile(
@@ -266,6 +290,7 @@ class AudioPlayerManager {
 
     // use cache
     if (!isRefetch &&
+        book.id == currentBookId &&
         _cachedBookOperationData.containsKey(book.id) &&
         _cachedBookOperationData[book.id]!.metadata != null &&
         _cachedBookOperationData[book.id]!.audioBookFiles != null) {
@@ -273,21 +298,23 @@ class AudioPlayerManager {
           metadata: _cachedBookOperationData[book.id]!.metadata!,
           audioBookFiles: _cachedBookOperationData[book.id]!.audioBookFiles!));
     } else {
-      if (audioBookFiles.audioFiles.isNotEmpty) {
+      if (audioBookFiles.audioFiles.isNotEmpty && book.id != null) {
         Metadata metadata = await setSourceFromDevice(
-            audioFile: audioBookFiles.audioFiles.first, book: book);
+            audioBookFiles: audioBookFiles,
+            bookId: book.id!,
+            newPlaybackPosition: book.playBackPositionInMs);
 
-        if (!_cachedBookOperationData.containsKey(book.id)) {
-          _cachedBookOperationData[book.id!] = AudioBookOperation
-              .addDummyAudioFile(); // data will be added later
-        }
-        _cachedBookOperationData[book.id]!.metadata = metadata;
-        _cachedBookOperationData[book.id]!.audioBookFiles = audioBookFiles;
+        _cachedOperationData(book.id!).metadata = metadata;
+        _cachedOperationData(book.id!).audioBookFiles = audioBookFiles;
         _cachedAudioBooks[book.id!] = audioBookFiles;
 
         broadcastOperation(AudioBookOperation.addAudioFile(
             metadata: metadata, audioBookFiles: audioBookFiles));
       }
+    }
+    initTimer();
+    if (book.id != null) {
+      _listenPlayerPosition(book.id!);
     }
   }
 

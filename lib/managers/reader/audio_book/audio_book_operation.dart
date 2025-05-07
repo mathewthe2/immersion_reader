@@ -5,14 +5,14 @@ import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation
 
 class AudioBookOperation {
   AudioBookOperationType type;
-  SubtitlesData subtitlesData;
+  SubtitlesData? subtitlesData;
   AudioBookFiles? audioBookFiles;
   int? currentSubtitleIndex;
   Metadata? metadata;
 
   AudioBookOperation(
       {required this.type,
-      required this.subtitlesData,
+      this.subtitlesData,
       this.audioBookFiles,
       this.metadata,
       this.currentSubtitleIndex});
@@ -22,7 +22,6 @@ class AudioBookOperation {
           required AudioBookFiles audioBookFiles}) =>
       AudioBookOperation(
           type: AudioBookOperationType.addAudioFile,
-          subtitlesData: SubtitlesData.empty,
           metadata: metadata,
           audioBookFiles: audioBookFiles);
 
@@ -37,11 +36,6 @@ class AudioBookOperation {
           type: AudioBookOperationType.addSubtitleFile,
           subtitlesData: subtitlesData,
           currentSubtitleIndex: currentSubtitleIndex);
-
-  static AudioBookOperation addDummySubtitleFile() => AudioBookOperation(
-      type: AudioBookOperationType.addSubtitleFile,
-      subtitlesData: SubtitlesData.empty,
-      currentSubtitleIndex: 0);
 
   static AudioBookOperation get removeAudioFile => AudioBookOperation(
         type: AudioBookOperationType.removeAudioFile,
