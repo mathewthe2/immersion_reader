@@ -87,11 +87,11 @@ class AudioPlayerManager {
 
       // set up manager with new data
       currentBookId = bookId;
-      updatePlayerState(Duration(milliseconds: playBackPositionInMs!));
+      updatePlayerState(Duration(milliseconds: playBackPositionInMs));
       initTimer();
       isRequireSearchSubtitle = true;
       await _insertSubtitleHighlight(
-          p: Duration(milliseconds: playBackPositionInMs!));
+          p: Duration(milliseconds: playBackPositionInMs));
       LoadingDialog().dismissLoadingDialog();
     }
   }

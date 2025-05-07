@@ -29,7 +29,7 @@ function findSubtitleData(node) {
       const subtitleId = match.match(
         /ttu-whispersync-line-highlight-(\d+)/
       )?.[1];
-      subtitleData.text = [...target.parentElement.querySelectorAll('span[class="ttu-whispersync-line-highlight-' + subtitleId + '"]')]
+      subtitleData.text = [...document.body.querySelectorAll('span[class="ttu-whispersync-line-highlight-' + subtitleId + '"]')]
         .filter(node=>!node?.parentElement.closest(["rp", "rt"]))
         .map(node=>node.textContent).join("");
       subtitleData.text = subtitleData.text?.trimStart();
