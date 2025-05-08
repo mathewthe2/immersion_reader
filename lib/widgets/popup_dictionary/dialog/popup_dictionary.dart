@@ -79,15 +79,17 @@ class PopupDictionary {
               onDismissed: (_) => SmartDialog.dismiss(),
               child: Container(
                   decoration: BoxDecoration(
-                      color: popupDictionaryThemeData
-                          .getColor(DictionaryColor.backgroundColor),
                       borderRadius: const BorderRadius.only(
                           topRight: Radius.circular(15),
                           topLeft: Radius.circular(15))),
                   height: context.popup(),
                   child: HeroControllerScope.none(
                       child: CupertinoTabScaffold(
+                          backgroundColor: popupDictionaryThemeData
+                              .getColor(DictionaryColor.backgroundColor),
                           tabBar: CupertinoTabBar(
+                            backgroundColor: popupDictionaryThemeData
+                                .getColor(DictionaryColor.backgroundColor),
                             // onTap: (newIndex) =>
                             //     sharedPreferences?.setInt(tabPreferenceKey, newIndex),
                             // currentIndex:
