@@ -88,6 +88,9 @@ class PopupDictionary {
                           backgroundColor: popupDictionaryThemeData
                               .getColor(DictionaryColor.backgroundColor),
                           tabBar: CupertinoTabBar(
+                            activeColor: context.color(
+                                lightMode: CupertinoColors.darkBackgroundGray,
+                                darkMode: CupertinoColors.white),
                             backgroundColor: popupDictionaryThemeData
                                 .getColor(DictionaryColor.backgroundColor),
                             // onTap: (newIndex) =>

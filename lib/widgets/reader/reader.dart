@@ -4,6 +4,7 @@ import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/utils/system_ui.dart';
+import 'package:immersion_reader/widgets/audiobook/controls/bottom_playback_controls.dart';
 import 'package:local_assets_server/local_assets_server.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import '../../utils/reader/reader_js.dart';
@@ -74,46 +75,50 @@ class _ReaderState extends State<Reader> {
                 return Container(
                     color: snapshot.data!, // sync with reader color
                     child: SafeArea(
-                        child: InAppWebView(
-                      initialSettings: InAppWebViewSettings(
-                          cacheEnabled: true, incognito: false),
-                      initialUrlRequest: URLRequest(
-                        url: WebUri(
-                          widget.initialUrl ??
-                              LocalAssetsServerManager().getAssetUrl(),
+                        child: Column(children: [
+                      Expanded(
+                          child: InAppWebView(
+                        initialSettings: InAppWebViewSettings(
+                            cacheEnabled: true, incognito: false),
+                        initialUrlRequest: URLRequest(
+                          url: WebUri(
+                            widget.initialUrl ??
+                                LocalAssetsServerManager().getAssetUrl(),
+                          ),
                         ),
-                      ),
-                      onWebViewCreated: (controller) {
-                        ReaderJsManager.create(webController: controller);
-                        webViewController = controller;
-                      },
-                      onLoadStop: (controller, uri) async {
-                        if (widget.isAddBook &&
-                            !ReaderJsManager().hasShownAddedDialog) {
-                          await controller.evaluateJavascript(
-                              source: addFileJs);
-                        }
-                      },
-                      onReceivedError: (controller, request, error) {
-                        debugPrint(error.description);
-                      },
-                      onReceivedHttpError: (controller, url, errorResponse) {
-                        debugPrint(
-                            '${errorResponse.statusCode}:${errorResponse.data}');
-                      },
-                      onTitleChanged: (controller, title) async {
-                        await controller.evaluateJavascript(source: readerJs);
-                        if (widget.isAddBook &&
-                            !ReaderJsManager().hasShownAddedDialog) {
-                          await controller.evaluateJavascript(
-                              source: addFileJs);
-                        }
-                      },
-                      onConsoleMessage: (controller, message) {
-                        debugPrint(
-                            "reader stuff: ${message.message}"); // for debug
-                      },
-                    )));
+                        onWebViewCreated: (controller) {
+                          ReaderJsManager.create(webController: controller);
+                          webViewController = controller;
+                        },
+                        onLoadStop: (controller, uri) async {
+                          if (widget.isAddBook &&
+                              !ReaderJsManager().hasShownAddedDialog) {
+                            await controller.evaluateJavascript(
+                                source: addFileJs);
+                          }
+                        },
+                        onReceivedError: (controller, request, error) {
+                          debugPrint(error.description);
+                        },
+                        onReceivedHttpError: (controller, url, errorResponse) {
+                          debugPrint(
+                              '${errorResponse.statusCode}:${errorResponse.data}');
+                        },
+                        onTitleChanged: (controller, title) async {
+                          await controller.evaluateJavascript(source: readerJs);
+                          if (widget.isAddBook &&
+                              !ReaderJsManager().hasShownAddedDialog) {
+                            await controller.evaluateJavascript(
+                                source: addFileJs);
+                          }
+                        },
+                        onConsoleMessage: (controller, message) {
+                          debugPrint(
+                              "reader stuff: ${message.message}"); // for debug
+                        },
+                      )),
+                      BottomPlaybackControls(backgroundColor: snapshot.data!)
+                    ])));
               } else {
                 return Container();
               }

@@ -184,19 +184,7 @@ class ReaderJsManager {
         callback: (args) async {
           ReaderSessionManager().stop();
           final int bookId = args.first;
-          final Book? book = await BookManager().getBookById(bookId);
-          if (book != null) {
-            final sharedPreferences = await SharedPreferences.getInstance();
-            defocusReader();
-            AudioBookDialog.showDialog(
-                book: book,
-                matchProgressController: matchProgressController,
-                sharedPreferences: sharedPreferences,
-                onDismiss: () {
-                  focusReader();
-                  ReaderSessionManager().startReadingBook(book);
-                });
-          }
+          await openAudioBookDialog(bookId: bookId);
         });
     webController.addJavaScriptHandler(
         handlerName: 'sendMatchSubtitleProgress',
@@ -205,6 +193,25 @@ class ReaderJsManager {
             matchProgressController.add(args.first);
           }
         });
+  }
+
+  Future<void> openAudioBookDialog(
+      {required int bookId, int? initialTabIndex}) async {
+    ReaderSessionManager().stop();
+    final Book? book = await BookManager().getBookById(bookId);
+    if (book != null) {
+      final sharedPreferences = await SharedPreferences.getInstance();
+      defocusReader();
+      AudioBookDialog.showDialog(
+          book: book,
+          initialTabIndex: initialTabIndex,
+          matchProgressController: matchProgressController,
+          sharedPreferences: sharedPreferences,
+          onDismiss: () {
+            focusReader();
+            ReaderSessionManager().startReadingBook(book);
+          });
+    }
   }
 
   void setExitCallback(VoidCallback callback) {

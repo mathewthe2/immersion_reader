@@ -18,7 +18,8 @@ class AudioBookDialog {
       {required StreamController<int> matchProgressController,
       required Book book,
       required VoidCallback onDismiss,
-      SharedPreferences? sharedPreferences}) {
+      SharedPreferences? sharedPreferences,
+      int? initialTabIndex}) {
     SmartDialog.show(
         tag: audioBookDialogTag,
         alignment: Alignment.bottomCenter,
@@ -36,11 +37,18 @@ class AudioBookDialog {
                   color: CupertinoColors.white,
                   child: HeroControllerScope.none(
                       child: CupertinoTabScaffold(
+                    backgroundColor: context.color(
+                        lightMode: CupertinoColors.extraLightBackgroundGray,
+                        darkMode: CupertinoColors.darkBackgroundGray),
                     tabBar: CupertinoTabBar(
+                      activeColor: context.color(
+                          lightMode: CupertinoColors.darkBackgroundGray,
+                          darkMode: CupertinoColors.white),
                       onTap: (newIndex) =>
                           sharedPreferences?.setInt(tabPreferenceKey, newIndex),
-                      currentIndex:
-                          sharedPreferences?.getInt(tabPreferenceKey) ?? 0,
+                      currentIndex: initialTabIndex ??
+                          sharedPreferences?.getInt(tabPreferenceKey) ??
+                          0,
                       items: const <BottomNavigationBarItem>[
                         BottomNavigationBarItem(
                             icon: Icon(CupertinoIcons.folder_open),

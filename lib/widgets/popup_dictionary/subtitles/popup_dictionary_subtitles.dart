@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/book.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/widgets/audiobook/audio_book_subtitles.dart';
 
@@ -35,6 +36,13 @@ class _PopupDictionarySubtitlesState extends State<PopupDictionarySubtitles> {
     if (isFetchingBook || book == null) {
       return Container();
     }
-    return AudioBookSubtitles(book: book!, lookupSubtitleId: widget.subtitleId);
+    // workaround as audio book subtitles do not handle theme colors yet
+    Color backgroundColor = context.color(
+        lightMode: CupertinoColors.lightBackgroundGray,
+        darkMode: CupertinoColors.darkBackgroundGray);
+    return Container(
+        color: backgroundColor,
+        child: AudioBookSubtitles(
+            book: book!, lookupSubtitleId: widget.subtitleId));
   }
 }

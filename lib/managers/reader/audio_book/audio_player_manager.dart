@@ -213,14 +213,10 @@ class AudioPlayerManager {
           if (currentSubtitleIndex != -1) {
             isRequireSearchSubtitle = false;
             final subtitleToHighlight = currentSubtitles[currentSubtitleIndex];
-            await Future.wait([
-              ReaderJsManager()
-                  .evaluateJavascript(source: removeAllHighlights()),
-              ReaderJsManager().evaluateJavascript(
-                  source: addNodeHighlight(
-                      id: subtitleToHighlight.id,
-                      isCueToElement: isCueToElement))
-            ]);
+            await ReaderJsManager().evaluateJavascript(
+                source: addNodeHighlight(
+                    id: subtitleToHighlight.id,
+                    isCueToElement: isCueToElement));
           }
         }
       } else {
@@ -356,7 +352,9 @@ class AudioPlayerManager {
         _cachedAudioBooks[bookId] = audioBookFiles;
 
         broadcastOperation(AudioBookOperation.addAudioFile(
-            metadata: metadata, audioBookFiles: audioBookFiles));
+            metadata: metadata,
+            audioBookFiles: audioBookFiles,
+            bookId: bookId));
       }
     }
     initTimer();
@@ -384,7 +382,8 @@ class AudioPlayerManager {
   }
 
   Future<void> _seek(Duration duration) async {
-    await Future.wait([audioService.seek(duration), resetActiveSubtitle()]);
+    await resetActiveSubtitle();
+    await audioService.seek(duration);
     updatePlayerState(duration);
   }
 

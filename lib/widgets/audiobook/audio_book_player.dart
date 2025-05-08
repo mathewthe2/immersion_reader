@@ -86,7 +86,7 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
             audioFileMetadata = null;
           });
           break;
-        case AudioBookOperationType.removeSubtitleFile:
+        default:
           break;
       }
     });
@@ -106,7 +106,7 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
     }
   }
 
-  Widget _buildPlayButton() {
+  Widget _buildPlayButton({Color? color}) {
     if (isPlaying) {
       return CupertinoButton(
           onPressed: () {
@@ -115,10 +115,7 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
             });
             AudioPlayerManager().pause();
           },
-          child: Icon(
-            size: 36,
-            CupertinoIcons.pause_solid,
-          ));
+          child: Icon(size: 36, CupertinoIcons.pause_solid, color: color));
     } else {
       return CupertinoButton(
           onPressed: () {
@@ -127,10 +124,7 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
             });
             AudioPlayerManager().autoPlay();
           },
-          child: Icon(
-            size: 36,
-            CupertinoIcons.play_arrow_solid,
-          ));
+          child: Icon(size: 36, CupertinoIcons.play_arrow_solid, color: color));
     }
   }
 
@@ -153,12 +147,14 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
     if (audioBookFiles == null || audioBookFiles!.audioFiles.isEmpty) {
       return Center(child: AppText("No audio file selected"));
     }
+    Color controlColor = context.color(
+        lightMode: CupertinoColors.darkBackgroundGray,
+        darkMode: CupertinoColors.systemGroupedBackground);
+
     return CupertinoScrollbar(
         child: SingleChildScrollView(
             child: Column(children: [
-      SizedBox(height: context.spacer()),
-      AppText("Beta: This feature is still work in progress"),
-      SizedBox(height: context.spacer()),
+      SizedBox(height: context.whitespace()),
       SizedBox(
           height: context.epic(),
           child: Image.memory(audioFileMetadata?.albumArt != null
@@ -203,18 +199,21 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
                 onPressed: AudioPlayerManager().seekBeginning,
                 child: Icon(
                   CupertinoIcons.backward_end_fill,
+                  color: controlColor,
                 )),
             CupertinoButton(
                 onPressed: () => AudioPlayerManager().rewind(rewindSeconds),
                 child: Icon(
-                  CupertinoIcons.refresh_bold,
+                  CupertinoIcons.backward_fill,
+                  color: controlColor,
                 )),
-            _buildPlayButton(),
+            _buildPlayButton(color: controlColor),
             CupertinoButton(
                 onPressed: () =>
                     AudioPlayerManager().fastForward(fastForwardSeconds),
                 child: Icon(
-                  CupertinoIcons.refresh,
+                  CupertinoIcons.forward_fill,
+                  color: controlColor,
                 )),
             CupertinoButton(
                 onPressed: () {},

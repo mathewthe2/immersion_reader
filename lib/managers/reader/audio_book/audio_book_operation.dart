@@ -9,21 +9,25 @@ class AudioBookOperation {
   AudioBookFiles? audioBookFiles;
   int? currentSubtitleIndex;
   Metadata? metadata;
+  int? bookId;
 
   AudioBookOperation(
       {required this.type,
       this.subtitlesData,
       this.audioBookFiles,
       this.metadata,
-      this.currentSubtitleIndex});
+      this.currentSubtitleIndex,
+      this.bookId});
 
   static AudioBookOperation addAudioFile(
           {required Metadata metadata,
-          required AudioBookFiles audioBookFiles}) =>
+          required AudioBookFiles audioBookFiles,
+          int? bookId}) =>
       AudioBookOperation(
           type: AudioBookOperationType.addAudioFile,
           metadata: metadata,
-          audioBookFiles: audioBookFiles);
+          audioBookFiles: audioBookFiles,
+          bookId: bookId);
 
   static AudioBookOperation addDummyAudioFile() => AudioBookOperation(
       type: AudioBookOperationType.addAudioFile,

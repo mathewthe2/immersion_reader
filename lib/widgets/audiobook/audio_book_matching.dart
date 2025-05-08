@@ -294,7 +294,7 @@ class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
   Widget build(BuildContext context) {
     return Column(children: [
       SizedBox(height: context.spacer()),
-      AppText("Audio Book Matching (Beta)", style: TextStyle(fontSize: 20)),
+      AppText("Audio Book Matching", style: TextStyle(fontSize: 20)),
       if (previouslyMatchedSubtitles > 0)
         Column(
           children: [
