@@ -378,7 +378,9 @@ class AudioPlayerManager {
   }
 
   Future<void> pause() async {
-    await audioService.pause();
+    if (currentState?.playerState == PlayerState.playing) {
+      await audioService.pause();
+    }
   }
 
   Future<void> _seek(Duration duration) async {

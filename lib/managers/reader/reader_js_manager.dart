@@ -6,6 +6,7 @@ import 'package:immersion_reader/data/reader/audio_book/audio_book_load_params.d
 import 'package:immersion_reader/data/reader/audio_book/audio_lookup_subtitle.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/book_bookmark.dart';
+import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_handler.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager.dart';
 import 'package:immersion_reader/managers/reader/book_manager.dart';
@@ -147,6 +148,11 @@ class ReaderJsManager {
                     bookId: book.id,
                     bookTitle: book.title,
                     playBackPositionInMs: playBackPositionInMs));
+          } else {
+            // for removing bottom bar and audio player when switching books
+            AudioPlayerManager().pause();
+            AudioPlayerManager()
+                .broadcastOperation(AudioBookOperation.removeAudioFile);
           }
         });
     webController.addJavaScriptHandler(
