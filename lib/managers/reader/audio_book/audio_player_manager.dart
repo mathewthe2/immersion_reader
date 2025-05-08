@@ -71,9 +71,7 @@ class AudioPlayerManager {
     // remove existing audio book files
     broadcastOperation(AudioBookOperation.removeAudioFile);
     broadcastOperation(AudioBookOperation.removeSubtitleFile);
-    if (params.bookId != null &&
-        params.playBackPositionInMs != null &&
-        params.playBackPositionInMs! > 0) {
+    if (params.bookId != null && params.playBackPositionInMs != null) {
       LoadingDialog().showLoadingDialog(msg: "Loading audiobok...");
 
       // fetch audiobook data
@@ -318,8 +316,10 @@ class AudioPlayerManager {
 
   Future<void> removeSubtitlesFromFiles() async {
     await resetActiveSubtitle();
-    _cachedBookOperationData.clear();
-    _cachedAudioBooks.clear();
+    _cachedBookOperationData.updateAll(
+        (_, op) => op.cleanup(AudioBookDataRemovalType.subtitleData));
+    _cachedAudioBooks.updateAll((_, bookFiles) =>
+        AudioBookFiles(subtitleFiles: [], audioFiles: bookFiles.audioFiles));
     broadcastOperation(AudioBookOperation.removeSubtitleFile);
   }
 
@@ -338,6 +338,7 @@ class AudioPlayerManager {
         _cachedBookOperationData[bookId]!.audioBookFiles != null) {
       broadcastOperation(AudioBookOperation.addAudioFile(
           metadata: _cachedBookOperationData[bookId]!.metadata!,
+          bookTitle: bookTitle,
           audioBookFiles: _cachedBookOperationData[bookId]!.audioBookFiles!));
     } else {
       if (audioBookFiles.audioFiles.isNotEmpty) {
@@ -354,7 +355,8 @@ class AudioPlayerManager {
         broadcastOperation(AudioBookOperation.addAudioFile(
             metadata: metadata,
             audioBookFiles: audioBookFiles,
-            bookId: bookId));
+            bookId: bookId,
+            bookTitle: bookTitle));
       }
     }
     initTimer();
@@ -362,8 +364,11 @@ class AudioPlayerManager {
   }
 
   Future<void> removeAudioFromFiles() async {
-    _cachedBookOperationData.clear();
-    _cachedAudioBooks.clear();
+    _cachedBookOperationData
+        .updateAll((_, op) => op.cleanup(AudioBookDataRemovalType.audioData));
+    _cachedAudioBooks.updateAll((_, bookFiles) =>
+        AudioBookFiles(subtitleFiles: bookFiles.subtitleFiles, audioFiles: []));
+    broadcastOperation(AudioBookOperation.removeSubtitleFile);
     broadcastOperation(AudioBookOperation.removeAudioFile);
   }
 

@@ -23,6 +23,7 @@ class BottomPlaybackControls extends StatefulWidget {
 class _BottomPlaybackControlsState extends SafeState<BottomPlaybackControls> {
   Metadata? audioFileMetadata;
   int? bookId;
+  String? bookTitle;
   bool isPlaying = false;
 
   static const int fastForwardSeconds = 10;
@@ -54,6 +55,7 @@ class _BottomPlaybackControlsState extends SafeState<BottomPlaybackControls> {
           if (operation.metadata != null) {
             setState(() {
               audioFileMetadata = operation.metadata;
+              bookTitle = operation.bookTitle;
             });
           }
           if (operation.bookId != null) {
@@ -165,12 +167,13 @@ class _BottomPlaybackControlsState extends SafeState<BottomPlaybackControls> {
                                         ? audioFileMetadata!.albumArt!
                                         : kTransparentImage))),
                         Padding(
-                            padding:
-                                EdgeInsetsGeometry.only(left: context.spacer()),
+                            padding: EdgeInsets.only(left: context.spacer()),
                             child: Container(
                                 constraints: BoxConstraints(maxWidth: 100),
                                 child: AppText(
-                                  audioFileMetadata?.trackName ?? "",
+                                  audioFileMetadata?.trackName ??
+                                      bookTitle ??
+                                      "",
                                   overflow: TextOverflow.ellipsis,
                                 )))
                       ])
