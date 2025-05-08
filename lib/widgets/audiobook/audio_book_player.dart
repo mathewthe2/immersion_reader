@@ -31,7 +31,7 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
   Metadata? audioFileMetadata;
   int currentSubtitleIndex = 0;
   double sliderValue = 0;
-  bool isFetchingAudioBook = true;
+  bool isFetchingAudioBook = false;
   bool isPlaying = false;
 
   static const int fastForwardSeconds = 10;
@@ -41,31 +41,17 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
   void initState() {
     super.initState();
     book = widget.book;
-    if (book.id != null) {
-      initAudioBook(book);
-    }
-
+    initAudioBook(book);
     listenToBookIsPlaying();
     listenToBookOperations();
   }
 
   Future<void> initAudioBook(Book book) async {
-    if (book.id == null) return;
-    final audioBookFromStorage =
-        await AudioPlayerManager().getAudioBook(book.id!);
+    if (book.id == null || !book.isHaveAudio) return;
+    var metadata = AudioPlayerManager().getAudioBookMetadata(book.id!);
     setState(() {
-      audioBookFiles = audioBookFromStorage;
-    });
-    await Future.wait([
-      AudioPlayerManager().loadSubtitlesFromFiles(
-          audioBookFiles: audioBookFromStorage, bookId: book.id!),
-      AudioPlayerManager().loadAudioFromFiles(
-          audioBookFiles: audioBookFromStorage,
-          bookId: book.id,
-          playBackPositionInMs: book.playBackPositionInMs),
-    ]);
-    setState(() {
-      isFetchingAudioBook = false;
+      audioFileMetadata = metadata;
+      audioBookFiles = book.audioBookFiles;
     });
   }
 
@@ -179,7 +165,8 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
               ? audioFileMetadata!.albumArt!
               : kTransparentImage)),
       SizedBox(height: context.spacer()),
-      AppText(audioFileMetadata?.trackName ?? ""),
+      AppText(audioFileMetadata?.trackName ??
+          book.title), // TODO: for long text, animate left displacement
       SizedBox(height: context.spacer()),
       SliderTheme(
           data: SliderThemeData(

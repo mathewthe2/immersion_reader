@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_media_metadata/flutter_media_metadata.dart';
+import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
 import 'package:immersion_reader/data/reader/book_blob.dart';
 import 'package:immersion_reader/data/reader/book_bookmark.dart';
 import 'package:immersion_reader/data/reader/book_section.dart';
@@ -28,6 +30,8 @@ class Book {
   // audio books
   int? playBackPositionInMs;
   int? matchedSubtitles;
+  AudioBookFiles? audioBookFiles;
+  Metadata? audioFileMetadata;
 
   // for online books
   String? imageUrl;
@@ -43,6 +47,8 @@ class Book {
       this.elementHtml,
       this.elementHtmlBackup,
       this.playBackPositionInMs,
+      this.audioBookFiles,
+      this.audioFileMetadata,
       this.matchedSubtitles,
       this.styleSheet,
       this.sections,
@@ -175,6 +181,11 @@ class Book {
       (elementHtmlBackup != null && elementHtmlBackup!.isNotEmpty)
           ? elementHtmlBackup!
           : elementHtml ?? "";
+
+  bool get isHaveAudio => audioBookFiles != null && audioBookFiles!.isHaveAudio;
+
+  bool get isHaveSubtitles =>
+      audioBookFiles != null && audioBookFiles!.isHaveSubtitles;
 
   ImageProvider<Object> getDisplayThumbnail() {
     if (imageUrl != null) {

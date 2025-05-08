@@ -6,5 +6,9 @@ class AudioBookFiles {
 
   AudioBookFiles({required this.subtitleFiles, required this.audioFiles});
 
-  File get audioFile => audioFiles.first; // assume only one audio file
+  bool get isHaveAudio => audioFiles.isNotEmpty;
+  bool get isHaveSubtitles => subtitleFiles.isNotEmpty;
+
+  File? get audioFile =>
+      isHaveAudio ? audioFiles.first : null; // assume only one audio file
 }

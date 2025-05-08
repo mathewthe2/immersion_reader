@@ -5,6 +5,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
+import 'package:immersion_reader/data/reader/audio_book/audio_book_load_params.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_player_state.dart';
 import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitles_data.dart';
 import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitle.dart';
@@ -65,33 +66,36 @@ class AudioPlayerManager {
       AudioPlayerHandler().audioServiceHandler;
 
   // invoked when book is loaded
-  Future<void> loadAudioBookIfExists(
-      {int? bookId, int? playBackPositionInMs}) async {
+  // loads both audio files and subtitle files
+  Future<void> loadAudioBookIfExists(AudioBookLoadParams params) async {
     // remove existing audio book files
     broadcastOperation(AudioBookOperation.removeAudioFile);
     broadcastOperation(AudioBookOperation.removeSubtitleFile);
-    if (bookId != null &&
-        playBackPositionInMs != null &&
-        playBackPositionInMs > 0) {
+    if (params.bookId != null &&
+        params.playBackPositionInMs != null &&
+        params.playBackPositionInMs! > 0) {
       LoadingDialog().showLoadingDialog(msg: "Loading audiobok...");
 
       // fetch audiobook data
-      final audioBookFiles = await FolderUtils.getAudioBook(bookId);
+      final audioBookFiles = await FolderUtils.getAudioBook(params.bookId!);
       await Future.wait([
-        loadSubtitlesFromFiles(audioBookFiles: audioBookFiles, bookId: bookId),
+        loadSubtitlesFromFiles(
+            audioBookFiles: audioBookFiles, bookId: params.bookId!),
         loadAudioFromFiles(
             audioBookFiles: audioBookFiles,
-            bookId: bookId,
-            playBackPositionInMs: playBackPositionInMs),
+            bookId: params.bookId,
+            bookTitle: params.bookTitle,
+            playBackPositionInMs: params.playBackPositionInMs),
       ]);
 
       // set up manager with new data
-      currentBookId = bookId;
-      updatePlayerState(Duration(milliseconds: playBackPositionInMs));
+      currentBookId = params.bookId;
+      lastPlayBackPositionInMs = params.playBackPositionInMs!;
+      updatePlayerState(Duration(milliseconds: params.playBackPositionInMs!));
       initTimer();
       isRequireSearchSubtitle = true;
       await _insertSubtitleHighlight(
-          p: Duration(milliseconds: playBackPositionInMs));
+          p: Duration(milliseconds: params.playBackPositionInMs!));
       LoadingDialog().dismissLoadingDialog();
     }
   }
@@ -106,10 +110,12 @@ class AudioPlayerManager {
   Future<Metadata> setSourceFromDevice(
       {required AudioBookFiles audioBookFiles,
       required int bookId,
+      String? bookTitle,
       int? newPlaybackPosition}) async {
-    if (_cachedBookOperationData[bookId]?.metadata == null) {
+    if (_cachedBookOperationData[bookId]?.metadata == null &&
+        audioBookFiles.isHaveAudio) {
       final metadata =
-          await MetadataRetriever.fromFile(audioBookFiles.audioFile);
+          await MetadataRetriever.fromFile(audioBookFiles.audioFile!);
       _cachedOperationData(bookId).metadata = metadata;
       _cachedOperationData(bookId).audioBookFiles = audioBookFiles;
     }
@@ -122,15 +128,17 @@ class AudioPlayerManager {
     final imageUri =
         await FolderUtils().createImageUriFromBytes(cachedMetadata.albumArt!);
 
-    audioService.setSource(DeviceFileSource(audioBookFiles.audioFile.path),
-        customMediaItem: MediaItem(
-            id: cachedMetadata.trackName ?? "",
-            title: cachedMetadata.trackName ?? "",
-            artist: cachedMetadata.authorName ?? "",
-            duration: cachedMetadata.trackDuration != null
-                ? Duration(milliseconds: cachedMetadata.trackDuration!)
-                : null,
-            artUri: imageUri));
+    if (audioBookFiles.isHaveAudio) {
+      audioService.setSource(DeviceFileSource(audioBookFiles.audioFile!.path),
+          customMediaItem: MediaItem(
+              id: cachedMetadata.trackName ?? bookTitle ?? "",
+              title: cachedMetadata.trackName ?? bookTitle ?? "",
+              artist: cachedMetadata.authorName ?? bookTitle ?? "",
+              duration: cachedMetadata.trackDuration != null
+                  ? Duration(milliseconds: cachedMetadata.trackDuration!)
+                  : null,
+              artUri: imageUri));
+    }
 
     if (newPlaybackPosition != null) {
       playBackPositionInMs = newPlaybackPosition;
@@ -160,7 +168,8 @@ class AudioPlayerManager {
   }
 
   void disposeIfNotRunning() async {
-    if (audioService.playerState != PlayerState.playing) {
+    if (AudioPlayerHandler().isInitialized &&
+        audioService.playerState != PlayerState.playing) {
       _dispose();
     }
   }
@@ -268,11 +277,23 @@ class AudioPlayerManager {
     _positionController.add(currentState!);
   }
 
-  Future<AudioBookFiles> getAudioBook(int bookId) async {
-    if (!_cachedAudioBooks.containsKey(bookId)) {
-      _cachedAudioBooks[bookId] = await FolderUtils.getAudioBook(bookId);
+  Metadata? getAudioBookMetadata(int bookId) {
+    if (_cachedBookOperationData.containsKey(bookId)) {
+      return _cachedBookOperationData[bookId]!.metadata;
     }
-    return _cachedAudioBooks[bookId]!;
+    return null;
+  }
+
+  SubtitlesData getSubtitlesData(int bookId) {
+    if (_cachedBookOperationData.containsKey(bookId)) {
+      return _cachedBookOperationData[bookId]!.subtitlesData ??
+          SubtitlesData.empty;
+    }
+    return SubtitlesData.empty;
+  }
+
+  void onResetMatches() {
+    isRequireSearchSubtitle = true;
   }
 
   Future<void> loadSubtitlesFromFiles(
@@ -310,9 +331,9 @@ class AudioPlayerManager {
       {required AudioBookFiles audioBookFiles,
       required int? bookId,
       required int? playBackPositionInMs,
+      String? bookTitle,
       isRefetch = false}) async {
     if (bookId == null) return;
-
     // use cache
     if (!isRefetch &&
         bookId == currentBookId &&
@@ -327,6 +348,7 @@ class AudioPlayerManager {
         Metadata metadata = await setSourceFromDevice(
             audioBookFiles: audioBookFiles,
             bookId: bookId,
+            bookTitle: bookTitle,
             newPlaybackPosition: playBackPositionInMs);
 
         _cachedOperationData(bookId).metadata = metadata;

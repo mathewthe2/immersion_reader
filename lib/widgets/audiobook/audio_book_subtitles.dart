@@ -34,10 +34,9 @@ class AudioBookSubtitles extends StatefulWidget {
 class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
   late Book book;
   AudioBookFiles? audioBookFiles;
-  // List<Subtitle> subtitles = [];
   SubtitlesData subtitlesData =
       SubtitlesData(subtitles: [], indexToSubIndexMap: {});
-  bool isFetchingSubtitles = true;
+  bool isFetchingSubtitles = false;
   bool isScrolling = false;
   bool isPlaying = false;
 
@@ -156,20 +155,11 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
   }
 
   Future<void> initSubtitles(Book book) async {
-    if (book.id == null) return;
-    final audioBookFromStorage =
-        await AudioPlayerManager().getAudioBook(book.id!);
+    if (book.id == null && !book.isHaveSubtitles) return;
     setState(() {
-      audioBookFiles = audioBookFromStorage;
+      audioBookFiles = book.audioBookFiles;
+      subtitlesData = AudioPlayerManager().getSubtitlesData(book.id!);
     });
-    await Future.wait([
-      AudioPlayerManager().loadSubtitlesFromFiles(
-          audioBookFiles: audioBookFromStorage, bookId: book.id!),
-      AudioPlayerManager().loadAudioFromFiles(
-          audioBookFiles: audioBookFromStorage,
-          bookId: book.id,
-          playBackPositionInMs: book.playBackPositionInMs),
-    ]);
   }
 
   void scrollToSubtitle(int subtitleIndex) {

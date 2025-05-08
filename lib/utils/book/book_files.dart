@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_match_result.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/book_blob.dart';
 import 'package:immersion_reader/extensions/directory_extension.dart';
 import 'package:immersion_reader/extensions/file_extension.dart';
+import 'package:immersion_reader/utils/folder_utils.dart';
 import 'package:path_provider/path_provider.dart';
 
 class BookFiles {
@@ -94,6 +96,8 @@ class BookFiles {
     Directory dir = await _getBookMediaDirectory(book.id!.toString());
     List<Future> futures = [];
     List<BookBlob> bookBlobs = [];
+    List<File> subtitleFiles = [];
+    List<File> audioFiles = [];
     final files = dir.listSync();
     for (final file in files) {
       if (requiredFileNames != null && !requiredFileNames.contains(file.name)) {
@@ -116,6 +120,12 @@ class BookFiles {
           futures.add(File(file.path)
               .readAsString()
               .then((result) => book.coverImage = result));
+        default:
+          if (FolderUtils.subtitleExtensions.contains(file.ext)) {
+            subtitleFiles.add(File(file.path));
+          } else if (FolderUtils.audioExtensions.contains(file.ext)) {
+            audioFiles.add(File(file.path));
+          }
       }
     }
     Directory blobFolder = Directory('${dir.path}/blobs');
@@ -130,6 +140,8 @@ class BookFiles {
     }
     await Future.wait(futures);
     book.blobs = bookBlobs;
+    book.audioBookFiles =
+        AudioBookFiles(subtitleFiles: subtitleFiles, audioFiles: audioFiles);
     return book;
   }
 

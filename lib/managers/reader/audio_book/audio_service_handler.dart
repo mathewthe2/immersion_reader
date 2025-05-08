@@ -20,7 +20,9 @@ class AudioServiceHandler extends BaseAudioHandler
   }
 
   void dispose() {
-    _player.dispose();
+    if (playerState != PlayerState.disposed) {
+      _player.dispose();
+    }
   }
 
   Future<void> setSource(Source source, {MediaItem? customMediaItem}) async {

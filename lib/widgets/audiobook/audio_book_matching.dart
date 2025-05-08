@@ -11,6 +11,7 @@ import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/extensions/file_extension.dart';
 import 'package:immersion_reader/extensions/list_extension.dart';
 import 'package:immersion_reader/extensions/string_extension.dart';
+import 'package:immersion_reader/managers/reader/audio_book/audio_player_handler.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager.dart';
 import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
@@ -82,10 +83,16 @@ class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
     if (newFilePath != null) {
       AudioBookFiles? audioBook = await getAudioBook();
       if (audioBook != null) {
-        await AudioPlayerManager().loadAudioFromFiles(
-            audioBookFiles: audioBook,
-            bookId: book.id,
-            playBackPositionInMs: book.playBackPositionInMs);
+        Future<void> setupAudioPlayer() async {
+          await AudioPlayerHandler.setup();
+          await AudioPlayerManager().loadAudioFromFiles(
+              audioBookFiles: audioBook,
+              bookId: book.id,
+              playBackPositionInMs: book.playBackPositionInMs);
+        }
+
+        await Future.wait(
+            [BookManager().refreshCacheForBook(book.id!), setupAudioPlayer()]);
       }
     }
   }
@@ -144,16 +151,22 @@ class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
 
   Future<void> removeAudioFiles() async {
     if (book.id == null) return;
-    await FolderUtils.removeAudioFilesForBook(book.id!);
-    await BookManager()
-        .setBookPlayBackPositionInMs(bookId: book.id!, playBackPositionInMs: 0);
+    Future.wait([
+      FolderUtils.removeAudioFilesForBook(book.id!),
+      BookManager().setBookPlayBackPositionInMs(
+          bookId: book.id!, playBackPositionInMs: 0),
+    ]);
+
     if (audioBook != null) {
       setState(() {
         audioBook = AudioBookFiles(
             subtitleFiles: audioBook!.subtitleFiles, audioFiles: []);
       });
     }
-    AudioPlayerManager().removeAudioFromFiles();
+    Future.wait([
+      BookManager().refreshCacheForBook(book.id!),
+      AudioPlayerManager().removeAudioFromFiles(),
+    ]);
   }
 
   Future<void> onStartMatching() async {
@@ -216,6 +229,7 @@ class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
         BookFiles.restoreBookContentHtmlFromBackup(book.id!),
         resetSubtitles()
       ]);
+      AudioPlayerManager().onResetMatches();
       await BookManager().refreshCacheForBook(book.id!);
       await ReaderJsManager().reloadReader();
       if (audioBook == null) {

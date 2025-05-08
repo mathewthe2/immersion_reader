@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:immersion_reader/data/reader/audio_book/audio_book_load_params.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_lookup_subtitle.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/book_bookmark.dart';
@@ -137,9 +138,16 @@ class ReaderJsManager {
         callback: (args) async {
           final bookId = args.first["bookId"];
           final playBackPositionInMs = args.first["playBackPositionInMs"];
-          await AudioPlayerHandler.setup();
-          AudioPlayerManager().loadAudioBookIfExists(
-              bookId: bookId, playBackPositionInMs: playBackPositionInMs);
+          Book? book = await BookManager().getBookById(bookId);
+          if (book?.audioBookFiles != null &&
+              book!.audioBookFiles!.isHaveAudio) {
+            await AudioPlayerHandler.setup();
+            await AudioPlayerManager().loadAudioBookIfExists(
+                AudioBookLoadParams(
+                    bookId: book.id,
+                    bookTitle: book.title,
+                    playBackPositionInMs: playBackPositionInMs));
+          }
         });
     webController.addJavaScriptHandler(
         handlerName: 'launchImmersionReader',
@@ -237,7 +245,6 @@ class ReaderJsManager {
 
   void onExitReader() {
     isReaderActive = false;
-    webController.dispose();
     AudioPlayerManager().disposeIfNotRunning();
   }
 
