@@ -36,7 +36,6 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
   AudioBookFiles? audioBookFiles;
   SubtitlesData subtitlesData =
       SubtitlesData(subtitles: [], indexToSubIndexMap: {});
-  bool isFetchingSubtitles = false;
   bool isScrolling = false;
   bool isPlaying = false;
 
@@ -160,6 +159,28 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
       audioBookFiles = book.audioBookFiles;
       subtitlesData = AudioPlayerManager().getSubtitlesData(book.id!);
     });
+    scrollToInitialSubtitleIfExists();
+  }
+
+  void scrollToInitialSubtitleIfExists() {
+    if (isScrollToInitialSubtitle && widget.lookupSubtitleId != null) {
+      // subtitles data in state have to be first rendered before we could scroll
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        final subtitleIndex =
+            getRelativeSubtitleIndex(widget.lookupSubtitleId!);
+        if (subtitleIndex != null) {
+          late Timer jumpToSubtitleTimer;
+          jumpToSubtitleTimer = Timer(Duration(milliseconds: 100), () {
+            if (itemScrollController.isAttached) {
+              itemScrollController.jumpTo(index: subtitleIndex);
+              jumpToSubtitleTimer.cancel();
+            }
+          });
+        }
+
+        initialSubtitleIndex = subtitleIndex;
+      });
+    }
   }
 
   void scrollToSubtitle(int subtitleIndex) {
@@ -213,32 +234,13 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
             setState(() {
               subtitlesData = operation.subtitlesData!;
               currentSubtitleIndex = operation.currentSubtitleIndex;
-              isFetchingSubtitles = false;
             });
-            if (isScrollToInitialSubtitle && widget.lookupSubtitleId != null) {
-              SchedulerBinding.instance.addPostFrameCallback((_) {
-                final subtitleIndex =
-                    getRelativeSubtitleIndex(widget.lookupSubtitleId!);
-                if (subtitleIndex != null) {
-                  late Timer jumpToSubtitleTimer;
-                  jumpToSubtitleTimer = Timer(Duration(milliseconds: 100), () {
-                    if (itemScrollController.isAttached) {
-                      itemScrollController.jumpTo(index: subtitleIndex);
-                      jumpToSubtitleTimer.cancel();
-                    }
-                  });
-                }
-
-                initialSubtitleIndex = subtitleIndex;
-              });
-            }
           }
           break;
         case AudioBookOperationType.removeSubtitleFile:
           setState(() {
             subtitlesData.reset();
             currentSubtitleIndex = null;
-            isFetchingSubtitles = false;
           });
           break;
         default:
@@ -266,9 +268,6 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
             color: Color(0xffffe694), darkColor: Color(0xff254d4c)),
         context);
 
-    if (isFetchingSubtitles) {
-      return Container();
-    }
     if (subtitlesData.subtitles.isEmpty) {
       return Center(child: AppText("No subtitles"));
     }
@@ -283,7 +282,7 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
                     children: [PlaybackSpeedPicker()])),
             Expanded(
                 child: Padding(
-                    padding: context.verticalPadding(),
+                    padding: context.horizontalPadding(),
                     child: list(subtitles: subtitlesData.subtitles))),
           ],
         ));
