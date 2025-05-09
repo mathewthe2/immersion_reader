@@ -40,6 +40,7 @@ class ReaderJsManager {
   AudioLookupSubtitle? lastLookupSubtitleData;
   VoidCallback? exitCallback;
   bool hasShownAddedDialog = false;
+  late bool isReaderResized;
   late bool isReaderActive;
 
   void setupController() {
@@ -135,10 +136,16 @@ class ReaderJsManager {
           }
         });
     webController.addJavaScriptHandler(
+        handlerName: "onReaderResize",
+        callback: (_) {
+          isReaderResized = true;
+        });
+    webController.addJavaScriptHandler(
         handlerName: 'onReaderReady', // called when a book is opened and ready
         callback: (args) async {
           final bookId = args.first["bookId"];
           final playBackPositionInMs = args.first["playBackPositionInMs"];
+          isReaderResized = false;
           Book? book = await BookManager().getBookById(bookId);
           if (book?.audioBookFiles != null &&
               book!.audioBookFiles!.isHaveAudio) {

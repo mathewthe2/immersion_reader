@@ -43,6 +43,7 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
 
   int? initialSubtitleIndex;
   bool isScrollToInitialSubtitle = false;
+  bool isHighlightInitialSubtitle = true;
   int? currentSubtitleIndex;
 
   bool isScrollAnimation = Platform.isIOS;
@@ -91,13 +92,15 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
         (suffix, TextStyle(color: textColor, fontSize: subtitleFontSize)),
       ]);
     }
-    final isDimmed = (initialSubtitleIndex != index) &&
-        (!isPlaying || currentSubtitleIndex != index);
+
+    final isHighlightedSubtitle =
+        (initialSubtitleIndex == index && isHighlightInitialSubtitle) ||
+            (isPlaying && currentSubtitleIndex == index);
     return MultiStyleText([
       (
         subtitle.text,
         TextStyle(
-            color: isDimmed ? dimmedTextColor : textColor,
+            color: isHighlightedSubtitle ? textColor : dimmedTextColor,
             fontSize: subtitleFontSize)
       )
     ]);
@@ -110,6 +113,7 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
             child: GestureDetector(
                 onTap: () async {
                   isScrollToInitialSubtitle = false;
+                  isHighlightInitialSubtitle = false;
                   if (index != initialSubtitleIndex) {
                     initialSubtitleIndex = null; // reset initial subtitle
                   }
@@ -163,24 +167,24 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
   }
 
   void scrollToInitialSubtitleIfExists() {
-    if (isScrollToInitialSubtitle && widget.lookupSubtitleId != null) {
-      // subtitles data in state have to be first rendered before we could scroll
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        final subtitleIndex =
-            getRelativeSubtitleIndex(widget.lookupSubtitleId!);
-        if (subtitleIndex != null) {
-          late Timer jumpToSubtitleTimer;
-          jumpToSubtitleTimer = Timer(Duration(milliseconds: 100), () {
-            if (itemScrollController.isAttached) {
-              itemScrollController.jumpTo(index: subtitleIndex);
-              jumpToSubtitleTimer.cancel();
-            }
-          });
-        }
+    initialSubtitleIndex = AudioPlayerManager().currentSubtitleIndex;
 
-        initialSubtitleIndex = subtitleIndex;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      final bool isHaveLookupFromSubtitle = isScrollToInitialSubtitle &&
+          widget.lookupSubtitleId != null &&
+          getRelativeSubtitleIndex(widget.lookupSubtitleId!) != null;
+      if (isHaveLookupFromSubtitle) {
+        initialSubtitleIndex =
+            getRelativeSubtitleIndex(widget.lookupSubtitleId!)!;
+      }
+      late Timer jumpToSubtitleTimer;
+      jumpToSubtitleTimer = Timer(Duration(milliseconds: 100), () {
+        if (itemScrollController.isAttached) {
+          itemScrollController.jumpTo(index: initialSubtitleIndex!);
+          jumpToSubtitleTimer.cancel();
+        }
       });
-    }
+    });
   }
 
   void scrollToSubtitle(int subtitleIndex) {
@@ -201,9 +205,6 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
             isScrolling = false;
           });
         });
-      } else {
-        // on android, skip scroll animation
-        itemScrollController.jumpTo(index: subtitleIndex);
       }
     }
   }
@@ -218,6 +219,7 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
           isPlaying = playerState.playerState == PlayerState.playing;
         });
         if (AudioPlayerManager().isAutoPlay) {
+          isHighlightInitialSubtitle = false;
           scrollToSubtitle(playerState.currentSubtitleIndex);
         }
       }

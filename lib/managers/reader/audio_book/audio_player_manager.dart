@@ -15,6 +15,7 @@ import 'package:immersion_reader/managers/reader/audio_book/audio_service_handle
 import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/utils/common/loading_dialog.dart';
+import 'package:immersion_reader/utils/common/repeat_timer.dart';
 import 'package:immersion_reader/utils/folder_utils.dart';
 import 'package:immersion_reader/utils/reader/highlight_js.dart';
 
@@ -39,6 +40,7 @@ class AudioPlayerManager {
   bool isRequireSearchSubtitle = true;
   bool isAutoPlay = true;
   Duration? playerEndDuration;
+  bool isHighlightedInitialSubtitle = false;
 
   final Map<int, AudioBookOperation> _cachedBookOperationData = {};
   final Map<int, AudioBookFiles> _cachedAudioBooks =
@@ -71,6 +73,9 @@ class AudioPlayerManager {
     // remove existing audio book files
     broadcastOperation(AudioBookOperation.removeAudioFile);
     broadcastOperation(AudioBookOperation.removeSubtitleFile);
+
+    isHighlightedInitialSubtitle = false;
+
     if (params.bookId != null && params.playBackPositionInMs != null) {
       LoadingDialog().showLoadingDialog(msg: "Loading audiobok...");
 
@@ -92,9 +97,22 @@ class AudioPlayerManager {
       updatePlayerState(Duration(milliseconds: params.playBackPositionInMs!));
       initTimer();
       isRequireSearchSubtitle = true;
-      await _insertSubtitleHighlight(
-          p: Duration(milliseconds: params.playBackPositionInMs!));
-      LoadingDialog().dismissLoadingDialog();
+      // wait for reader to resize before inserting initial subtitle
+      repeatTimer(
+          frequency: Duration(milliseconds: 100),
+          timeout: Duration(seconds: 2),
+          fireOnce: true,
+          callback: (timer) async {
+            if (ReaderJsManager().isReaderResized) {
+              await _insertSubtitleHighlight(
+                  p: Duration(milliseconds: params.playBackPositionInMs!),
+                  isCueToElement:
+                      false); // bookmarks are more accurate than subtitles, so we don't have to cue intially
+              isHighlightedInitialSubtitle = true;
+              LoadingDialog().dismissLoadingDialog();
+            }
+          },
+          timeoutCallback: () => LoadingDialog().dismissLoadingDialog());
     }
   }
 
@@ -250,7 +268,9 @@ class AudioPlayerManager {
       }
       updatePlayerState(p);
       playBackPositionInMs = p.inMilliseconds;
-      await _insertSubtitleHighlight(p: p);
+      if (isHighlightedInitialSubtitle) {
+        await _insertSubtitleHighlight(p: p);
+      }
     });
   }
 

@@ -159,7 +159,6 @@
   const destroy$ = new Subject<void>();
 
   $: bookmarkData.then((data) => {
-    // useExploredCharCount = false;
     exploredCharCountAdjustedToBookmark = false;
     updateBookmarkScreen(data);
   });
@@ -470,6 +469,18 @@
     }
   }
 
+  // triggered on resize
+  function sendResizeUpdateToImmersionReader() {
+    if (window.flutter_inappwebview != null) {
+      requestAnimationFrame(() => {
+        window.flutter_inappwebview?.callHandler('onReaderResize', {
+          bookId: rawBookData.id,
+          playBackPositionInMs: rawBookData.playBackPositionInMs
+        });
+      });
+    }
+  }
+
   function onContentDisplayChange(_calculator: SectionCharacterStatsCalculator) {
     _calculator.updateParagraphPos();
     exploredCharCount = _calculator.calcExploredCharCount(customReadingPointRange);
@@ -484,6 +495,7 @@
       });
     } else if (!wasResized) {
       bookmarkData.then(updateBookmarkScreen);
+      sendResizeUpdateToImmersionReader();
     }
     allowDisplay = true;
   }
