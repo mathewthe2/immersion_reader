@@ -34,6 +34,12 @@
   import { BookmarkManagerPaginated } from './bookmark-manager-paginated';
   import { getExternalTargetElement } from '$lib/functions/utils';
   import { SECTION_CHANGE } from '$lib/data/events';
+  import {
+    tapToSelect,
+    highlightLast,
+    removeHighlight,
+    addTouchEvents
+  } from '$lib/functions/immersion-reader/tap-to-select';
 
   export let rawBookData: BooksDbBookData;
 
@@ -242,6 +248,7 @@
 
   onMount(() => {
     document.addEventListener('ttu-action', handleAction, false);
+    addTouchEvents();
   });
 
   async function handleAction({ detail }: any) {
@@ -288,6 +295,14 @@
 
     if (detail.type === 'disableSwipe') {
       isEnableSwipe = false;
+    }
+
+    if (detail.type == 'highlightLast') {
+      highlightLast(detail.initialOffset, detail.textLength);
+    }
+
+    if (detail.type == 'removeHighlight') {
+      removeHighlight();
     }
   }
 
@@ -586,6 +601,10 @@
     concretePageManager.flipPage(nextPage ? 1 : -1);
   }
 
+  function onMousedown(e: any) {
+    tapToSelect(e);
+  }
+
   function onKeydown(ev: KeyboardEvent) {
     if (!concretePageManager || $tocIsOpen$) return;
     switch (ev.code) {
@@ -657,6 +676,7 @@
   class="book-content m-auto"
   use:swipe={{ timeframe: 500, minSwipeDistance: 10, touchAction: 'pan-y' }}
   on:swipe={onSwipe}
+  on:mousedown={onMousedown}
 >
   <div class="book-content-container" id={currentSectionId || null} bind:this={contentEl}>
     <HtmlRenderer html={displayedHtml} on:load={onHtmlLoad} />

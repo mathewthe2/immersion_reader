@@ -7,7 +7,7 @@ import 'package:immersion_reader/utils/system_ui.dart';
 import 'package:immersion_reader/widgets/audiobook/controls/bottom_playback_controls.dart';
 import 'package:local_assets_server/local_assets_server.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import '../../utils/reader/reader_js.dart';
+import 'package:star_menu/star_menu.dart';
 
 class Reader extends StatefulWidget {
   final String? initialUrl;
@@ -27,6 +27,7 @@ class Reader extends StatefulWidget {
 class _ReaderState extends State<Reader> {
   InAppWebViewController? webViewController;
   ProfileContent? currentProfileContent;
+  StarMenuController starMenuController = StarMenuController();
 
   void createPopupDictionary() {
     ReaderJsManager().setExitCallback(() => Navigator.of(context).pop());
@@ -87,7 +88,9 @@ class _ReaderState extends State<Reader> {
                           ),
                         ),
                         onWebViewCreated: (controller) {
-                          ReaderJsManager.create(webController: controller);
+                          ReaderJsManager.create(
+                              webController: controller,
+                              starMenuController: starMenuController);
                           webViewController = controller;
                         },
                         onLoadStop: (controller, uri) async {
@@ -105,7 +108,6 @@ class _ReaderState extends State<Reader> {
                               '${errorResponse.statusCode}:${errorResponse.data}');
                         },
                         onTitleChanged: (controller, title) async {
-                          await controller.evaluateJavascript(source: readerJs);
                           if (widget.isAddBook &&
                               !ReaderJsManager().hasShownAddedDialog) {
                             await controller.evaluateJavascript(
@@ -117,7 +119,19 @@ class _ReaderState extends State<Reader> {
                               "reader stuff: ${message.message}"); // for debug
                         },
                       )),
-                      BottomPlaybackControls(backgroundColor: snapshot.data!)
+                      BottomPlaybackControls(backgroundColor: snapshot.data!),
+                      // Container(
+                      //     key: containerKey,
+                      //     child: StarMenu(
+                      //       params: StarMenuParameters(useTouchAsCenter: true),
+                      //       controller: starMenuController,
+                      //       items: [
+                      //         Text("Search",
+                      //             style:
+                      //                 TextStyle(color: CupertinoColors.white))
+                      //       ],
+                      //       parentContext: containerKey.currentContext,
+                      //     ))
                     ])));
               } else {
                 return Container();

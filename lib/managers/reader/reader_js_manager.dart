@@ -16,9 +16,11 @@ import 'package:immersion_reader/utils/reader/highlight_js.dart';
 import 'package:immersion_reader/widgets/audiobook/audio_book_dialog.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/dialog/popup_dictionary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:star_menu/star_menu.dart';
 
 class ReaderJsManager {
   late InAppWebViewController webController;
+  StarMenuController? starMenuController;
   StreamController<int> matchProgressController =
       StreamController<int>.broadcast();
 
@@ -26,8 +28,10 @@ class ReaderJsManager {
   ReaderJsManager._internal();
 
   factory ReaderJsManager.create(
-      {required InAppWebViewController webController}) {
+      {required InAppWebViewController webController,
+      StarMenuController? starMenuController}) {
     _singleton.webController = webController;
+    _singleton.starMenuController = starMenuController;
     _singleton.setupController();
     _singleton.isReaderActive = true;
     return _singleton;
@@ -62,6 +66,11 @@ class ReaderJsManager {
               subtitleId: lastLookupSubtitleData?.subtitleId,
               characterIndex: index,
               onDismiss: ReaderJsManager().focusReader);
+        });
+    webController.addJavaScriptHandler(
+        handlerName: 'onTapCanvas',
+        callback: (_) {
+          // starMenuController?.openMenu!();
         });
     webController.addJavaScriptHandler(
         handlerName: 'getBooks',
@@ -251,8 +260,17 @@ class ReaderJsManager {
 
   Future<void> highlightLastSelected(
       {required int initialOffset, required int textLength}) async {
-    await webController.evaluateJavascript(
-        source: "highlightLast($initialOffset, $textLength)");
+    await webController.evaluateJavascript(source: """
+      document.dispatchEvent(
+        new CustomEvent('ttu-action', {
+          detail: {
+            type: 'highlightLast',
+            initialOffset: $initialOffset,
+            textLength: $textLength,
+          },
+        }),
+		);
+    """);
   }
 
   void setLastSubtitleTextLength(int textLength) {
@@ -260,7 +278,15 @@ class ReaderJsManager {
   }
 
   Future<void> removeHighlight() async {
-    await webController.evaluateJavascript(source: "removeHighlight()");
+    await webController.evaluateJavascript(source: """
+      document.dispatchEvent(
+        new CustomEvent('ttu-action', {
+          detail: {
+            type: 'removeHighlight',
+          },
+        }),
+		);
+    """);
   }
 
   void onExitReader() {
