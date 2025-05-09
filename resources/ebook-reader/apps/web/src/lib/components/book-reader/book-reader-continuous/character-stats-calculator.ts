@@ -4,10 +4,16 @@
  * All rights reserved.
  */
 
-import { binarySearchNodeInRange, binarySearchNoNegative } from '$lib/functions/binary-search';
+import {
+  binarySearch,
+  binarySearchNoNegative,
+  binarySearchNodeInRange
+} from '$lib/functions/binary-search';
+
 import { formatPos } from '$lib/functions/format-pos';
 import { getCharacterCount } from '$lib/functions/get-character-count';
-import { getParagraphNodes } from '../get-paragraph-nodes';
+import { getNodeBoundingRect } from '$lib/functions/range-util';
+import { getParagraphNodes } from '$lib/components/book-reader/get-paragraph-nodes';
 
 export class CharacterStatsCalculator {
   readonly charCount: number;
@@ -59,7 +65,7 @@ export class CharacterStatsCalculator {
     for (let i = 0; i < this.paragraphs.length; i += 1) {
       const node = this.paragraphs[i];
 
-      const nodeRect = this.getNodeBoundingRect(node);
+      const nodeRect = getNodeBoundingRect(this.document, node);
 
       const getParagraphPos = () => {
         const paragraphSize = this.verticalMode ? nodeRect.width : nodeRect.height;
@@ -98,9 +104,33 @@ export class CharacterStatsCalculator {
     return this.paragraphPosToAccCharCount.get(this.paragraphPos[index]) || 0;
   }
 
+  getBookMarkPosForSection(startCount: number, charCount: number) {
+    const index = Math.max(0, binarySearch(this.accumulatedCharCount, charCount - startCount));
+
+    let finalIndex = index;
+    let bookmarkPos = this.processSectionBookmarkIteration(index, startCount, charCount);
+
+    if (!bookmarkPos) {
+      for (let i = index + 1, { length } = this.accumulatedCharCount; i < length; i += 1) {
+        bookmarkPos = this.processSectionBookmarkIteration(i, startCount, charCount);
+
+        if (bookmarkPos) {
+          finalIndex = i;
+          break;
+        }
+      }
+    }
+
+    return {
+      bookmarkPos,
+      node: bookmarkPos ? this.paragraphs[finalIndex] : undefined,
+      isFirstNode: finalIndex === 0
+    };
+  }
+
   getScrollPosByCharCount(charCount: number) {
     const index = binarySearchNoNegative(this.accumulatedCharCount, charCount);
-    return formatPos(this.paragraphPos[index], this.direction);
+    return formatPos(this.paragraphPos[index], this.direction) || 0;
   }
 
   getCharCountToPoint(customReadingPoint: Range) {
@@ -108,10 +138,24 @@ export class CharacterStatsCalculator {
     return this.accumulatedCharCount[index - 1] || 0;
   }
 
-  getNodeBoundingRect(node: Node) {
-    const range = this.document.createRange();
-    range.selectNode(node);
-    return range.getBoundingClientRect();
+  private processSectionBookmarkIteration(index: number, startCount: number, charCount: number) {
+    const currentCharSum = this.accumulatedCharCount[index] + startCount;
+
+    let bookmarkPos;
+
+    if (currentCharSum > charCount) {
+      let container = this.paragraphs[index];
+
+      if (container.parentElement) {
+        container = container.parentElement.closest('p') || container.parentElement;
+      }
+
+      const { top, right, left } = getNodeBoundingRect(this.document, container);
+
+      bookmarkPos = this.axis === 'horizontal' ? { left: right } : { top, left };
+    }
+
+    return bookmarkPos;
   }
 
   private get scrollPos() {
