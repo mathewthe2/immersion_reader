@@ -59,22 +59,28 @@ class _ReaderState extends State<Reader> {
     super.dispose();
   }
 
+  Widget roundIconButton(
+      {required Function onPressed, required IconData iconData}) {
+    return ElevatedButton(
+      onPressed: () => onPressed(),
+      style: ElevatedButton.styleFrom(
+        iconSize: 10,
+        shape: CircleBorder(),
+        backgroundColor: Colors.blue, // <-- Button color
+        foregroundColor: Colors.red, // <-- Splash color
+      ),
+      child: Icon(iconData, color: Colors.white, size: 20),
+    );
+  }
+
   Widget menu(int index) {
     return ValueListenableBuilder(
         valueListenable: ReaderJsManager().isTappedCanvasNotifyList[index],
         builder: (context, val, child) {
           if (val != null && val) {
             ReaderJsManager().isTappedCanvasNotifyList[index].value = false;
-            return ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                iconSize: 10,
-                shape: CircleBorder(),
-                backgroundColor: Colors.blue, // <-- Button color
-                foregroundColor: Colors.red, // <-- Splash color
-              ),
-              child: Icon(CupertinoIcons.search, color: Colors.white, size: 20),
-            );
+            return roundIconButton(
+                onPressed: () {}, iconData: CupertinoIcons.search);
           }
           return Visibility(
             visible: false,

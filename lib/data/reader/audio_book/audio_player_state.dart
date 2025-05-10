@@ -20,4 +20,6 @@ class AudioPlayerState {
     }
     return currentPosition.inMilliseconds / totalTime;
   }
+
+  bool get isPlaying => playerState == PlayerState.playing;
 }

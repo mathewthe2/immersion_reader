@@ -70,6 +70,8 @@ class AudioPlayerManager {
   AudioServiceHandler get audioService =>
       AudioPlayerHandler().audioServiceHandler;
 
+  bool get isPlaying => currentState?.isPlaying ?? false;
+
   // invoked when book is loaded
   // loads both audio files and subtitle files
   Future<void> loadAudioBookIfExists(AudioBookLoadParams params) async {
@@ -374,6 +376,7 @@ class AudioPlayerManager {
         _cachedBookOperationData[bookId]!.audioBookFiles != null) {
       broadcastOperation(AudioBookOperation.addAudioFile(
           metadata: _cachedBookOperationData[bookId]!.metadata!,
+          bookId: bookId,
           bookTitle: bookTitle,
           audioBookFiles: _cachedBookOperationData[bookId]!.audioBookFiles!));
     } else {

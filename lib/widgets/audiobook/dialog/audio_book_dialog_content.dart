@@ -40,8 +40,6 @@ class _AudioBookDialogContentState extends SafeState<AudioBookDialogContent> {
   static const String tabPreferenceKey = 'audio_book_dialog_tab';
 
   late Book book;
-  bool isFetchingAudioBook = false;
-  bool isPlaying = false;
   AudioBookFiles? audioBookFiles;
   Metadata? audioFileMetadata;
   SubtitlesData? subtitlesData;
@@ -65,20 +63,6 @@ class _AudioBookDialogContentState extends SafeState<AudioBookDialogContent> {
       audioFileMetadata = updatedBook.audioFileMetadata;
       subtitlesData = updatedBook.subtitlesData;
     });
-  }
-
-  // get existing audio files if exist
-  Future<AudioBookFiles?> getAudioBook() async {
-    if (book.id == null) return null;
-    setState(() {
-      isFetchingAudioBook = true;
-    });
-    final newAudioBook = await FolderUtils.getAudioBook(book.id!);
-    setState(() {
-      audioBookFiles = newAudioBook;
-      isFetchingAudioBook = false;
-    });
-    return newAudioBook;
   }
 
   void listenToBookOperations() {
@@ -169,7 +153,6 @@ class _AudioBookDialogContentState extends SafeState<AudioBookDialogContent> {
                           book: book,
                           audioBookFiles: audioBookFiles,
                           audioFileMetadata: audioFileMetadata,
-                          isPlaying: isPlaying,
                         );
                       case 2:
                         return AudioBookSubtitles(

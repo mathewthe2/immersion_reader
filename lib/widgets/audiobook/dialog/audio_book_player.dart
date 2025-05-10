@@ -16,13 +16,11 @@ class AudioBookPlayer extends StatefulWidget {
   final Book book;
   final AudioBookFiles? audioBookFiles;
   final Metadata? audioFileMetadata;
-  final bool isPlaying;
   const AudioBookPlayer(
       {super.key,
       required this.book,
       this.audioBookFiles,
-      this.audioFileMetadata,
-      required this.isPlaying});
+      this.audioFileMetadata});
 
   @override
   State<AudioBookPlayer> createState() => _AudioBookPlayerState();
@@ -39,7 +37,7 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
   @override
   void initState() {
     super.initState();
-    isPlaying = widget.isPlaying;
+    isPlaying = AudioPlayerManager().isPlaying;
   }
 
   Widget _buildTimeDisplay(AudioPlayerState? playerState) {
