@@ -6,6 +6,7 @@ extension ContextExtension on BuildContext {
   double spacer() => screenHeight * 0.02;
   double whitespace() => screenHeight * 0.05;
   double bar() => screenHeight * 0.1;
+  double arc() => screenHeight * 0.12;
   double epic() => screenHeight * 0.2;
   double hero() => screenHeight * 0.4;
   double popup() => screenHeight * 0.6;

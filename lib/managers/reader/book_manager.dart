@@ -1,4 +1,7 @@
+import 'package:flutter_media_metadata/flutter_media_metadata.dart';
+import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_match_result.dart';
+import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitles_data.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/book_bookmark.dart';
 import 'package:immersion_reader/data/reader/book_section.dart';
@@ -137,6 +140,27 @@ class BookManager {
     if (_cachedBooksBasicInfo.containsKey(bookId)) {
       _cachedBooksBasicInfo[bookId]!.playBackPositionInMs =
           playBackPositionInMs;
+    }
+  }
+
+  void cacheBookAudioData(
+      {required int bookId,
+      AudioBookFiles? audioBookFiles,
+      Metadata? audioFileMetadata}) {
+    if (_cachedBooks.containsKey(bookId)) {
+      _cachedBooks[bookId]!.audioBookFiles = audioBookFiles;
+      _cachedBooks[bookId]!.audioFileMetadata = audioFileMetadata;
+    }
+  }
+
+  void cacheBookSubtitleData(
+      {required int bookId,
+      AudioBookFiles? audioBookFiles,
+      SubtitlesData? subtitlesData}) {
+    if (_cachedBooks.containsKey(bookId)) {
+      _cachedBooks[bookId]!.subtitlesData = subtitlesData;
+      _cachedBooks[bookId]!.audioBookFiles =
+          audioBookFiles; // audiobookfiles contain subtitle files
     }
   }
 
@@ -324,9 +348,15 @@ class BookManager {
     return false;
   }
 
-  // does not refresh basic info
-  Future<void> refreshCacheForBook(int bookId) async {
-    _cachedBooks.remove(bookId);
-    await getBookById(bookId);
+  Future<void> removeAudioBookMatchesCache(int bookId) async {
+    _cachedBooks[bookId]?.clearMatchesData();
+  }
+
+  Future<void> removeBookAudioCache(int bookId) async {
+    _cachedBooks[bookId]?.clearAudioData();
+  }
+
+  Future<void> removeBookSubtitlesCache(int bookId) async {
+    _cachedBooks[bookId]?.clearSubtitlesData();
   }
 }

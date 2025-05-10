@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
@@ -9,8 +6,6 @@ import 'package:immersion_reader/data/reader/audio_book/audio_player_state.dart'
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/extensions/duration_extension.dart';
-import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation.dart';
-import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation_type.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager.dart';
 import 'package:immersion_reader/widgets/audiobook/controls/playback_speed_picker.dart';
 import 'package:immersion_reader/widgets/common/safe_state.dart';
@@ -19,20 +14,24 @@ import 'package:transparent_image/transparent_image.dart';
 
 class AudioBookPlayer extends StatefulWidget {
   final Book book;
-  const AudioBookPlayer({super.key, required this.book});
+  final AudioBookFiles? audioBookFiles;
+  final Metadata? audioFileMetadata;
+  final bool isPlaying;
+  const AudioBookPlayer(
+      {super.key,
+      required this.book,
+      this.audioBookFiles,
+      this.audioFileMetadata,
+      required this.isPlaying});
 
   @override
   State<AudioBookPlayer> createState() => _AudioBookPlayerState();
 }
 
 class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
-  late Book book;
-  AudioBookFiles? audioBookFiles;
-  Metadata? audioFileMetadata;
   int currentSubtitleIndex = 0;
   double sliderValue = 0;
-  bool isFetchingAudioBook = false;
-  bool isPlaying = false;
+  late bool isPlaying;
 
   static const int fastForwardSeconds = 10;
   static const int rewindSeconds = 10;
@@ -40,56 +39,7 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
   @override
   void initState() {
     super.initState();
-    book = widget.book;
-    initAudioBook(book);
-    listenToBookIsPlaying();
-    listenToBookOperations();
-  }
-
-  Future<void> initAudioBook(Book book) async {
-    if (book.id == null || !book.isHaveAudio) return;
-    var metadata = AudioPlayerManager().getAudioBookMetadata(book.id!);
-    setState(() {
-      audioFileMetadata = metadata;
-      audioBookFiles = book.audioBookFiles;
-    });
-  }
-
-  void listenToBookIsPlaying() {
-    AudioPlayerManager()
-        .onPositionChanged
-        .listen((AudioPlayerState playerState) {
-      setState(() {
-        isPlaying = (playerState.playerState == PlayerState.playing);
-      });
-    });
-  }
-
-  void listenToBookOperations() {
-    AudioPlayerManager()
-        .onBookOperation
-        .listen((AudioBookOperation operation) async {
-      switch (operation.type) {
-        case AudioBookOperationType.addAudioFile:
-          if (operation.metadata != null) {
-            setState(() {
-              audioBookFiles = operation.audioBookFiles;
-              audioFileMetadata = operation.metadata;
-            });
-          }
-          break;
-        case AudioBookOperationType.addSubtitleFile:
-          break;
-        case AudioBookOperationType.removeAudioFile:
-          setState(() {
-            audioBookFiles = null;
-            audioFileMetadata = null;
-          });
-          break;
-        default:
-          break;
-      }
-    });
+    isPlaying = widget.isPlaying;
   }
 
   Widget _buildTimeDisplay(AudioPlayerState? playerState) {
@@ -141,10 +91,8 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    if (isFetchingAudioBook) {
-      return Container();
-    }
-    if (audioBookFiles == null || audioBookFiles!.audioFiles.isEmpty) {
+    if (widget.audioBookFiles == null ||
+        widget.audioBookFiles!.audioFiles.isEmpty) {
       return Center(child: AppText("No audio file selected"));
     }
     Color controlColor = context.color(
@@ -157,12 +105,12 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
       SizedBox(height: context.whitespace()),
       SizedBox(
           height: context.epic(),
-          child: Image.memory(audioFileMetadata?.albumArt != null
-              ? audioFileMetadata!.albumArt!
+          child: Image.memory(widget.audioFileMetadata?.albumArt != null
+              ? widget.audioFileMetadata!.albumArt!
               : kTransparentImage)),
       SizedBox(height: context.spacer()),
-      AppText(audioFileMetadata?.trackName ??
-          book.title), // TODO: for long text, animate left displacement
+      AppText(widget.audioFileMetadata?.trackName ??
+          widget.book.title), // TODO: for long text, animate left displacement
       SizedBox(height: context.spacer()),
       SliderTheme(
           data: SliderThemeData(
@@ -191,7 +139,8 @@ class _AudioBookPlayerState extends SafeState<AudioBookPlayer> {
               }
             }),
       ),
-      if (audioBookFiles != null && audioBookFiles!.audioFiles.isNotEmpty)
+      if (widget.audioBookFiles != null &&
+          widget.audioBookFiles!.audioFiles.isNotEmpty)
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

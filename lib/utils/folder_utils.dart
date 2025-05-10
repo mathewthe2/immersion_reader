@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
 import 'package:immersion_reader/extensions/file_extension.dart';
+import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -74,11 +75,13 @@ class FolderUtils {
   static Future<void> removeSubtitleFilesForBook(int bookId) async {
     _removeFilesForBookWithExtension(
         bookId: bookId, extensions: subtitleExtensions);
+    BookManager().removeBookSubtitlesCache(bookId);
   }
 
   static Future<void> removeAudioFilesForBook(int bookId) async {
     _removeFilesForBookWithExtension(
         bookId: bookId, extensions: audioExtensions);
+    BookManager().removeBookAudioCache(bookId);
   }
 
   static Future<String> saveToBookFolder(

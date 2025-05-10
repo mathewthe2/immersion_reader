@@ -49,9 +49,11 @@ class AudioBookOperation {
 
   static AudioBookOperation addSubtitleFile(
           {required SubtitlesData subtitlesData,
-          required int currentSubtitleIndex}) =>
+          required int currentSubtitleIndex,
+          AudioBookFiles? audioBookFiles}) =>
       AudioBookOperation(
           type: AudioBookOperationType.addSubtitleFile,
+          audioBookFiles: audioBookFiles,
           subtitlesData: subtitlesData,
           currentSubtitleIndex: currentSubtitleIndex);
 

@@ -4,15 +4,12 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_lookup_subtitle.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_player_state.dart';
 import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitles_data.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitle.dart';
 import 'package:immersion_reader/extensions/context_extension.dart';
-import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation.dart';
-import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation_type.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/widgets/audiobook/controls/playback_speed_picker.dart';
@@ -24,8 +21,14 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 class AudioBookSubtitles extends StatefulWidget {
   final Book book;
   final String? lookupSubtitleId;
+  final int? subtitleIndex;
+  final SubtitlesData? subtitlesData;
   const AudioBookSubtitles(
-      {super.key, required this.book, this.lookupSubtitleId});
+      {super.key,
+      required this.book,
+      this.subtitlesData,
+      this.lookupSubtitleId,
+      this.subtitleIndex});
 
   @override
   State<AudioBookSubtitles> createState() => _AudioBookSubtitlesState();
@@ -33,9 +36,6 @@ class AudioBookSubtitles extends StatefulWidget {
 
 class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
   late Book book;
-  AudioBookFiles? audioBookFiles;
-  SubtitlesData subtitlesData =
-      SubtitlesData(subtitles: [], indexToSubIndexMap: {});
   bool isScrolling = false;
   bool isPlaying = false;
 
@@ -44,6 +44,7 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
   int? initialSubtitleIndex;
   bool isScrollToInitialSubtitle = false;
   bool isHighlightInitialSubtitle = true;
+
   int? currentSubtitleIndex;
 
   bool isScrollAnimation = Platform.isIOS;
@@ -61,8 +62,11 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
 
+  List<Subtitle> get subtitles =>
+      widget.subtitlesData == null ? [] : widget.subtitlesData!.subtitles;
+
   int? getRelativeSubtitleIndex(String rawSubtitleIndex) {
-    return subtitlesData.getSubIndexByIndex(rawSubtitleIndex);
+    return widget.subtitlesData?.getSubIndexByIndex(rawSubtitleIndex);
   }
 
   Widget subtitleText({required Subtitle subtitle, required int index}) {
@@ -118,10 +122,6 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
                     initialSubtitleIndex = null; // reset initial subtitle
                   }
                   await AudioPlayerManager().playSubtitleByIndex(index);
-                  if (AudioPlayerManager().currentState?.playerState !=
-                      PlayerState.playing) {
-                    await AudioPlayerManager().audioService.play();
-                  }
                 },
                 child: Align(
                     alignment: Alignment.centerLeft,
@@ -145,6 +145,8 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
   void initState() {
     super.initState();
     book = widget.book;
+
+    currentSubtitleIndex = widget.subtitleIndex;
     if (widget.lookupSubtitleId != null) {
       if (ReaderJsManager().lastLookupSubtitleData?.subtitleId ==
           widget.lookupSubtitleId) {
@@ -154,15 +156,10 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
     }
     initSubtitles(book);
     listenToBookIsPlaying();
-    listenToBookOperations();
   }
 
   Future<void> initSubtitles(Book book) async {
     if (book.id == null && !book.isHaveSubtitles) return;
-    setState(() {
-      audioBookFiles = book.audioBookFiles;
-      subtitlesData = AudioPlayerManager().getSubtitlesData(book.id!);
-    });
     scrollToInitialSubtitleIfExists();
   }
 
@@ -190,7 +187,8 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
   void scrollToSubtitle(int subtitleIndex) {
     if (itemScrollController.isAttached &&
         !isScrolling &&
-        subtitleIndex < subtitlesData.subtitles.length) {
+        widget.subtitlesData != null &&
+        subtitleIndex < widget.subtitlesData!.subtitles.length) {
       if (isScrollAnimation) {
         // scroll to subtitle on ios
         setState(() {
@@ -226,30 +224,30 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
     });
   }
 
-  void listenToBookOperations() {
-    AudioPlayerManager()
-        .onBookOperation
-        .listen((AudioBookOperation operation) async {
-      switch (operation.type) {
-        case AudioBookOperationType.addSubtitleFile:
-          if (operation.subtitlesData != null) {
-            setState(() {
-              subtitlesData = operation.subtitlesData!;
-              currentSubtitleIndex = operation.currentSubtitleIndex;
-            });
-          }
-          break;
-        case AudioBookOperationType.removeSubtitleFile:
-          setState(() {
-            subtitlesData.reset();
-            currentSubtitleIndex = null;
-          });
-          break;
-        default:
-          break;
-      }
-    });
-  }
+  // void listenToBookOperations() {
+  //   AudioPlayerManager()
+  //       .onBookOperation
+  //       .listen((AudioBookOperation operation) async {
+  //     switch (operation.type) {
+  //       case AudioBookOperationType.addSubtitleFile:
+  //         if (operation.subtitlesData != null) {
+  //           setState(() {
+  //             subtitlesData = operation.subtitlesData!;
+  //             currentSubtitleIndex = operation.currentSubtitleIndex;
+  //           });
+  //         }
+  //         break;
+  //       case AudioBookOperationType.removeSubtitleFile:
+  //         setState(() {
+  //           subtitlesData.reset();
+  //           currentSubtitleIndex = null;
+  //         });
+  //         break;
+  //       default:
+  //         break;
+  //     }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -270,7 +268,7 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
             color: Color(0xffffe694), darkColor: Color(0xff254d4c)),
         context);
 
-    if (subtitlesData.subtitles.isEmpty) {
+    if (subtitles.isEmpty) {
       return Center(child: AppText("No subtitles"));
     }
     return Padding(
@@ -285,7 +283,7 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
             Expanded(
                 child: Padding(
                     padding: context.horizontalPadding(),
-                    child: list(subtitles: subtitlesData.subtitles))),
+                    child: list(subtitles: subtitles))),
           ],
         ));
   }

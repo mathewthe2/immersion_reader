@@ -13,7 +13,7 @@ import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_session_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/utils/reader/highlight_js.dart';
-import 'package:immersion_reader/widgets/audiobook/audio_book_dialog.dart';
+import 'package:immersion_reader/widgets/audiobook/dialog/audio_book_dialog.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/dialog/popup_dictionary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:star_menu/star_menu.dart';
@@ -46,7 +46,9 @@ class ReaderJsManager {
   bool hasShownAddedDialog = false;
   late bool isReaderResized;
   late bool isReaderActive;
-
+  bool? isTappedCanvas = false;
+  List<ValueNotifier<bool?>> isTappedCanvasNotifyList =
+      List.generate(3, (_) => ValueNotifier<bool?>(null));
   void setupController() {
     webController.addJavaScriptHandler(
         handlerName: 'lookup',
@@ -70,7 +72,9 @@ class ReaderJsManager {
     webController.addJavaScriptHandler(
         handlerName: 'onTapCanvas',
         callback: (_) {
-          // starMenuController?.openMenu!();
+          for (int i = 0; i < isTappedCanvasNotifyList.length; i++) {
+            isTappedCanvasNotifyList[i].value = true;
+          }
         });
     webController.addJavaScriptHandler(
         handlerName: 'getBooks',
@@ -238,6 +242,10 @@ class ReaderJsManager {
 
   void setExitCallback(VoidCallback callback) {
     exitCallback = callback;
+  }
+
+  void toggleIsTappedCanvasNotifier() {
+    // isTappedCanvasNotifier.value = .value;
   }
 
   void allowShowAddFileDialog() {

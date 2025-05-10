@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:immersion_reader/data/reader/audio_book/audio_book_files.dart';
+import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitles_data.dart';
 import 'package:immersion_reader/data/reader/book_blob.dart';
 import 'package:immersion_reader/data/reader/book_bookmark.dart';
 import 'package:immersion_reader/data/reader/book_section.dart';
@@ -32,6 +33,7 @@ class Book {
   int? matchedSubtitles;
   AudioBookFiles? audioBookFiles;
   Metadata? audioFileMetadata;
+  SubtitlesData? subtitlesData;
 
   // for online books
   String? imageUrl;
@@ -201,5 +203,22 @@ class Book {
     /// A cached version of [MemoryImage] so that the image does not reload
     /// on every revisit
     return CacheImageProvider(uniqueKey, data.contentAsBytes());
+  }
+
+  void clearMatchesData() {
+    matchedSubtitles = null;
+  }
+
+  void clearAudioData() {
+    audioBookFiles?.audioFiles = [];
+    audioFileMetadata = null;
+    playBackPositionInMs = null;
+    clearMatchesData();
+  }
+
+  void clearSubtitlesData() {
+    audioBookFiles?.subtitleFiles = [];
+    subtitlesData = null;
+    clearMatchesData();
   }
 }

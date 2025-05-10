@@ -39,8 +39,11 @@ class AudioPlayerManager {
   int currentSubtitleIndex = 0;
   bool isRequireSearchSubtitle = true;
   bool isAutoPlay = true;
-  Duration? playerEndDuration;
-  bool isHighlightedInitialSubtitle = false;
+  Duration? _customEndDuration;
+  bool isHighlightedCustomDuration =
+      false; // whether subtitle on click is highlighted yet. assume custom duration has only one subtitle
+  bool isHighlightedInitialSubtitle =
+      false; // whether subtitle on opening book is highlighted yet
 
   final Map<int, AudioBookOperation> _cachedBookOperationData = {};
   final Map<int, AudioBookFiles> _cachedAudioBooks =
@@ -100,7 +103,7 @@ class AudioPlayerManager {
       // wait for reader to resize before inserting initial subtitle
       repeatTimer(
           frequency: Duration(milliseconds: 100),
-          timeout: Duration(seconds: 2),
+          timeout: Duration(seconds: 3),
           fireOnce: true,
           callback: (timer) async {
             if (ReaderJsManager().isReaderResized) {
@@ -220,19 +223,19 @@ class AudioPlayerManager {
   }
 
   Future<void> _insertSubtitleHighlight(
-      {required Duration p, isCueToElement = true}) async {
+      {required Duration p, bool isCueToElement = true}) async {
     if (currentSubtitlesData.subtitles.isNotEmpty) {
       if (isRequireSearchSubtitle) {
         if (p >= currentSubtitles.first.startDuration &&
             p <= currentSubtitles.last.endDuration) {
           currentSubtitleIndex = _binarySearchSubtitle(currentSubtitles, p);
           if (currentSubtitleIndex != -1) {
-            isRequireSearchSubtitle = false;
             final subtitleToHighlight = currentSubtitles[currentSubtitleIndex];
             await ReaderJsManager().evaluateJavascript(
                 source: addNodeHighlight(
                     id: subtitleToHighlight.id,
                     isCueToElement: isCueToElement));
+            isRequireSearchSubtitle = false;
           }
         }
       } else {
@@ -261,16 +264,24 @@ class AudioPlayerManager {
         playerPositionSubscription.cancel();
         return;
       }
-      if (playerEndDuration != null && p >= playerEndDuration! && !isAutoPlay) {
+      updatePlayerState(p);
+      if (_customEndDuration != null &&
+          p >= _customEndDuration! &&
+          !isAutoPlay &&
+          currentState?.playerState != PlayerState.paused) {
         await audioService.pause();
-        playerEndDuration = null;
+        // _customEndDuration = null;
         return;
       }
-      updatePlayerState(p);
       playBackPositionInMs = p.inMilliseconds;
-      if (isHighlightedInitialSubtitle) {
-        await _insertSubtitleHighlight(p: p);
+      if (_customEndDuration != null && isHighlightedCustomDuration) {
+        return;
       }
+      if (!isHighlightedInitialSubtitle) {
+        return;
+      }
+      await _insertSubtitleHighlight(p: p);
+      isHighlightedCustomDuration = true;
     });
   }
 
@@ -329,8 +340,13 @@ class AudioPlayerManager {
       _cachedOperationData(bookId).subtitlesData = subtitlesData;
     }
     _cachedAudioBooks[bookId] = audioBookFiles;
+    BookManager().cacheBookSubtitleData(
+        bookId: bookId,
+        audioBookFiles: audioBookFiles,
+        subtitlesData: subtitlesData);
     broadcastOperation(AudioBookOperation.addSubtitleFile(
         subtitlesData: subtitlesData,
+        audioBookFiles: audioBookFiles,
         currentSubtitleIndex: currentSubtitleIndex));
   }
 
@@ -372,6 +388,11 @@ class AudioPlayerManager {
         _cachedOperationData(bookId).audioBookFiles = audioBookFiles;
         _cachedAudioBooks[bookId] = audioBookFiles;
 
+        BookManager().cacheBookAudioData(
+            bookId: bookId,
+            audioBookFiles: audioBookFiles,
+            audioFileMetadata: metadata);
+
         broadcastOperation(AudioBookOperation.addAudioFile(
             metadata: metadata,
             audioBookFiles: audioBookFiles,
@@ -392,12 +413,18 @@ class AudioPlayerManager {
     broadcastOperation(AudioBookOperation.removeAudioFile);
   }
 
+  void setCustomEndDuration(Duration? endDuration) {
+    isHighlightedCustomDuration = false;
+    _customEndDuration = endDuration;
+  }
+
   Future<void> resetActiveSubtitle() async {
     isRequireSearchSubtitle = true;
     await ReaderJsManager().evaluateJavascript(source: removeAllHighlights());
   }
 
   Future<void> autoPlay() async {
+    setCustomEndDuration(null);
     isAutoPlay = true;
     await audioService.play();
   }
@@ -409,6 +436,7 @@ class AudioPlayerManager {
   }
 
   Future<void> _seek(Duration duration) async {
+    setCustomEndDuration(null);
     await resetActiveSubtitle();
     await audioService.seek(duration);
     updatePlayerState(duration);
@@ -417,7 +445,7 @@ class AudioPlayerManager {
   Future<void> _seekWithEnd(
       {required Duration startDuration, required Duration endDuration}) async {
     isAutoPlay = false;
-    playerEndDuration = endDuration;
+    setCustomEndDuration(endDuration);
     await Future.wait(
         [audioService.seek(startDuration), resetActiveSubtitle()]);
     updatePlayerState(startDuration);
@@ -436,6 +464,7 @@ class AudioPlayerManager {
       _seekWithEnd(
           startDuration: currentSubtitles[subtitleIndex].startDuration,
           endDuration: currentSubtitles[subtitleIndex].endDuration);
+      await audioService.play();
     }
   }
 

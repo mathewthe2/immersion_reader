@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:immersion_reader/data/profile/profile_content.dart';
+import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
@@ -57,6 +59,30 @@ class _ReaderState extends State<Reader> {
     super.dispose();
   }
 
+  Widget menu(int index) {
+    return ValueListenableBuilder(
+        valueListenable: ReaderJsManager().isTappedCanvasNotifyList[index],
+        builder: (context, val, child) {
+          if (val != null && val) {
+            ReaderJsManager().isTappedCanvasNotifyList[index].value = false;
+            return ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                iconSize: 10,
+                shape: CircleBorder(),
+                backgroundColor: Colors.blue, // <-- Button color
+                foregroundColor: Colors.red, // <-- Splash color
+              ),
+              child: Icon(CupertinoIcons.search, color: Colors.white, size: 20),
+            );
+          }
+          return Visibility(
+            visible: false,
+            child: Container(),
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     LocalAssetsServer? localAssetsServer = LocalAssetsServerManager().server;
@@ -76,63 +102,64 @@ class _ReaderState extends State<Reader> {
                 return Container(
                     color: snapshot.data!, // sync with reader color
                     child: SafeArea(
-                        child: Column(children: [
-                      Expanded(
-                          child: InAppWebView(
-                        initialSettings: InAppWebViewSettings(
-                            cacheEnabled: true, incognito: false),
-                        initialUrlRequest: URLRequest(
-                          url: WebUri(
-                            widget.initialUrl ??
-                                LocalAssetsServerManager().getAssetUrl(),
+                      child: Column(children: [
+                        Expanded(
+                            child: InAppWebView(
+                          initialSettings: InAppWebViewSettings(
+                              cacheEnabled: true, incognito: false),
+                          initialUrlRequest: URLRequest(
+                            url: WebUri(
+                              widget.initialUrl ??
+                                  LocalAssetsServerManager().getAssetUrl(),
+                            ),
                           ),
-                        ),
-                        onWebViewCreated: (controller) {
-                          ReaderJsManager.create(
-                              webController: controller,
-                              starMenuController: starMenuController);
-                          webViewController = controller;
-                        },
-                        onLoadStop: (controller, uri) async {
-                          if (widget.isAddBook &&
-                              !ReaderJsManager().hasShownAddedDialog) {
-                            await controller.evaluateJavascript(
-                                source: addFileJs);
-                          }
-                        },
-                        onReceivedError: (controller, request, error) {
-                          debugPrint(error.description);
-                        },
-                        onReceivedHttpError: (controller, url, errorResponse) {
-                          debugPrint(
-                              '${errorResponse.statusCode}:${errorResponse.data}');
-                        },
-                        onTitleChanged: (controller, title) async {
-                          if (widget.isAddBook &&
-                              !ReaderJsManager().hasShownAddedDialog) {
-                            await controller.evaluateJavascript(
-                                source: addFileJs);
-                          }
-                        },
-                        onConsoleMessage: (controller, message) {
-                          debugPrint(
-                              "reader stuff: ${message.message}"); // for debug
-                        },
-                      )),
-                      BottomPlaybackControls(backgroundColor: snapshot.data!),
-                      // Container(
-                      //     key: containerKey,
-                      //     child: StarMenu(
-                      //       params: StarMenuParameters(useTouchAsCenter: true),
-                      //       controller: starMenuController,
-                      //       items: [
-                      //         Text("Search",
-                      //             style:
-                      //                 TextStyle(color: CupertinoColors.white))
-                      //       ],
-                      //       parentContext: containerKey.currentContext,
-                      //     ))
-                    ])));
+                          onWebViewCreated: (controller) {
+                            ReaderJsManager.create(
+                                webController: controller,
+                                starMenuController: starMenuController);
+                            webViewController = controller;
+                          },
+                          onLoadStop: (controller, uri) async {
+                            if (widget.isAddBook &&
+                                !ReaderJsManager().hasShownAddedDialog) {
+                              await controller.evaluateJavascript(
+                                  source: addFileJs);
+                            }
+                          },
+                          onReceivedError: (controller, request, error) {
+                            debugPrint(error.description);
+                          },
+                          onReceivedHttpError:
+                              (controller, url, errorResponse) {
+                            debugPrint(
+                                '${errorResponse.statusCode}:${errorResponse.data}');
+                          },
+                          onTitleChanged: (controller, title) async {
+                            if (widget.isAddBook &&
+                                !ReaderJsManager().hasShownAddedDialog) {
+                              await controller.evaluateJavascript(
+                                  source: addFileJs);
+                            }
+                          },
+                          onConsoleMessage: (controller, message) {
+                            debugPrint(
+                                "reader stuff: ${message.message}"); // for debug
+                          },
+                        ).addStarMenu(
+                          lazyItems: () async {
+                            return [
+                              menu(0),
+                              menu(1),
+                              menu(2),
+                            ];
+                          },
+                          params: StarMenuParameters.arc(ArcType.semiLeft,
+                              radiusX: context.arc(), radiusY: context.arc()),
+                          controller: starMenuController,
+                        )),
+                        BottomPlaybackControls(backgroundColor: snapshot.data!),
+                      ]),
+                    ));
               } else {
                 return Container();
               }
