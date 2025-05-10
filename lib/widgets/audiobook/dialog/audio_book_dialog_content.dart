@@ -11,7 +11,6 @@ import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation
 import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation_type.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager.dart';
 import 'package:immersion_reader/managers/reader/book_manager.dart';
-import 'package:immersion_reader/utils/folder_utils.dart';
 import 'package:immersion_reader/widgets/audiobook/dialog/audio_book_matching.dart';
 import 'package:immersion_reader/widgets/audiobook/dialog/audio_book_player.dart';
 import 'package:immersion_reader/widgets/audiobook/dialog/audio_book_subtitles.dart';

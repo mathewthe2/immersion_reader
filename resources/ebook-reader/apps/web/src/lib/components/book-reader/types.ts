@@ -15,6 +15,8 @@ export interface BookmarkManager {
   formatBookmarkData: (bookId: number) => BooksDbBookmarkData;
 
   scrollToBookmark: (bookmarkData: BooksDbBookmarkData) => void;
+
+  scrollToCharacter: (charCount: number) => void;
 }
 
 export interface PageManager {

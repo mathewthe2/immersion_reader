@@ -61,7 +61,6 @@ dependencies:
   flutter_inapp_purchase: ^5.3.1
   # timeago: ^3.4.0
   wakelock_plus: ^1.2.10
-  star_menu: ^4.0.1
   # apple_vision_flutter:
   #   git:
   #     url: https://github.com/mathewthe2/ios-vision-flutter
@@ -82,6 +81,7 @@ dependencies:
   #   path: rust_builder
   # flutter_rust_bridge: 2.4.0
   # vector_math: ^2.1.4
+  pie_menu: ^3.3.0
   # opencv_dart: ^1.2.4
 
 dev_dependencies:

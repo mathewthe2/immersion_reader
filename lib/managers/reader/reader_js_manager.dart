@@ -15,12 +15,12 @@ import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/utils/reader/highlight_js.dart';
 import 'package:immersion_reader/widgets/audiobook/dialog/audio_book_dialog.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/dialog/popup_dictionary.dart';
+import 'package:pie_menu/pie_menu.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:star_menu/star_menu.dart';
 
 class ReaderJsManager {
   late InAppWebViewController webController;
-  StarMenuController? starMenuController;
+  PieMenuController? pieMenuController;
   StreamController<int> matchProgressController =
       StreamController<int>.broadcast();
 
@@ -29,9 +29,9 @@ class ReaderJsManager {
 
   factory ReaderJsManager.create(
       {required InAppWebViewController webController,
-      StarMenuController? starMenuController}) {
+      PieMenuController? pieMenuController}) {
     _singleton.webController = webController;
-    _singleton.starMenuController = starMenuController;
+    _singleton.pieMenuController = pieMenuController;
     _singleton.setupController();
     _singleton.isReaderActive = true;
     return _singleton;
@@ -43,12 +43,11 @@ class ReaderJsManager {
   ValueNotifier<bool> readerSettingsUpdateNotifier = ValueNotifier(false);
   AudioLookupSubtitle? lastLookupSubtitleData;
   VoidCallback? exitCallback;
+  int? currentBookId;
   bool hasShownAddedDialog = false;
   late bool isReaderResized;
   late bool isReaderActive;
-  bool? isTappedCanvas = false;
-  List<ValueNotifier<bool?>> isTappedCanvasNotifyList =
-      List.generate(3, (_) => ValueNotifier<bool?>(null));
+
   void setupController() {
     webController.addJavaScriptHandler(
         handlerName: 'lookup',
@@ -72,9 +71,9 @@ class ReaderJsManager {
     webController.addJavaScriptHandler(
         handlerName: 'onTapCanvas',
         callback: (_) {
-          for (int i = 0; i < isTappedCanvasNotifyList.length; i++) {
-            isTappedCanvasNotifyList[i].value = true;
-          }
+          pieMenuController?.openMenu(
+            menuAlignment: Alignment.center,
+          );
         });
     webController.addJavaScriptHandler(
         handlerName: 'getBooks',
@@ -157,6 +156,7 @@ class ReaderJsManager {
         handlerName: 'onReaderReady', // called when a book is opened and ready
         callback: (args) async {
           final bookId = args.first["bookId"];
+          currentBookId = bookId;
           final playBackPositionInMs = args.first["playBackPositionInMs"];
           isReaderResized = false;
           Book? book = await BookManager().getBookById(bookId);
@@ -209,8 +209,8 @@ class ReaderJsManager {
         handlerName: 'openAudioBookDialog',
         callback: (args) async {
           ReaderSessionManager().stop();
-          final int bookId = args.first;
-          await openAudioBookDialog(bookId: bookId);
+          // final int bookId = args.first;
+          await openAudioBookDialog();
         });
     webController.addJavaScriptHandler(
         handlerName: 'sendMatchSubtitleProgress',
@@ -221,10 +221,10 @@ class ReaderJsManager {
         });
   }
 
-  Future<void> openAudioBookDialog(
-      {required int bookId, int? initialTabIndex}) async {
+  Future<void> openAudioBookDialog({int? initialTabIndex}) async {
+    if (currentBookId == null) return;
     ReaderSessionManager().stop();
-    final Book? book = await BookManager().getBookById(bookId);
+    final Book? book = await BookManager().getBookById(currentBookId!);
     if (book != null) {
       final sharedPreferences = await SharedPreferences.getInstance();
       defocusReader();
@@ -242,10 +242,6 @@ class ReaderJsManager {
 
   void setExitCallback(VoidCallback callback) {
     exitCallback = callback;
-  }
-
-  void toggleIsTappedCanvasNotifier() {
-    // isTappedCanvasNotifier.value = .value;
   }
 
   void allowShowAddFileDialog() {
@@ -291,6 +287,19 @@ class ReaderJsManager {
         new CustomEvent('ttu-action', {
           detail: {
             type: 'removeHighlight',
+          },
+        }),
+		);
+    """);
+  }
+
+  Future<void> cueToCharacter(int characterCount) async {
+    await webController.evaluateJavascript(source: """
+      document.dispatchEvent(
+        new CustomEvent('ttu-action', {
+          detail: {
+            type: 'cueToCharacter',
+            characterCount: $characterCount
           },
         }),
 		);

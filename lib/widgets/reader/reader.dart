@@ -1,15 +1,15 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/data/profile/profile_content.dart';
-import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/managers/reader/local_asset_server_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';
 import 'package:immersion_reader/utils/system_ui.dart';
 import 'package:immersion_reader/widgets/audiobook/controls/bottom_playback_controls.dart';
+import 'package:immersion_reader/widgets/reader/search/search_dialog_content.dart';
 import 'package:local_assets_server/local_assets_server.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:star_menu/star_menu.dart';
+import 'package:pie_menu/pie_menu.dart';
 
 class Reader extends StatefulWidget {
   final String? initialUrl;
@@ -29,7 +29,7 @@ class Reader extends StatefulWidget {
 class _ReaderState extends State<Reader> {
   InAppWebViewController? webViewController;
   ProfileContent? currentProfileContent;
-  StarMenuController starMenuController = StarMenuController();
+  final pieMenuController = PieMenuController();
 
   void createPopupDictionary() {
     ReaderJsManager().setExitCallback(() => Navigator.of(context).pop());
@@ -59,36 +59,6 @@ class _ReaderState extends State<Reader> {
     super.dispose();
   }
 
-  Widget roundIconButton(
-      {required Function onPressed, required IconData iconData}) {
-    return ElevatedButton(
-      onPressed: () => onPressed(),
-      style: ElevatedButton.styleFrom(
-        iconSize: 10,
-        shape: CircleBorder(),
-        backgroundColor: Colors.blue, // <-- Button color
-        foregroundColor: Colors.red, // <-- Splash color
-      ),
-      child: Icon(iconData, color: Colors.white, size: 20),
-    );
-  }
-
-  Widget menu(int index) {
-    return ValueListenableBuilder(
-        valueListenable: ReaderJsManager().isTappedCanvasNotifyList[index],
-        builder: (context, val, child) {
-          if (val != null && val) {
-            ReaderJsManager().isTappedCanvasNotifyList[index].value = false;
-            return roundIconButton(
-                onPressed: () {}, iconData: CupertinoIcons.search);
-          }
-          return Visibility(
-            visible: false,
-            child: Container(),
-          );
-        });
-  }
-
   @override
   Widget build(BuildContext context) {
     LocalAssetsServer? localAssetsServer = LocalAssetsServerManager().server;
@@ -99,76 +69,109 @@ class _ReaderState extends State<Reader> {
         radius: 24,
       ));
     }
-    return ValueListenableBuilder(
-        valueListenable: ReaderJsManager().readerSettingsUpdateNotifier,
-        builder: (context, val, child) => FutureBuilder<Color>(
-            future: SettingsManager().getReaderBackgroundColor(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Container(
-                    color: snapshot.data!, // sync with reader color
-                    child: SafeArea(
-                      child: Column(children: [
-                        Expanded(
-                            child: InAppWebView(
-                          initialSettings: InAppWebViewSettings(
-                              cacheEnabled: true, incognito: false),
-                          initialUrlRequest: URLRequest(
-                            url: WebUri(
-                              widget.initialUrl ??
-                                  LocalAssetsServerManager().getAssetUrl(),
-                            ),
-                          ),
-                          onWebViewCreated: (controller) {
-                            ReaderJsManager.create(
-                                webController: controller,
-                                starMenuController: starMenuController);
-                            webViewController = controller;
-                          },
-                          onLoadStop: (controller, uri) async {
-                            if (widget.isAddBook &&
-                                !ReaderJsManager().hasShownAddedDialog) {
-                              await controller.evaluateJavascript(
-                                  source: addFileJs);
-                            }
-                          },
-                          onReceivedError: (controller, request, error) {
-                            debugPrint(error.description);
-                          },
-                          onReceivedHttpError:
-                              (controller, url, errorResponse) {
-                            debugPrint(
-                                '${errorResponse.statusCode}:${errorResponse.data}');
-                          },
-                          onTitleChanged: (controller, title) async {
-                            if (widget.isAddBook &&
-                                !ReaderJsManager().hasShownAddedDialog) {
-                              await controller.evaluateJavascript(
-                                  source: addFileJs);
-                            }
-                          },
-                          onConsoleMessage: (controller, message) {
-                            debugPrint(
-                                "reader stuff: ${message.message}"); // for debug
-                          },
-                        ).addStarMenu(
-                          lazyItems: () async {
-                            return [
-                              menu(0),
-                              menu(1),
-                              menu(2),
-                            ];
-                          },
-                          params: StarMenuParameters.arc(ArcType.semiLeft,
-                              radiusX: context.arc(), radiusY: context.arc()),
-                          controller: starMenuController,
-                        )),
-                        BottomPlaybackControls(backgroundColor: snapshot.data!),
-                      ]),
-                    ));
-              } else {
-                return Container();
-              }
-            }));
+    return PieCanvas(
+        child: ValueListenableBuilder(
+            valueListenable: ReaderJsManager().readerSettingsUpdateNotifier,
+            builder: (context, val, child) => FutureBuilder<Color>(
+                future: SettingsManager().getReaderBackgroundColor(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Container(
+                        color: snapshot.data!, // sync with reader color
+                        child: SafeArea(
+                            child: Stack(fit: StackFit.expand, children: [
+                          Column(children: [
+                            Expanded(
+                                child: InAppWebView(
+                              initialSettings: InAppWebViewSettings(
+                                  cacheEnabled: true, incognito: false),
+                              initialUrlRequest: URLRequest(
+                                url: WebUri(
+                                  widget.initialUrl ??
+                                      LocalAssetsServerManager().getAssetUrl(),
+                                ),
+                              ),
+                              onWebViewCreated: (controller) {
+                                ReaderJsManager.create(
+                                    webController: controller,
+                                    pieMenuController: pieMenuController);
+                                webViewController = controller;
+                              },
+                              onLoadStop: (controller, uri) async {
+                                if (widget.isAddBook &&
+                                    !ReaderJsManager().hasShownAddedDialog) {
+                                  await controller.evaluateJavascript(
+                                      source: addFileJs);
+                                }
+                              },
+                              onReceivedError: (controller, request, error) {
+                                debugPrint(error.description);
+                              },
+                              onReceivedHttpError:
+                                  (controller, url, errorResponse) {
+                                debugPrint(
+                                    '${errorResponse.statusCode}:${errorResponse.data}');
+                              },
+                              onTitleChanged: (controller, title) async {
+                                if (widget.isAddBook &&
+                                    !ReaderJsManager().hasShownAddedDialog) {
+                                  await controller.evaluateJavascript(
+                                      source: addFileJs);
+                                }
+                              },
+                              onConsoleMessage: (controller, message) {
+                                debugPrint(
+                                    "reader stuff: ${message.message}"); // for debug
+                              },
+                            )),
+                            BottomPlaybackControls(
+                                backgroundColor: snapshot.data!),
+                          ]),
+                          Align(
+                              alignment: Alignment.centerRight,
+                              child: PieMenu(
+                                  controller: pieMenuController,
+                                  theme: PieTheme.of(context).copyWith(
+                                      pointerColor: CupertinoColors.transparent,
+                                      buttonTheme: PieButtonTheme(
+                                          backgroundColor: CupertinoColors
+                                              .darkBackgroundGray,
+                                          iconColor: CupertinoColors.white)),
+                                  actions: [
+                                    PieAction(
+                                      tooltip: Container(),
+                                      onSelect: () {},
+                                      child: const Icon(CupertinoIcons.home),
+                                    ),
+                                    PieAction(
+                                      tooltip: Container(),
+                                      onSelect: () => ReaderJsManager()
+                                          .openAudioBookDialog(),
+                                      child:
+                                          const Icon(CupertinoIcons.headphones),
+                                    ),
+                                    PieAction(
+                                      tooltip:
+                                          Container(), // display nothing when hovered
+                                      onSelect: () => SmartDialog.show(
+                                          alignment: Alignment.bottomCenter,
+                                          builder: (context) {
+                                            return SearchDialogContent();
+                                          }),
+                                      child: const Icon(CupertinoIcons.search),
+                                    ),
+                                  ],
+                                  child: GestureDetector(
+                                      onTap: () => pieMenuController.openMenu(),
+                                      child: Container(
+                                          width: 0,
+                                          height: 0,
+                                          color:
+                                              CupertinoColors.transparent)))),
+                        ])));
+                  } else {
+                    return Container();
+                  }
+                })));
   }
 }

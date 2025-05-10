@@ -144,11 +144,7 @@ class _BottomPlaybackControlsState extends SafeState<BottomPlaybackControls> {
         darkMode: CupertinoColors.secondarySystemFill);
 
     return GestureDetector(
-        onTap: () {
-          if (bookId != null) {
-            ReaderJsManager().openAudioBookDialog(bookId: bookId!);
-          }
-        },
+        onTap: ReaderJsManager().openAudioBookDialog,
         child: Container(
             height: context.bar(),
             color: backgroundColor,

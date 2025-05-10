@@ -289,6 +289,12 @@
       }
     }
 
+    if (detail.type === 'cueToCharacter') {
+        console.log("characterCount", detail.characterCount);
+      if (!bookmarkManager) return;
+        bookmarkManager.scrollToCharacter(detail.characterCount);
+    }
+
     if (detail.type === 'enableSwipe') {
       isEnableSwipe = true;
     }
