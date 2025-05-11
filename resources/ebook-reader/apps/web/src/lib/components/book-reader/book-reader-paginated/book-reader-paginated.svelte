@@ -40,7 +40,7 @@
     removeHighlight,
     addTouchEvents
   } from '$lib/functions/immersion-reader/tap-to-select';
-    import { searchInBook } from '../dev-tools/dev-tools';
+    import { searchInBook } from '$lib/functions/immersion-reader/search-in-book';
 
   export let rawBookData: BooksDbBookData;
 
