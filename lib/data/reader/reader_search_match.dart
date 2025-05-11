@@ -1,5 +1,3 @@
-// import 'dart:math';
-
 class ReaderSearchMatch {
   String? chapter;
   int? characterCount;
@@ -21,18 +19,4 @@ class ReaderSearchMatch {
           characterIndex: map['characterIndex'] as int?,
           characterLength: map['characterLength'] as int?,
           sentence: map['sentence'] as String?);
-  // List<(int, int)> matchStarts; // originalStart, adjustedStart
-  // // List<int> matches;
-  // String text;
-
-  // ReaderSearchResult({required this.matchStarts, required this.text});
-
-  // List<String> get textMatches => matchStarts
-  //     .map((match) => text.substring(match.$1, min(match.$1 + 10, text.length)))
-  //     .toList();
-
-  // List<(int, String)> get displayMatches => matchStarts
-  //     .map((match) =>
-  //         (match.$2, text.substring(match.$1, min(match.$1 + 10, text.length))))
-  //     .toList();
 }

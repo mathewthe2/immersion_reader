@@ -52,9 +52,24 @@ export function searchInBook(
   const keywordLength = Array(...searchKeyword).length;
   sections.forEach((section, index) => {
     const paragraphs = getParagraphNodes(section);
+    let isMergeWithPreviousNode = false;
     paragraphs.forEach((paragraph) => {
       const charactersWithOriginal = getCharactersWithOriginal(paragraph);
-      charactersList.push(charactersWithOriginal);
+      if (isMergeWithPreviousNode) {
+        // merge with previous node if previous node is not furigana or end of paragraph
+        charactersList[charactersList.length - 1] = {
+          characters:
+            charactersList[charactersList.length - 1].characters +
+            charactersWithOriginal.characters,
+          originalCharacters:
+            charactersList[charactersList.length - 1].originalCharacters +
+            charactersWithOriginal.originalCharacters,
+          isMergeWithNext: charactersWithOriginal.isMergeWithNext
+        };
+      } else {
+        charactersList.push(charactersWithOriginal);
+      }
+      isMergeWithPreviousNode = charactersWithOriginal.isMergeWithNext;
     });
 
     if (sectionData[index].parentChapter == null) {
@@ -89,6 +104,7 @@ export function searchInBook(
       previousMainChapter = sectionData[index];
     }
   });
+  // console.log('hello');
   return totalMatches;
 }
 

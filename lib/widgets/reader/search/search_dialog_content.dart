@@ -87,12 +87,26 @@ class _SearchDialogContentState extends State<SearchDialogContent> {
                               child: SingleChildScrollView(
                                   child: Column(children: [
                         ...val.mapIndexed((index, result) => CupertinoListTile(
-                            title: MultiColorText([
-                              (
-                                '${result.characterCount}',
-                                CupertinoColors.inactiveGray
+                            title: Column(children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(result.chapter ?? "",
+                                      style: TextStyle(
+                                          color: CupertinoColors.inactiveGray,
+                                          fontStyle: FontStyle.italic)),
+                                  Text("${result.characterCount}",
+                                      style: TextStyle(
+                                          color: CupertinoColors.inactiveGray))
+                                ],
                               ),
-                              (result.sentence ?? "", CupertinoColors.black),
+                              SizedBox(height: context.spacer()),
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text("${result.sentence}",
+                                      style: TextStyle(
+                                          color: CupertinoColors.black)))
                             ]),
                             onTap: () {
                               if (result.characterCount != null) {

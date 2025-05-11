@@ -15,18 +15,21 @@ export function getCharacters(node: Node) {
 export interface CharactersResult {
   characters: string;
   originalCharacters: string;
+  isMergeWithNext: boolean;
 }
 
 export function getCharactersWithOriginal(node: Node): CharactersResult {
   if (!node.textContent)
     return {
       characters: '',
-      originalCharacters: ''
+      originalCharacters: '',
+      isMergeWithNext: false
     };
   const characters = node.textContent.replace(isNotJapaneseRegex, '');
   return {
     characters,
-    originalCharacters: node.textContent
+    originalCharacters: node.textContent,
+    isMergeWithNext: node.nextSibling != null || node.parentElement?.nodeName === 'RB'
   };
 }
 

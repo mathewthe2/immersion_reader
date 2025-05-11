@@ -176,7 +176,7 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
       }
       late Timer jumpToSubtitleTimer;
       jumpToSubtitleTimer = Timer(Duration(milliseconds: 100), () {
-        if (itemScrollController.isAttached) {
+        if (itemScrollController.isAttached && initialSubtitleIndex! >= 0) {
           itemScrollController.jumpTo(index: initialSubtitleIndex!);
           jumpToSubtitleTimer.cancel();
         }
@@ -223,31 +223,6 @@ class _AudioBookSubtitlesState extends SafeState<AudioBookSubtitles> {
       }
     });
   }
-
-  // void listenToBookOperations() {
-  //   AudioPlayerManager()
-  //       .onBookOperation
-  //       .listen((AudioBookOperation operation) async {
-  //     switch (operation.type) {
-  //       case AudioBookOperationType.addSubtitleFile:
-  //         if (operation.subtitlesData != null) {
-  //           setState(() {
-  //             subtitlesData = operation.subtitlesData!;
-  //             currentSubtitleIndex = operation.currentSubtitleIndex;
-  //           });
-  //         }
-  //         break;
-  //       case AudioBookOperationType.removeSubtitleFile:
-  //         setState(() {
-  //           subtitlesData.reset();
-  //           currentSubtitleIndex = null;
-  //         });
-  //         break;
-  //       default:
-  //         break;
-  //     }
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
