@@ -104,7 +104,6 @@ export function searchInBook(
       previousMainChapter = sectionData[index];
     }
   });
-  // console.log('hello');
   return totalMatches;
 }
 

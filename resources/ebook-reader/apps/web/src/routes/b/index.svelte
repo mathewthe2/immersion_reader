@@ -301,7 +301,7 @@
     use:clickOutside={() => (showHeader = false)}
   >
     <BookReaderHeader
-      isDevMode={true}
+      isDevMode={false}
       hasChapterData={!!$sectionData$?.length}
       showFullscreenButton={fullscreenManager.fullscreenEnabled}
       autoScrollMultiplier={$multiplier$}
