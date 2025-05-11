@@ -1,13 +1,15 @@
 <script lang="ts">
   import Fa from 'svelte-fa';
-  import { getTextNode, getTTUParent, toDevIsOpen$ } from './dev-tools';
+  import { getTextNode, getTTUParent, searchInBook, toDevIsOpen$ } from './dev-tools';
   import { faXmark } from '@fortawesome/free-solid-svg-icons';
   import { test } from '$lib/functions/audio-book/test';
   import { createEventDispatcher } from 'svelte';
   import { xlink_attr } from 'svelte/internal';
+  import { type SectionWithProgress } from '$lib/components/book-reader/book-toc/book-toc';
 
   export let showMenu: boolean = true;
   export let htmlContent: string;
+  export let sectionData: SectionWithProgress[] = [];
 
   // const dispatch = createEventDispatcher<{ selectHint: void; hintSelected: void }>();
 
@@ -72,6 +74,10 @@
 </div>
 
 <div class="flex-1 overflow-auto p-4" />
+
+<div class="flex-1 overflow-auto p-4">
+  <button on:click={() => searchInBook(htmlContent, sectionData, '試験')}>Search in book</button>
+</div>
 
 <div class="flex-1 overflow-auto p-4">
   <button on:click={() => onTriggerSelectStartHint()}>Select Element</button>

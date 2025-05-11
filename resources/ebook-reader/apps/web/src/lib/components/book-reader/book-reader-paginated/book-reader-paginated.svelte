@@ -14,15 +14,15 @@
     throttleTime
   } from 'rxjs';
   import { isMobile } from '$lib/functions/utils';
-  import { afterUpdate, createEventDispatcher, onDestroy, onMount } from 'svelte';
+  import { createEventDispatcher, onDestroy, onMount } from 'svelte';
   import Fa from 'svelte-fa';
   import { swipe } from 'svelte-gestures';
   import { faBookmark, faSpinner } from '@fortawesome/free-solid-svg-icons';
   import { browser } from '$app/env';
-  import { nextChapter$, tocIsOpen$ } from '$lib/components/book-reader/book-toc/book-toc';
+  import { nextChapter$, tocIsOpen$, type SectionWithProgress } from '$lib/components/book-reader/book-toc/book-toc';
   import HtmlRenderer from '$lib/components/html-renderer.svelte';
   import { FuriganaStyle } from '$lib/data/furigana-style';
-  import { clearRange, createRange, pulseElement } from '$lib/functions/range-util';
+  import { createRange } from '$lib/functions/range-util';
   import type {
     BooksDbBookData,
     BooksDbBookmarkData
@@ -40,8 +40,11 @@
     removeHighlight,
     addTouchEvents
   } from '$lib/functions/immersion-reader/tap-to-select';
+    import { searchInBook } from '../dev-tools/dev-tools';
 
   export let rawBookData: BooksDbBookData;
+
+  export let sectionData: SectionWithProgress[] = [];
 
   export let htmlContent: string;
 
@@ -290,9 +293,17 @@
     }
 
     if (detail.type === 'cueToCharacter') {
-        console.log("characterCount", detail.characterCount);
+        //console.log("characterCount", detail.characterCount);
       if (!bookmarkManager) return;
         bookmarkManager.scrollToCharacter(detail.characterCount);
+    }
+
+     if (detail.type == 'search') {
+      if (!detail.searchKeyword) return;
+      const searchResult = searchInBook(htmlContent, sectionData, detail.searchKeyword);
+        if (window.flutter_inappwebview != null) {
+        window.flutter_inappwebview?.callHandler('onSearchResult', searchResult);
+      }
     }
 
     if (detail.type === 'enableSwipe') {

@@ -6,6 +6,7 @@ import 'package:immersion_reader/data/reader/audio_book/audio_book_load_params.d
 import 'package:immersion_reader/data/reader/audio_book/audio_lookup_subtitle.dart';
 import 'package:immersion_reader/data/reader/book.dart';
 import 'package:immersion_reader/data/reader/book_bookmark.dart';
+import 'package:immersion_reader/data/reader/reader_search_match.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_book_operation.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_handler.dart';
 import 'package:immersion_reader/managers/reader/audio_book/audio_player_manager.dart';
@@ -41,6 +42,8 @@ class ReaderJsManager {
       _singleton; // should only be called once it is created with a controller
 
   ValueNotifier<bool> readerSettingsUpdateNotifier = ValueNotifier(false);
+  ValueNotifier<List<ReaderSearchMatch>> searchResultsNotifier =
+      ValueNotifier([]);
   AudioLookupSubtitle? lastLookupSubtitleData;
   VoidCallback? exitCallback;
   int? currentBookId;
@@ -207,9 +210,8 @@ class ReaderJsManager {
         });
     webController.addJavaScriptHandler(
         handlerName: 'openAudioBookDialog',
-        callback: (args) async {
+        callback: (_) async {
           ReaderSessionManager().stop();
-          // final int bookId = args.first;
           await openAudioBookDialog();
         });
     webController.addJavaScriptHandler(
@@ -217,6 +219,15 @@ class ReaderJsManager {
         callback: (args) async {
           if (args.first != null) {
             matchProgressController.add(args.first);
+          }
+        });
+    webController.addJavaScriptHandler(
+        handlerName: 'onSearchResult',
+        callback: (args) async {
+          if (args.first != null) {
+            var a = List<ReaderSearchMatch>.from(
+                args.first.map((map) => ReaderSearchMatch.fromMap(map)));
+            searchResultsNotifier.value = a;
           }
         });
   }
@@ -303,6 +314,32 @@ class ReaderJsManager {
           },
         }),
 		);
+    """);
+  }
+
+  Future<void> searchInBook(String searchKeyword) async {
+    await webController.evaluateJavascript(source: """
+      document.dispatchEvent(
+        new CustomEvent('ttu-action', {
+          detail: {
+            type: 'search',
+            searchKeyword: '$searchKeyword'
+          },
+        }),
+		);
+    """);
+  }
+
+  final reg =
+      r"var isNotJapaneseRegex =/[^0-9A-Z○◯々-〇〻ぁ-ゖゝ-ゞァ-ヺー０-９Ａ-Ｚｦ-ﾝ\p{Radical}\p{Unified_Ideograph}]+/gimu;";
+
+  Future<dynamic> countNonJapaneseText(String text) async {
+    return await webController.evaluateJavascript(source: """
+    var text = String.raw`$text`;
+    $reg
+    text = text.replace(isNotJapaneseRegex, '');
+    console.log(text);
+    Array.from(text).length
     """);
   }
 

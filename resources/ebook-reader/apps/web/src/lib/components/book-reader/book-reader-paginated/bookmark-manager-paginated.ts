@@ -47,27 +47,6 @@ export class BookmarkManagerPaginated implements BookmarkManager {
     if (!charCount) return;
 
     this.scrollToCharacter(charCount);
-
-    // const index = this.calculator.getSectionIndexByCharCount(charCount);
-
-    // const scroll = (calc: SectionCharacterStatsCalculator) => {
-    //   const scrollPos = calc.getScrollPosByCharCount(charCount);
-    //   this.pageManager.scrollTo(scrollPos, false);
-    //   this.setIntendedCharCount(charCount);
-    // };
-
-    // const currentSectionIndex = this.sectionIndex$.getValue();
-
-    // if (currentSectionIndex === index) {
-    //   scroll(this.calculator);
-    //   return;
-    // }
-
-    // const subscription = this.sectionReady$.subscribe((updatedCalc) => {
-    //   scroll(updatedCalc);
-    //   subscription.unsubscribe();
-    // });
-    // this.sectionIndex$.next(index);
   }
 
   formatBookmarkData(bookId: number): BooksDbBookmarkData {

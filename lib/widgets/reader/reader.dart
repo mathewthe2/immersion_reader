@@ -140,7 +140,12 @@ class _ReaderState extends State<Reader> {
                                   actions: [
                                     PieAction(
                                       tooltip: Container(),
-                                      onSelect: () {},
+                                      onSelect: () {
+                                        if (ReaderJsManager().exitCallback !=
+                                            null) {
+                                          ReaderJsManager().exitCallback!();
+                                        }
+                                      },
                                       child: const Icon(CupertinoIcons.home),
                                     ),
                                     PieAction(

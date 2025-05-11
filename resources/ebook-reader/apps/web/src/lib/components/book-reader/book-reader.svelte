@@ -28,10 +28,13 @@
   import { reactiveElements } from './reactive-elements';
   import type { AutoScroller, BookmarkManager, PageManager } from './types';
   import BookReaderPaginated from './book-reader-paginated/book-reader-paginated.svelte';
+  import { type SectionWithProgress } from './book-toc/book-toc';
 
   export let rawBookData: BooksDbBookData;
 
   export let htmlContent: string;
+
+  export let sectionData: SectionWithProgress;
 
   export let width: number;
 
@@ -197,6 +200,7 @@
     <BookReaderPaginated
       {rawBookData}
       {htmlContent}
+      {sectionData}
       width={$contentViewportWidth$ ?? 0}
       height={$contentViewportHeight$ ?? 0}
       {verticalMode}

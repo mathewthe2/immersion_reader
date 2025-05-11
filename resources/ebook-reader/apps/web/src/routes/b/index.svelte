@@ -347,6 +347,7 @@
   <BookReader
     rawBookData={$rawBookData$}
     htmlContent={$bookData$.htmlContent}
+    sectionData={$sectionData$}
     width={$containerViewportWidth$ ?? 0}
     height={$containerViewportHeight$ ?? 0}
     verticalMode={$verticalMode$}
@@ -392,7 +393,7 @@
     style:background-color={$backgroundColor$}
     in:fly|local={{ x: -100, duration: 100, easing: quintInOut }}
   >
-    <DevTools htmlContent={$bookData$.htmlContent} />
+    <DevTools htmlContent={$bookData$.htmlContent} sectionData={$sectionData$} />
     <!-- <BookToc sectionData={$sectionData$} {exploredCharCount} /> -->
   </div>
 {/if}

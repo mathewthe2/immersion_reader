@@ -1,10 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:immersion_reader/data/reader/book.dart';
-import 'package:immersion_reader/data/reader/reader_search_result.dart';
 import 'package:immersion_reader/extensions/context_extension.dart';
-import 'package:immersion_reader/managers/reader/book_manager.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
 import 'package:immersion_reader/widgets/common/text/multi_color_text.dart';
 
@@ -18,7 +15,6 @@ class SearchDialogContent extends StatefulWidget {
 class _SearchDialogContentState extends State<SearchDialogContent> {
   late TextEditingController textController;
   List<String> results = [];
-  ReaderSearchResult? searchResult;
 
   @override
   void initState() {
@@ -50,17 +46,7 @@ class _SearchDialogContentState extends State<SearchDialogContent> {
 
   void handleSearchSubmission(String input) async {
     if (input.isNotEmpty) {
-      Book? book = await BookManager().getCurrentBook();
-      if (book?.elementHtml != null) {
-        RegExp regex = RegExp(input, caseSensitive: false);
-        String rawContent = getRawContent(book!.elementHtml!);
-        Iterable<Match> matches = regex.allMatches(rawContent);
-        setState(() {
-          searchResult = ReaderSearchResult(
-              matches: matches.map((match) => match.start).toList(),
-              text: rawContent);
-        });
-      }
+      await ReaderJsManager().searchInBook(input);
     }
   }
 
@@ -93,31 +79,31 @@ class _SearchDialogContentState extends State<SearchDialogContent> {
                     controller: textController,
                     onSubmitted: handleSearchSubmission),
                 SizedBox(height: context.spacer()),
-                searchResult != null
-                    ? searchResult!.matches.isEmpty
-                        ? Text("Nothing found")
-                        : Expanded(
-                            child: CupertinoScrollbar(
-                                child: SingleChildScrollView(
-                                    child: Column(children: [
-                            ...searchResult!.displayMatches.mapIndexed(
-                                (index, result) => CupertinoListTile(
-                                    title: MultiColorText([
-                                      (
-                                        '${result.$1}',
-                                        CupertinoColors.inactiveGray
-                                      ),
-                                      (result.$2, CupertinoColors.black),
-                                    ]),
-                                    onTap: () {
-                                      // TODO: to cue to character
-                                      // ReaderJsManager()
-                                      //     .cueToCharacter(result.$1);
-                                    },
-                                    backgroundColor:
-                                        getColorForTextNodeSelection(index)))
-                          ]))))
-                    : Container()
+                ValueListenableBuilder(
+                    valueListenable: ReaderJsManager().searchResultsNotifier,
+                    builder: (context, val, _) {
+                      return Expanded(
+                          child: CupertinoScrollbar(
+                              child: SingleChildScrollView(
+                                  child: Column(children: [
+                        ...val.mapIndexed((index, result) => CupertinoListTile(
+                            title: MultiColorText([
+                              (
+                                '${result.characterCount}',
+                                CupertinoColors.inactiveGray
+                              ),
+                              (result.sentence ?? "", CupertinoColors.black),
+                            ]),
+                            onTap: () {
+                              if (result.characterCount != null) {
+                                ReaderJsManager()
+                                    .cueToCharacter(result.characterCount!);
+                              }
+                            },
+                            backgroundColor:
+                                getColorForTextNodeSelection(index)))
+                      ]))));
+                    })
               ],
             )));
   }
