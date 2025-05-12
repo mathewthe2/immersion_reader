@@ -8,15 +8,14 @@ export function tapToSelect(e) {
   if (getSelectionText()) {
     // dismiss popup dictionary by returning negative index
     if (window.flutter_inappwebview != null) {
-      window.flutter_inappwebview.callHandler('lookup',
-        {
-          "index": -1,
-          "text": "",
-          "subtitleId": "",
-          "timestamp": Date.now(),
-          "x": e.clientX,
-          "y": e.clientY,
-        });
+      window.flutter_inappwebview.callHandler('lookup', {
+        index: -1,
+        text: '',
+        subtitleId: '',
+        timestamp: Date.now(),
+        x: e.clientX,
+        y: e.clientY
+      });
     }
   } else {
     var result = document.caretRangeFromPoint(e.clientX, e.clientY);
@@ -26,18 +25,16 @@ export function tapToSelect(e) {
     var offset = result.startOffset;
     var adjustIndex = false;
     var subtitleData = {
-      "subtitleId": "",
-      "text": "",
-      "textIndex": 0,
-    }
+      subtitleId: '',
+      text: '',
+      textIndex: 0
+    };
     if (!!offsetNode && offsetNode.nodeType == Node.TEXT_NODE && offset) {
       const range = new Range();
       range.setStart(offsetNode, offset - 1);
       range.setEnd(offsetNode, offset);
       const bbox = range.getBoundingClientRect();
-      if (bbox.left <= e.x && bbox.right >= e.x &&
-        bbox.top <= e.y && bbox.bottom >= e.y) {
-
+      if (bbox.left <= e.x && bbox.right >= e.x && bbox.top <= e.y && bbox.bottom >= e.y) {
         // this gives errors
         // result.startOffset = result.startOffset - 1;
         adjustIndex = true;
@@ -55,7 +52,7 @@ export function tapToSelect(e) {
     var selectedFound = false;
     var index = 0;
     for (var value of paragraph.childNodes.values()) {
-      if (value.nodeName === "#text") {
+      if (value.nodeName === '#text') {
         noFuriganaText.push(value.textContent);
         // noFuriganaNodes.push(value);
         if (selectedFound === false) {
@@ -69,7 +66,7 @@ export function tapToSelect(e) {
         }
       } else {
         for (var node of value.childNodes.values()) {
-          if (node.nodeName === "#text") {
+          if (node.nodeName === '#text') {
             noFuriganaText.push(node.textContent);
             // noFuriganaNodes.push(node);
             if (selectedFound === false) {
@@ -81,15 +78,18 @@ export function tapToSelect(e) {
                 subtitleData = findSubtitleData(node);
               }
             }
-          } else if ((node.firstChild?.nodeName === "#text" || node.firstChild?.nodeName === "SPAN") && node.nodeName !== "RT" && node.nodeName !== "RP") {
+          } else if (
+            (node.firstChild?.nodeName === '#text' || node.firstChild?.nodeName === 'SPAN') &&
+            node.nodeName !== 'RT' &&
+            node.nodeName !== 'RP'
+          ) {
             for (const value of node.childNodes.values()) {
-              if (value.nodeName !== "RT" && value.nodeName !== "RP") {
+              if (value.nodeName !== 'RT' && value.nodeName !== 'RP') {
                 noFuriganaText.push(value.textContent);
 
                 if (!selectedFound) {
                   // for higlighted furigana text
                   if (value.childNodes.length > 0) {
-                    isHaveChildNodes = true;
                     for (const grandChild of value.childNodes.values()) {
                       if (selectedElement === grandChild) {
                         index = index + result.startOffset;
@@ -117,7 +117,7 @@ export function tapToSelect(e) {
         }
       }
     }
-    var rawText = noFuriganaText.join("");
+    var rawText = noFuriganaText.join('');
     var offset = index;
     if (adjustIndex) {
       index = index - 1;
@@ -127,16 +127,16 @@ export function tapToSelect(e) {
 
     var text = rawText.trimStart();
     if (rawText.length > text.length) {
-      index -= (rawText.length - text.length);
+      index -= rawText.length - text.length;
     }
     if (subtitleData.text.length > 0) {
       var textOffset = text.indexOf(subtitleData.text);
       subtitleData.textIndex = index - textOffset;
       // unknown index issue only in mobile browsers
-      // get next sibling or child of next sibiling when index is greater than textContent 
+      // get next sibling or child of next sibiling when index is greater than textContent
       if (subtitleData.textIndex >= subtitleData.text.length) {
         var nextSibling = subtitleData.target.nextElementSibling;
-        if (nextSibling != null && nextSibling.nodeName !== "SPAN") {
+        if (nextSibling != null && nextSibling.nodeName !== 'SPAN') {
           nextSibling = nextSibling.firstChild;
         }
         if (nextSibling != null) {
@@ -146,21 +146,19 @@ export function tapToSelect(e) {
         subtitleData.textIndex = index - textOffset;
       }
     }
-    var isWithinRange = (index >= 0 && index < text.length);
+    var isWithinRange = index >= 0 && index < text.length;
     if (isWithinRange) {
       if (window.flutter_inappwebview != null) {
-
-        window.flutter_inappwebview.callHandler('lookup',
-          {
-            "index": index,
-            "text": text,
-            "subtitleData": subtitleData,
-            "timestamp": Date.now(),
-            "x": e.clientX,
-            "y": e.clientY,
-          });
+        window.flutter_inappwebview.callHandler('lookup', {
+          index: index,
+          text: text,
+          subtitleData: subtitleData,
+          timestamp: Date.now(),
+          x: e.clientX,
+          y: e.clientY
+        });
       } else {
-        console.log("lookingup", text[index]);
+        console.log('lookingup', text[index]);
       }
       isTappedCharacter = true;
     }
@@ -171,33 +169,39 @@ export function tapToSelect(e) {
     if (window.flutter_inappwebview != null) {
       window.flutter_inappwebview.callHandler('onTapCanvas');
     } else {
-      console.log("onTapCanvas");
+      console.log('onTapCanvas');
     }
-
   }
 }
 
 function _getHighlightColor() {
-  let theme = localStorage.getItem("theme");
+  let theme = localStorage.getItem('theme');
   if (theme == null) {
     theme = 'light-theme';
   }
   switch (theme) {
-    case 'light-theme': return "rgb(220, 220, 220)";
-    case 'ecru-theme': return "rgb(204, 153, 51)";
-    case 'water-theme': return "rgb(204, 220, 230)";
-    case 'gray-theme': return "rgb(120, 120, 120)";
-    case 'dark-theme': return "rgb(60, 60, 60)";
-    case 'black-theme': return "rgb(50, 50, 50)";
-    default: return "rgb(220, 220, 220)";
+    case 'light-theme':
+      return 'rgb(220, 220, 220)';
+    case 'ecru-theme':
+      return 'rgb(204, 153, 51)';
+    case 'water-theme':
+      return 'rgb(204, 220, 230)';
+    case 'gray-theme':
+      return 'rgb(120, 120, 120)';
+    case 'dark-theme':
+      return 'rgb(60, 60, 60)';
+    case 'black-theme':
+      return 'rgb(50, 50, 50)';
+    default:
+      return 'rgb(220, 220, 220)';
   }
 }
 
 function _highlightRange(range) {
-  var highlightedNode = document.createElement("span");
+  var highlightedNode = document.createElement('span');
   highlightedNode.setAttribute(
-    "style",
-    "background-color: " + _getHighlightColor() + "; display: inline;"
+    'style',
+    'background-color: ' + _getHighlightColor() + '; display: inline;'
   );
   range.surroundContents(highlightedNode);
   highlightedNodeList.push(highlightedNode);
@@ -212,7 +216,10 @@ export function removeHighlight() {
       // If the highlighted node is a <ruby> annotation (like <rt>)
       if (highlightedNode.nodeName === 'RT') {
         parentNode.removeChild(highlightedNode); // Simply remove the <rt> tag (annotation)
-      } else if (highlightedNode.nodeType === Node.TEXT_NODE || highlightedNode.nodeType === Node.ELEMENT_NODE) {
+      } else if (
+        highlightedNode.nodeType === Node.TEXT_NODE ||
+        highlightedNode.nodeType === Node.ELEMENT_NODE
+      ) {
         // If it's a text node, combine with adjacent text nodes
         var combinedText = '';
         var previousSibling = highlightedNode.previousSibling;
@@ -276,18 +283,23 @@ export function removeHighlight() {
 
 function _getNodeTextContent(node) {
   if (node.childNodes.length > 0) {
-    return [...node.childNodes].filter((innerNode) => innerNode.parentElement.nodeName !== "RT"
-      && innerNode.parentElement.nodeName !== "RP"
-      && innerNode.parentElement.parentElement.nodeName !== "RT"
-      && innerNode.parentElement.parentElement.nodeName !== "RP").map((innerNode) => _getNodeTextContent(innerNode)).join("");
+    return [...node.childNodes]
+      .filter(
+        (innerNode) =>
+          innerNode.parentElement.nodeName !== 'RT' &&
+          innerNode.parentElement.nodeName !== 'RP' &&
+          innerNode.parentElement.parentElement.nodeName !== 'RT' &&
+          innerNode.parentElement.parentElement.nodeName !== 'RP'
+      )
+      .map((innerNode) => _getNodeTextContent(innerNode))
+      .join('');
   } else {
-    if (node?.nodeName !== "RT" && node?.nodeName !== "RP") {
+    if (node?.nodeName !== 'RT' && node?.nodeName !== 'RP') {
       return node.textContent;
     }
   }
-  return "";
+  return '';
 }
-
 
 // highlight last tapped word
 export function highlightLast(initialOffset, textLength) {
@@ -314,13 +326,14 @@ export function highlightLast(initialOffset, textLength) {
 
         const counterSum = textCounter + textContent.length;
 
-        if (counterSum > (lastSelectedIndex + initialOffset) && remainingOffset > 0) {
-          if (value.nodeName === "RUBY" || value.nodeName === "SPAN") {
-            const textNodes = [...value.childNodes].filter((node) => node.nodeName !== "RT" && node.nodeName !== "RP")
+        if (counterSum > lastSelectedIndex + initialOffset && remainingOffset > 0) {
+          if (value.nodeName === 'RUBY' || value.nodeName === 'SPAN') {
+            const textNodes = [...value.childNodes].filter(
+              (node) => node.nodeName !== 'RT' && node.nodeName !== 'RP'
+            );
             let childTextCounter = textContent.length;
 
             for (const node of textNodes) {
-
               // skip node
 
               if (node.textContent.length <= relativeOffset) {
@@ -331,13 +344,16 @@ export function highlightLast(initialOffset, textLength) {
               const range = document.createRange();
               range.selectNodeContents(node);
 
-
               const startNode = range.startContainer?.childNodes[0] ?? range.startContainer;
-              const startOffset = startNode.textContent.length >= relativeOffset ? relativeOffset : 0;
+              const startOffset =
+                startNode.textContent.length >= relativeOffset ? relativeOffset : 0;
               range.setStart(startNode, startOffset);
 
               const endNode = range.endContainer?.childNodes[0] ?? range.endContainer;
-              const endOffset = Math.min(relativeOffset + remainingOffset, endNode.textContent.length);
+              const endOffset = Math.min(
+                relativeOffset + remainingOffset,
+                endNode.textContent.length
+              );
               range.setEnd(endNode, Math.min(node.textContent.length, endOffset));
 
               // console.log("startNode", startNode);
@@ -383,7 +399,7 @@ function getSelectionText() {
     var endNode = range.endContainer;
     if (node == endNode) return [node];
     var rangeNodes = [];
-    while (node && node != endNode) rangeNodes.push(node = nextNode(node));
+    while (node && node != endNode) rangeNodes.push((node = nextNode(node)));
     node = range.startContainer;
     while (node && node != range.commonAncestorContainer) {
       rangeNodes.unshift(node);
@@ -399,17 +415,26 @@ function getSelectionText() {
       }
     }
   }
-  var txt = "";
+  var txt = '';
   var nodes;
   var nodesInRange;
   var selection;
   if (window.getSelection) {
     selection = window.getSelection();
     nodesInRange = selection.rangeCount > 0 ? getRangeSelectedNodes(selection.getRangeAt(0)) : [];
-    nodes = nodesInRange.filter((node) => node.nodeName == "#text" && node.parentElement.nodeName !== "RT" && node.parentElement.nodeName !== "RP" && node.parentElement.parentElement.nodeName !== "RT" && node.parentElement.parentElement.nodeName !== "RP");
+    nodes = nodesInRange.filter(
+      (node) =>
+        node.nodeName === '#text' &&
+        node.parentElement.nodeName !== 'RT' &&
+        node.parentElement.nodeName !== 'RP' &&
+        node.parentElement.parentElement.nodeName !== 'RT' &&
+        node.parentElement.parentElement.nodeName !== 'RP'
+    );
 
     if (selection?.anchorNode != null && selection.anchorNode === selection.focusNode) {
-      txt = txt.concat(selection.anchorNode.textContent.substring(selection.baseOffset, selection.extentOffset));
+      txt = txt.concat(
+        selection.anchorNode.textContent.substring(selection.baseOffset, selection.extentOffset)
+      );
     } else {
       for (var i = 0; i < nodes.length; i++) {
         var node = nodes[i];
@@ -425,9 +450,18 @@ function getSelectionText() {
   } else if (window.document.getSelection) {
     selection = window.document.getSelection();
     nodesInRange = getRangeSelectedNodes(selection.getRangeAt(0));
-    nodes = nodesInRange.filter((node) => node.nodeName == "#text" && node.parentElement.nodeName !== "RT" && node.parentElement.nodeName !== "RP" && node.parentElement.parentElement.nodeName !== "RT" && node.parentElement.parentElement.nodeName !== "RP");
+    nodes = nodesInRange.filter(
+      (node) =>
+        node.nodeName === '#text' &&
+        node.parentElement.nodeName !== 'RT' &&
+        node.parentElement.nodeName !== 'RP' &&
+        node.parentElement.parentElement.nodeName !== 'RT' &&
+        node.parentElement.parentElement.nodeName !== 'RP'
+    );
     if (selection.anchorNode === selection.focusNode) {
-      txt = txt.concat(selection.anchorNode.textContent.substring(selection.baseOffset, selection.extentOffset));
+      txt = txt.concat(
+        selection.anchorNode.textContent.substring(selection.baseOffset, selection.extentOffset)
+      );
     } else {
       for (var i = 0; i < nodes.length; i++) {
         var node = nodes[i];
@@ -444,39 +478,40 @@ function getSelectionText() {
     txt = window.document.selection.createRange().text;
   }
   return txt;
-};
+}
 
 function findSubtitleData(node) {
   var subtitleData = {
-    "subtitleId": "",
-    "text": "",
-    "textIndex": 0,
-    "target": null,
+    subtitleId: '',
+    text: '',
+    textIndex: 0,
+    target: null
   };
   if (node == null || node.parentElement == null) return subtitleData;
   var target;
-  if (node.nodeName === "SPAN" && node.className.startsWith("ttu-whispersync-line-highlight-")) {
+  if (node.nodeName === 'SPAN' && node.className.startsWith('ttu-whispersync-line-highlight-')) {
     target = node;
-  } else if (node.parentElement.nodeName === "SPAN") {
+  } else if (node.parentElement.nodeName === 'SPAN') {
     target = node.parentElement;
   } else {
     // get closest whispersync child
-    target = node.parentElement.querySelector(
-      'span[class^="ttu-whispersync-line-highlight-"]'
-    );
+    target = node.parentElement.querySelector('span[class^="ttu-whispersync-line-highlight-"]');
   }
   if (target != null) {
     subtitleData.target = target;
     const match = [...target.classList].find((className) =>
-      className.startsWith("ttu-whispersync-line-highlight-")
+      className.startsWith('ttu-whispersync-line-highlight-')
     );
     if (match) {
-      const subtitleId = match.match(
-        /ttu-whispersync-line-highlight-(\d+)/
-      )?.[1];
-      subtitleData.text = [...document.body.querySelectorAll('span[class="ttu-whispersync-line-highlight-' + subtitleId + '"]')]
-        .filter(node => !node?.parentElement.closest(["rp", "rt"]))
-        .map(node => node.textContent).join("");
+      const subtitleId = match.match(/ttu-whispersync-line-highlight-(\d+)/)?.[1];
+      subtitleData.text = [
+        ...document.body.querySelectorAll(
+          'span[class="ttu-whispersync-line-highlight-' + subtitleId + '"]'
+        )
+      ]
+        .filter((node) => !node?.parentElement.closest(['rp', 'rt']))
+        .map((node) => node.textContent)
+        .join('');
       subtitleData.text = subtitleData.text?.trimStart();
       subtitleData.subtitleId = subtitleId;
     }
@@ -485,7 +520,9 @@ function findSubtitleData(node) {
 }
 
 export function addTouchEvents() {
-  document.head.insertAdjacentHTML('beforebegin', `
+  document.head.insertAdjacentHTML(
+    'beforebegin',
+    `
     <style>
     rt {
       -webkit-touch-callout:none; /* iOS Safari */
@@ -503,5 +540,6 @@ export function addTouchEvents() {
       -ms-user-select:none;       /* Internet Explorer/Edge */
       user-select:none;           /* Non-prefixed version */
     }
-    </style>`);
+    </style>`
+  );
 }
