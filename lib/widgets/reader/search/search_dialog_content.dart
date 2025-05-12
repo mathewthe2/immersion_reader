@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:immersion_reader/extensions/context_extension.dart';
 import 'package:immersion_reader/managers/reader/reader_js_manager.dart';
-import 'package:immersion_reader/widgets/common/text/multi_color_text.dart';
 
 class SearchDialogContent extends StatefulWidget {
   const SearchDialogContent({super.key});
@@ -28,22 +27,6 @@ class _SearchDialogContentState extends State<SearchDialogContent> {
     super.dispose();
   }
 
-  // TODO: use raw content parser in js
-  String getRawContent(String elementHtml) {
-    // Remove <script> and <style> blocks entirely
-    var htmlContent = elementHtml.replaceAll(
-        RegExp(r'<script[^>]*>[\s\S]*?<\/script>', caseSensitive: false), '');
-    htmlContent = htmlContent.replaceAll(
-        RegExp(r'<style[^>]*>[\s\S]*?<\/style>', caseSensitive: false), '');
-
-    // Remove all remaining HTML tags
-    htmlContent = htmlContent.replaceAll(RegExp(r'<[^>]+>'), '');
-
-    // Trim and optionally collapse whitespace
-    htmlContent = htmlContent.replaceAll(RegExp(r'\s+'), ' ').trim();
-    return htmlContent;
-  }
-
   void handleSearchSubmission(String input) async {
     if (input.isNotEmpty) {
       await ReaderJsManager().searchInBook(input);
@@ -58,6 +41,8 @@ class _SearchDialogContentState extends State<SearchDialogContent> {
     }
   }
 
+  static final searchDialogContentKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     return Dismissible(
@@ -66,6 +51,7 @@ class _SearchDialogContentState extends State<SearchDialogContent> {
         resizeDuration: Duration(milliseconds: 100),
         onDismissed: (_) => SmartDialog.dismiss(),
         child: Container(
+            key: searchDialogContentKey,
             height: context.popupFull(),
             width: context.screenWidth,
             color: CupertinoColors.white,

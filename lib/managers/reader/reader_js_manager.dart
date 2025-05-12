@@ -330,18 +330,18 @@ class ReaderJsManager {
     """);
   }
 
-  final reg =
-      r"var isNotJapaneseRegex =/[^0-9A-Z○◯々-〇〻ぁ-ゖゝ-ゞァ-ヺー０-９Ａ-Ｚｦ-ﾝ\p{Radical}\p{Unified_Ideograph}]+/gimu;";
+  // final reg =
+  //     r"var isNotJapaneseRegex =/[^0-9A-Z○◯々-〇〻ぁ-ゖゝ-ゞァ-ヺー０-９Ａ-Ｚｦ-ﾝ\p{Radical}\p{Unified_Ideograph}]+/gimu;";
 
-  Future<dynamic> countNonJapaneseText(String text) async {
-    return await webController.evaluateJavascript(source: """
-    var text = String.raw`$text`;
-    $reg
-    text = text.replace(isNotJapaneseRegex, '');
-    console.log(text);
-    Array.from(text).length
-    """);
-  }
+  // Future<dynamic> countNonJapaneseText(String text) async {
+  //   return await webController.evaluateJavascript(source: """
+  //   var text = String.raw`$text`;
+  //   $reg
+  //   text = text.replace(isNotJapaneseRegex, '');
+  //   console.log(text);
+  //   Array.from(text).length
+  //   """);
+  // }
 
   void onExitReader() {
     isReaderActive = false;

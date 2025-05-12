@@ -158,11 +158,17 @@ class _ReaderState extends State<Reader> {
                                     PieAction(
                                       tooltip:
                                           Container(), // display nothing when hovered
-                                      onSelect: () => SmartDialog.show(
-                                          alignment: Alignment.bottomCenter,
-                                          builder: (context) {
-                                            return SearchDialogContent();
-                                          }),
+                                      onSelect: () {
+                                        ReaderJsManager().defocusReader();
+
+                                        SmartDialog.show(
+                                            alignment: Alignment.bottomCenter,
+                                            builder: (context) {
+                                              return SearchDialogContent();
+                                            },
+                                            onDismiss: () => ReaderJsManager()
+                                                .focusReader());
+                                      },
                                       child: const Icon(CupertinoIcons.search),
                                     ),
                                   ],

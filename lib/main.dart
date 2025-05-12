@@ -143,6 +143,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return CupertinoTabScaffold(
+      resizeToAvoidBottomInset: false,
       tabBar: CupertinoTabBar(onTap: handleSwitchNavigation, items: [
         ...navigationItems.entries.map((entry) =>
             BottomNavigationBarItem(icon: Icon(entry.value), label: entry.key))
