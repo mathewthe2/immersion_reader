@@ -26,10 +26,17 @@ export function getCharactersWithOriginal(node: Node): CharactersResult {
       isMergeWithNext: false
     };
   const characters = node.textContent.replace(isNotJapaneseRegex, '');
+  let isMergeWithNext = false;
+  if (node.nodeName === 'P') {
+    isMergeWithNext = node.nextSibling != null;
+  } else {
+    isMergeWithNext =
+      node.parentElement?.nextSibling != null || node.parentElement?.nodeName === 'RB';
+  }
   return {
     characters,
     originalCharacters: node.textContent,
-    isMergeWithNext: node.nextSibling != null || node.parentElement?.nodeName === 'RB'
+    isMergeWithNext
   };
 }
 
