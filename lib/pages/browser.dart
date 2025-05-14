@@ -115,7 +115,9 @@ class _BrowserState extends State<Browser> {
                           ),
                           onWebViewCreated: (controller) {
                             ReaderJsManager.create(webController: controller);
-                            webViewController = controller;
+                            setState(() {
+                              webViewController = controller;
+                            });
                           },
                           onLoadStop: (controller, uri) async {
                             await Future.wait([
