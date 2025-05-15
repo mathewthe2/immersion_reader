@@ -317,6 +317,22 @@ class ReaderJsManager {
     """);
   }
 
+  Future<void> cueToSearchResult(ReaderSearchMatch match) async {
+    await webController.evaluateJavascript(source: """
+      document.dispatchEvent(
+        new CustomEvent('ttu-action', {
+          detail: {
+            type: 'cueToSearchResult',
+            characterLength: ${match.characterLength},
+            characterCount: ${match.characterCount},
+            characterIndex: ${match.characterIndex},
+            paragraphIndex: ${match.paragraphIndex},
+          },
+        }),
+		);
+    """);
+  }
+
   Future<void> searchInBook(String searchKeyword) async {
     await webController.evaluateJavascript(source: """
       document.dispatchEvent(

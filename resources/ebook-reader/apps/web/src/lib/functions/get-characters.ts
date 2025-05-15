@@ -16,48 +16,68 @@ export interface CharactersResult {
   characters: string;
   originalCharacters: string;
   isMergeWithNext: boolean;
+  paragraphIndex: number;
 }
 
-export function getCharactersWithOriginal(node: Node): CharactersResult {
+export function getCharactersWithOriginal(node: Node, paragraphIndex: number): CharactersResult {
   if (!node.textContent)
     return {
       characters: '',
       originalCharacters: '',
-      isMergeWithNext: false
+      isMergeWithNext: false,
+      paragraphIndex,
     };
+
   const characters = node.textContent.replace(isNotJapaneseRegex, '');
   let isMergeWithNext = false;
   if (node.nodeName === 'P') {
     isMergeWithNext = node.nextSibling != null;
   } else {
-    isMergeWithNext =
-      node.parentElement?.nextSibling != null || node.parentElement?.nodeName === 'RB';
+    if (node.parentElement?.textContent != null) {
+      isMergeWithNext = node.nextSibling?.nodeName === 'RB' ||
+        node.nextSibling?.nodeName === 'RUBY' ||
+        node.nextSibling?.nodeName === 'RT' ||
+        node.nextSibling?.nodeName === 'SPAN' ||
+        node.parentElement?.nodeName === 'RB' ||
+        node.parentElement?.nextElementSibling?.nodeName === 'RUBY' ||
+        node.parentElement?.nextElementSibling?.nodeName === "RT";
+    }
   }
   return {
     characters,
     originalCharacters: node.textContent,
-    isMergeWithNext
+    isMergeWithNext,
+    paragraphIndex,
   };
 }
 
 export function getCharactersMap(charactersResult: CharactersResult): Record<number, number> {
+  const original = Array.from(charactersResult.originalCharacters);
+  const chars = Array.from(charactersResult.characters);
+
   const m: Record<number, number> = {};
   let j = 0;
-  for (let i = 0; i < Array(...charactersResult.originalCharacters).length; i += 1) {
-    while (
-      Array(...charactersResult.originalCharacters)[j] !== Array(...charactersResult.characters)[i]
-    ) {
-      j += 1;
+
+  for (let i = 0; i < chars.length; i++) {
+    const char = chars[i];
+
+    while (original[j] !== char) {
+      j++;
+      if (j >= original.length) {
+        throw new Error(`Character "${char}" not found in originalCharacters`);
+      }
     }
+
     m[i] = j;
-    j += 1;
+    j++;
   }
+
   return m;
 }
 
 const sentenceSeparators = ['。', '【', '】', '「', '」', '『', '』', '？', '！', '?', '!', '.'];
 
-export function getContextualSentence(
+export function getCroppedSentence(
   charactersData: CharactersResult,
   matchBeforeFilterIndex: number
 ): string {

@@ -301,6 +301,93 @@ function _getNodeTextContent(node) {
   return '';
 }
 
+// TODO: to refactor with highlightLast
+// highlight search result
+export function highlightParagraph(paragraph, initialOffset, textLength) {
+  if (initialOffset == null || textLength == null) {
+    return;
+  }
+  const rangesToHighlight = [];
+  if (paragraph) {
+    let textCounter = 0;
+    let remainingOffset = Math.min(textLength, paragraph.textContent.length);
+    for (var value of paragraph.childNodes.values()) {
+      const textContent = _getNodeTextContent(value);
+      if (textContent.length > 0) {
+        let relativeOffset = Math.max(0, initialOffset - textCounter);
+
+        // skip element if offset is longer than element contents
+        if (relativeOffset > textContent.length) {
+          if (textContent.trim().length > 0) { // ignore empty nodes but keep spaces when calculating position
+            textCounter += textContent.trim().length;
+          }
+          continue;
+        }
+
+        const counterSum = textCounter + textContent.length;
+
+        if (counterSum > initialOffset && remainingOffset > 0) {
+          if (value.nodeName === 'RUBY' || value.nodeName === 'SPAN') {
+            const textNodes = [...value.childNodes].filter(
+              (node) => node.nodeName !== 'RT' && node.nodeName !== 'RP'
+            );
+            let childTextCounter = textContent.length;
+
+            for (const node of textNodes) {
+              // skip node
+
+              if (node.textContent.length <= relativeOffset) {
+                relativeOffset -= node.textContent.length;
+                continue;
+              }
+
+              const range = document.createRange();
+              range.selectNodeContents(node);
+
+              const startNode = range.startContainer?.childNodes[0] ?? range.startContainer;
+              const startOffset =
+                startNode.textContent.length >= relativeOffset ? relativeOffset : 0;
+              range.setStart(startNode, startOffset);
+
+              const endNode = range.endContainer?.childNodes[0] ?? range.endContainer;
+              const endOffset = Math.min(
+                relativeOffset + remainingOffset,
+                endNode.textContent.length
+              );
+              range.setEnd(endNode, Math.min(node.textContent.length, endOffset));
+              childTextCounter += node.textContent.length;
+              rangesToHighlight.push(range);
+
+              remainingOffset = Math.max(0, remainingOffset - endOffset + startOffset);
+              if (remainingOffset === 0) {
+                break;
+              }
+            }
+          } else {
+            const range = document.createRange();
+            range.selectNodeContents(value);
+            const endOffset = Math.min(relativeOffset + remainingOffset, textContent.length);
+
+            remainingOffset = Math.max(0, remainingOffset - (endOffset - relativeOffset));
+
+            range.setStart(range.startContainer, relativeOffset);
+            range.setEnd(range.endContainer, endOffset);
+
+            rangesToHighlight.push(range);
+          }
+          if (remainingOffset === 0) {
+            break;
+          }
+        }
+        textCounter = counterSum;
+      }
+    }
+  }
+  for (const range of rangesToHighlight) {
+    _highlightRange(range);
+  }
+}
+
 // highlight last tapped word
 export function highlightLast(initialOffset, textLength) {
   if (initialOffset == null || textLength == null) {

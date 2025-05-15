@@ -19,7 +19,11 @@
   import { swipe } from 'svelte-gestures';
   import { faBookmark, faSpinner } from '@fortawesome/free-solid-svg-icons';
   import { browser } from '$app/env';
-  import { nextChapter$, tocIsOpen$, type SectionWithProgress } from '$lib/components/book-reader/book-toc/book-toc';
+  import {
+    nextChapter$,
+    tocIsOpen$,
+    type SectionWithProgress
+  } from '$lib/components/book-reader/book-toc/book-toc';
   import HtmlRenderer from '$lib/components/html-renderer.svelte';
   import { FuriganaStyle } from '$lib/data/furigana-style';
   import { createRange } from '$lib/functions/range-util';
@@ -37,10 +41,12 @@
   import {
     tapToSelect,
     highlightLast,
+    highlightParagraph,
     removeHighlight,
     addTouchEvents
   } from '$lib/functions/immersion-reader/tap-to-select';
-    import { searchInBook } from '$lib/functions/immersion-reader/search-in-book';
+  import { searchInBook, type SearchResult } from '$lib/functions/immersion-reader/search-in-book';
+  import { getParagraphNodes } from '../get-paragraph-nodes';
 
   export let rawBookData: BooksDbBookData;
 
@@ -133,11 +139,13 @@
 
   let bookmarkRightAdjustment: string | undefined;
 
-  const selectionToBookmarkEnabled = true; // from store
+  // const selectionToBookmarkEnabled = true; // from store
 
   let useExploredCharCount = false;
 
   let wasResized = false;
+
+  let searchResultToHighlight: SearchResult | null = null;
 
   let currentSectionId = '';
 
@@ -293,15 +301,27 @@
     }
 
     if (detail.type === 'cueToCharacter') {
-        //console.log("characterCount", detail.characterCount);
       if (!bookmarkManager) return;
-        bookmarkManager.scrollToCharacter(detail.characterCount);
+      bookmarkManager.scrollToCharacter(detail.characterCount);
     }
 
-     if (detail.type == 'search') {
+    if (detail.type === 'cueToSearchResult') {
+      if (!bookmarkManager) return;
+      searchResultToHighlight = {
+        chapter: '', // not needed
+        sentence: '', // not needed
+        paragraphIndex: detail.paragraphIndex,
+        characterLength: detail.characterLength,
+        characterCount: detail.characterCount,
+        characterIndex: detail.characterIndex
+      };
+      bookmarkManager.scrollToCharacter(detail.characterCount);
+    }
+
+    if (detail.type == 'search') {
       if (!detail.searchKeyword) return;
       const searchResult = searchInBook(htmlContent, sectionData, detail.searchKeyword);
-        if (window.flutter_inappwebview != null) {
+      if (window.flutter_inappwebview != null) {
         window.flutter_inappwebview?.callHandler('onSearchResult', searchResult);
       }
     }
@@ -369,6 +389,10 @@
       previousIntendedCount = exploredCharCount;
     }
     sendProgressToImmersionReader(exploredCharCount);
+    if (searchResultToHighlight != null) {
+      highlightSearchResult(searchResultToHighlight);
+      searchResultToHighlight = null;
+    }
     bookmarkData.then((data) => {
       useExploredCharCount = isUser || wasResized;
       updateBookmarkScreen(data);
@@ -499,6 +523,12 @@
       });
       isSentNotificationToImmersionReader = true;
     }
+    // const searchResult = searchInBook(htmlContent, sectionData, 'しかし現代');
+    // console.log('result', searchResult);
+    // if (searchResult.length > 0) {
+    //   console.log('resu;t', searchResult[0]);
+    //   highlightSearchResult(searchResult[0]);
+    // }
   }
 
   // triggered on resize
@@ -510,6 +540,25 @@
           playBackPositionInMs: rawBookData.playBackPositionInMs
         });
       });
+    }
+  }
+
+  function highlightSearchResult(searchResult: SearchResult) {
+    if (!calculator) return;
+    const nodes = getParagraphNodes(calculator.containerEl);
+    function findNearestParagraphNode(node: Node | null) {
+      while (node) {
+        if (node.nodeName === 'P') {
+          return node;
+        }
+        node = node.parentElement;
+      }
+      return null;
+    }
+    const paragraphNode = findNearestParagraphNode(nodes[searchResult.paragraphIndex]);
+    removeHighlight();
+    if (paragraphNode) {
+      highlightParagraph(paragraphNode, searchResult.characterIndex, searchResult.characterLength);
     }
   }
 

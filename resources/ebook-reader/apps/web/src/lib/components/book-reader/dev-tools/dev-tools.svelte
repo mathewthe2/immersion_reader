@@ -77,7 +77,9 @@
 <div class="flex-1 overflow-auto p-4" />
 
 <div class="flex-1 overflow-auto p-4">
-  <button on:click={() => console.log(searchInBook(htmlContent, sectionData, '試験'))}>Search in book</button>
+  <button on:click={() => console.log(searchInBook(htmlContent, sectionData, '試験'))}
+    >Search in book</button
+  >
 </div>
 
 <div class="flex-1 overflow-auto p-4">

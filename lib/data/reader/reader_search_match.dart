@@ -3,6 +3,7 @@ class ReaderSearchMatch {
   int? characterCount;
   int? characterIndex;
   int? characterLength;
+  int? paragraphIndex;
   String? sentence;
 
   ReaderSearchMatch(
@@ -10,6 +11,7 @@ class ReaderSearchMatch {
       this.characterCount,
       this.characterIndex,
       this.characterLength,
+      this.paragraphIndex,
       this.sentence});
 
   factory ReaderSearchMatch.fromMap(Map<String, Object?> map) =>
@@ -18,5 +20,6 @@ class ReaderSearchMatch {
           characterCount: map['characterCount'] as int?,
           characterIndex: map['characterIndex'] as int?,
           characterLength: map['characterLength'] as int?,
+          paragraphIndex: map['paragraphIndex'] as int?,
           sentence: map['sentence'] as String?);
 }

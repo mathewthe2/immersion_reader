@@ -11,15 +11,16 @@ import {
   type CharactersResult,
   getCharactersMap,
   getCharactersWithOriginal,
-  getContextualSentence
+  getCroppedSentence
 } from '../get-characters';
 
-interface SearchResult {
+export interface SearchResult {
   chapter: string;
   characterCount: number;
   characterIndex: number;
   characterLength: number;
   sentence: string;
+  paragraphIndex: number;
 }
 
 export function searchInBook(
@@ -38,8 +39,8 @@ export function searchInBook(
   sections.forEach((section, sectionIndex) => {
     const paragraphs = getParagraphNodes(section);
     let isMergeWithPreviousNode = false;
-    paragraphs.forEach((paragraph) => {
-      const charactersWithOriginal = getCharactersWithOriginal(paragraph);
+    paragraphs.forEach((paragraph, paragraphIndex) => {
+      const charactersWithOriginal = getCharactersWithOriginal(paragraph, paragraphIndex);
       if (isMergeWithPreviousNode) {
         // merge with previous node if previous node is not furigana or end of paragraph
         charactersList[charactersList.length - 1] = {
@@ -49,8 +50,10 @@ export function searchInBook(
           originalCharacters:
             charactersList[charactersList.length - 1].originalCharacters +
             charactersWithOriginal.originalCharacters,
-          isMergeWithNext: charactersWithOriginal.isMergeWithNext
+          isMergeWithNext: charactersWithOriginal.isMergeWithNext,
+          paragraphIndex: charactersList[charactersList.length - 1].paragraphIndex
         };
+
       } else {
         charactersList.push(charactersWithOriginal);
       }
@@ -68,7 +71,7 @@ export function searchInBook(
             const matchesAdjusted = matches.map((match) => match + previousCharacterCount);
             const matchesBeforeFilter = matches.map((match) => charactersMap[match]);
             const sentences = matchesBeforeFilter.map((match) =>
-              getContextualSentence(charactersData, match)
+              getCroppedSentence(charactersData, match)
             );
             matchesAdjusted.forEach((matchAdjusted, matchIndex) => {
               totalMatches.push({
@@ -76,7 +79,8 @@ export function searchInBook(
                 characterCount: matchAdjusted,
                 sentence: sentences[matchIndex],
                 characterIndex: matchesBeforeFilter[matchIndex],
-                characterLength: keywordLength
+                characterLength: keywordLength,
+                paragraphIndex: charactersData.paragraphIndex
               });
             });
           }
@@ -92,7 +96,7 @@ export function searchInBook(
 
 function codeUnitIndexToCodePointIndex(str: string, cuIndex: number) {
   let count = 0;
-  for (let i = 0; i < cuIndex; ) {
+  for (let i = 0; i < cuIndex;) {
     const code = str.codePointAt(i) ?? 0;
     const charLen = code > 0xffff ? 2 : 1;
     i += charLen;

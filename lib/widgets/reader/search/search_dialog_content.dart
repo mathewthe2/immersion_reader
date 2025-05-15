@@ -96,8 +96,7 @@ class _SearchDialogContentState extends State<SearchDialogContent> {
                             ]),
                             onTap: () {
                               if (result.characterCount != null) {
-                                ReaderJsManager()
-                                    .cueToCharacter(result.characterCount!);
+                                ReaderJsManager().cueToSearchResult(result);
                               }
                             },
                             backgroundColor:
