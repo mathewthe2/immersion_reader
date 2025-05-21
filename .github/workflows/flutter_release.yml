@@ -49,7 +49,7 @@ jobs:
       - name: Install and build web resources
         working-directory: resources/ebook-reader/apps/web
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install --force
           pnpm build
 
       # Copy build output to Flutter assets
