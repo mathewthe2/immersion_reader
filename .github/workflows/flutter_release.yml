@@ -5,12 +5,49 @@ on:
     paths:
       - 'pubspec.yaml'
 
+env:
+  FLUTTER_VERSION: '3.27.1'
+
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # Set up pnpm
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      # Install and build with pnpm
+      - name: Install and build web resources
+        working-directory: resources/ebook-reader/apps/web
+        run: |
+          pnpm install
+          pnpm build
+
+      # Copy build output to Flutter assets
+      - name: Copy web build to Flutter assets
+        run: cp -r resources/ebook-reader/apps/web/build/ assets/ttu-ebook-reader/
 
       - name: Cache Flutter dependencies
         uses: actions/cache@v4
@@ -26,7 +63,7 @@ jobs:
       - name: Install dependencies
         run: |
           flutter pub get
-          
+
       - name: Build APK
         run: flutter build apk --release
 
