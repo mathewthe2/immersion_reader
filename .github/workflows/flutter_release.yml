@@ -57,12 +57,6 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
-      - name: Install CocoaPods dependencies
-        run: |
-          cd ios
-          pod install
-          cd ..
-
       - name: Install dependencies
         run: |
           flutter pub get
@@ -70,6 +64,12 @@ jobs:
       - name: Build APK
         run: flutter build apk --release
 
+      - name: Install CocoaPods dependencies
+        run: |
+          cd ios
+          pod install
+          cd ..
+          
       - name: Build IPA
         run: flutter build ipa --no-codesign
 
