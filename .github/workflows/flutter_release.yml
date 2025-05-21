@@ -30,10 +30,10 @@ jobs:
 
       - name: Install Node.js
         uses: actions/setup-node@v4
-        working-directory: resources/ebook-reader/apps/web
         with:
           node-version: 22.15.1
           cache: pnpm
+          cache-dependency-path: resources/ebook-reader/apps/web
 
       # Install and build with pnpm
       - name: Install and build web resources
