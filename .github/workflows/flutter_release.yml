@@ -61,36 +61,71 @@ jobs:
         run: |
           flutter pub get
 
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
+          
+      - name: Create key.properties
+        run: |
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=keystore.jks" >> android/key.properties
+
       - name: Build APK
         run: flutter build apk --release
+
+      - name: Build appBundle
+        run: flutter build appbundle
 
       - name: Install CocoaPods dependencies
         run: |
           cd ios
           pod install
           cd ..
-          
+
       - name: Build IPA
         run: flutter build ipa --no-codesign
 
-      - name: Extract version from pubspec.yaml
-        id: get_version
+      - name: Compress Archives and IPAs
         run: |
-          VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d'+' -f1)
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          cd build
+          tar -czf ios_build.tar.gz ios
 
-      - name: Create GitHub Release
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Releases
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+            build/ios_build.tar.gz
+
+      - name: Extract version from pubspec.yaml
+        id: extract_version
+        run: |
+          version=$(grep '^version: ' pubspec.yaml | cut -d ' ' -f 2 | tr -d '\r')
+          echo "VERSION=$version" >> $GITHUB_ENV
+
+      - name: Check if Tag Exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then
+            echo "TAG_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "TAG_EXISTS=false" >> $GITHUB_ENV
+          fi
+
+      - name: Modify Tag
+        if: env.TAG_EXISTS == 'true'
+        id: modify_tag
+        run: |
+          new_version="${{ env.VERSION }}-build-${{ github.run_number }}"
+          echo "VERSION=$new_version" >> $GITHUB_ENV
+        
+      - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "build/app/outputs/flutter-apk/app-release.apk"
+          artifacts: "build/app/outputs/flutter-apk/app-release.apk,build/app/outputs/bundle/release/app-release.aab,build/ios_build.tar.gz"
+          tag: v${{ env.VERSION }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: "v${{ steps.get_version.outputs.VERSION }}"
-          name: "Release v${{ steps.get_version.outputs.VERSION }}"
-
-      - name: Upload IPA to GitHub Release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: build/ios/ipa/Runner.ipa
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: "v${{ steps.get_version.outputs.VERSION }}"
-          name: "Release v${{ steps.get_version.outputs.VERSION }}"
