@@ -20,6 +20,7 @@ jobs:
         with:
           distribution: 'oracle'
           java-version: '17'
+          cache: 'gradle'
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -48,7 +49,7 @@ jobs:
       - name: Install and build web resources
         working-directory: resources/ebook-reader/apps/web
         run: |
-          pnpm install
+          pnpm install --frozen-lockfile
           pnpm build
 
       # Copy build output to Flutter assets
