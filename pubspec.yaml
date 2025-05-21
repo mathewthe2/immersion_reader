@@ -59,7 +59,6 @@ dependencies:
   cached_network_image: ^3.2.2
   transparent_image: ^2.0.0
   flutter_inapp_purchase: ^5.3.1
-  # timeago: ^3.4.0
   wakelock_plus: ^1.2.10
   # apple_vision_flutter:
   #   git:
