@@ -2,7 +2,7 @@
 
 <h3><a href="https://apps.apple.com/us/app/immersion-reader/id6443721334">Download on App Store</h3>
 
-<h3><a href="https://play.google.com/store/apps/details?id=com.immersionkit.immersion_reader">Download on Play Store (Android)</h3>
+<a href="https://play.google.com/store/apps/details?id=com.immersionkit.immersion_reader"><img alt="Get it on Playstore" src="https://github.com/user-attachments/assets/05932039-a91f-410e-b10a-b3085fda5947" height="80"/></a>
 
 <p float="left">
   <img src="https://user-images.githubusercontent.com/13146030/201500224-030caf5f-927c-423e-ac54-d84150c7f3fe.jpg" width="240" />
