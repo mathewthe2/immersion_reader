@@ -10,23 +10,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
         with:
-          java-version: '17'
-          distribution: 'zulu'
+          path: /opt/hostedtoolcache/flutter
+          key: ${{ runner.OS }}-flutter-install-cache-${{ env.FLUTTER_VERSION }}
 
       - name: Install Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@v1
         with:
-          flutter-version: 'stable'
-          channel: 'stable'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
 
-      - name: Get dependencies
-        run: flutter pub get
-
+      - name: Install dependencies
+        run: |
+          flutter pub get
+          
       - name: Build APK
         run: flutter build apk --release
 
