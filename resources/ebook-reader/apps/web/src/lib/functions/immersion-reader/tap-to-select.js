@@ -318,8 +318,9 @@ export function highlightParagraph(paragraph, initialOffset, textLength) {
 
         // skip element if offset is longer than element contents
         if (relativeOffset > textContent.length) {
-          if (textContent.trim().length > 0) { // ignore empty nodes but keep spaces when calculating position
-            textCounter += textContent.trim().length;
+          if (textContent.trim().length > 0) {
+            // ignore empty nodes but keep spaces when calculating position
+            textCounter += textContent.length;
           }
           continue;
         }
