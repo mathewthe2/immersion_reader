@@ -74,7 +74,6 @@ dependencies:
   audio_service: ^0.18.18
   scrollable_positioned_list: ^0.3.8
   # animated_bottom_navigation_bar: ^1.4.0
-  # home_widget: ^0.7.0
   # onnxruntime: ^1.4.1
   # rust_lib_immersion_reader:
   #   path: rust_builder
