@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "28323841573",
+    "project_id": "immersion-45a63",
+    "storage_bucket": "immersion-45a63.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:28323841573:android:722aaeb39171de49b8a1cc",
+        "android_client_info": {
+          "package_name": "com.immersionkit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "28323841573-d1jfdocfghph3aloq0v0qgvvuql93h5i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaayxyRba-ZC5xVQb4ibOXfbAgMPV61oc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "28323841573-d1jfdocfghph3aloq0v0qgvvuql93h5i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:28323841573:android:593d9b62debcc57bb8a1cc",
+        "android_client_info": {
+          "package_name": "com.immersionkit.immersion_reader"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "28323841573-d1jfdocfghph3aloq0v0qgvvuql93h5i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaayxyRba-ZC5xVQb4ibOXfbAgMPV61oc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "28323841573-d1jfdocfghph3aloq0v0qgvvuql93h5i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
