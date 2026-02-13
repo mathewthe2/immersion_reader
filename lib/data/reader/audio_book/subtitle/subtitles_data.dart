@@ -10,15 +10,19 @@ class SubtitlesData {
 
   SubtitlesData({required this.subtitles, required this.indexToSubIndexMap});
 
-  static final SubtitlesData empty =
-      SubtitlesData(subtitles: [], indexToSubIndexMap: {});
+  static final SubtitlesData empty = SubtitlesData(
+    subtitles: [],
+    indexToSubIndexMap: {},
+  );
 
   factory SubtitlesData.fromMapList(List<dynamic> mapList) {
     List<Subtitle> subtitles = [];
     Map<String, int> indexMap = {};
     for (int i = 0; i < mapList.length; i++) {
-      final subtitle =
-          Subtitle.fromMap(Map<String, dynamic>.from(mapList[i]), i);
+      final subtitle = Subtitle.fromMap(
+        Map<String, dynamic>.from(mapList[i]),
+        i,
+      );
       subtitles.add(subtitle);
       indexMap[subtitle.id] = i;
     }
@@ -34,12 +38,14 @@ class SubtitlesData {
     indexToSubIndexMap = {};
   }
 
-  static Future<SubtitlesData> readSubtitlesFromFile(
-      {required File file,
-      required InAppWebViewController webController}) async {
+  static Future<SubtitlesData> readSubtitlesFromFile({
+    required File file,
+    required InAppWebViewController webController,
+  }) async {
     final content = await file.readAsString();
-    final result =
-        await webController.evaluateJavascript(source: parseSubtitle(content));
+    final result = await webController.evaluateJavascript(
+      source: parseSubtitle(content),
+    );
     if (result != null) {
       return SubtitlesData.fromMapList(result);
     }

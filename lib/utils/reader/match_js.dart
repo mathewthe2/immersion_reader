@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:immersion_reader/data/reader/audio_book/subtitle/subtitle.dart';
 
 const _getAllTextNodes = """
@@ -23,7 +24,8 @@ function getAllTextNodes() {
 }
 """;
 
-const getTextNodes = """
+const getTextNodes =
+    """
   $_getAllTextNodes
   getAllTextNodes().map((node)=>node.textContent)
 """;
@@ -790,12 +792,13 @@ function onMatchSubtitles({ subtitles = [], elementHtml = '', startHintNodeConte
 }
 """;
 
-String startMatch(
-    {required int nodeIndex,
-    required String elementHtml,
-    required List<Subtitle> subtitles}) {
+String startMatch({
+  required int nodeIndex,
+  required String elementHtml,
+  required List<Subtitle> subtitles,
+}) {
   var elementHtmlEncoded = Uri.encodeFull(elementHtml);
-  var subtitleString = Subtitle.subtitleListToString(subtitles);
+  final subtitlesJson = jsonEncode(subtitles.map((s) => s.toJson()).toList());
 
   return """
   $_getAllTextNodes
@@ -806,7 +809,7 @@ String startMatch(
 
 
   var elementHtml = decodeURI('$elementHtmlEncoded');
-  var subtitles = JSON.parse('$subtitleString');
+  var subtitles = $subtitlesJson;
 
   var textNode = getAllTextNodes()[$nodeIndex];
 

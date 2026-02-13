@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 const srtParser = r"""
 // https://github.com/1c7/srt-parser-2
 var srtParser2 = /** @class */ (function () {
@@ -131,9 +133,11 @@ var srtParser2 = /** @class */ (function () {
 """;
 
 String parseSubtitle(String subtitleString) {
+  final encoded = jsonEncode(subtitleString);
+
   return """
 $srtParser
 var parser = new srtParser2();
-parser.fromSrt("${subtitleString.replaceAll("\n", r"\n")}");
+parser.fromSrt($encoded);
 """;
 }

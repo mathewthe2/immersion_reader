@@ -75,7 +75,10 @@ class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
       AudioBookFiles? newAudioBook = await getAudioBook();
       if (newAudioBook != null) {
         await AudioPlayerManager().loadSubtitlesFromFiles(
-            audioBookFiles: newAudioBook, bookId: book.id!, isRefetch: true);
+          audioBookFiles: newAudioBook,
+          bookId: book.id!,
+          isRefetch: true,
+        );
       }
     }
   }
@@ -89,14 +92,17 @@ class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
         Future<void> setupAudioPlayer() async {
           await AudioPlayerHandler.setup();
           await AudioPlayerManager().loadAudioFromFiles(
-              audioBookFiles: newAudioBook,
-              bookId: book.id,
-              playBackPositionInMs: book.playBackPositionInMs,
-              isRefetch: true);
+            audioBookFiles: newAudioBook,
+            bookId: book.id,
+            playBackPositionInMs: book.playBackPositionInMs,
+            isRefetch: true,
+          );
         }
 
-        await Future.wait(
-            [BookManager().removeBookAudioCache(book.id!), setupAudioPlayer()]);
+        await Future.wait([
+          BookManager().removeBookAudioCache(book.id!),
+          setupAudioPlayer(),
+        ]);
       }
     }
   }
@@ -127,9 +133,9 @@ class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
         alignBeginningVisible = false;
       });
     } else {
-      final result = await ReaderJsManager()
-          .webController
-          .evaluateJavascript(source: getTextNodes);
+      final result = await ReaderJsManager().webController.evaluateJavascript(
+        source: getTextNodes,
+      );
       if (result != null) {
         setState(() {
           textNodes = List<String>.from(result);
@@ -145,7 +151,9 @@ class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
     if (audioBook != null) {
       setState(() {
         audioBook = AudioBookFiles(
-            subtitleFiles: [], audioFiles: audioBook!.audioFiles);
+          subtitleFiles: [],
+          audioFiles: audioBook!.audioFiles,
+        );
       });
     }
     AudioPlayerManager().removeSubtitlesFromFiles();
@@ -156,13 +164,17 @@ class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
     Future.wait([
       FolderUtils.removeAudioFilesForBook(book.id!),
       BookManager().setBookPlayBackPositionInMs(
-          bookId: book.id!, playBackPositionInMs: 0),
+        bookId: book.id!,
+        playBackPositionInMs: 0,
+      ),
     ]);
 
     if (audioBook != null) {
       setState(() {
         audioBook = AudioBookFiles(
-            subtitleFiles: audioBook!.subtitleFiles, audioFiles: []);
+          subtitleFiles: audioBook!.subtitleFiles,
+          audioFiles: [],
+        );
       });
     }
     Future.wait([
@@ -182,15 +194,18 @@ class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
     });
 
     final subtitlesData = await SubtitlesData.readSubtitlesFromFile(
-        file: audioBook!.subtitleFiles.first,
-        webController: ReaderJsManager().webController);
+      file: audioBook!.subtitleFiles.first,
+      webController: ReaderJsManager().webController,
+    );
     List<Subtitle> subtitles = subtitlesData.subtitles;
 
     final result = await ReaderJsManager().callAsyncJavaScript(
-        functionBody: startMatch(
-            nodeIndex: selectedTextNodeIndex,
-            subtitles: subtitles,
-            elementHtml: book.originalHtmlContent));
+      functionBody: startMatch(
+        nodeIndex: selectedTextNodeIndex,
+        subtitles: subtitles,
+        elementHtml: book.originalHtmlContent,
+      ),
+    );
     setState(() {
       isMatching = false;
     });
@@ -198,12 +213,13 @@ class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
     if (result != null && result.value != null && book.id != null) {
       setState(() {
         matchResult = AudioBookMatchResult(
-            bookId: book.id!,
-            elementHtml: result.value["elementHtml"] ?? "",
-            htmlBackup: result.value["htmlBackup"] ?? "",
-            matchedSubtitles: result.value["matchedSubtitles"]?.round() ?? 0,
-            lineMatchRate: result.value["lineMatchRate"] ?? "",
-            bookSubtitleDiffRate: result.value["bookSubtitleDiffRate"] ?? "");
+          bookId: book.id!,
+          elementHtml: result.value["elementHtml"] ?? "",
+          htmlBackup: result.value["htmlBackup"] ?? "",
+          matchedSubtitles: result.value["matchedSubtitles"]?.round() ?? 0,
+          lineMatchRate: result.value["lineMatchRate"] ?? "",
+          bookSubtitleDiffRate: result.value["bookSubtitleDiffRate"] ?? "",
+        );
       });
     }
   }
@@ -211,10 +227,11 @@ class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
   Future<void> applyMatches() async {
     if (matchResult != null) {
       LoadingDialog().showLoadingDialog(
-          msg: "Applying matches..."); // why does this take so long?
+        msg: "Applying matches...",
+      ); // why does this take so long?
       await Future.wait([
         BookFiles.updateBookContentHtml(matchResult!),
-        BookManager().updateBookMatchedSubtitles(matchResult!)
+        BookManager().updateBookMatchedSubtitles(matchResult!),
       ]);
       await ReaderJsManager().reloadReader();
       LoadingDialog().dismissLoadingDialog();
@@ -229,7 +246,7 @@ class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
     if (book.id != null) {
       await Future.wait([
         BookFiles.restoreBookContentHtmlFromBackup(book.id!),
-        resetSubtitles()
+        resetSubtitles(),
       ]);
       AudioPlayerManager().onResetMatches();
       await BookManager().removeAudioBookMatchesCache(book.id!);
@@ -245,10 +262,13 @@ class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
       book.matchedSubtitles = 0;
     }
     if (book.id != null) {
-      await BookManager().updateBookMatchedSubtitles(AudioBookMatchResult(
+      await BookManager().updateBookMatchedSubtitles(
+        AudioBookMatchResult(
           bookId: book.id!,
           elementHtml: book.elementHtml ?? "",
-          htmlBackup: book.elementHtmlBackup ?? ""));
+          htmlBackup: book.elementHtmlBackup ?? "",
+        ),
+      );
     }
     AudioPlayerManager().resetActiveSubtitle();
   }
@@ -273,106 +293,127 @@ class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
       return MultiColorText([
         (
           textNodes[index].truncateTo(maxTextLengthToShow),
-          CupertinoColors.black
+          CupertinoColors.black,
         ),
         (
           textNodes
               .sublist(index + 1, index + textNodeWindow)
               .join("")
               .truncateTo(maxTextLengthToShow - textNodes[index].length),
-          CupertinoColors.inactiveGray
+          CupertinoColors.inactiveGray,
         ),
       ]);
     }
     return MultiColorText([
-      (textNodes[index].truncateTo(maxTextLengthToShow), CupertinoColors.black)
+      (textNodes[index].truncateTo(maxTextLengthToShow), CupertinoColors.black),
     ]);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      SizedBox(height: context.spacer()),
-      AppText("Audio Book Matching", style: TextStyle(fontSize: 20)),
-      if (previouslyMatchedSubtitles > 0)
-        Column(
-          children: [
-            SizedBox(height: context.epic()),
-            AppText('Matched lines: $previouslyMatchedSubtitles'),
-            SizedBox(height: context.spacer()),
-            AppSecondaryButton(
-              label: 'Reset',
-              onPressed: resetMatches,
-            ),
-          ],
-        ),
-      if (previouslyMatchedSubtitles == 0)
-        Column(
-          children: [
-            if ((audioBook == null && !isFetchingAudioBook) ||
-                (audioBook != null && audioBook!.audioFiles.isEmpty))
-              AppButton(
+    return Column(
+      children: [
+        SizedBox(height: context.spacer()),
+        AppText("Audio Book Matching", style: TextStyle(fontSize: 20)),
+        if (previouslyMatchedSubtitles > 0)
+          Column(
+            children: [
+              SizedBox(height: context.epic()),
+              AppText('Matched lines: $previouslyMatchedSubtitles'),
+              SizedBox(height: context.spacer()),
+              AppSecondaryButton(label: 'Reset', onPressed: resetMatches),
+            ],
+          ),
+        if (previouslyMatchedSubtitles == 0)
+          Column(
+            children: [
+              if ((audioBook == null && !isFetchingAudioBook) ||
+                  (audioBook != null && audioBook!.audioFiles.isEmpty))
+                AppButton(
                   label: 'Add audio file (.mp3/.m4a)',
-                  onPressed: onAddAudioFile),
-            if (audioBook != null && audioBook!.audioFiles.isNotEmpty)
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                AppText(
-                    audioBook!.audioFiles.map((file) => file.name).join("")),
-                AppIconButton(
-                  CupertinoIcons.trash,
-                  onPressed: removeAudioFiles,
+                  onPressed: onAddAudioFile,
                 ),
-              ]),
-            if ((audioBook == null && !isFetchingAudioBook) ||
-                (audioBook != null && audioBook!.subtitleFiles.isEmpty))
+              if (audioBook != null && audioBook!.audioFiles.isNotEmpty)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      constraints: BoxConstraints(
+                        maxWidth: context.screenWidth * 0.7,
+                      ),
+                      margin: context.horizontalPadding(),
+                      child: AppText(
+                        audioBook!.audioFiles.map((file) => file.name).join(""),
+                      ),
+                    ),
+                    AppIconButton(
+                      CupertinoIcons.trash,
+                      onPressed: removeAudioFiles,
+                    ),
+                  ],
+                ),
+              if ((audioBook == null && !isFetchingAudioBook) ||
+                  (audioBook != null && audioBook!.subtitleFiles.isEmpty))
+                AppButton(
+                  label: 'Add subtitle file (.srt)',
+                  onPressed: onAddSubtitle,
+                ),
+              if (audioBook != null && audioBook!.subtitleFiles.isNotEmpty)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    AppText(
+                      audioBook!.subtitleFiles
+                          .map((file) => file.name)
+                          .join(""),
+                    ),
+                    AppIconButton(
+                      CupertinoIcons.trash,
+                      onPressed: removeSubtitleFiles,
+                    ),
+                  ],
+                ),
               AppButton(
-                label: 'Add subtitle file (.srt)',
-                onPressed: onAddSubtitle,
-              ),
-            if (audioBook != null && audioBook!.subtitleFiles.isNotEmpty)
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                AppText(
-                    audioBook!.subtitleFiles.map((file) => file.name).join("")),
-                AppIconButton(CupertinoIcons.trash,
-                    onPressed: removeSubtitleFiles),
-              ]),
-            AppButton(
                 label: 'Align beginning of text',
-                onPressed: onAlignTextBeginning),
-            if (alignBeginningVisible && textNodes.isNotEmpty)
-              SizedBox(
+                onPressed: onAlignTextBeginning,
+              ),
+              if (alignBeginningVisible && textNodes.isNotEmpty)
+                SizedBox(
                   height: context.epic(),
                   child: CupertinoScrollbar(
-                      child: SingleChildScrollView(
-                          child: Column(
-                    children: [
-                      ...textNodes.truncateTo(maxTextNodesToSelect).mapIndexed((
-                            index,
-                            textNode,
-                          ) =>
-                              CupertinoListTile(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          ...textNodes
+                              .truncateTo(maxTextNodesToSelect)
+                              .mapIndexed(
+                                (index, textNode) => CupertinoListTile(
                                   title: formatTextNode(index),
                                   onTap: () => selectTextNode(index),
                                   trailing: index == selectedTextNodeIndex
                                       ? Icon(
                                           size: 22,
                                           CupertinoIcons.check_mark,
-                                          color: CupertinoColors.activeBlue)
+                                          color: CupertinoColors.activeBlue,
+                                        )
                                       : null,
-                                  backgroundColor:
-                                      getColorForTextNodeSelection(index)))
-                    ],
-                  )))),
-            if (!alignBeginningVisible &&
-                textNodes.isNotEmpty &&
-                selectedTextNodeIndex > 0)
-              AppText("Beginning aligned"),
-            AppButton(
-              label: 'Start matching',
-              onPressed: onStartMatching,
-            ),
-            if (isMatching && matchProgressController != null)
-              StreamBuilder<int>(
+                                  backgroundColor: getColorForTextNodeSelection(
+                                    index,
+                                  ),
+                                ),
+                              ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              if (!alignBeginningVisible &&
+                  textNodes.isNotEmpty &&
+                  selectedTextNodeIndex > 0)
+                AppText("Beginning aligned"),
+              AppButton(label: 'Start matching', onPressed: onStartMatching),
+              if (isMatching && matchProgressController != null)
+                StreamBuilder<int>(
                   stream: matchProgressController!.stream,
                   builder: (context, streamSnapshot) {
                     if (streamSnapshot.connectionState ==
@@ -380,22 +421,28 @@ class _AudioBookMatchingState extends SafeState<AudioBookMatching> {
                       return AppText('${streamSnapshot.data!}%');
                     }
                     return Container();
-                  }),
-            if (!isMatching &&
-                matchResult != null &&
-                matchResult!.lineMatchRate.isNotEmpty &&
-                matchResult!.bookSubtitleDiffRate.isNotEmpty)
-              Column(
-                children: [
-                  AppText("Line match rate: ${matchResult!.lineMatchRate}"),
-                  AppText(
-                      "Book diff rate ${matchResult!.bookSubtitleDiffRate}"),
-                  if (matchResult!.matchedSubtitles > 0)
-                    AppButton(label: 'Apply matches', onPressed: applyMatches),
-                ],
-              )
-          ],
-        )
-    ]);
+                  },
+                ),
+              if (!isMatching &&
+                  matchResult != null &&
+                  matchResult!.lineMatchRate.isNotEmpty &&
+                  matchResult!.bookSubtitleDiffRate.isNotEmpty)
+                Column(
+                  children: [
+                    AppText("Line match rate: ${matchResult!.lineMatchRate}"),
+                    AppText(
+                      "Book diff rate ${matchResult!.bookSubtitleDiffRate}",
+                    ),
+                    if (matchResult!.matchedSubtitles > 0)
+                      AppButton(
+                        label: 'Apply matches',
+                        onPressed: applyMatches,
+                      ),
+                  ],
+                ),
+            ],
+          ),
+      ],
+    );
   }
 }

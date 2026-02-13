@@ -42,19 +42,20 @@ class Subtitle {
   String text;
   int subIndex; // strictly increasing index assigned by immersion reader
 
-  Subtitle(
-      {required this.id,
-      required this.originalStartSeconds,
-      this.adjustedStartSeconds,
-      required this.startSeconds,
-      required this.startTime,
-      required this.originalEndSeconds,
-      this.adjustedEndSeconds,
-      required this.endSeconds,
-      required this.endTime,
-      required this.originalText,
-      required this.text,
-      required this.subIndex});
+  Subtitle({
+    required this.id,
+    required this.originalStartSeconds,
+    this.adjustedStartSeconds,
+    required this.startSeconds,
+    required this.startTime,
+    required this.originalEndSeconds,
+    this.adjustedEndSeconds,
+    required this.endSeconds,
+    required this.endTime,
+    required this.originalText,
+    required this.text,
+    required this.subIndex,
+  });
 
   // to be configurable
   static int subtitlesGlobalStartPadding = 0;
@@ -64,25 +65,31 @@ class Subtitle {
   factory Subtitle.fromMap(Map<String, Object?> map, int index) {
     // var a = map['startSeconds'];
     // print(a);
-    double startSeconds =
-        max(0, (map['startSeconds'].toDouble) + subtitlesGlobalStartPadding);
+    double startSeconds = max(
+      0,
+      (map['startSeconds'].toDouble) + subtitlesGlobalStartPadding,
+    );
     double endSeconds = duration > 0
-        ? between(0, duration,
-            (map['endSeconds'].toDouble) + subtitlesGlobalEndPadding)
+        ? between(
+            0,
+            duration,
+            (map['endSeconds'].toDouble) + subtitlesGlobalEndPadding,
+          )
         : max(0, (map['endSeconds'].toDouble) + subtitlesGlobalEndPadding);
     String text = (map['text'] as String).trim();
 
     return Subtitle(
-        id: map["id"] as String,
-        originalStartSeconds: map['startSeconds'].toDouble,
-        startSeconds: startSeconds,
-        startTime: toTimeStamp(startSeconds),
-        originalEndSeconds: map['endSeconds'].toDouble,
-        endSeconds: endSeconds,
-        endTime: toTimeStamp(endSeconds),
-        originalText: map['text'] as String,
-        text: text,
-        subIndex: index);
+      id: map["id"] as String,
+      originalStartSeconds: map['startSeconds'].toDouble,
+      startSeconds: startSeconds,
+      startTime: toTimeStamp(startSeconds),
+      originalEndSeconds: map['endSeconds'].toDouble,
+      endSeconds: endSeconds,
+      endTime: toTimeStamp(endSeconds),
+      originalText: map['text'] as String,
+      text: text,
+      subIndex: index,
+    );
   }
 
   @override
@@ -99,7 +106,7 @@ class Subtitle {
       'endTime': endTime,
       'originalText': originalText,
       'text': text,
-      'subIndex': subIndex
+      'subIndex': subIndex,
     });
   }
 
@@ -109,7 +116,10 @@ class Subtitle {
   Duration get endDuration =>
       Duration(milliseconds: (originalEndSeconds * 1000).round());
 
-  static String subtitleListToString(List<Subtitle> subtitles) {
-    return '[${subtitles.map((subtitle) => subtitle.toString()).toList().join(", ")}]';
-  }
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "text": text,
+    "startTime": startTime,
+    "endTime": endTime,
+  };
 }
