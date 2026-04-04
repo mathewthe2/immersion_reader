@@ -33,7 +33,7 @@ android {
     if (project.android.hasProperty("namespace")) {
         namespace 'com.immersionkit.immersion_reader'
     }
-    compileSdkVersion 35
+    compileSdkVersion 36
     // compileSdkVersion flutter.compileSdkVersion
     ndkVersion "27.0.12077973" // flutter.ndkVersion
 
