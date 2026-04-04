@@ -16,11 +16,13 @@ import 'pages/search_page.dart';
 import 'pages/vocabulary_list/vocabulary_list_page.dart';
 
 void main() {
-  runApp(CupertinoApp(
-    home: const App(),
-    navigatorObservers: [FlutterSmartDialog.observer],
-    builder: FlutterSmartDialog.init(),
-  ));
+  runApp(
+    CupertinoApp(
+      home: const App(),
+      navigatorObservers: [FlutterSmartDialog.observer],
+      builder: FlutterSmartDialog.init(),
+    ),
+  );
 }
 
 class App extends StatefulWidget {
@@ -46,11 +48,13 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     'Discover': CupertinoIcons.compass,
     'My Words': CupertinoIcons.star_fill,
     'Search': CupertinoIcons.search,
-    'Settings': CupertinoIcons.settings
+    'Settings': CupertinoIcons.settings,
   };
 
-  final List<GlobalKey<NavigatorState>> tabNavKeys =
-      List.generate(5, (_) => GlobalKey<NavigatorState>()); // 4 tabs
+  final List<GlobalKey<NavigatorState>> tabNavKeys = List.generate(
+    5,
+    (_) => GlobalKey<NavigatorState>(),
+  ); // 4 tabs
 
   @override
   void initState() {
@@ -66,13 +70,14 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   Future<void> setupProviders() async {
     sharedPreferences = await SharedPreferences.getInstance();
-    localAssetsServerManager =
-        LocalAssetsServerManager.create(sharedPreferences!);
+    localAssetsServerManager = LocalAssetsServerManager.create(
+      sharedPreferences!,
+    );
     List<dynamic> asyncData = await Future.wait([
       PaymentProvider.create(sharedPreferences!),
       StorageProvider.create(),
-      PopupDictionary.warmUp(), // warm up popup dictionary
     ]);
+    await PopupDictionary.warmUp(); // warm up popup dictionary
     paymentProvider = asyncData[0];
     storageProvider = asyncData[1];
     ManagerService.setupAll(storageProvider);
@@ -122,9 +127,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   void handleSwitchNavigation(int index) {
     if (index != readerPageIndex || currentIndex == index) {
       // exclude reader tab
-      tabNavKeys[index]
-          .currentState
-          ?.popUntil((r) => r.isFirst); // pop to root of each page
+      tabNavKeys[index].currentState?.popUntil(
+        (r) => r.isFirst,
+      ); // pop to root of each page
     }
 
     if (index == vocabularyListPageIndex && isReady()) {
@@ -132,11 +137,10 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     }
 
     NavigationManager().handleReaderSession(
-        isStartSession: (index == readerPageIndex && currentIndex != index),
-        isSamePage:
-            (currentIndex == readerPageIndex && index == readerPageIndex),
-        isTerminateSession: (currentIndex ==
-            readerPageIndex)); // if user exits the reader and stays on the reader page, that still triggers termination
+      isStartSession: (index == readerPageIndex && currentIndex != index),
+      isSamePage: (currentIndex == readerPageIndex && index == readerPageIndex),
+      isTerminateSession: (currentIndex == readerPageIndex),
+    ); // if user exits the reader and stays on the reader page, that still triggers termination
     currentIndex = index;
   }
 
@@ -144,10 +148,17 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return CupertinoTabScaffold(
       resizeToAvoidBottomInset: false,
-      tabBar: CupertinoTabBar(onTap: handleSwitchNavigation, items: [
-        ...navigationItems.entries.map((entry) =>
-            BottomNavigationBarItem(icon: Icon(entry.value), label: entry.key))
-      ]),
+      tabBar: CupertinoTabBar(
+        onTap: handleSwitchNavigation,
+        items: [
+          ...navigationItems.entries.map(
+            (entry) => BottomNavigationBarItem(
+              icon: Icon(entry.value),
+              label: entry.key,
+            ),
+          ),
+        ],
+      ),
       tabBuilder: (BuildContext context, int index) {
         return buildViews(index);
       },
@@ -163,10 +174,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   }
 
   Widget progressIndicator() {
-    return const CupertinoActivityIndicator(
-      animating: true,
-      radius: 24,
-    );
+    return const CupertinoActivityIndicator(animating: true, radius: 24);
   }
 
   Widget getViewWidget(int index) {
@@ -175,16 +183,17 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       Discover(sharedPreferences: sharedPreferences!),
       const VocabularyListPage(),
       const SearchPage(),
-      const SettingsPage()
+      const SettingsPage(),
     ];
     return viewWidgets[index];
   }
 
   Widget buildViews(int index) {
     return CupertinoTabView(
-        navigatorKey: tabNavKeys[index],
-        builder: (BuildContext context) {
-          return isReady() ? getViewWidget(index) : progressIndicator();
-        });
+      navigatorKey: tabNavKeys[index],
+      builder: (BuildContext context) {
+        return isReady() ? getViewWidget(index) : progressIndicator();
+      },
+    );
   }
 }

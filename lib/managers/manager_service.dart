@@ -14,10 +14,10 @@ class ManagerService {
   static const managers = [
     BookManager,
     BrowserManager,
-    DictionaryManager,
     ProfileManager,
     SettingsManager,
-    VocabularyListManager
+    DictionaryManager,
+    VocabularyListManager,
   ];
 
   static void setupAll(StorageProvider storageProvider) {
@@ -30,28 +30,35 @@ class ManagerService {
     switch (manager) {
       case const (BookManager):
         BookManager.create(
-            storageProvider.storage(SettingsStorage) as SettingsStorage);
+          storageProvider.storage(SettingsStorage) as SettingsStorage,
+        );
         break;
       case const (BrowserManager):
         BrowserManager.create(
-            storageProvider.storage(BrowserStorage) as BrowserStorage,
-            storageProvider.storage(SettingsStorage) as SettingsStorage);
+          storageProvider.storage(BrowserStorage) as BrowserStorage,
+          storageProvider.storage(SettingsStorage) as SettingsStorage,
+        );
         break;
       case const (DictionaryManager):
         DictionaryManager.create(
-            storageProvider.storage(SettingsStorage) as SettingsStorage);
+          storageProvider.storage(SettingsStorage) as SettingsStorage,
+        );
         break;
       case const (ProfileManager):
         ProfileManager.create(
-            storageProvider.storage(ProfileStorage) as ProfileStorage);
+          storageProvider.storage(ProfileStorage) as ProfileStorage,
+        );
         break;
       case const (SettingsManager):
         SettingsManager.create(
-            storageProvider.storage(SettingsStorage) as SettingsStorage);
+          storageProvider.storage(SettingsStorage) as SettingsStorage,
+        );
         break;
       case const (VocabularyListManager):
-        VocabularyListManager.create(storageProvider
-            .storage(VocabularyListStorage) as VocabularyListStorage);
+        VocabularyListManager.create(
+          storageProvider.storage(VocabularyListStorage)
+              as VocabularyListStorage,
+        );
         break;
     }
   }

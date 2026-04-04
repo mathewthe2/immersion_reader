@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:collection/collection.dart';
+import 'package:immersion_reader/data/settings/general_setting.dart';
 import 'package:immersion_reader/data/settings/reader_setting.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/cupertino.dart';
@@ -47,19 +48,38 @@ class SettingsManager {
     if (defaultConfigCache != null) {
       return defaultConfigCache!;
     }
-    ByteData bytes = await rootBundle
-        .load(p.join("assets", "settings", "defaultConfig.json"));
+    ByteData bytes = await rootBundle.load(
+      p.join("assets", "settings", "defaultConfig.json"),
+    );
     String jsonStr = const Utf8Decoder().convert(bytes.buffer.asUint8List());
     Map<String, Object?> json = jsonDecode(jsonStr);
     defaultConfigCache = SettingsData.fromMap(json);
     return defaultConfigCache!;
   }
 
+  Future<void> updateLookupLanguage(LookupLanguage lookupLanguage) async {
+    await settingsStorage?.changeConfigSettings(
+      GeneralSetting.lookupLanguageKey,
+      lookupLanguage.name,
+      onSuccessCallback: () =>
+          settingsStorage!.settingsCache!.generalSetting.lookupLanguage =
+              lookupLanguage,
+    );
+  }
+
+  Future<LookupLanguage> getLookupLanguage() async {
+    SettingsData data = await _getSettingsData();
+    return data.generalSetting.lookupLanguage;
+  }
+
   Future<void> toggleShowFrequencyTags(bool isShowFrequencyTags) async {
     await settingsStorage?.changeConfigSettings(
-        AppearanceSetting.showFrequencyTagsKey, isShowFrequencyTags ? "1" : "0",
-        onSuccessCallback: () => settingsStorage!.settingsCache!
-            .appearanceSetting.showFrequencyTags = isShowFrequencyTags);
+      AppearanceSetting.showFrequencyTagsKey,
+      isShowFrequencyTags ? "1" : "0",
+      onSuccessCallback: () =>
+          settingsStorage!.settingsCache!.appearanceSetting.showFrequencyTags =
+              isShowFrequencyTags,
+    );
   }
 
   Future<bool> getIsShowFrequencyTags() async {
@@ -69,10 +89,15 @@ class SettingsManager {
 
   Future<void> toggleEnableReaderFullScreen(bool enableReaderFullScreen) async {
     await settingsStorage?.changeConfigSettings(
-        AppearanceSetting.enableReaderFullScreenKey,
-        enableReaderFullScreen ? "1" : "0",
-        onSuccessCallback: () => settingsStorage!.settingsCache!
-            .appearanceSetting.enableReaderFullScreen = enableReaderFullScreen);
+      AppearanceSetting.enableReaderFullScreenKey,
+      enableReaderFullScreen ? "1" : "0",
+      onSuccessCallback: () =>
+          settingsStorage!
+                  .settingsCache!
+                  .appearanceSetting
+                  .enableReaderFullScreen =
+              enableReaderFullScreen,
+    );
   }
 
   Future<bool> getIsEnabledReaderFullScreen() async {
@@ -82,17 +107,25 @@ class SettingsManager {
 
   Future<void> toggleKeepScreenOn(bool isKeepScreenOn) async {
     await settingsStorage?.changeConfigSettings(
-        AppearanceSetting.isKeepScreenOnKey, isKeepScreenOn ? "1" : "0",
-        onSuccessCallback: () => settingsStorage!
-            .settingsCache!.appearanceSetting.isKeepScreenOn = isKeepScreenOn);
+      AppearanceSetting.isKeepScreenOnKey,
+      isKeepScreenOn ? "1" : "0",
+      onSuccessCallback: () =>
+          settingsStorage!.settingsCache!.appearanceSetting.isKeepScreenOn =
+              isKeepScreenOn,
+    );
   }
 
   Future<void> toggleShowDeviceStatusBar(bool isShowDeviceStatusBar) async {
     await settingsStorage?.changeConfigSettings(
-        AppearanceSetting.isShowDeviceStatusBarKey,
-        isShowDeviceStatusBar ? "1" : "0",
-        onSuccessCallback: () => settingsStorage!.settingsCache!
-            .appearanceSetting.isShowDeviceStatusBar = isShowDeviceStatusBar);
+      AppearanceSetting.isShowDeviceStatusBarKey,
+      isShowDeviceStatusBar ? "1" : "0",
+      onSuccessCallback: () =>
+          settingsStorage!
+                  .settingsCache!
+                  .appearanceSetting
+                  .isShowDeviceStatusBar =
+              isShowDeviceStatusBar,
+    );
   }
 
   Future<bool> getIsKeepScreenOn() async {
@@ -102,18 +135,28 @@ class SettingsManager {
 
   Future<void> toggleEnableSlideAnimation(bool enableSlideAnimation) async {
     await settingsStorage?.changeConfigSettings(
-        AppearanceSetting.enableSlideAnimationKey,
-        enableSlideAnimation ? "1" : "0",
-        onSuccessCallback: () => settingsStorage!.settingsCache!
-            .appearanceSetting.enableSlideAnimation = enableSlideAnimation);
+      AppearanceSetting.enableSlideAnimationKey,
+      enableSlideAnimation ? "1" : "0",
+      onSuccessCallback: () =>
+          settingsStorage!
+                  .settingsCache!
+                  .appearanceSetting
+                  .enableSlideAnimation =
+              enableSlideAnimation,
+    );
   }
 
   Future<void> toggleEnableLookupHighlight(bool enableLookupHighlight) async {
     await settingsStorage?.changeConfigSettings(
-        AppearanceSetting.enableLookupHighlightKey,
-        enableLookupHighlight ? "1" : "0",
-        onSuccessCallback: () => settingsStorage!.settingsCache!
-            .appearanceSetting.enableLookupHighlight = enableLookupHighlight);
+      AppearanceSetting.enableLookupHighlightKey,
+      enableLookupHighlight ? "1" : "0",
+      onSuccessCallback: () =>
+          settingsStorage!
+                  .settingsCache!
+                  .appearanceSetting
+                  .enableLookupHighlight =
+              enableLookupHighlight,
+    );
   }
 
   Future<bool> getIsEnabledLookupHighlight() async {
@@ -127,14 +170,18 @@ class SettingsManager {
   }
 
   Future<void> toggleAllowLookupWhilePopupActive(
-      bool allowLookupWhilePopupActive) async {
+    bool allowLookupWhilePopupActive,
+  ) async {
     await settingsStorage?.changeConfigSettings(
-        AppearanceSetting.allowLookupWhilePopupActiveKey,
-        allowLookupWhilePopupActive ? "1" : "0",
-        onSuccessCallback: () => settingsStorage!
-            .settingsCache!
-            .appearanceSetting
-            .allowLookupWhilePopupActive = allowLookupWhilePopupActive);
+      AppearanceSetting.allowLookupWhilePopupActiveKey,
+      allowLookupWhilePopupActive ? "1" : "0",
+      onSuccessCallback: () =>
+          settingsStorage!
+                  .settingsCache!
+                  .appearanceSetting
+                  .allowLookupWhilePopupActive =
+              allowLookupWhilePopupActive,
+    );
   }
 
   Future<bool> getAllowLookupWhilePopupActive() async {
@@ -143,39 +190,51 @@ class SettingsManager {
   }
 
   Future<void> updatePitchAccentStyle(
-      PitchAccentDisplayStyle pitchAccentDisplayStyle) async {
+    PitchAccentDisplayStyle pitchAccentDisplayStyle,
+  ) async {
     await settingsStorage?.changeConfigSettings(
-        AppearanceSetting.pitchAccentStyleKey, pitchAccentDisplayStyle.name,
-        onSuccessCallback: () => settingsStorage!
-            .settingsCache!
-            .appearanceSetting
-            .pitchAccentStyleString = pitchAccentDisplayStyle.name);
+      AppearanceSetting.pitchAccentStyleKey,
+      pitchAccentDisplayStyle.name,
+      onSuccessCallback: () =>
+          settingsStorage!
+                  .settingsCache!
+                  .appearanceSetting
+                  .pitchAccentStyleString =
+              pitchAccentDisplayStyle.name,
+    );
   }
 
   Future<PitchAccentDisplayStyle> getPitchAccentStyle() async {
     SettingsData data = await _getSettingsData();
     String pitchAccentString = data.appearanceSetting.pitchAccentStyleString;
-    return PitchAccentDisplayStyle.values
-            .firstWhereOrNull((e) => e.name == pitchAccentString) ??
+    return PitchAccentDisplayStyle.values.firstWhereOrNull(
+          (e) => e.name == pitchAccentString,
+        ) ??
         PitchAccentDisplayStyle.none;
   }
 
   Future<void> updatePopupDictionaryTheme(
-      PopupDictionaryTheme popupDictionaryTheme) async {
+    PopupDictionaryTheme popupDictionaryTheme,
+  ) async {
     await settingsStorage?.changeConfigSettings(
-        AppearanceSetting.popupDictionaryThemeKey, popupDictionaryTheme.name,
-        onSuccessCallback: () => settingsStorage!
-            .settingsCache!
-            .appearanceSetting
-            .popupDictionaryThemeString = popupDictionaryTheme.name);
+      AppearanceSetting.popupDictionaryThemeKey,
+      popupDictionaryTheme.name,
+      onSuccessCallback: () =>
+          settingsStorage!
+                  .settingsCache!
+                  .appearanceSetting
+                  .popupDictionaryThemeString =
+              popupDictionaryTheme.name,
+    );
   }
 
   Future<PopupDictionaryTheme> getPopupDictionaryTheme() async {
     SettingsData data = await _getSettingsData();
     String popupDictionaryThemeString =
         data.appearanceSetting.popupDictionaryThemeString;
-    return PopupDictionaryTheme.values
-        .firstWhere((e) => e.name == popupDictionaryThemeString);
+    return PopupDictionaryTheme.values.firstWhere(
+      (e) => e.name == popupDictionaryThemeString,
+    );
   }
 
   Future<Color> getReaderBackgroundColor() async {
@@ -186,9 +245,12 @@ class SettingsManager {
   // this is invoked when user changes reader background in ttu
   Future<void> setReaderBackgroundColor(String readerBackgroundColor) async {
     await settingsStorage?.changeConfigSettings(
-        AppearanceSetting.readerThemeKey, readerBackgroundColor,
-        onSuccessCallback: () => settingsStorage!.settingsCache!
-            .appearanceSetting.readerThemeString = readerBackgroundColor);
+      AppearanceSetting.readerThemeKey,
+      readerBackgroundColor,
+      onSuccessCallback: () =>
+          settingsStorage!.settingsCache!.appearanceSetting.readerThemeString =
+              readerBackgroundColor,
+    );
   }
 
   Future<bool> getIsMigratedFromIndexedDb() async {
@@ -198,8 +260,14 @@ class SettingsManager {
 
   Future<void> setIsMigratedFromIndexedDb(bool isMigrated) async {
     await settingsStorage?.changeConfigSettings(
-        ReaderSetting.isMigratedFromIndexedDbKey, isMigrated ? "1" : "0",
-        onSuccessCallback: () => settingsStorage!
-            .settingsCache!.readerSetting.isMigratedFromIndexedDb = isMigrated);
+      ReaderSetting.isMigratedFromIndexedDbKey,
+      isMigrated ? "1" : "0",
+      onSuccessCallback: () =>
+          settingsStorage!
+                  .settingsCache!
+                  .readerSetting
+                  .isMigratedFromIndexedDb =
+              isMigrated,
+    );
   }
 }

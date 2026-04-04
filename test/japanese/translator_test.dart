@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:immersion_reader/data/database/sql_repository.dart';
-import 'package:immersion_reader/japanese/translator.dart';
+import 'package:immersion_reader/japanese/japanese_translator.dart';
 import 'package:immersion_reader/japanese/vocabulary.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -14,12 +14,17 @@ Future main() async {
     databaseFactory = databaseFactoryFfi;
   });
   Future<Database> createDictionary() async {
-    var db = await openDatabase(inMemoryDatabasePath, version: 1,
-        onCreate: (db, version) async {
-      Batch batch = await SqlRepository.insertTablesForDatabase(
-          db, SettingsStorage.databaseName);
-      await batch.commit();
-    });
+    var db = await openDatabase(
+      inMemoryDatabasePath,
+      version: 1,
+      onCreate: (db, version) async {
+        Batch batch = await SqlRepository.insertTablesForDatabase(
+          db,
+          SettingsStorage.databaseName,
+        );
+        await batch.commit();
+      },
+    );
     await db.insert('Dictionary', {'id': 1, 'title': 'JMDict', 'enabled': 1});
     return db;
   }
@@ -36,7 +41,7 @@ Future main() async {
     settingsStorage.database = db;
 
     var text = 'あくびをした';
-    Translator translator = Translator.create(settingsStorage);
+    JapaneseTranslator translator = JapaneseTranslator.create(settingsStorage);
     List<Vocabulary> vocabularyListResult = await translator.findTerm(text);
     expect(vocabularyListResult.length, 1);
     expect(vocabularyListResult.first.expression, entry.expression);
@@ -56,7 +61,7 @@ Future main() async {
     settingsStorage.database = db;
 
     var text = '呑んだ';
-    Translator translator = Translator.create(settingsStorage);
+    JapaneseTranslator translator = JapaneseTranslator.create(settingsStorage);
     List<Vocabulary> vocabularyListResult = await translator.findTerm(text);
     expect(vocabularyListResult.length, 1);
     expect(vocabularyListResult.first.expression, entry.expression);
@@ -86,7 +91,7 @@ Future main() async {
     settingsStorage.database = db;
 
     var text = 'とても気になっていたはずなのに';
-    Translator translator = Translator.create(settingsStorage);
+    JapaneseTranslator translator = JapaneseTranslator.create(settingsStorage);
     List<Vocabulary> vocabularyListResult = await translator.findTerm(text);
     expect(vocabularyListResult.length, 1);
     expect(vocabularyListResult.first.expression, entry.expression);
@@ -126,7 +131,7 @@ Future main() async {
     settingsStorage.database = db;
 
     var text = '反芻';
-    Translator translator = Translator.create(settingsStorage);
+    JapaneseTranslator translator = JapaneseTranslator.create(settingsStorage);
     List<Vocabulary> vocabularyListResult = await translator.findTerm(text);
     expect(vocabularyListResult.first.entries.length, 2);
     await db.close();
@@ -150,7 +155,7 @@ Future main() async {
     settingsStorage.database = db;
 
     var text = '彼';
-    Translator translator = Translator.create(settingsStorage);
+    JapaneseTranslator translator = JapaneseTranslator.create(settingsStorage);
     List<Vocabulary> vocabularyListResult = await translator.findTerm(text);
     expect(vocabularyListResult.length, 2);
     expect(vocabularyListResult.first.expression, entry.expression);
@@ -185,7 +190,7 @@ Future main() async {
     settingsStorage.database = db;
 
     var text = '私';
-    Translator translator = Translator.create(settingsStorage);
+    JapaneseTranslator translator = JapaneseTranslator.create(settingsStorage);
     List<Vocabulary> vocabularyListResult = await translator.findTerm(text);
     expect(vocabularyListResult.length, 1 + lowPriorityEntries.length);
     expect(vocabularyListResult.first.expression, entry.expression);
@@ -210,7 +215,7 @@ Future main() async {
     settingsStorage.database = db;
 
     var text = 'それ';
-    Translator translator = Translator.create(settingsStorage);
+    JapaneseTranslator translator = JapaneseTranslator.create(settingsStorage);
     List<Vocabulary> vocabularyListResult = await translator.findTerm(text);
     expect(vocabularyListResult.length, 2);
     expect(vocabularyListResult.first.expression, entry.expression);
@@ -235,7 +240,7 @@ Future main() async {
     settingsStorage.database = db;
 
     var text = 'その';
-    Translator translator = Translator.create(settingsStorage);
+    JapaneseTranslator translator = JapaneseTranslator.create(settingsStorage);
     List<Vocabulary> vocabularyListResult = await translator.findTerm(text);
     expect(vocabularyListResult.length, 2);
     expect(vocabularyListResult.first.expression, entry.expression);
@@ -260,7 +265,7 @@ Future main() async {
     settingsStorage.database = db;
 
     var text = '隣りに';
-    Translator translator = Translator.create(settingsStorage);
+    JapaneseTranslator translator = JapaneseTranslator.create(settingsStorage);
     List<Vocabulary> vocabularyListResult = await translator.findTerm(text);
     expect(vocabularyListResult.length, 2);
     expect(vocabularyListResult.first.expression, entry.expression);

@@ -16,13 +16,17 @@ class Dictionary {
     return _singleton;
   }
 
-  Future<List<DictionaryEntry>> findTermsBulk(List<String> terms,
-      {isHaveDisabledDictionaries = false}) async {
+  Future<List<DictionaryEntry>> findTermsBulk(
+    List<String> terms, {
+    isHaveDisabledDictionaries = false,
+    isOrdered = false, // not needed if ordering is performed later
+  }) async {
     var termsMap = {};
     for (final (int i, String term) in terms.indexed) {
       termsMap[term] = i;
     }
-    final rows = await japaneseDictionary!.rawQuery("""
+    final rows = await japaneseDictionary!.rawQuery(
+      """
       SELECT Vocab.*
       FROM Vocab
       ${isHaveDisabledDictionaries ? 'INNER JOIN Dictionary ON Vocab.dictionaryId = Dictionary.id' : ''}
@@ -30,7 +34,9 @@ class Dictionary {
         OR reading IN (${List.filled(terms.length, '?').join(', ')}))
       ${isHaveDisabledDictionaries ? 'AND Dictionary.enabled = 1' : ''}
       LIMIT ?
-      """, [...terms, ...terms, termLimit]);
+      """,
+      [...terms, ...terms, termLimit],
+    );
 
     List<DictionaryEntry> dictionaryEntries = [];
     for (Map<String, Object?> row in rows) {
@@ -44,22 +50,27 @@ class Dictionary {
       }
       dictionaryEntries.add(entry);
     }
+    if (isOrdered) {
+      dictionaryEntries.sort((a, b) => a.index!.compareTo(b.index!));
+    }
     return dictionaryEntries;
   }
 
   Future<List<Vocabulary>> getVocabularyFromMeaning(String word) async {
     List<Map<String, Object?>> rows = await japaneseDictionary!.query(
-        'VocabGloss',
-        columns: ['vocabId'],
-        where:
-            'glossary LIKE ? OR glossary LIKE ? OR glossary LIKE ? OR lower(glossary) = ?',
-        whereArgs: ['% $word', '$word %', '% $word %', word],
-        limit: termLimit);
+      'VocabGloss',
+      columns: ['vocabId'],
+      where:
+          'glossary LIKE ? OR glossary LIKE ? OR glossary LIKE ? OR lower(glossary) = ?',
+      whereArgs: ['% $word', '$word %', '% $word %', word],
+      limit: termLimit,
+    );
 
     Batch batch = japaneseDictionary!.batch();
     for (Map<String, Object?> row in rows) {
-      batch.rawQuery("SELECT * FROM Vocab WHERE id = ? LIMIT $termLimit",
-          [row["vocabId"] as int]);
+      batch.rawQuery("SELECT * FROM Vocab WHERE id = ? LIMIT $termLimit", [
+        row["vocabId"] as int,
+      ]);
     }
     List<DictionaryEntry> dictionaryEntries = [];
     List<Object?> results = await batch.commit();
@@ -75,7 +86,8 @@ class Dictionary {
   }
 
   Future<List<Vocabulary>> getVocabularyBatch(
-      List<DictionaryEntry> dictionaryEntries) async {
+    List<DictionaryEntry> dictionaryEntries,
+  ) async {
     Map<String, Vocabulary> vocabularyMap = {};
     Set<String> readingMeaningsSet = {};
     String vocabIdsString = dictionaryEntries
@@ -100,9 +112,11 @@ class Dictionary {
 
       Vocabulary vocabulary = Vocabulary(entries: [dictionaryEntry]);
 
-      var readinMeaningsKey = dictionaryEntry.reading +
+      var readinMeaningsKey =
+          dictionaryEntry.reading +
           dictionaryEntry.meanings.join(
-              ""); // check repeated meanings by combined reading and glossary (naive impl)
+            "",
+          ); // check repeated meanings by combined reading and glossary (naive impl)
       if (readingMeaningsSet.contains(readinMeaningsKey)) {
         continue; // skip repeated meanings
       } else {
@@ -126,7 +140,7 @@ class Dictionary {
       if (vocabularyMap.containsKey(vocabularyKey)) {
         vocabularyMap[vocabularyKey]!.entries = [
           ...vocabularyMap[vocabularyKey]!.entries,
-          dictionaryEntry
+          dictionaryEntry,
         ];
       } else {
         vocabularyMap[vocabularyKey] = vocabulary;

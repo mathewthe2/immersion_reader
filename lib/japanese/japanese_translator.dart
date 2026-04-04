@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:immersion_reader/dictionary/frequency_tag.dart';
 import 'package:immersion_reader/japanese/frequency.dart';
 import 'package:immersion_reader/japanese/search_term.dart';
+import 'package:immersion_reader/languages/abstract_translator.dart';
 import 'package:kana_kit/kana_kit.dart';
 import 'dictionary.dart';
 import 'vocabulary.dart';
@@ -20,26 +21,27 @@ class TranslatorDeinflection {
   int rules;
   List<String> reasons;
   List<DictionaryEntry> databaseEntries;
-  TranslatorDeinflection(
-      {required this.originalText,
-      required this.transformedText,
-      required this.deinflectedText,
-      required this.rules,
-      required this.reasons,
-      required this.databaseEntries});
+  TranslatorDeinflection({
+    required this.originalText,
+    required this.transformedText,
+    required this.deinflectedText,
+    required this.rules,
+    required this.reasons,
+    required this.databaseEntries,
+  });
 }
 
-class Translator {
+class JapaneseTranslator extends AbstractTranslator {
   late Dictionary dictionary;
   late Deinflector deinflector;
   late Pitch pitch;
   late Frequency frequency;
   SettingsStorage? settingsStorage;
 
-  static final Translator _singleton = Translator._internal();
-  Translator._internal();
+  static final JapaneseTranslator _singleton = JapaneseTranslator._internal();
+  JapaneseTranslator._internal();
 
-  static Translator create(SettingsStorage settingsStorage) {
+  static JapaneseTranslator create(SettingsStorage settingsStorage) {
     _singleton.dictionary = Dictionary.create(settingsStorage);
     _singleton.pitch = Pitch.create(settingsStorage);
     _singleton.frequency = Frequency.create(settingsStorage);
@@ -51,14 +53,18 @@ class Translator {
   static const int longestScanLength =
       20; // assuming longest deinflected entry is < 20 characters
 
-  Future<List<Vocabulary>> _findGlossaryTerms(String text,
-      {DictionaryOptions? options}) async {
+  Future<List<Vocabulary>> _findGlossaryTerms(
+    String text, {
+    DictionaryOptions? options,
+  }) async {
     options ??= DictionaryOptions();
     List<Vocabulary> glossaryTerms = await findTermFromGlossary(text);
     if (glossaryTerms.isNotEmpty) {
       if (options.pitchAccentDisplayStyle != PitchAccentDisplayStyle.none) {
         glossaryTerms = await _batchAddPitch(
-            glossaryTerms, options.pitchAccentDisplayStyle);
+          glossaryTerms,
+          options.pitchAccentDisplayStyle,
+        );
       }
       if (options.isGetFrequencyTags) {
         glossaryTerms = await _batchAddFrequencyTags(glossaryTerms);
@@ -69,8 +75,10 @@ class Translator {
     }
   }
 
-  Future<SearchResult> findTermForUserSearch(String text,
-      {DictionaryOptions? options}) async {
+  Future<SearchResult> findTermForUserSearch(
+    String text, {
+    DictionaryOptions? options,
+  }) async {
     options ??= DictionaryOptions();
     List<Vocabulary> exactMatches = [];
     List<Vocabulary> additionalMatches = [];
@@ -81,18 +89,22 @@ class Translator {
     KanaKit kanaKit = const KanaKit();
     String parsedText = text.trim(); // to do: handle half width characters
     if (!kanaKit.isJapanese(parsedText)) {
-      List<Vocabulary> glossaryTerms =
-          await _findGlossaryTerms(parsedText.toLowerCase(), options: options);
+      List<Vocabulary> glossaryTerms = await _findGlossaryTerms(
+        parsedText.toLowerCase(),
+        options: options,
+      );
       for (Vocabulary definition in glossaryTerms) {
         if (definition.getAllMeanings().contains(parsedText.toLowerCase())) {
           glossaryExactMatches.add(definition);
         } else {
           glossaryAdditionalMatches.add(definition);
         }
-        glossaryExactMatches =
-            _sortDefinitionsForUserSearch(glossaryExactMatches);
-        glossaryAdditionalMatches =
-            _sortDefinitionsForUserSearch(glossaryAdditionalMatches);
+        glossaryExactMatches = _sortDefinitionsForUserSearch(
+          glossaryExactMatches,
+        );
+        glossaryAdditionalMatches = _sortDefinitionsForUserSearch(
+          glossaryAdditionalMatches,
+        );
       }
       parsedText = kanaKit.toHiragana(parsedText);
     }
@@ -107,23 +119,22 @@ class Translator {
       }
     }
 
-    return SearchResult(exactMatches: [
-      ...exactMatches,
-      ...glossaryExactMatches
-    ], additionalMatches: [
-      ...glossaryAdditionalMatches,
-      ...additionalMatches
-    ]);
+    return SearchResult(
+      exactMatches: [...exactMatches, ...glossaryExactMatches],
+      additionalMatches: [...glossaryAdditionalMatches, ...additionalMatches],
+    );
   }
 
   Future<List<Vocabulary>> findTermFromGlossary(String text) async {
     return await dictionary.getVocabularyFromMeaning(text);
   }
 
-  Future<List<Vocabulary>> findTerm(String text,
-      {bool wildcards = false,
-      String reading = '',
-      DictionaryOptions? options}) async {
+  Future<List<Vocabulary>> findTerm(
+    String text, {
+    bool wildcards = false,
+    String reading = '',
+    DictionaryOptions? options,
+  }) async {
     options ??= DictionaryOptions();
     List<TranslatorDeinflection> deinflections = [];
     text = text.substring(0, min(longestScanLength, text.length));
@@ -131,13 +142,16 @@ class Translator {
       String term = text.substring(0, i);
       List<Deinflection> dfs = deinflector.deinflect(term);
       for (Deinflection df in dfs) {
-        deinflections.add(TranslatorDeinflection(
+        deinflections.add(
+          TranslatorDeinflection(
             originalText: text,
             transformedText: term,
             deinflectedText: df.term,
             rules: df.rules,
             reasons: df.reasons,
-            databaseEntries: []));
+            databaseEntries: [],
+          ),
+        );
       }
     }
 
@@ -148,8 +162,8 @@ class Translator {
       String term = deinflection.deinflectedText;
       List<TranslatorDeinflection> deinflectionArray =
           uniqueDeinflectionsMap.containsKey(term)
-              ? uniqueDeinflectionsMap[term]!
-              : [];
+          ? uniqueDeinflectionsMap[term]!
+          : [];
       if (!uniqueDeinflectionsMap.containsKey(term)) {
         uniqueDeinflectionTerms.add(term);
         uniqueDeinflectionArrays.add(deinflectionArray);
@@ -159,8 +173,9 @@ class Translator {
     }
 
     List<DictionaryEntry> entries = await dictionary.findTermsBulk(
-        uniqueDeinflectionTerms,
-        isHaveDisabledDictionaries: options.disabledDictionaryIds.isNotEmpty);
+      uniqueDeinflectionTerms,
+      isHaveDisabledDictionaries: options.disabledDictionaryIds.isNotEmpty,
+    );
 
     List<DictionaryEntry> finalEntries = [];
     for (DictionaryEntry entry in entries) {
@@ -174,8 +189,10 @@ class Translator {
           // match corresponding deinflector with transformed text here
           // take the longest transformed text
           // further improvement: still edge cases to be fixed
-          if ([entry.term, entry.reading]
-                  .contains(deinflection.deinflectedText) &&
+          if ([
+                entry.term,
+                entry.reading,
+              ].contains(deinflection.deinflectedText) &&
               (entry.transformedText == null ||
                   deinflection.transformedText.length >
                       entry.transformedText!.length)) {
@@ -207,13 +224,16 @@ class Translator {
       }
     }
 
-    List<Vocabulary> definitions =
-        await dictionary.getVocabularyBatch(finalEntries);
+    List<Vocabulary> definitions = await dictionary.getVocabularyBatch(
+      finalEntries,
+    );
 
     // get pitch svg
     if (options.pitchAccentDisplayStyle != PitchAccentDisplayStyle.none) {
-      definitions =
-          await _batchAddPitch(definitions, options.pitchAccentDisplayStyle);
+      definitions = await _batchAddPitch(
+        definitions,
+        options.pitchAccentDisplayStyle,
+      );
     }
     if (options.isGetFrequencyTags) {
       definitions = await _batchAddFrequencyTags(definitions);
@@ -224,10 +244,14 @@ class Translator {
     return definitions;
   }
 
-  Future<List<Vocabulary>> _batchAddPitch(List<Vocabulary> definitions,
-      PitchAccentDisplayStyle pitchAccentDisplayStyle) async {
-    final pitchesBatch = await pitch.makePitchesBatch(definitions,
-        pitchAccentDisplayStyle: pitchAccentDisplayStyle);
+  Future<List<Vocabulary>> _batchAddPitch(
+    List<Vocabulary> definitions,
+    PitchAccentDisplayStyle pitchAccentDisplayStyle,
+  ) async {
+    final pitchesBatch = await pitch.makePitchesBatch(
+      definitions,
+      pitchAccentDisplayStyle: pitchAccentDisplayStyle,
+    );
     for (final (int i, Vocabulary definition) in definitions.indexed) {
       definition.pitchAccentDisplayStyle = pitchAccentDisplayStyle;
       definition.pitchValues = pitchesBatch[i];
@@ -236,14 +260,18 @@ class Translator {
   }
 
   Future<List<Vocabulary>> _batchAddFrequencyTags(
-      List<Vocabulary> definitions) async {
+    List<Vocabulary> definitions,
+  ) async {
     List<SearchTerm> searchTerms = definitions
-        .map((definition) => SearchTerm(
+        .map(
+          (definition) => SearchTerm(
             text: definition.expression ?? '',
-            reading: definition.reading ?? ''))
+            reading: definition.reading ?? '',
+          ),
+        )
         .toList();
-    List<List<FrequencyTag>> frequencyTagsResult =
-        await frequency.getFrequencyBatch(searchTerms);
+    List<List<FrequencyTag>> frequencyTagsResult = await frequency
+        .getFrequencyBatch(searchTerms);
     for (int i = 0; i < definitions.length; i++) {
       definitions[i].frequencyTags = frequencyTagsResult[i];
     }
@@ -253,34 +281,47 @@ class Translator {
   List<Vocabulary> _sortDefinitionsForTermSearch(List<Vocabulary> definitions) {
     // to do: update sorting based on yomichan:
     // https://github.com/FooSoft/yomichan/blob/f3024c50186344aa6a6b09500ea02540463ce5c9/ext/js/language/translator.js#L1364
-    definitions.sort((a, b) => <Comparator<Vocabulary>>[
-          (o1, o2) => o1.maxTransformedTextLength
-              .compareTo(o2.maxTransformedTextLength),
-          (o1, o2) => o1.sourceTermExactMatchCount
-              .compareTo(o2.sourceTermExactMatchCount),
-          (o1, o2) => o1.getPopularity().compareTo(o2.getPopularity()),
-          (o1, o2) => (o1.tags!.contains('P') ? 1 : 0)
-              .compareTo((o2.tags!.contains('P') ? 1 : 0)),
-          (o1, o2) => (-o1.rules.length).compareTo(-o2.rules.length),
-          (o1, o2) => o1.expression!.compareTo(o2.expression!)
-        ].map((e) => e(a, b)).firstWhere((e) => e != 0, orElse: () => 0));
+    definitions.sort(
+      (a, b) => <Comparator<Vocabulary>>[
+        (o1, o2) =>
+            o1.maxTransformedTextLength.compareTo(o2.maxTransformedTextLength),
+        (o1, o2) => o1.sourceTermExactMatchCount.compareTo(
+          o2.sourceTermExactMatchCount,
+        ),
+        (o1, o2) => o1.getPopularity().compareTo(o2.getPopularity()),
+        (o1, o2) => (o1.tags!.contains('P') ? 1 : 0).compareTo(
+          (o2.tags!.contains('P') ? 1 : 0),
+        ),
+        (o1, o2) => (-o1.rules.length).compareTo(-o2.rules.length),
+        (o1, o2) => o1.expression!.compareTo(o2.expression!),
+      ].map((e) => e(a, b)).firstWhere((e) => e != 0, orElse: () => 0),
+    );
     definitions = definitions.reversed.toList();
     return definitions;
   }
 
   List<Vocabulary> _sortDefinitionsForUserSearch(List<Vocabulary> definitions) {
     // ranking based on popularity first then length
-    definitions.sort((a, b) => <Comparator<Vocabulary>>[
-          (o1, o2) => o1.sourceTermExactMatchCount
-              .compareTo(o2.sourceTermExactMatchCount),
-          (o1, o2) => o1.getPopularity().compareTo(o2.getPopularity()),
-          (o1, o2) => (o1.tags!.contains('P') ? 1 : 0)
-              .compareTo((o2.tags!.contains('P') ? 1 : 0)),
-          (o1, o2) => (-o1.rules.length).compareTo(-o2.rules.length),
-          (o1, o2) => o1.expression!.compareTo(o2.expression!),
-          (o1, o2) => o1.expression!.length.compareTo(o2.expression!.length)
-        ].map((e) => e(a, b)).firstWhere((e) => e != 0, orElse: () => 0));
+    definitions.sort(
+      (a, b) => <Comparator<Vocabulary>>[
+        (o1, o2) => o1.sourceTermExactMatchCount.compareTo(
+          o2.sourceTermExactMatchCount,
+        ),
+        (o1, o2) => o1.getPopularity().compareTo(o2.getPopularity()),
+        (o1, o2) => (o1.tags!.contains('P') ? 1 : 0).compareTo(
+          (o2.tags!.contains('P') ? 1 : 0),
+        ),
+        (o1, o2) => (-o1.rules.length).compareTo(-o2.rules.length),
+        (o1, o2) => o1.expression!.compareTo(o2.expression!),
+        (o1, o2) => o1.expression!.length.compareTo(o2.expression!.length),
+      ].map((e) => e(a, b)).firstWhere((e) => e != 0, orElse: () => 0),
+    );
     definitions = definitions.reversed.toList();
     return definitions;
+  }
+
+  @override
+  Future<void> loadWordForms() async {
+    // not needed for Japanese
   }
 }
