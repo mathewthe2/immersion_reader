@@ -9,8 +9,8 @@ class GeneralSetting {
   static const String lookupLanguageKey = 'lookup_language';
 
   factory GeneralSetting.fromMap(Map<String, Object?> map) => GeneralSetting(
-    lookupLanguage: LookupLanguage.values.byName(
-      map[lookupLanguageKey] as String,
-    ),
+    lookupLanguage: map.containsKey(lookupLanguageKey)
+        ? LookupLanguage.values.byName(map[lookupLanguageKey] as String)
+        : defaultLookupLanguage,
   );
 }

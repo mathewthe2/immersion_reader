@@ -1,7 +1,5 @@
 import 'package:immersion_reader/languages/english/english_tokenizer.dart';
 
-const String dataPath = 'assets/dictionary/wordforms.json';
-
 class EnglishDeinflector {
   late Map<String, String> wordForms;
   static int wordExpansionLimit = 2; // limit of individual words to deinflect
