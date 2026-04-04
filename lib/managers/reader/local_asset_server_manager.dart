@@ -8,15 +8,16 @@ class LocalAssetsServerManager {
   LocalAssetsServer? server;
   SharedPreferences? _sharedPreferences;
   String domain = "localhost";
+  bool _isRunning = false;
 
   /// This port should ideally not conflict but should remain the same for
   /// caching purposes.
   static int get port => 52062;
   static String get preferencesDomain => 'localAssetsDomain';
   static List<String> get _testDomains => [
-        "localhost",
-        "127.0.0.1"
-      ]; // some phones only work with 127.0.0.1, but working domain should work throughout lifecycle of app
+    "localhost",
+    "127.0.0.1",
+  ]; // some phones only work with 127.0.0.1, but working domain should work throughout lifecycle of app
 
   static final LocalAssetsServerManager _singleton =
       LocalAssetsServerManager._internal();
@@ -39,8 +40,9 @@ class LocalAssetsServerManager {
   String getAssetUrl() {
     if (_sharedPreferences != null &&
         _sharedPreferences?.getString(preferencesDomain) != null) {
-      String localAssetsDomain =
-          _sharedPreferences!.getString(preferencesDomain)!;
+      String localAssetsDomain = _sharedPreferences!.getString(
+        preferencesDomain,
+      )!;
       return 'http://$localAssetsDomain:$port';
     }
     return 'http://$domain:$port';
@@ -50,29 +52,29 @@ class LocalAssetsServerManager {
     bool iWebViewLoaded = false;
     bool isManagerLoaded = false;
     HeadlessInAppWebView webView = HeadlessInAppWebView(
-      initialUrlRequest: URLRequest(
-          url: WebUri(
-        'http://$domain:$port',
-      )),
+      initialUrlRequest: URLRequest(url: WebUri('http://$domain:$port')),
       onLoadStop: (controller, url) async {
         iWebViewLoaded = true;
       },
       onWebViewCreated: (controller) {
         controller.addJavaScriptHandler(
-            handlerName: 'onLoadManager',
-            callback: (_) {
-              isManagerLoaded = true;
-            });
+          handlerName: 'onLoadManager',
+          callback: (_) {
+            isManagerLoaded = true;
+          },
+        );
       },
     );
 
     try {
       await webView.run();
       await Future.delayed(
-          const Duration(seconds: 1)); // wait for web view to load
+        const Duration(seconds: 1),
+      ); // wait for web view to load
       if (!iWebViewLoaded) {
         await Future.delayed(
-            const Duration(seconds: 3)); // wait again...exponential backoff?
+          const Duration(seconds: 3),
+        ); // wait again...exponential backoff?
       }
       if (iWebViewLoaded) {
         return isManagerLoaded;
@@ -85,8 +87,10 @@ class LocalAssetsServerManager {
   }
 
   Future<void> start() async {
+    if (_isRunning) return;
     try {
       await server?.serve();
+      _isRunning = true;
       if (_sharedPreferences != null &&
           _sharedPreferences?.getString(preferencesDomain) == null) {
         bool? canTestRun = await testRun(_testDomains[0]);
@@ -105,12 +109,15 @@ class LocalAssetsServerManager {
         }
       }
     } catch (e) {
+      _isRunning = false;
       debugPrint(
-          'Failed to serve. Error: ${e.toString()}'); // may occur if port is already binded
+        'Failed to serve. Error: ${e.toString()}',
+      ); // may occur if port is already binded
     }
   }
 
   Future<void> stop() async {
     await server?.stop();
+    _isRunning = false;
   }
 }

@@ -23,7 +23,7 @@ class SettingsStorage extends AbstractStorage {
   Function get onCreateCallback => (() => insertDefaultSettings());
 
   @override
-  Function get onOpenCallback => (() => initCache());
+  Future<void> Function() get onOpenCallback => initCache;
 
   @override
   String get databasePrototypePath =>
@@ -47,11 +47,13 @@ class SettingsStorage extends AbstractStorage {
     if (dictionarySettingCache != null) {
       return dictionarySettingCache!;
     }
-    List<Map<String, Object?>> rows = await database!
-        .rawQuery('SELECT * FROM Dictionary'); // to do: add limit
+    List<Map<String, Object?>> rows = await database!.rawQuery(
+      'SELECT * FROM Dictionary',
+    ); // to do: add limit
 
-    List<DictionarySetting> dictionarySettingList =
-        rows.map((row) => DictionarySetting.fromMap(row)).toList();
+    List<DictionarySetting> dictionarySettingList = rows
+        .map((row) => DictionarySetting.fromMap(row))
+        .toList();
     dictionarySettingCache = dictionarySettingList;
     return dictionarySettingList;
   }
@@ -78,8 +80,9 @@ class SettingsStorage extends AbstractStorage {
     if (settingsCache != null && !forceRefetch) {
       return settingsCache!;
     }
-    List<Map<String, Object?>> rows =
-        await database!.rawQuery('SELECT * FROM Config');
+    List<Map<String, Object?>> rows = await database!.rawQuery(
+      'SELECT * FROM Config',
+    );
     Map<String, Map<String, Object?>> configMap = {};
     for (Map<String, Object?> row in rows) {
       String categoryKey = row['category'] as String;
@@ -99,10 +102,12 @@ class SettingsStorage extends AbstractStorage {
 
   // reads default config and writes missing rows into database
   Future<SettingsData> patchConfigSettings(
-      Map<String, Map<String, Object?>> configMap) async {
+    Map<String, Map<String, Object?>> configMap,
+  ) async {
     Batch batch = database!.batch();
-    ByteData bytes = await rootBundle
-        .load(p.join("assets", "settings", "defaultConfig.json"));
+    ByteData bytes = await rootBundle.load(
+      p.join("assets", "settings", "defaultConfig.json"),
+    );
     String jsonStr = const Utf8Decoder().convert(bytes.buffer.asUint8List());
     Map<String, Object?> json = jsonDecode(jsonStr);
     for (MapEntry<String, Object?> categoryEntry in json.entries) {
@@ -111,8 +116,9 @@ class SettingsStorage extends AbstractStorage {
         if (!configMap.containsKey(categoryEntry.key) ||
             !configMap[categoryEntry.key]!.containsKey(entry.key)) {
           batch.rawInsert(
-              "INSERT INTO Config(title, customValue, category) VALUES(?, ?, ?)",
-              [entry.key, entry.value, categoryEntry.key]);
+            "INSERT INTO Config(title, customValue, category) VALUES(?, ?, ?)",
+            [entry.key, entry.value, categoryEntry.key],
+          );
           if (!configMap.containsKey(categoryEntry.key)) {
             configMap[categoryEntry.key] = {};
           }
@@ -143,11 +149,15 @@ class SettingsStorage extends AbstractStorage {
     return SettingsData.fromMap(configMap);
   }
 
-  Future<int> changeConfigSettings(String settingKey, String settingValue,
-      {VoidCallback? onSuccessCallback}) async {
+  Future<int> changeConfigSettings(
+    String settingKey,
+    String settingValue, {
+    VoidCallback? onSuccessCallback,
+  }) async {
     int count = await database!.rawUpdate(
-        'UPDATE Config SET customvalue = ? WHERE title = ?',
-        [settingValue, settingKey]);
+      'UPDATE Config SET customvalue = ? WHERE title = ?',
+      [settingValue, settingKey],
+    );
     if (count > 0 && onSuccessCallback != null) {
       onSuccessCallback();
     }
@@ -156,23 +166,30 @@ class SettingsStorage extends AbstractStorage {
 
   Future<List<int>> getDisabledDictionaryIds() async {
     List<DictionarySetting> dictionarySettings = await getDictionarySettings();
-    return List.from(dictionarySettings
-        .where(
-            (DictionarySetting dictionarySetting) => !dictionarySetting.enabled)
-        .map((DictionarySetting dictionarySetting) => dictionarySetting.id));
+    return List.from(
+      dictionarySettings
+          .where(
+            (DictionarySetting dictionarySetting) => !dictionarySetting.enabled,
+          )
+          .map((DictionarySetting dictionarySetting) => dictionarySetting.id),
+    );
   }
 
   Future<int> toggleDictionaryEnabled(
-      DictionarySetting dictionarySetting) async {
+    DictionarySetting dictionarySetting,
+  ) async {
     if (database != null) {
       int count = await database!.rawUpdate(
-          'UPDATE Dictionary SET enabled = ? WHERE id = ?',
-          [dictionarySetting.enabled ? 0 : 1, dictionarySetting.id]);
+        'UPDATE Dictionary SET enabled = ? WHERE id = ?',
+        [dictionarySetting.enabled ? 0 : 1, dictionarySetting.id],
+      );
       if (dictionarySettingCache != null) {
         dictionarySettingCache!
-            .firstWhere(
-                (settingCache) => settingCache.id == dictionarySetting.id)
-            .enabled = !dictionarySetting.enabled;
+                .firstWhere(
+                  (settingCache) => settingCache.id == dictionarySetting.id,
+                )
+                .enabled =
+            !dictionarySetting.enabled;
       }
       return count;
     }
@@ -180,8 +197,9 @@ class SettingsStorage extends AbstractStorage {
   }
 
   Future<int> getLastRecordId() async {
-    List<Map> mapData = await database!
-        .rawQuery('SELECT id FROM Vocab ORDER BY id DESC LIMIT 1;');
+    List<Map> mapData = await database!.rawQuery(
+      'SELECT id FROM Vocab ORDER BY id DESC LIMIT 1;',
+    );
     if (mapData.isEmpty) {
       return 0;
     } else {
@@ -193,25 +211,29 @@ class SettingsStorage extends AbstractStorage {
   Future<void> removeDictionary(int dictionaryId) async {
     Batch batch = database!.batch();
     batch.rawDelete('DELETE FROM Vocab WHERE dictionaryId = ?', [dictionaryId]);
-    batch.rawDelete(
-        'DELETE FROM VocabGloss WHERE dictionaryId = ?', [dictionaryId]);
-    batch.rawDelete(
-        'DELETE FROM VocabFreq WHERE dictionaryId = ?', [dictionaryId]);
-    batch.rawDelete(
-        'DELETE FROM VocabPitch WHERE dictionaryId = ?', [dictionaryId]);
+    batch.rawDelete('DELETE FROM VocabGloss WHERE dictionaryId = ?', [
+      dictionaryId,
+    ]);
+    batch.rawDelete('DELETE FROM VocabFreq WHERE dictionaryId = ?', [
+      dictionaryId,
+    ]);
+    batch.rawDelete('DELETE FROM VocabPitch WHERE dictionaryId = ?', [
+      dictionaryId,
+    ]);
     batch.rawDelete('DELETE FROM Dictionary WHERE id = ?', [dictionaryId]);
     await batch.commit();
     database!.rawQuery("VACUUM;");
     if (dictionarySettingCache != null) {
       dictionarySettingCache!.removeWhere(
-          (dictionarySetting) => dictionarySetting.id == dictionaryId);
+        (dictionarySetting) => dictionarySetting.id == dictionaryId,
+      );
     }
   }
 
-  Future<void> addDictionary(
-      {required UserDictionary userDictionary,
-      StreamController<(DictionaryImportStage, double)>?
-          progressController}) async {
+  Future<void> addDictionary({
+    required UserDictionary userDictionary,
+    StreamController<(DictionaryImportStage, double)>? progressController,
+  }) async {
     progressController?.add((DictionaryImportStage.dictionaryCreation, -1));
     int dictionaryId = await database!.insert('Dictionary', {
       "title": userDictionary.dictionaryName,
@@ -227,7 +249,7 @@ class SettingsStorage extends AbstractStorage {
         in userDictionary.dictionaryEntries.indexed) {
       progressController?.add((
         DictionaryImportStage.vocabInsertion,
-        index / userDictionary.dictionaryEntries.length * 100
+        index / userDictionary.dictionaryEntries.length * 100,
       ));
       lastRecordId += 1;
       batch.insert('Vocab', {
@@ -238,7 +260,7 @@ class SettingsStorage extends AbstractStorage {
         'meaningTags': entry.meaningTags.join(' '),
         'termTags': entry.termTags.join(' '),
         'popularity': entry.popularity,
-        'sequence': entry.sequence
+        'sequence': entry.sequence,
       });
       if (entry.redirectQuery != null) {
         entry.id = lastRecordId;
@@ -249,7 +271,7 @@ class SettingsStorage extends AbstractStorage {
         batch.insert('VocabGloss', {
           'glossary': meaning,
           'vocabId': lastRecordId,
-          'dictionaryId': dictionaryId
+          'dictionaryId': dictionaryId,
         });
       }
     }
@@ -257,32 +279,34 @@ class SettingsStorage extends AbstractStorage {
         in userDictionary.dictionaryMetaEntries.indexed) {
       progressController?.add((
         DictionaryImportStage.frequencyInsertion,
-        index / userDictionary.dictionaryMetaEntries.length * 100
+        index / userDictionary.dictionaryMetaEntries.length * 100,
       ));
       if (metaEntry.frequency != null) {
         batch.rawInsert(
-            'INSERT INTO VocabFreq(expression, reading, frequency, dictionaryId) VALUES(?, ?, ?, ?)',
-            [
-              metaEntry.term,
-              metaEntry.reading ?? '',
-              metaEntry.frequency,
-              dictionaryId
-            ]);
+          'INSERT INTO VocabFreq(expression, reading, frequency, dictionaryId) VALUES(?, ?, ?, ?)',
+          [
+            metaEntry.term,
+            metaEntry.reading ?? '',
+            metaEntry.frequency,
+            dictionaryId,
+          ],
+        );
       }
       if (metaEntry.pitches != null) {
         for (final (int index, PitchData pitch) in metaEntry.pitches!.indexed) {
           progressController?.add((
             DictionaryImportStage.pitchInsertion,
-            index / metaEntry.pitches!.length * 100
+            index / metaEntry.pitches!.length * 100,
           ));
           batch.rawInsert(
-              'INSERT INTO VocabPitch(expression, reading, pitch, dictionaryId) VALUES(?, ?, ?, ?)',
-              [
-                metaEntry.term,
-                pitch.reading,
-                pitch.downstep.toString(),
-                dictionaryId
-              ]);
+            'INSERT INTO VocabPitch(expression, reading, pitch, dictionaryId) VALUES(?, ?, ?, ?)',
+            [
+              metaEntry.term,
+              pitch.reading,
+              pitch.downstep.toString(),
+              dictionaryId,
+            ],
+          );
         }
       }
     }
@@ -295,26 +319,21 @@ class SettingsStorage extends AbstractStorage {
         if (redirectQuery.reading != null &&
             redirectQuery.reading!.isNotEmpty) {
           batch.rawQuery(
-              """SELECT Vocab.expression, Vocab.reading, VocabGloss.glossary 
+            """SELECT Vocab.expression, Vocab.reading, VocabGloss.glossary 
           FROM VocabGloss
           INNER JOIN Vocab ON VocabGloss.vocabId = Vocab.id
           WHERE (expression = ? AND reading = ?)
           AND VocabGloss.dictionaryId = ?""",
-              [
-                redirectQuery.expression,
-                redirectQuery.reading,
-                dictionaryId,
-              ]);
+            [redirectQuery.expression, redirectQuery.reading, dictionaryId],
+          );
         } else {
           batch.rawQuery(
-              """SELECT Vocab.expression, Vocab.reading, VocabGloss.glossary 
+            """SELECT Vocab.expression, Vocab.reading, VocabGloss.glossary 
           FROM VocabGloss
           INNER JOIN Vocab ON VocabGloss.vocabId = Vocab.id
           WHERE expression = ? AND VocabGloss.dictionaryId = ?""",
-              [
-                redirectQuery.expression,
-                dictionaryId,
-              ]);
+            [redirectQuery.expression, dictionaryId],
+          );
         }
       }
       List<Object?> results = await batch.commit();
@@ -326,7 +345,7 @@ class SettingsStorage extends AbstractStorage {
           batch.insert('VocabGloss', {
             'glossary': row['glossary'],
             'vocabId': entriesWithRedirectQueries[i].id,
-            'dictionaryId': dictionaryId
+            'dictionaryId': dictionaryId,
           });
         }
       }
@@ -334,26 +353,32 @@ class SettingsStorage extends AbstractStorage {
     }
     database!.rawQuery("VACUUM;");
     if (dictionarySettingCache != null) {
-      dictionarySettingCache!.add(DictionarySetting(
+      dictionarySettingCache!.add(
+        DictionarySetting(
           id: dictionaryId,
           title: userDictionary.dictionaryName,
           enabled: true,
-          version: userDictionary.dictionaryVersion));
+          version: userDictionary.dictionaryVersion,
+        ),
+      );
     }
   }
 
   Future<void> addQueryToDictionaryHistory(String query) async {
     await database!.rawInsert(
-        "INSERT OR REPLACE INTO DictionaryHistory(date, query) VALUES (datetime('now'), ?)",
-        [query]);
+      "INSERT OR REPLACE INTO DictionaryHistory(date, query) VALUES (datetime('now'), ?)",
+      [query],
+    );
   }
 
   Future<List<SearchHistoryItem>> getDictionarySearchHistory() async {
     var rows = await database!.rawQuery(
-        'SELECT id, query FROM DictionaryHistory ORDER BY id DESC LIMIT 20;');
+      'SELECT id, query FROM DictionaryHistory ORDER BY id DESC LIMIT 20;',
+    );
     if (rows.isNotEmpty) {
-      List<SearchHistoryItem> searchHistoryItems =
-          rows.map((row) => SearchHistoryItem.fromMap(row)).toList();
+      List<SearchHistoryItem> searchHistoryItems = rows
+          .map((row) => SearchHistoryItem.fromMap(row))
+          .toList();
       return searchHistoryItems;
     }
     return [];
@@ -368,16 +393,18 @@ class SettingsStorage extends AbstractStorage {
       return;
     }
     Batch batch = database!.batch();
-    ByteData bytes = await rootBundle
-        .load(p.join("assets", "settings", "defaultConfig.json"));
+    ByteData bytes = await rootBundle.load(
+      p.join("assets", "settings", "defaultConfig.json"),
+    );
     String jsonStr = const Utf8Decoder().convert(bytes.buffer.asUint8List());
     Map<String, Object?> json = jsonDecode(jsonStr);
     for (MapEntry<String, Object?> categoryEntry in json.entries) {
       Map<String, Object?> map = categoryEntry.value as Map<String, Object?>;
       for (MapEntry<String, Object?> entry in map.entries) {
         batch.rawInsert(
-            "INSERT INTO Config(title, customValue, category) VALUES(?, ?, ?)",
-            [entry.key, entry.value, categoryEntry.key]);
+          "INSERT INTO Config(title, customValue, category) VALUES(?, ?, ?)",
+          [entry.key, entry.value, categoryEntry.key],
+        );
       }
     }
     await batch.commit();

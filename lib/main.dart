@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/settings/settings_page.dart';
 import 'pages/search_page.dart';
 import 'pages/vocabulary_list/vocabulary_list_page.dart';
+import 'dart:developer' as developer;
 
 void main() {
   runApp(
@@ -43,6 +44,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   bool isLocalAssetsServerReady = false;
   bool isProvidersReady = false;
 
+  String errorText = "";
+
   final Map<String, IconData> navigationItems = {
     'Reader': CupertinoIcons.book,
     'Discover': CupertinoIcons.compass,
@@ -64,8 +67,28 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   }
 
   Future<void> setupApp() async {
-    await setupProviders();
-    await startLocalAssetsServer();
+    try {
+      await setupProviders().timeout(
+        const Duration(seconds: 8),
+        onTimeout: () {
+          developer.log('setupProviders timed out, proceeding anyway');
+          return Future.value();
+        },
+      );
+      await startLocalAssetsServer().timeout(
+        const Duration(seconds: 8),
+        onTimeout: () {
+          developer.log('startLocalAssetsServer timed out, proceeding anyway');
+          return Future.value();
+        },
+      );
+    } catch (e, stack) {
+      setState(() {
+        isProvidersReady = true;
+        isLocalAssetsServerReady = true;
+        errorText += '\nSetup failed: $e \n ${stack.toString()}';
+      });
+    }
   }
 
   Future<void> setupProviders() async {
@@ -81,16 +104,30 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     paymentProvider = asyncData[0];
     storageProvider = asyncData[1];
     ManagerService.setupAll(storageProvider);
+    if (!mounted) return;
     setState(() {
       isProvidersReady = true;
     });
   }
 
   Future<void> startLocalAssetsServer() async {
-    await localAssetsServerManager?.start();
-    setState(() {
-      isLocalAssetsServerReady = true;
-    });
+    try {
+      await localAssetsServerManager?.start().timeout(
+        const Duration(seconds: 5),
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        isLocalAssetsServerReady = true;
+      });
+    } catch (e) {
+      developer.log('Server start failed: $e');
+      setState(() {
+        isLocalAssetsServerReady = true;
+        errorText += 'Server start failed: $e';
+      });
+    }
   }
 
   void handleAppResume() {
@@ -192,6 +229,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     return CupertinoTabView(
       navigatorKey: tabNavKeys[index],
       builder: (BuildContext context) {
+        if (errorText.isNotEmpty) {
+          return Center(child: Text(errorText));
+        }
         return isReady() ? getViewWidget(index) : progressIndicator();
       },
     );

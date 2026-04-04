@@ -6,7 +6,7 @@ class VocabularyListStorage extends AbstractStorage {
   String get databaseStorageName => databaseName;
 
   @override
-  Function get onOpenCallback => (() => initCache());
+  Future<void> Function() get onOpenCallback => initCache;
 
   static const String databaseName = 'vocabulary_list.db';
 

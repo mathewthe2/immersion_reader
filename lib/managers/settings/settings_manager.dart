@@ -38,6 +38,14 @@ class SettingsManager {
     }
   }
 
+  GeneralSetting cachedGeneralSettings() {
+    if (cachedSettings() != null) {
+      return cachedSettings()!.generalSetting;
+    } else {
+      return defaultConfigCache!.generalSetting;
+    }
+  }
+
   Future<SettingsData> _getSettingsData() async {
     return settingsStorage == null
         ? await _getDefaultConfig()

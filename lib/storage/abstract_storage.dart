@@ -16,7 +16,7 @@ abstract class AbstractStorage {
   late String databaseStorageName;
   Database? database;
   Function? onCreateCallback; // callback after database is created
-  Function? onOpenCallback; // callback after database is open
+  Future<void> Function()? onOpenCallback; // callback after database is open
   String? databasePrototypePath; // clone from existing database file if exists
 
   static Future<AbstractStorage?> create(Type? storageType) async {
@@ -52,17 +52,19 @@ abstract class AbstractStorage {
       // clone database if no existing database
       if (!File(path).existsSync()) {
         ByteData data = await rootBundle.load(databasePrototypePath!);
-        List<int> bytes =
-            data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-        final tempFile =
-            await FolderUtils.createTempFile('$databaseStorageName.zip');
-        await tempFile.writeAsBytes(
-          bytes,
-          flush: true,
+        List<int> bytes = data.buffer.asUint8List(
+          data.offsetInBytes,
+          data.lengthInBytes,
         );
+        final tempFile = await FolderUtils.createTempFile(
+          '$databaseStorageName.zip',
+        );
+        await tempFile.writeAsBytes(bytes, flush: true);
         try {
           await ZipFile.extractToDirectory(
-              zipFile: tempFile, destinationDir: Directory(databasesPath));
+            zipFile: tempFile,
+            destinationDir: Directory(databasesPath),
+          );
           await tempFile.delete();
         } catch (e) {
           debugPrint(e.toString());
@@ -74,10 +76,12 @@ abstract class AbstractStorage {
     }
 
     database = await SqfliteMigrations.openDatabaseWithMigration(
-        path, SqlRepository.getDatabaseConfig(databaseStorageName)!,
-        onCreateCallback: onCreateCallback);
+      path,
+      SqlRepository.getDatabaseConfig(databaseStorageName)!,
+      onCreateCallback: onCreateCallback,
+    );
     if (onOpenCallback != null) {
-      onOpenCallback!();
+      await onOpenCallback!();
     }
   }
 }

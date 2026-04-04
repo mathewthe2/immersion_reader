@@ -17,8 +17,7 @@ class DictionaryManager {
 
   factory DictionaryManager.create(SettingsStorage settingsStorage) {
     _singleton.translator = AbstractTranslator.create(
-      lookupLanguage:
-          settingsStorage.settingsCache!.generalSetting.lookupLanguage,
+      lookupLanguage: SettingsManager().cachedGeneralSettings().lookupLanguage,
       settingsStorage: settingsStorage,
     );
     _singleton.settingsStorage = settingsStorage;
