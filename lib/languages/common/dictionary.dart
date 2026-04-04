@@ -4,7 +4,7 @@ import 'package:immersion_reader/dictionary/dictionary_entry.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
 
 class Dictionary {
-  Database? japaneseDictionary;
+  Database? database;
 
   static int termLimit = 1000;
 
@@ -12,7 +12,7 @@ class Dictionary {
   Dictionary._internal();
 
   factory Dictionary.create(SettingsStorage settingsStorage) {
-    _singleton.japaneseDictionary = settingsStorage.database;
+    _singleton.database = settingsStorage.database;
     return _singleton;
   }
 
@@ -25,7 +25,7 @@ class Dictionary {
     for (final (int i, String term) in terms.indexed) {
       termsMap[term] = i;
     }
-    final rows = await japaneseDictionary!.rawQuery(
+    final rows = await database!.rawQuery(
       """
       SELECT Vocab.*
       FROM Vocab
@@ -57,7 +57,7 @@ class Dictionary {
   }
 
   Future<List<Vocabulary>> getVocabularyFromMeaning(String word) async {
-    List<Map<String, Object?>> rows = await japaneseDictionary!.query(
+    List<Map<String, Object?>> rows = await database!.query(
       'VocabGloss',
       columns: ['vocabId'],
       where:
@@ -66,7 +66,7 @@ class Dictionary {
       limit: termLimit,
     );
 
-    Batch batch = japaneseDictionary!.batch();
+    Batch batch = database!.batch();
     for (Map<String, Object?> row in rows) {
       batch.rawQuery("SELECT * FROM Vocab WHERE id = ? LIMIT $termLimit", [
         row["vocabId"] as int,
@@ -93,7 +93,7 @@ class Dictionary {
     String vocabIdsString = dictionaryEntries
         .map((dictionaryEntry) => dictionaryEntry.id)
         .join(",");
-    final rows = await japaneseDictionary!.query(
+    final rows = await database!.query(
       "VocabGloss",
       columns: ["vocabId", "glossary"],
       where: 'vocabId IN ($vocabIdsString)',
@@ -152,17 +152,17 @@ class Dictionary {
   // Only for reference
   // Future<List<Vocabulary>> findTerm(String text,
   //     {wildcards = false, String reading = ''}) async {
-  //   if (japaneseDictionary == null) {
+  //   if (database == null) {
   //     return [];
   //   }
   //   List<Map<String, Object?>> rows = [];
 
   //   if (reading.isNotEmpty) {
-  //     rows = await japaneseDictionary!.rawQuery(
+  //     rows = await database!.rawQuery(
   //         'SELECT * FROM Vocab WHERE expression ${wildcards ? 'LIKE' : '='} ? AND reading = ? LIMIT $termLimit',
   //         [text, reading]);
   //   } else {
-  //     rows = await japaneseDictionary!.rawQuery(
+  //     rows = await database!.rawQuery(
   //         'SELECT * FROM Vocab WHERE expression ${wildcards ? 'LIKE' : '='} ? OR reading = ? LIMIT $termLimit',
   //         [text, text]);
   //   }
@@ -172,7 +172,7 @@ class Dictionary {
 
   //   Map<String, Vocabulary> vocabularyMap = {};
   //   for (DictionaryEntry dictionaryEntry in dictionaryEntries) {
-  //     List<Map<String, Object?>> rows = await japaneseDictionary!
+  //     List<Map<String, Object?>> rows = await database!
   //         .rawQuery('SELECT glossary From VocabGloss WHERE vocabId=?', [
   //       dictionaryEntry.id,
   //     ]);

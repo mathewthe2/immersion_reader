@@ -1,14 +1,14 @@
 import 'dart:math';
 
 import 'package:immersion_reader/dictionary/frequency_tag.dart';
-import 'package:immersion_reader/japanese/frequency.dart';
-import 'package:immersion_reader/japanese/search_term.dart';
+import 'package:immersion_reader/languages/japanese/japanese_frequency.dart';
+import 'package:immersion_reader/languages/japanese/japanese_search_term.dart';
 import 'package:immersion_reader/languages/abstract_translator.dart';
 import 'package:kana_kit/kana_kit.dart';
-import 'dictionary.dart';
-import 'vocabulary.dart';
-import 'deinflector.dart';
-import 'pitch.dart';
+import '../common/dictionary.dart';
+import '../common/vocabulary.dart';
+import 'japanese_deinflector.dart';
+import 'japanese_pitch.dart';
 import 'package:immersion_reader/dictionary/dictionary_entry.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/data/search/search_result.dart';
@@ -33,9 +33,9 @@ class TranslatorDeinflection {
 
 class JapaneseTranslator extends AbstractTranslator {
   late Dictionary dictionary;
-  late Deinflector deinflector;
-  late Pitch pitch;
-  late Frequency frequency;
+  late JapaneseDeinflector deinflector;
+  late JapanesePitch pitch;
+  late JapaneseFrequency frequency;
   SettingsStorage? settingsStorage;
 
   static final JapaneseTranslator _singleton = JapaneseTranslator._internal();
@@ -43,9 +43,9 @@ class JapaneseTranslator extends AbstractTranslator {
 
   static JapaneseTranslator create(SettingsStorage settingsStorage) {
     _singleton.dictionary = Dictionary.create(settingsStorage);
-    _singleton.pitch = Pitch.create(settingsStorage);
-    _singleton.frequency = Frequency.create(settingsStorage);
-    _singleton.deinflector = Deinflector();
+    _singleton.pitch = JapanesePitch.create(settingsStorage);
+    _singleton.frequency = JapaneseFrequency.create(settingsStorage);
+    _singleton.deinflector = JapaneseDeinflector();
     _singleton.settingsStorage = settingsStorage;
     return _singleton;
   }
@@ -262,9 +262,9 @@ class JapaneseTranslator extends AbstractTranslator {
   Future<List<Vocabulary>> _batchAddFrequencyTags(
     List<Vocabulary> definitions,
   ) async {
-    List<SearchTerm> searchTerms = definitions
+    List<JapaneseSearchTerm> searchTerms = definitions
         .map(
-          (definition) => SearchTerm(
+          (definition) => JapaneseSearchTerm(
             text: definition.expression ?? '',
             reading: definition.reading ?? '',
           ),

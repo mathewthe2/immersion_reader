@@ -1,15 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/dictionary/dictionary_entry.dart';
-import 'package:immersion_reader/japanese/vocabulary.dart';
+import 'package:immersion_reader/languages/common/vocabulary.dart';
 
 class VocabularyDefinition extends StatefulWidget {
   final Vocabulary vocabulary;
   final PopupDictionaryThemeData popupDictionaryThemeData;
-  const VocabularyDefinition(
-      {super.key,
-      required this.vocabulary,
-      required this.popupDictionaryThemeData});
+  const VocabularyDefinition({
+    super.key,
+    required this.vocabulary,
+    required this.popupDictionaryThemeData,
+  });
 
   @override
   State<VocabularyDefinition> createState() => _VocabularyDefinitionState();
@@ -32,32 +33,42 @@ class _VocabularyDefinitionState extends State<VocabularyDefinition> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      ...widget.vocabulary.entries.map((DictionaryEntry entry) =>
-          GestureDetector(
-              onTap: () {
-                if (definitionsExpanded[entry] == null) {
-                  // workaround when widget.vocabulary is updated but definitionExpanded is stall
-                  resetExpandedDefinitions();
-                }
-                if (definitionsExpanded[entry] != null) {
-                  setState(() {
-                    definitionsExpanded[entry] = !definitionsExpanded[entry]!;
-                  });
-                }
-              },
-              child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(entry.meanings.join('; '),
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                          color: widget.popupDictionaryThemeData
-                              .getColor(DictionaryColor.secondaryTextColor),
-                          fontSize: 15,
-                          overflow: definitionsExpanded.containsKey(entry) &&
-                                  definitionsExpanded[entry]!
-                              ? null
-                              : TextOverflow.ellipsis)))))
-    ]);
+    return Column(
+      children: [
+        ...widget.vocabulary.entries.map(
+          (DictionaryEntry entry) => GestureDetector(
+            onTap: () {
+              if (definitionsExpanded[entry] == null) {
+                // workaround when widget.vocabulary is updated but definitionExpanded is stall
+                resetExpandedDefinitions();
+              }
+              if (definitionsExpanded[entry] != null) {
+                setState(() {
+                  definitionsExpanded[entry] = !definitionsExpanded[entry]!;
+                });
+              }
+            },
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                entry.meanings.join('; '),
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  color: widget.popupDictionaryThemeData.getColor(
+                    DictionaryColor.secondaryTextColor,
+                  ),
+                  fontSize: 15,
+                  overflow:
+                      definitionsExpanded.containsKey(entry) &&
+                          definitionsExpanded[entry]!
+                      ? null
+                      : TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

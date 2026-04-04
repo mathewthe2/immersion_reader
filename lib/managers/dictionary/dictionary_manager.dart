@@ -1,6 +1,6 @@
 import 'package:immersion_reader/data/search/search_history_item.dart';
 import 'package:immersion_reader/data/search/search_result.dart';
-import 'package:immersion_reader/japanese/vocabulary.dart';
+import 'package:immersion_reader/languages/common/vocabulary.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/languages/abstract_translator.dart';
 import 'package:immersion_reader/managers/settings/settings_manager.dart';

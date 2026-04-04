@@ -1,12 +1,15 @@
-import './deinflect_rule.dart';
+import 'japanese_deinflect_rule.dart';
 
 class Deinflection {
   String term;
   int rules;
   List<String> reasons;
 
-  Deinflection(
-      {required this.term, required this.rules, required this.reasons});
+  Deinflection({
+    required this.term,
+    required this.rules,
+    required this.reasons,
+  });
 }
 
 class Variant {
@@ -14,11 +17,12 @@ class Variant {
   String kanaOut;
   int rulesIn;
   int rulesOut;
-  Variant(
-      {required this.kanaIn,
-      required this.kanaOut,
-      required this.rulesIn,
-      required this.rulesOut});
+  Variant({
+    required this.kanaIn,
+    required this.kanaOut,
+    required this.rulesIn,
+    required this.rulesOut,
+  });
 }
 
 class NormalizedReason {
@@ -29,15 +33,16 @@ class NormalizedReason {
 
 // Ported from Javascript to Dart by Mathew Chan
 // https://github.com/FooSoft/yomichan/blob/89ac85afd03e62818624b507c91569edbec54f3d/ext/js/language/deinflector.js
-class Deinflector {
+class JapaneseDeinflector {
   List<Deinflection> deinflect(String source) {
     List<Deinflection> results = [
-      Deinflection(term: source, rules: 0, reasons: [])
+      Deinflection(term: source, rules: 0, reasons: []),
     ];
     for (int i = 0; i < results.length; ++i) {
       Deinflection result = results[i];
-      for (NormalizedReason normalizedReason
-          in normalizeReasons(deinflectRules)) {
+      for (NormalizedReason normalizedReason in normalizeReasons(
+        deinflectRules,
+      )) {
         for (Variant variant in normalizedReason.variants) {
           if ((result.rules != 0 && (result.rules & variant.rulesIn) == 0) ||
               !result.term.endsWith(variant.kanaIn) ||
@@ -48,12 +53,18 @@ class Deinflector {
             continue;
           }
 
-          results.add(Deinflection(
-              term: result.term.substring(
-                      0, result.term.length - variant.kanaIn.length) +
+          results.add(
+            Deinflection(
+              term:
+                  result.term.substring(
+                    0,
+                    result.term.length - variant.kanaIn.length,
+                  ) +
                   variant.kanaOut,
               rules: variant.rulesOut,
-              reasons: [normalizedReason.reason, ...result.reasons]));
+              reasons: [normalizedReason.reason, ...result.reasons],
+            ),
+          );
         }
       }
     }
@@ -62,17 +73,21 @@ class Deinflector {
 
   List<NormalizedReason> normalizeReasons(reasons) {
     List<NormalizedReason> normalizedReasons = [];
-    for (MapEntry<String, List<DeinflectRule>> reasons
+    for (MapEntry<String, List<JapaneseDeinflectRule>> reasons
         in deinflectRules.entries) {
       List<Variant> variants = reasons.value
-          .map((DeinflectRule rule) => Variant(
+          .map(
+            (JapaneseDeinflectRule rule) => Variant(
               kanaIn: rule.kanaIn,
               kanaOut: rule.kanaOut,
               rulesIn: rulesToRuleFlags(rule.rulesIn),
-              rulesOut: rulesToRuleFlags(rule.rulesOut)))
+              rulesOut: rulesToRuleFlags(rule.rulesOut),
+            ),
+          )
           .toList();
-      normalizedReasons
-          .add(NormalizedReason(reason: reasons.key, variants: variants));
+      normalizedReasons.add(
+        NormalizedReason(reason: reasons.key, variants: variants),
+      );
     }
     return normalizedReasons;
   }
@@ -118,6 +133,6 @@ class Deinflector {
     'vk': 8, // Verb kuru
     'vz': 16, // Verb zuru
     'adj-i': 32, // Adjective i
-    'iru': 64 // Intermediate -iru endings for progressive or perfect tense
+    'iru': 64, // Intermediate -iru endings for progressive or perfect tense
   };
 }

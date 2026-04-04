@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/search/search_result.dart';
-import 'package:immersion_reader/japanese/vocabulary.dart';
+import 'package:immersion_reader/languages/common/vocabulary.dart';
 import 'package:immersion_reader/managers/dictionary/dictionary_manager.dart';
 import 'package:immersion_reader/managers/vocabulary_list/vocabulary_list_manager.dart';
 import 'package:immersion_reader/widgets/common/padding_bottom.dart';
@@ -61,9 +61,9 @@ class _SearchPageState extends State<SearchPage> {
       searchResult!.existingVocabularyIds = await VocabularyListManager()
           .vocabularyListStorage!
           .getExistsVocabularyList([
-        ...searchResult!.exactMatches,
-        ...searchResult!.additionalMatches
-      ]);
+            ...searchResult!.exactMatches,
+            ...searchResult!.additionalMatches,
+          ]);
     }
     setState(() {
       searchResult = searchResult;
@@ -78,15 +78,14 @@ class _SearchPageState extends State<SearchPage> {
     if (VocabularyListManager().vocabularyListStorage != null) {
       if (_vocabularyIsExists(vocabulary)) {
         // remove vocabulary
-        await VocabularyListManager()
-            .vocabularyListStorage!
+        await VocabularyListManager().vocabularyListStorage!
             .deleteVocabularyItem(vocabulary.uniqueId);
         searchResult!.existingVocabularyIds.remove(vocabulary.uniqueId);
       } else {
         // add vocabulary
-        await VocabularyListManager()
-            .vocabularyListStorage!
-            .addVocabularyItem(vocabulary);
+        await VocabularyListManager().vocabularyListStorage!.addVocabularyItem(
+          vocabulary,
+        );
         searchResult!.existingVocabularyIds.add(vocabulary.uniqueId);
       }
       setState(() {
@@ -98,43 +97,57 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-        backgroundColor:
-            CupertinoColors.systemGroupedBackground.resolveFrom(context),
-        child: CustomScrollView(slivers: [
+      backgroundColor: CupertinoColors.systemGroupedBackground.resolveFrom(
+        context,
+      ),
+      child: CustomScrollView(
+        slivers: [
           CupertinoSliverNavigationBar(
             middle: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text('My Dictionary'))),
-            largeTitle: Column(children: [
-              Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text('My Dictionary'),
+              ),
+            ),
+            largeTitle: Column(
+              children: [
+                Padding(
                   padding: const EdgeInsets.only(right: 10),
                   child: CupertinoSearchTextField(
-                      autocorrect: false,
-                      controller: textController,
-                      placeholder: 'Search',
-                      onChanged: handleSearchChange,
-                      onSubmitted: handleSearchSubmission)),
-            ]),
+                    autocorrect: false,
+                    controller: textController,
+                    placeholder: 'Search',
+                    onChanged: handleSearchChange,
+                    onSubmitted: handleSearchSubmission,
+                  ),
+                ),
+              ],
+            ),
           ),
           SliverList(
-              delegate: SliverChildListDelegate([
-            if (searchResult == null)
-              SearchHistorySection(
+            delegate: SliverChildListDelegate([
+              if (searchResult == null)
+                SearchHistorySection(
                   handleSearchWithRedirect: handleSearchWithRedirect,
-                  clearDictionaryHistory: clearDictionaryHistory)
-            else if (searchResult!.exactMatches.isEmpty &&
-                searchResult!.additionalMatches.isEmpty)
-              const SearchNoResultsSection()
-            else
-              PaddingBottom(
+                  clearDictionaryHistory: clearDictionaryHistory,
+                )
+              else if (searchResult!.exactMatches.isEmpty &&
+                  searchResult!.additionalMatches.isEmpty)
+                const SearchNoResultsSection()
+              else
+                PaddingBottom(
                   child: SearchResultsSection(
-                      searchResult: searchResult!,
-                      addOrRemoveFromVocabularyList:
-                          addOrRemoveFromVocabularyList,
-                      parentContext: context))
-          ])),
-        ]));
+                    searchResult: searchResult!,
+                    addOrRemoveFromVocabularyList:
+                        addOrRemoveFromVocabularyList,
+                    parentContext: context,
+                  ),
+                ),
+            ]),
+          ),
+        ],
+      ),
+    );
   }
 }

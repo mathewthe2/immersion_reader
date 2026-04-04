@@ -21,7 +21,7 @@ List<String> hiraToMora(String hira) {
     'ィ',
     'ゥ',
     'ェ',
-    'ォ'
+    'ォ',
   ];
 
   int i = 0;

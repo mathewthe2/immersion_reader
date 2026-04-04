@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'dart:math';
-import 'package:immersion_reader/japanese/utils.dart';
+import 'package:immersion_reader/languages/japanese/japanese_pitch_utils.dart';
 
 String pitchValueToPatt(String word, int pitchValue) {
   int numberOfMora = hiraToMora(word).length;
@@ -79,7 +79,8 @@ String pitchSvg(String word, String patt, {bool silent = false}) {
 String _circle(int x, int y, {bool o = false}) {
   String r = '<circle r="5" cx="$x" cy="$y" style="opacity:1;fill:#000;" />';
   if (o) {
-    r += '<circle r="3.25" cx="$x" cy="$y" style="opacity:1;fill:#fff;"'
+    r +=
+        '<circle r="3.25" cx="$x" cy="$y" style="opacity:1;fill:#fff;"'
         '/>';
   }
   return r;

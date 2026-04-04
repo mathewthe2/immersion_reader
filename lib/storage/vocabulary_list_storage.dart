@@ -1,5 +1,5 @@
 import 'package:immersion_reader/storage/abstract_storage.dart';
-import 'package:immersion_reader/japanese/vocabulary.dart';
+import 'package:immersion_reader/languages/common/vocabulary.dart';
 
 class VocabularyListStorage extends AbstractStorage {
   @override
@@ -22,7 +22,8 @@ class VocabularyListStorage extends AbstractStorage {
   }
 
   Future<List<String>> getExistsVocabularyList(
-      List<Vocabulary> vocabularyList) async {
+    List<Vocabulary> vocabularyList,
+  ) async {
     if (vocabularyList.isEmpty) {
       return [];
     }
@@ -43,16 +44,17 @@ class VocabularyListStorage extends AbstractStorage {
 
   Future<int> addVocabularyItem(Vocabulary vocabulary) async {
     int id = await database!.rawInsert(
-        'INSERT INTO Vocabulary(id, folderId, expression, reading, glossary, tags, sentence) VALUES(?, ?, ?, ?, ?, ?, ?)',
-        [
-          vocabulary.uniqueId,
-          vocabulary.folderId,
-          vocabulary.expression,
-          vocabulary.reading,
-          vocabulary.getCompleteGlossary(),
-          (vocabulary.tags ?? []).join(' '),
-          vocabulary.sentence
-        ]);
+      'INSERT INTO Vocabulary(id, folderId, expression, reading, glossary, tags, sentence) VALUES(?, ?, ?, ?, ?, ?, ?)',
+      [
+        vocabulary.uniqueId,
+        vocabulary.folderId,
+        vocabulary.expression,
+        vocabulary.reading,
+        vocabulary.getCompleteGlossary(),
+        (vocabulary.tags ?? []).join(' '),
+        vocabulary.sentence,
+      ],
+    );
     vocabulary.id = vocabulary.uniqueId;
     vocabularyListCache = [...vocabularyListCache, vocabulary];
     return id;
@@ -62,30 +64,40 @@ class VocabularyListStorage extends AbstractStorage {
     if (database == null) {
       return [];
     }
-    List<Map<String, Object?>> rows = await database!
-        .rawQuery('SELECT * FROM Vocabulary'); // to do: add limit
-    List<Vocabulary> vocabularyList =
-        rows.map((row) => Vocabulary.fromMap(row)).toList();
+    List<Map<String, Object?>> rows = await database!.rawQuery(
+      'SELECT * FROM Vocabulary',
+    ); // to do: add limit
+    List<Vocabulary> vocabularyList = rows
+        .map((row) => Vocabulary.fromMap(row))
+        .toList();
     vocabularyListCache = vocabularyList;
     return vocabularyList;
   }
 
   Future<Vocabulary> updateVocabularyItem(
-      Vocabulary vocabulary, VocabularyInformationKey key, String value) async {
+    Vocabulary vocabulary,
+    VocabularyInformationKey key,
+    String value,
+  ) async {
     if (database == null) {
       return vocabulary;
     }
     String vocabularyId = vocabulary.uniqueId;
     int count = await database!.rawUpdate(
-        'UPDATE Vocabulary SET ${Vocabulary.vocabularyDatabaseMap[key]} = ? WHERE id = ?',
-        [value, vocabularyId]);
+      'UPDATE Vocabulary SET ${Vocabulary.vocabularyDatabaseMap[key]} = ? WHERE id = ?',
+      [value, vocabularyId],
+    );
     vocabulary.setWithInformationKey(key, value);
     if (count > 0 &&
-        [VocabularyInformationKey.expression, VocabularyInformationKey.reading]
-            .contains(key)) {
+        [
+          VocabularyInformationKey.expression,
+          VocabularyInformationKey.reading,
+        ].contains(key)) {
       String newId = vocabulary.uniqueId;
-      await database!.rawUpdate(
-          'UPDATE Vocabulary SET id = ? WHERE id = ?', [newId, vocabularyId]);
+      await database!.rawUpdate('UPDATE Vocabulary SET id = ? WHERE id = ?', [
+        newId,
+        vocabularyId,
+      ]);
     }
     vocabulary.entries =
         []; // remove dictionary entries and only keep glossary; temporary patch for getCompleteGlossary() as glossary updates not showing
@@ -100,8 +112,10 @@ class VocabularyListStorage extends AbstractStorage {
     if (database == null) {
       return 0;
     }
-    int count = await database!
-        .rawDelete('DELETE FROM Vocabulary WHERE id = ?', [vocabularyId]);
+    int count = await database!.rawDelete(
+      'DELETE FROM Vocabulary WHERE id = ?',
+      [vocabularyId],
+    );
     vocabularyListCache = List.from(vocabularyListCache)
       ..removeWhere((vocabulary) => vocabulary.uniqueId == vocabularyId);
     return count;

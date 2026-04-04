@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:immersion_reader/data/database/sql_repository.dart';
-import 'package:immersion_reader/japanese/vocabulary.dart';
+import 'package:immersion_reader/languages/common/vocabulary.dart';
 import 'package:immersion_reader/languages/english/english_translator.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';

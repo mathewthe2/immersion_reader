@@ -3,12 +3,7 @@ import 'package:immersion_reader/dictionary/dictionary_entry.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/dictionary/frequency_tag.dart';
 
-enum VocabularyInformationKey {
-  expression,
-  reading,
-  definition,
-  sentence,
-}
+enum VocabularyInformationKey { expression, reading, definition, sentence }
 
 class Vocabulary {
   String? id; // expressoin_reading
@@ -35,25 +30,27 @@ class Vocabulary {
 
   String get uniqueId => '${expression}_$reading';
 
-  Vocabulary(
-      {this.id,
-      this.expression,
-      this.folderId = 1,
-      this.reading,
-      this.tags,
-      this.glossary = '',
-      this.addons,
-      this.entries = const [],
-      this.sentence = ''});
+  Vocabulary({
+    this.id,
+    this.expression,
+    this.folderId = 1,
+    this.reading,
+    this.tags,
+    this.glossary = '',
+    this.addons,
+    this.entries = const [],
+    this.sentence = '',
+  });
 
   factory Vocabulary.fromMap(Map<String, Object?> map) => Vocabulary(
-      id: map['id'] as String?,
-      folderId: map['folderId'] as int,
-      expression: map['expression'] as String?,
-      reading: map['reading'] as String?,
-      glossary: map['glossary'] as String,
-      tags: (map['tags'] as String).split(' '),
-      sentence: map['sentence'] != null ? map['sentence'] as String : '');
+    id: map['id'] as String?,
+    folderId: map['folderId'] as int,
+    expression: map['expression'] as String?,
+    reading: map['reading'] as String?,
+    glossary: map['glossary'] as String,
+    tags: (map['tags'] as String).split(' '),
+    sentence: map['sentence'] != null ? map['sentence'] as String : '',
+  );
 
   String getFirstGlossary() {
     return getCompleteGlossary().split('\n')[0];
@@ -70,7 +67,7 @@ class Vocabulary {
   String getCompleteGlossary() {
     if (entries.isNotEmpty) {
       return _removeDuplicates([
-        for (DictionaryEntry entry in entries) entry.meanings.join('; ')
+        for (DictionaryEntry entry in entries) entry.meanings.join('; '),
       ]).join('\n');
     } else {
       return glossary;
@@ -90,7 +87,7 @@ class Vocabulary {
 
   List<String> _removeDuplicates(List<String> list) {
     return [
-      ...{...list}
+      ...{...list},
     ];
   }
 
@@ -150,6 +147,6 @@ class Vocabulary {
     VocabularyInformationKey.expression: 'expression',
     VocabularyInformationKey.reading: 'reading',
     VocabularyInformationKey.sentence: 'sentence',
-    VocabularyInformationKey.definition: 'glossary'
+    VocabularyInformationKey.definition: 'glossary',
   };
 }

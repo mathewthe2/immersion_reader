@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:immersion_reader/data/reader/popup_dictionary_theme_data.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/extensions/context_extension.dart';
-import 'package:immersion_reader/japanese/vocabulary.dart';
+import 'package:immersion_reader/languages/common/vocabulary.dart';
 import 'package:immersion_reader/utils/language_utils.dart';
 import 'package:immersion_reader/utils/system_theme.dart';
 import 'package:immersion_reader/widgets/popup_dictionary/dictionary/vocabulary_definition.dart';
@@ -18,13 +18,14 @@ class SearchVocabularyTile extends StatelessWidget {
   final bool vocabularyIsExists;
   final Function(Vocabulary) addOrRemoveFromVocabularyList;
   final BuildContext parentContext;
-  const SearchVocabularyTile(
-      {super.key,
-      required this.vocabulary,
-      required this.textColor,
-      required this.vocabularyIsExists,
-      required this.addOrRemoveFromVocabularyList,
-      required this.parentContext});
+  const SearchVocabularyTile({
+    super.key,
+    required this.vocabulary,
+    required this.textColor,
+    required this.vocabularyIsExists,
+    required this.addOrRemoveFromVocabularyList,
+    required this.parentContext,
+  });
 
   bool hasPitch(Vocabulary vocabulary) {
     return vocabulary.pitchValues.isNotEmpty;
@@ -38,17 +39,20 @@ class SearchVocabularyTile extends StatelessWidget {
     }
     String reading = vocabulary.reading ?? '';
     TextStyle expressionStyle = TextStyle(
-        fontWeight: FontWeight.w400,
-        fontSize: 20,
-        color: dictionaryColorDataMap[DictionaryColor.primaryTextColor]?[
-            isDarkMode()
-                ? PopupDictionaryTheme.dark
-                : PopupDictionaryTheme.light]);
+      fontWeight: FontWeight.w400,
+      fontSize: 20,
+      color:
+          dictionaryColorDataMap[DictionaryColor.primaryTextColor]?[isDarkMode()
+              ? PopupDictionaryTheme.dark
+              : PopupDictionaryTheme.light],
+    );
     if (reading.isEmpty) {
       return Text(expression, style: expressionStyle);
     }
-    List<RubyTextData> furigana =
-        LanguageUtils.distributeFurigana(term: expression, reading: reading);
+    List<RubyTextData> furigana = LanguageUtils.distributeFurigana(
+      term: expression,
+      reading: reading,
+    );
     return RubyText(furigana, style: expressionStyle);
   }
 
@@ -56,66 +60,91 @@ class SearchVocabularyTile extends StatelessWidget {
   Widget build(BuildContext context) {
     PopupDictionaryThemeData popupDictionaryThemeData =
         PopupDictionaryThemeData(
-            popupDictionaryTheme: isDarkMode()
-                ? PopupDictionaryTheme.dark
-                : PopupDictionaryTheme.light);
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      CupertinoListTile(
+          popupDictionaryTheme: isDarkMode()
+              ? PopupDictionaryTheme.dark
+              : PopupDictionaryTheme.light,
+        );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CupertinoListTile(
           trailing: CupertinoButton(
-              onPressed: () => addOrRemoveFromVocabularyList(vocabulary),
-              child: Icon(
-                color:
-                    dictionaryColorDataMap[DictionaryColor.primaryActionColor]?[
-                        isDarkMode()
-                            ? PopupDictionaryTheme.dark
-                            : PopupDictionaryTheme.light],
-                vocabularyIsExists
-                    ? CupertinoIcons.star_fill
-                    : CupertinoIcons.star,
-                size: 20,
-              )),
+            onPressed: () => addOrRemoveFromVocabularyList(vocabulary),
+            child: Icon(
+              color:
+                  dictionaryColorDataMap[DictionaryColor
+                      .primaryActionColor]?[isDarkMode()
+                      ? PopupDictionaryTheme.dark
+                      : PopupDictionaryTheme.light],
+              vocabularyIsExists
+                  ? CupertinoIcons.star_fill
+                  : CupertinoIcons.star,
+              size: 20,
+            ),
+          ),
           title: SizedBox(
-              width: context.screenWidth * 0.9, // space for padding
-              child: RichText(
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textHeightBehavior:
-                      const TextHeightBehavior(applyHeightToLastDescent: false),
-                  text: TextSpan(
-                      style: TextStyle(
-                          fontSize: 20,
-                          height: 1.8, // spacing for second line
-                          color: CupertinoDynamicColor.resolve(
-                              textColor, parentContext)),
-                      children: [
-                        WidgetSpan(child: vocabularyExpression(vocabulary)),
-                        const WidgetSpan(
-                            child: SizedBox(
-                          width: 20,
-                        )),
-                        WidgetSpan(
-                            child: hasPitch(vocabulary)
-                                ? PitchWidget(
-                                    vocabulary: vocabulary,
-                                    themeData: popupDictionaryThemeData)
-                                : const SizedBox())
-                      ])))),
-      if (vocabulary.frequencyTags.isNotEmpty)
-        Padding(
+            width: context.screenWidth * 0.9, // space for padding
+            child: RichText(
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textHeightBehavior: const TextHeightBehavior(
+                applyHeightToLastDescent: false,
+              ),
+              text: TextSpan(
+                style: TextStyle(
+                  fontSize: 20,
+                  height: 1.8, // spacing for second line
+                  color: CupertinoDynamicColor.resolve(
+                    textColor,
+                    parentContext,
+                  ),
+                ),
+                children: [
+                  WidgetSpan(child: vocabularyExpression(vocabulary)),
+                  const WidgetSpan(child: SizedBox(width: 20)),
+                  WidgetSpan(
+                    child: hasPitch(vocabulary)
+                        ? PitchWidget(
+                            vocabulary: vocabulary,
+                            themeData: popupDictionaryThemeData,
+                          )
+                        : const SizedBox(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (vocabulary.frequencyTags.isNotEmpty)
+          Padding(
             padding: const EdgeInsetsDirectional.only(
-                start: 20.0, end: 14.0, bottom: 5.0),
+              start: 20.0,
+              end: 14.0,
+              bottom: 5.0,
+            ),
             child: FrequencyWidget(
-                parentContext: parentContext, vocabulary: vocabulary)),
-      Padding(
+              parentContext: parentContext,
+              vocabulary: vocabulary,
+            ),
+          ),
+        Padding(
           padding: const EdgeInsetsDirectional.only(
-              start: 20.0, end: 14.0, bottom: 5.0),
+            start: 20.0,
+            end: 14.0,
+            bottom: 5.0,
+          ),
           child: SizedBox(
-              width: context.screenWidth * 0.7,
-              child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: VocabularyDefinition(
-                      vocabulary: vocabulary,
-                      popupDictionaryThemeData: popupDictionaryThemeData))))
-    ]);
+            width: context.screenWidth * 0.7,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: VocabularyDefinition(
+                vocabulary: vocabulary,
+                popupDictionaryThemeData: popupDictionaryThemeData,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

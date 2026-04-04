@@ -1,23 +1,24 @@
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
-import 'package:immersion_reader/japanese/draw_pitch.dart';
-import 'package:immersion_reader/japanese/vocabulary.dart';
+import 'package:immersion_reader/languages/japanese/japanese_pitch_drawer.dart';
+import 'package:immersion_reader/languages/common/vocabulary.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
 import 'package:sqflite/sqflite.dart';
 
-class Pitch {
+class JapanesePitch {
   Database? pitchAccentsDictionary;
   SettingsStorage? settingsStorage;
 
-  static final Pitch _singleton = Pitch._internal();
-  Pitch._internal();
+  static final JapanesePitch _singleton = JapanesePitch._internal();
+  JapanesePitch._internal();
 
-  factory Pitch.create(SettingsStorage settingsStorage) {
+  factory JapanesePitch.create(SettingsStorage settingsStorage) {
     _singleton.settingsStorage = settingsStorage;
     return _singleton;
   }
 
   Future<List<List<String>>> getPitchesBatch(
-      List<Vocabulary> definitions) async {
+    List<Vocabulary> definitions,
+  ) async {
     if (settingsStorage == null || definitions.isEmpty) {
       return List.filled(definitions.length, []);
     }
@@ -32,16 +33,18 @@ class Pitch {
         pitchMap['${definition.expression}-${definition.reading}'] = i;
       } else if (definition.expression != null &&
           definition.expression!.isNotEmpty) {
-        whereClauses
-            .add('(expression = ? AND (reading IS NULL OR reading = ""))');
+        whereClauses.add(
+          '(expression = ? AND (reading IS NULL OR reading = ""))',
+        );
         values.add(definition.expression!);
         pitchMap[definition.expression!] = i;
       }
     }
 
     final rows = await settingsStorage!.database!.rawQuery(
-        'SELECT expression, reading, pitch FROM VocabPitch WHERE ${whereClauses.join(' OR ')}',
-        values);
+      'SELECT expression, reading, pitch FROM VocabPitch WHERE ${whereClauses.join(' OR ')}',
+      values,
+    );
 
     List<List<String>> pitches = List.generate(definitions.length, (_) => []);
     for (final row in rows) {
@@ -59,9 +62,11 @@ class Pitch {
     return pitches;
   }
 
-  Future<List<List<String>>> makePitchesBatch(List<Vocabulary> definitions,
-      {PitchAccentDisplayStyle pitchAccentDisplayStyle =
-          PitchAccentDisplayStyle.graph}) async {
+  Future<List<List<String>>> makePitchesBatch(
+    List<Vocabulary> definitions, {
+    PitchAccentDisplayStyle pitchAccentDisplayStyle =
+        PitchAccentDisplayStyle.graph,
+  }) async {
     List<List<String>> result = List.generate(definitions.length, (_) => []);
     List<List<String>> pitchesBatch = await getPitchesBatch(definitions);
     // call _parseRawPitchStrings() here for older pitch dictionaries
@@ -84,8 +89,10 @@ class Pitch {
         switch (pitchAccentDisplayStyle) {
           case PitchAccentDisplayStyle.graph:
             {
-              String svg =
-                  pitchSvg(reading, pitchValueToPatt(reading, pitchValue));
+              String svg = pitchSvg(
+                reading,
+                pitchValueToPatt(reading, pitchValue),
+              );
               result[i].add(svg);
               break;
             }

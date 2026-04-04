@@ -1,5 +1,5 @@
 import 'package:immersion_reader/storage/vocabulary_list_storage.dart';
-import 'package:immersion_reader/japanese/vocabulary.dart';
+import 'package:immersion_reader/languages/common/vocabulary.dart';
 
 class VocabularyListManager {
   VocabularyListStorage? vocabularyListStorage;
@@ -9,7 +9,8 @@ class VocabularyListManager {
   VocabularyListManager._internal();
 
   factory VocabularyListManager.create(
-      VocabularyListStorage vocabularyListStorage) {
+    VocabularyListStorage vocabularyListStorage,
+  ) {
     _singleton.vocabularyListStorage = vocabularyListStorage;
     return _singleton;
   }
@@ -24,15 +25,22 @@ class VocabularyListManager {
   }
 
   Future<Vocabulary> updateVocabularyItem(
-      Vocabulary vocabulary, VocabularyInformationKey key, String value) async {
+    Vocabulary vocabulary,
+    VocabularyInformationKey key,
+    String value,
+  ) async {
     return await vocabularyListStorage?.updateVocabularyItem(
-            vocabulary, key, value) ??
+          vocabulary,
+          key,
+          value,
+        ) ??
         vocabulary;
   }
 
   Future<int> deleteVocabularyItem(Vocabulary vocabulary) async {
-    return await vocabularyListStorage
-            ?.deleteVocabularyItem(vocabulary.uniqueId) ??
+    return await vocabularyListStorage?.deleteVocabularyItem(
+          vocabulary.uniqueId,
+        ) ??
         0;
   }
 

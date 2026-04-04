@@ -1,16 +1,16 @@
 import 'package:immersion_reader/dictionary/frequency_tag.dart';
-import 'package:immersion_reader/japanese/search_term.dart';
+import 'package:immersion_reader/languages/japanese/japanese_search_term.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
 import 'package:sqflite/sqflite.dart';
 
-class Frequency {
+class JapaneseFrequency {
   Database? pitchAccentsDictionary;
   SettingsStorage? settingsStorage;
 
-  static final Frequency _singleton = Frequency._internal();
-  Frequency._internal();
+  static final JapaneseFrequency _singleton = JapaneseFrequency._internal();
+  JapaneseFrequency._internal();
 
-  factory Frequency.create(SettingsStorage settingsStorage) {
+  factory JapaneseFrequency.create(SettingsStorage settingsStorage) {
     _singleton.settingsStorage = settingsStorage;
     return _singleton;
   }
@@ -18,14 +18,15 @@ class Frequency {
   static int frequencyLimit = 1000;
 
   Future<List<List<FrequencyTag>>> getFrequencyBatch(
-      List<SearchTerm> searchTerms) async {
+    List<JapaneseSearchTerm> searchTerms,
+  ) async {
     if (settingsStorage == null || searchTerms.isEmpty) {
       return List.filled(searchTerms.length, []);
     }
     final List<String> whereClauses = [];
     final List<Object?> values = [];
 
-    for (SearchTerm term in searchTerms) {
+    for (JapaneseSearchTerm term in searchTerms) {
       if (term.reading.isNotEmpty) {
         whereClauses.add("""
         (
@@ -76,8 +77,9 @@ class Frequency {
       if (frequencyTagMap.containsKey('${term.text}-${term.reading}')) {
         frequencyTagsForTerm = [
           ...frequencyTagsForTerm,
-          ...frequencyTagMap['${term.text}-${term.reading}']!
-              .map((freq) => FrequencyTag.fromString(freq))
+          ...frequencyTagMap['${term.text}-${term.reading}']!.map(
+            (freq) => FrequencyTag.fromString(freq),
+          ),
         ];
       }
       frequencyTags.add(frequencyTagsForTerm);
