@@ -5,8 +5,9 @@ Map<String, Map<String, String>> acknowledgements = {
     'JMDict':
         'http://www.edrdg.org/wiki/index.php/JMdict-EDICT_Dictionary_Project',
     'Kanjium': 'https://github.com/mifunetoshiro/kanjium',
+    'Online Dictionary Helper': 'https://github.com/ninja33/ODH',
     'ttu Ebook Reader': 'https://github.com/ttu-ttu/ebook-reader',
-    'Yomichan': 'https://github.com/FooSoft/yomichan'
+    'Yomichan': 'https://github.com/FooSoft/yomichan',
   },
   'Packages': {
     'csv': 'https://github.com/close2/csv',
@@ -26,6 +27,7 @@ Map<String, Map<String, String>> acknowledgements = {
     'share_plus': 'https://github.com/fluttercommunity/community',
     'sqflite': 'https://github.com/tekartik/sqflite/tree/master/sqflite',
     'sqflite_migration': 'https://github.com/flutterings/sqflite_migration',
-    'swipeable_page_route': 'https://github.com/JonasWanke/swipeable_page_route'
-  }
+    'swipeable_page_route':
+        'https://github.com/JonasWanke/swipeable_page_route',
+  },
 };

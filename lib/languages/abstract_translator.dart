@@ -22,6 +22,9 @@ abstract class AbstractTranslator {
       case const (LookupLanguage.ja):
         translator = JapaneseTranslator.create(settingsStorage);
         break;
+      case const (LookupLanguage.ko):
+        translator = JapaneseTranslator.create(settingsStorage);
+        break;
     }
     translator.init();
     return translator;

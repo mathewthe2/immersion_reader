@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:immersion_reader/dictionary/frequency_tag.dart';
+import 'package:immersion_reader/languages/common/translator_deinflection.dart';
 import 'package:immersion_reader/languages/japanese/japanese_frequency.dart';
 import 'package:immersion_reader/languages/japanese/japanese_search_term.dart';
 import 'package:immersion_reader/languages/abstract_translator.dart';
@@ -13,23 +14,6 @@ import 'package:immersion_reader/dictionary/dictionary_entry.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
 import 'package:immersion_reader/data/search/search_result.dart';
 import 'package:immersion_reader/storage/settings_storage.dart';
-
-class TranslatorDeinflection {
-  String originalText;
-  String transformedText;
-  String deinflectedText;
-  int rules;
-  List<String> reasons;
-  List<DictionaryEntry> databaseEntries;
-  TranslatorDeinflection({
-    required this.originalText,
-    required this.transformedText,
-    required this.deinflectedText,
-    required this.rules,
-    required this.reasons,
-    required this.databaseEntries,
-  });
-}
 
 class JapaneseTranslator extends AbstractTranslator {
   late Dictionary dictionary;
