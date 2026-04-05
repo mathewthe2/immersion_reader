@@ -45,8 +45,24 @@ class EnglishTranslator extends AbstractTranslator {
     String text, {
     DictionaryOptions? options,
   }) async {
-    // TODO: to implement
-    return SearchResult(exactMatches: [], additionalMatches: []);
+    final parsedText = text.trim().toLowerCase();
+
+    List<Vocabulary> results = await findTerm(parsedText, options: options);
+    List<Vocabulary> exactMatches = [];
+    List<Vocabulary> additionalMatches = [];
+
+    for (Vocabulary result in results) {
+      if (result.reading == parsedText || result.expression == parsedText) {
+        exactMatches.add(result);
+      } else {
+        additionalMatches.add(result);
+      }
+    }
+
+    return SearchResult(
+      exactMatches: exactMatches,
+      additionalMatches: additionalMatches,
+    );
   }
 
   @override
