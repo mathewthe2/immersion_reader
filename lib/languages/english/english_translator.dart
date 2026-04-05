@@ -30,7 +30,8 @@ class EnglishTranslator extends AbstractTranslator {
   }
 
   @override
-  Future<void> loadWordForms() async {
+  Future<void> init() async {
+    // load wordforms. will take a moment
     ByteData bytes = await rootBundle.load(
       p.join("assets", "languages", "english", "wordForms.json"),
     );

@@ -53,6 +53,9 @@ class JapaneseTranslator extends AbstractTranslator {
   static const int longestScanLength =
       20; // assuming longest deinflected entry is < 20 characters
 
+  @override
+  Future<void> init() async {}
+
   Future<List<Vocabulary>> _findGlossaryTerms(
     String text, {
     DictionaryOptions? options,
@@ -318,10 +321,5 @@ class JapaneseTranslator extends AbstractTranslator {
     );
     definitions = definitions.reversed.toList();
     return definitions;
-  }
-
-  @override
-  Future<void> loadWordForms() async {
-    // not needed for Japanese
   }
 }

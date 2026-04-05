@@ -23,6 +23,9 @@ class ChineseTranslator extends AbstractTranslator {
   static const int longestScanLength = 20;
 
   @override
+  Future<void> init() async {}
+
+  @override
   Future<SearchResult> findTermForUserSearch(
     String text, {
     DictionaryOptions? options,
@@ -63,10 +66,5 @@ class ChineseTranslator extends AbstractTranslator {
     );
     final definitions = await dictionary.getVocabularyBatch(entries);
     return definitions;
-  }
-
-  @override
-  Future<void> loadWordForms() async {
-    // not needed for Chinese
   }
 }

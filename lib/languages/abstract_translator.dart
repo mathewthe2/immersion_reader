@@ -17,13 +17,13 @@ abstract class AbstractTranslator {
         translator = ChineseTranslator.create(settingsStorage);
         break;
       case const (LookupLanguage.en):
-        translator = EnglishTranslator.create(settingsStorage, wordForms: {});
-        translator.loadWordForms(); // this will take time
+        translator = EnglishTranslator.create(settingsStorage);
         break;
       case const (LookupLanguage.ja):
         translator = JapaneseTranslator.create(settingsStorage);
         break;
     }
+    translator.init();
     return translator;
   }
 
@@ -39,5 +39,5 @@ abstract class AbstractTranslator {
     DictionaryOptions? options,
   });
 
-  Future<void> loadWordForms();
+  Future<void> init();
 }
