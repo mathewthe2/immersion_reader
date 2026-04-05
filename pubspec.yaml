@@ -108,7 +108,7 @@ flutter:
     # - assets/test/processed.jpg
     # - assets/models/comic.onnx
     # - assets/models/model.onnx
-    # - assets/models/vocab.txt 
+    # - assets/models/vocab.txt
     - assets/languages/english/wordForms.json
     - assets/settings/defaultConfig.json
     - assets/settings/data.db.zip
