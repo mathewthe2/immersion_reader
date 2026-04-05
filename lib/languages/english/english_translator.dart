@@ -44,12 +44,9 @@ class EnglishTranslator extends AbstractTranslator {
     String text, {
     DictionaryOptions? options,
   }) async {
+    // TODO: to implement
     return SearchResult(exactMatches: [], additionalMatches: []);
   }
-
-  // String clean(String text) {
-  //   return text.trim().toLowerCase();
-  // }
 
   @override
   Future<List<Vocabulary>> findTerm(

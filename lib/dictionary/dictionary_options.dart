@@ -2,11 +2,12 @@ enum PitchAccentDisplayStyle { none, graph, number }
 
 enum PopupDictionaryTheme { dark, dracula, light, purple }
 
-enum LookupLanguage { en, ja }
+enum LookupLanguage { zh, en, ja }
 
 const defaultLookupLanguage = LookupLanguage.ja;
 
 const lookupLanguageStringMap = {
+  LookupLanguage.zh: "Chinese (zh)",
   LookupLanguage.en: "English (en)",
   LookupLanguage.ja: "Japanese (ja)",
 };

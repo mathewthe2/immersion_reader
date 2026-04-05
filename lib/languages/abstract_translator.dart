@@ -1,5 +1,6 @@
 import 'package:immersion_reader/data/search/search_result.dart';
 import 'package:immersion_reader/dictionary/dictionary_options.dart';
+import 'package:immersion_reader/languages/chinese/chinese_translator.dart';
 import 'package:immersion_reader/languages/japanese/japanese_translator.dart';
 import 'package:immersion_reader/languages/common/vocabulary.dart';
 import 'package:immersion_reader/languages/english/english_translator.dart';
@@ -12,12 +13,15 @@ abstract class AbstractTranslator {
   }) {
     AbstractTranslator translator;
     switch (lookupLanguage) {
-      case const (LookupLanguage.ja):
-        translator = JapaneseTranslator.create(settingsStorage);
+      case const (LookupLanguage.zh):
+        translator = ChineseTranslator.create(settingsStorage);
         break;
       case const (LookupLanguage.en):
         translator = EnglishTranslator.create(settingsStorage, wordForms: {});
         translator.loadWordForms(); // this will take time
+        break;
+      case const (LookupLanguage.ja):
+        translator = JapaneseTranslator.create(settingsStorage);
         break;
     }
     return translator;

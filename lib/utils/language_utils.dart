@@ -67,7 +67,9 @@ class LanguageUtils {
   /// [multipleRanges] only contains lists that are two element list of
   /// integers.
   static bool isCodePointInRanges(
-      int codePoint, List<List<int>> multipleRanges) {
+    int codePoint,
+    List<List<int>> multipleRanges,
+  ) {
     for (List<int> ranges in multipleRanges) {
       if (isCodePointInRange(codePoint, ranges)) {
         return true;
@@ -82,8 +84,10 @@ class LanguageUtils {
   }
 
   /// Generate Furigana for a [term] given its [reading].
-  static List<RubyTextData> distributeFurigana(
-      {required String term, required String reading}) {
+  static List<RubyTextData> distributeFurigana({
+    required String term,
+    required String reading,
+  }) {
     // DictionaryPair pair = DictionaryPair(term: term, reading: reading);
     // if (_furiganaCache[pair] != null) {
     //   return _furiganaCache[pair]!;
@@ -170,7 +174,9 @@ class LanguageUtils {
             segments.insert(0, RubyTextData(text));
           } else {
             segments.insertAll(
-                0, getFuriganaKanaSegments(text: text, reading: reading));
+              0,
+              getFuriganaKanaSegments(text: text, reading: reading),
+            );
           }
 
           return segments;
@@ -182,14 +188,16 @@ class LanguageUtils {
       List<RubyTextData>? result;
 
       for (int i = reading.length; i >= text.length; --i) {
-        List<RubyTextData>? segments = segmentizeFurigana(
-          reading: reading.substring(i),
-          readingNormalized: readingNormalized.substring(i),
-          groups: groups,
-          groupsStart: groupsStart + 1,
-        );
+        List<RubyTextData>? segments = readingNormalized.length > i
+            ? segmentizeFurigana(
+                reading: reading.substring(i),
+                readingNormalized: readingNormalized.substring(i),
+                groups: groups,
+                groupsStart: groupsStart + 1,
+              )
+            : [];
 
-        if (segments != null) {
+        if (segments != null && segments.isNotEmpty) {
           if (result != null) {
             return null;
           }
